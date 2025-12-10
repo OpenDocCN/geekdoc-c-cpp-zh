@@ -1,0 +1,4400 @@
+- en: <!--yml
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'category: 未分类'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'date: 2025-12-10 18:30:43'
+  prefs: []
+  type: TYPE_NORMAL
+- en: -->
+  prefs: []
+  type: TYPE_NORMAL
+- en: Practical Guide to Bare Metal C++
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 来源：[https://arobenko.github.io/bare_metal_cpp/#_data_serialisation](https://arobenko.github.io/bare_metal_cpp/#_data_serialisation)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Overview
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Once in a while I encounter a question whether C++ is suitable for embedded
+    development and bare metal development in particular. There are multiple articles
+    of how C++ is superior to C, that everything you can do in C you can do in C++
+    with a lot of extras, and that it should be used even with bare metal development.
+    However, I haven’t found many practical guides or tutorials of how to use C++
+    superiority and boost development process compared to conventional approach of
+    using “C” programming language. With this book I hope to explain and show examples
+    of how to implement **soft** real time systems without prioritising interrupts
+    and without any need for complex real time task scheduling. Hopefully it will
+    help someone to get started with using C++ in embedded bare metal development.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This work is licensed under a [Commons Attribution-NonCommercial-ShareAlike
+    4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![cc by nd](img/fb70fd05f48d6bf68393251b58afb451.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Audience
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The primary intended audience of this document is professional C++ developers
+    who want to understand bare metal development a little bit better, get to know
+    how to use their favourite programming language in an embedded environment, and
+    probably bring their C++ skills to an “expert” level. Why **professional**? Because
+    bare metal platform has lots of limitations. In most cases no exceptions and no
+    runtime type information (RTTI) support will be available. In many cases the dynamic
+    memory allocation will also be excluded. In order to be able to use C++ effectively
+    you will have to have deep knowledge of existing C++ idioms, constructs and STL
+    contents. You must know how your favourite data structures are implemented and
+    whether it is possible to reuse them in your environment. If it is not possible
+    to use the STL (or any other library) code “as is”, you will have to implement
+    a reduced version of it, and it is better to know how the library developers implemented
+    the feature and how to make it work with the constrains of your environment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The professional embedded developers with intermediate knowledge of C++ may
+    also find this document useful. They will probably benefit from lots of C++ insights
+    and will have several “eureka” moments with “I didn’t know I could do that!!!”
+    kind of thoughts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If your C++ knowledge doesn’t go much beyond polymorphism and virtual functions,
+    if template meta-programming doesn’t mean anything to you, probably you are not
+    ready to use C++ in the embedded environment and this document will probably be
+    too complex to understand.
+  prefs: []
+  type: TYPE_NORMAL
+- en: I’d like to emphasise the fact that this is NOT a C++ tutorial. There are lots
+    of resources on the web that teach conventional C++ with OS services, exceptions
+    and RTTI. My personal opinion is that you have to master C++ in regular environment
+    before using it effectively in the bare metal world.
+  prefs: []
+  type: TYPE_NORMAL
+- en: C++ Popularity
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: C++ is quite popular in the embedded world of Linux-based embedded systems.
+    However, it is not that popular in bare metal development. Why? Probably because
+    of its complexity. Knowing C++ syntax is not enough. To use it effectively the
+    developer must know what Standard Template Library (STL) provides, what can and
+    what cannot be used when developing for specific platform. STL mastery is also
+    not enough, the developer should have some level of proficiency in template meta-programming.
+    Although there is an opinion that templates are dangerous because of executable
+    code bloating, I think that templates are developer’s friends, but the one must
+    know the dangers and know how to use templates effectively. But again, it requires
+    time and effort to get to know how to do it right.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Another reason why C++ is not used in bare metal development is that software
+    in significant number (if not majority) of projects gets written by hardware developers,
+    at least in its first stages just to make sure the hardware works as expected.
+    The “C” programming language is a natural choice for them. And of course majority
+    of hardware developers lack proficiency in software development. They may have
+    some difficulties writing code of good quality in “C”, not to mention “C++”. After
+    software reaches certain level of complexity it is handed over to software engineers
+    who are not allowed to re-implement it from scratch. They are told something like:
+    “This code almost works, just fix a couple of bugs, implement this short set of
+    features and we’re good to go. Throwing away the existing code is a waste, we
+    do not have time to re-implement it.”'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The last reason, I think, is psychological one. People prefer to be wrong in
+    a group than right by themselves. When majority of bare metal products being developed
+    using “C”, it feels risky and unnatural to choose “C++”, even though the latter
+    is better choice from the technological perspective.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Benefits of C++
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The primary reason to prefer C++ over C is **code reuse**. Thanks to templates,
+    it is much easier to implement generic piece of code that can be reused between
+    projects in C++ than in C. When implementing everything from scratch, then probably
+    using C++ instead of C won’t give any significant advantage in terms of development
+    effort, maybe even extend it. However, once generic components have been developed,
+    the whole development process for next projects will be much easier and faster,
+    thanks to reuse of the former.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Contents of This Book
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: This document introduces several concepts that can be used in bare-metal development
+    as well as shows how they can be implemented using features of latest (at the
+    time of writing) C++11 standard.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The code of generic components is implemented as part of “Embedded C++ Library”
+    project called “embxx” and can be found at [https://github.com/arobenko/embxx](https://github.com/arobenko/embxx).
+    It has GPLv3 licence.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There is also a project that implements multiple simple bare metal applications
+    using [embxx](https://github.com/arobenko/embxx) which can run on RaspberryPi
+    platform. The source code can be found at [https://github.com/arobenko/embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi).
+    It also has GPLv3 licence.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Both projects require gcc version 4.7 or higher, because of C++11 support requirement.
+    They also use [CMake](http://www.cmake.org) as their build system. The code has
+    been tested with following free toolchains:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[GNU Tools for ARM Embedded Processors](https://launchpad.net/gcc-arm-embedded)
+    on Launchpad'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[Sourcery CodeBench Lite Edition](http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition/)'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The whole document is ARM platform centric. At this moment I do not try to cover
+    anything else.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To compile Raspberry Pi example applications in Linux environment use the following
+    steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Checkout [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Create separate build directory and cd to it
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Generate makefiles
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note that last parameter to cmake is relative or absolute path to the root of
+    the source tree. Also note that [embxx](https://github.com/arobenko/embxx) library
+    will be checked out as external git submodule during this process.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Build the applications
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Take the generated image from `<build_dir>/image/<app_name>/kernel.img`
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The CMake provides the following build types, which I believe are self-explanatory:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: None (default)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Debug
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Release
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: MinSizeRel
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: RelWithDebInfo
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'To specify the required build type use `-DCMAKE_BUILD_TYPE=<value>` option
+    of cmake utility:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: If no build type is specified, the default one is **None**, which is similar
+    to **Debug**, but without `-g` compilation option, i.e. no optimisations and no
+    debugging information is generated.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'It is possible to specify the cross-compilation toolchain prefix. By default
+    `arm-none-eabi-` is expected, i.e. `arm-none-eabi-gcc`, `arm-none-eabi-g++` and
+    `arm-none-eabi-as` are used to compile the sources. If these utilities cannot
+    be found in environment search paths, then you should specify the prefix passing
+    `-DCROSS_COMPILE=<prefix>` option to cmake:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'To see the commands used to compile the sources, prefix `make` with `VERBOSE=1`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: The [embxx](https://github.com/arobenko/embxx) library has doxygen generated
+    documentation. It can be found at [release artifacts](https://github.com/arobenko/embxx/releases).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Contribution
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: If you have any suggestions, requests, bug fixes, spelling mistakes fixes, or
+    maybe you feel that some things are not explained properly, please feel free to
+    e-mail me to **arobenko@gmail.com**.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reading Offline
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The source code of this book is hosted on [github](https://github.com/arobenko/bare_metal_cpp_src)
+    and both PDF and HTML versions of this book can be downloaded from the [release_artifacts](https://github.com/arobenko/bare_metal_cpp_src/releases).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Know Your Compiler Output
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: To successfully use C++ language and its libraries in bare metal development
+    it is important to know what binary code compiler generates from the C++ source
+    code. This section will lead you through the process of building simple testing
+    applications and analysis of their binary code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Test Applications
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'The [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project contains
+    several simple test application, which are intended to be used for binary code
+    analysis only and not to be executed on the target platform. This applications
+    reside in [src/test_cpp](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp)
+    directory. In order to properly analyse the code that compiler produces for production
+    environment, let’s compile all the applications in Release mode:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: The listing file of every application will be `<build_dir_somewhere>/src/test_cpp/<app_name>/kernel.list`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Get Simple Application Compiled
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Let’s try to compile simple application of infinite loop, called [test_cpp_simple](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_simple).
+  prefs: []
+  type: TYPE_NORMAL
+- en: A linker script is required to get all the generated objects successfully linked.
+    It states what code/data sections need to be loaded at what addresses as well
+    as defines several symbols that may be required by the sources. [Here](http://www.delorie.com/gnu/docs/binutils/ld_6.html)
+    is a good manual of linker script syntax and [here](https://github.com/arobenko/embxx_on_rpi/blob/master/src/raspberrypi.ld)
+    is the linker script I use to get applications linked for Raspberry Pi platform.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Depending on your compiler, the link may fail because some symbols are missing.
+    For example `__exidx_start` and `__exidx_end` are needed when the application
+    is compiled with exceptions support, or `__bss_start__` and `__bss_end__` may
+    be required by standard library if it contains the code for zeroing `.bss` section.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Every application must have a startup code usually written in Assembler. This
+    startup code must perform the following steps:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Write the interrupt vector table at appropriate location (usually at address
+    0x0000).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Set the stack pointers for every runtime mode.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Zero the .bss section
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Call constructors of global (static) objects (applicable only to C++)
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Call the main function.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: It may happen that compiler generates some startup code for you, especially
+    if you haven’t excluded standard library (stdlib) from compilation. To check whether
+    this is the case, we need to analyse assembler listing of the successfully compiled
+    and linked image binary. All the generated files for a test application will reside
+    in `<build_dir>/src/test_cpp/<app_name>`. The assembler listing file will have
+    `kernel.list` name.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Side note**: the assembler listing can be generated using the following command:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: Open the listing file and look for function with **CRT** string in it. **CRT**
+    stands for “C Run-Time”. When using [this](https://launchpad.net/gcc-arm-embedded)
+    compiler, the function that compiler has generated, is called `_mainCRTStartup`.
+    Let’s take closer look what this function does.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Load the address of the end of the RAM and assign its value to stack pointer
+    (sp).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: Set the value of sp for various modes, the sizes of the stacks are determined
+    by the compiler itself.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: Load the addresses of `__bss_start__` and `__bss_end__` symbols and zero all
+    the area in between.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: Call the `__libc_init_array` function provided by standard library which will
+    initialise all the global objects. It will treat the area between `__init_array_start`
+    and `__init_array_end` as list of pointers to initialisation functions and call
+    them one by one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: Call the main function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: If `main` function returns for some reason, call the exit function, which probably
+    must be implemented as infinite loop or jumping back to the beginning of the startup
+    code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here comes local data
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: The only missing stage in the startup process is updating the interrupt vector
+    table. After the latter is updated properly, it is possible to call the provided
+    `_mainCRTStartup` function. However, if your compiler doesn’t provide such function
+    you have no other choice but to write the whole startup code yourself. [Here](https://github.com/arobenko/embxx_on_rpi/blob/master/src/asm/startup.s)
+    is an example of such code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Please note, that `.bss` section by definition contains uninitialised data that
+    must be zeroed at startup. Even if you don’t have uninitialised variables in your
+    code, zeroing `.bss` is a must have operation. This is because compiler might
+    put variables that are explicitly initialised to 0 into the `.bss` for performance
+    reasons and count on this section being zeroed at startup.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Also note, that pointers to initialisation functions of global variables reside
+    in `.init.array` section. To initialise your global objects you just iterate over
+    all entries in this section and call them one by one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To implement the missing stage for use the following assembler instructions:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Please note that at interrupt vector table that resides at address 0x0000 contains
+    branch instructions to the appropriate handlers, not just addresses of the handlers.
+    Let’s take a closer look how these branching instructions look in our assembler
+    listing file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The branching instructions load address of the interrupt function to “pc” register.
+    However, the address of the function is stored somewhere and compiler generates
+    access to this storage using relative offset to current “pc” register. This is
+    the reason why we have to copy not just the branching instructions, but also the
+    storage area where addresses of interrupt routines are stored:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: Dynamic Memory Allocation
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Let’s try to compile simple application that uses dynamic memory allocation.
+    The [test_cpp_vector](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_vector)
+    application contains the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It may happen that linking operation will fail with multiple referenced symbols
+    being undefined:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The symbols `__exidx_start` and `__exidx_end` are required to indicate start
+    and end of `.ARM.exidx` section. It is used for exception handling. They must
+    be defined in the linker script:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: The dynamic memory allocation will require implementation of `_sbrk` function
+    which will be used to allocate chunks of memory for the C/C++ heap management.
+  prefs: []
+  type: TYPE_NORMAL
+- en: All other symbols will be required to properly support exceptions which are
+    used by C++ heap management system. [Here](https://sourceware.org/newlib/libc.html#Syscalls)
+    is a good resource, that lists all the system calls, the developer may need to
+    implement, to get the application compiled.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now, after successful compilation, take a good look at the size of the images
+    of two sample applications we compiled. The paths are `<build_dir>/src/test_cpp/test_cpp_simple/kernel.img`
+    and `<build_dir>/src/test_cpp/test_cpp_vector/kernel.img`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Side note**: The image can be generated out of elf binary using the following
+    instruction: > arm-none-eabi-objcopy <elf_executable> -O binary <binary_image_path>'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You may notice that size of [test_cpp_vector](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_vector)
+    image is greater by approximately 100K than [test_cpp_simple](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_simple).
+    It is due to C++ heap management and exceptions handling. Let’s try to see what
+    happens to the size of the application if "C++" heap is replaced with “C” one
+    without exceptions. You will have to override all the global C++ operators responsible
+    for memory allocation/deallocation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: Please compile the [test_cpp_vector](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_vector)
+    application again, create its image and take a look at its size. It will be much
+    closer to the size of the [test_cpp_simple](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_simple)
+    image. In fact, you may not even need majority of the system call functions you
+    have implemented before. Try to remove them one by one and see whether linker
+    still reports “undefined reference” to these symbols.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**CONCLUSION**: Usage of C++ heap brings a significant code size overhead.
+    It is a good practice to override implementation of `new` and `delete` operators
+    with usage of `malloc` and `free` when using C++ in bare metal development. Note
+    that in this case, if memory allocation fails [nullptr](http://en.cppreference.com/w/cpp/types/nullptr_t)
+    will be returned instead of throwing [std::bad_alloc](http://en.cppreference.com/w/cpp/memory/new/bad_alloc)
+    exception, so beware of third party C++ libraries that count on exception been
+    thrown and do not check the returned value form [operator new](http://en.cppreference.com/w/cpp/memory/new/operator_new).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Excluding Usage of Dynamic Memory
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The dynamic memory allocation is a core part of conventional C++. However, in
+    some bare-metal products the usage of dynamic memory may be problematic and/or
+    forbidden. The only way (I know of) to make to compilation fail, if dynamic memory
+    is used, is to exclude standard library altogether. With `gcc` compiler it is
+    achieved by using `-nostdlib` compilation option.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Excluding standard library from the compilation will remove the whole C++ run-time
+    environment, which includes dynamic memory (heap) management and exception handling.
+    The implication of using this compilation option will be described later in [Removing
+    Standard Library and C++ Runtime](#compiler_output-nostdlib).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Exceptions
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Exception handling is also a core feature of the conventional C++. However,
+    this feature is considered to be too dangerous, because of unpredictable code
+    execution time and too expensive (in terms of code size) for bare metal platforms.
+    The usage of single throw statement in the source code will result in more than
+    120KB of extra binary code in the final binary image. Just try it yourself with
+    your compiler and see the difference in size of the produced binary images.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It is possible to forbid usage of throw statements by providing certain options
+    to the compiler. For GNU compiler (`gcc`) please use `-fno-exceptions` in conjunction
+    with `-fno-unwind-tables` options. According to [this page](https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_exceptions.html)
+    of `gcc` manual, all the throw statements are supposed to be replaced with call
+    to `abort()`. Unfortunately this information seems to be outdated. The behaviour
+    I see with my latest (at the moment of writing) `gcc` version 4.8 is a bit different.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When the compilation is performed with the options specified above and there
+    is a `throw` statement in the code (for example `throw std::runtime_error("Some
+    error")`), the compilation fails with error message:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'However, all the `throw` statements from standard library are compiled in and
+    cause the whole exception handling support code overhead to be included in the
+    final binary image, despite the compilation options forbidding the exceptions.
+    The test application [test_cpp_exceptions](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_exceptions)
+    has simple code that causes the exceptions to be thrown:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The generated code of the main function looks like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: We also can see there are multiple exception related functions in the produced
+    listing, such as `__cxa_allocate_exception`, `__cxa_throw`, `_ZSt20__throw_out_of_rangePKc`,
+    `_ZSt21__throw_bad_exceptionv`, etc…​ The size of the binary image will also be
+    huge (about 125KB) due to exceptions handling.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'If you would like to use STL classes that may throw exceptions, such as `std::string`,
+    `std::vector`, but refuse to pay the expensive price of extra code space for exceptions
+    handling, you’ll have to do two things. First, make sure that exception conditions
+    never occur in your code run, i.e. if `throw` statement is about to get executed,
+    it means there is a bug in your code. Second, override the definition of all the
+    "__throw_*" functions the compiler tries to use. In order to identify all these
+    functions you’ll have to temporarily disable usage of standard library by passing
+    `-nostdlib` compilation option to your `gcc` compiler. For the code example above
+    the compilation without standard library will fail with error message:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let’s try to override `std::__throw_out_of_range(char const*)`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: This time the compilation will succeed. Let’s now compile the result code with
+    standard library included (without using `-nostdlib` option) and check the binary
+    image size. With my compiler the size is 1.3KB, which is much much better than
+    120KB when exception handling is used.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**CONCLUSION:** Excluding exception handling support is a well known and widely
+    used practice in C++ bare metal development. Even when relevant compilation options
+    are used (`-fno-exceptions` and `-fno-unwind-tables` in GNU compiler), there is
+    still a need to override various `__throw_*` functions used by the compiler and
+    provided by the standard library.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: RTTI
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: '**Run Time Type Information** is also one of the core features of conventional
+    C++. It allows retrieval of the object type information (using [typeid](http://en.cppreference.com/w/cpp/language/typeid)
+    operator) as well as checking the inheritance hierarchy (using [dynamic_cast](http://en.cppreference.com/w/cpp/language/dynamic_cast))
+    at run time. The RTTI is available only when there is a polymorphic behaviour,
+    i.e. the classes have at least one virtual function.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s try to analyse the generated code when RTTI is in use. The [test_cpp_rtti](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_rtti)
+    application in [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project
+    contains the code listed below.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Somewhere in *.cpp file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Somewhere in `main` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE31]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let’s open the listing file and see what’s going on in there. The address of
+    `SomeClass::someFunc()` seems to be `0x8300`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE32]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The virtual table for `SomeClass` class must be somewhere in `.rodata` section
+    and contain address of `SomeClass::someFunc()`, i.e. it must have `0x8300` value
+    inside:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE33]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It is visible that compiler added some more entries to the virtual table in
+    addition to the single virtual function we implemented. The address `0x9c04` is
+    also located in `.rodata` section. It is some type related table:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE34]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Both `0x9c28` and `0x9bf8` are addresses in `.rodata*` section(s). The `0x9bf8`
+    address seems to contain some data:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE35]'
+  prefs: []
+  type: TYPE_PRE
+- en: After a closer look we may decode this data to be `9SomeClass` ascii string.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Address `0x9c28` is in the middle of some type related information table:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE36]'
+  prefs: []
+  type: TYPE_PRE
+- en: How these tables are used by the compiler is of little interest to us. What
+    is interesting is a code size overhead. Lets check the size of the binary image.
+    With my compiler it is a bit more than 13KB.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'For some bare metal platforms it may be undesirable or even impossible to have
+    this amount of extra binary code added to the binary image. The GNU compiler (`gcc`)
+    provides an ability to disable **RTTI** by using `-no-rtti` option. Let’s check
+    the virtual table of `SomeClass` class when this option is used:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE37]'
+  prefs: []
+  type: TYPE_PRE
+- en: The virtual table looks much simpler now with single pointer to the `SomeClass::someFunc()`
+    virtual function. There is no extra code size overhead needed to maintain type
+    information. If the application above is compiled without exceptions (using `-fno-exceptions`
+    and `-fno-unwind-tables`) as well as without RTTI support (using `-no-rtti`) the
+    binary image size will be about 1.3KB which is much better.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, if `-no-rtti` option is used, the compiler won’t allow usage of [typeid](http://en.cppreference.com/w/cpp/language/typeid)
+    operator as well as [dynamic_cast](http://en.cppreference.com/w/cpp/language/dynamic_cast).
+    In this case the developer needs to come up with other solutions to differentiate
+    between objects of different types (but having the same 'ancestor') at run time.
+    There are multiple idioms that can be used, such as using simple C-like approach
+    of `switch`-ing on some type enumerator member, or using polymorphic behaviour
+    of the objects to perform [double dispatch](http://en.wikipedia.org/wiki/Double_dispatch).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**CONCLUSION**: Disabling **R**un **T**ime **T**ype **I**nformation (RTTI)
+    in addition to eliminating exception handling is very common in bare metal C++
+    development. It allows to save about 10KB of space overhead in final binary image.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Removing Standard Library and C++ Runtime
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Due to platform RAM/ROM limitations it may be required to exclude not just
+    support for exceptions and RTTI (compiling with `-fno-exceptions` `-fno-unwind-tables`
+    `-fno-rtti`), but for dynamic memory allocation too. The latter includes passing
+    `-nostdlib` option to the compiler. In case when standard library is excluded,
+    there is no startup code help provided by the compiler, the developer will have
+    to implement all the startup stages:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: updating the interrupt vector table
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: setting up correct stack pointers for all the modes of execution
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: zeroing `.bss` section
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: calling initialisation functions for global objects
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: calling “main” function.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[Here](https://github.com/arobenko/embxx_on_rpi/blob/master/src/asm/startup.s)
+    is an example of such startup code.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: There also may be a need to provide an implementation of some functions or definition
+    of some global symbols. For example, if [std::copy](http://en.cppreference.com/w/cpp/algorithm/copy)
+    algorithm is used to copy multiple objects from place to place, the compiler might
+    decide to use [memcpy](http://en.cppreference.com/w/c/string/byte/memcpy) function
+    provided by the standard library, and as the result the build process will fail
+    with “undefined reference” error. The same way, usage of [std::fill](http://en.cppreference.com/w/cpp/algorithm/fill)
+    algorithm may require [memset](http://en.cppreference.com/w/c/string/byte/memset)
+    function. Be ready to implement them when needed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Another example is having call to [std::bind](http://en.cppreference.com/w/cpp/utility/functional/bind)
+    function with [std::placeholders::_1](http://en.cppreference.com/w/cpp/utility/functional/placeholders),
+    [std::placeholders::_2](http://en.cppreference.com/w/cpp/utility/functional/placeholders),
+    etc. There will be a need to define these placeholders as global symbols:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE38]'
+  prefs: []
+  type: TYPE_PRE
+- en: Even if there is a need for the standard library in the product being developed,
+    it may be a good exercise as well as good debugging technique to temporarily exclude
+    it from the compilation. The compilation will probably fail in the linking stage.
+    The list of missing symbols and/or functions will provide a good indication of
+    what missing functionality is provided by the library. The developer may notice
+    that some components still require exceptions handling, for example, resulting
+    int the binary image being too big.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Static Objects
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Let’s analyse the code that initialises static objects. [test_cpp_statics](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_statics)
+    is a simple application that has two static objects, one is in the global scope,
+    the other is in the function scope.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE39]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Note, that compiler will try to inline the code above if implemented in the
+    same file. To properly analyse the code that initialises global variables, you
+    should put implementation of constructor and `instanceGlobal()`/`instanceLocal()`
+    functions into separate files. If `-nostdlib` option is passed to the compiler
+    to exclude linking with standard library, the compilation of the code above will
+    fail with following error:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE40]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It means that compiler attempts to make static variables initialisation thread-safe.
+    The get it compiled you have to either implement the locking functionality yourself
+    or allow compiler to do it in an unsafe way by adding `-fno-threadsafe-statics`
+    compilation option. I think it is quite safe to use this option in the bare-metal
+    development if you make sure the statics are not accessed in the interrupt context
+    or have been initialised at the beginning of `main()` function before any interrupts
+    are enabled. To grab a reference to such object without any use is enough:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE41]'
+  prefs: []
+  type: TYPE_PRE
+- en: Now, let’s analyse the initialisation of `globalObj`. The `.init.array` section
+    contains pointer to initialisation function `_GLOBAL__sub_I__ZN7SomeObj9globalObjE`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Disassembly of section .init.array:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE42]'
+  prefs: []
+  type: TYPE_PRE
+- en: The initialisation function loads the address of the object and passes it to
+    the constructor of `SomeObj` together with the initialisation parameters (“1”
+    and “2” integer values).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE43]'
+  prefs: []
+  type: TYPE_PRE
+- en: The code above loads the address of the global object (`0x00008168`) into **r0**,
+    and initialisation parameters into **r1** and **r2**, then invokes the constructor
+    of `SomeObj`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Please remember to call all the initialisation functions from `.init.array`
+    section in your startup code before calling the `main()` function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In the linker file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE44]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In the startup code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE45]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'However, if standard library is **NOT** excluded explicitly from the compilation,
+    the `__libc_init_array` provided by the standard library may be used:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE46]'
+  prefs: []
+  type: TYPE_PRE
+- en: Let’s also perform analysis of initialisation of `localObj` in `SomeObj::instanceLocal()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE47]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The code above loads the address of the flag that indicates that the object
+    was already initialised into **r4**, then loads the value into **r3** and checks
+    it using `tst` instruction. If the flag indicates that the object wasn’t initialised,
+    the constructor of the object is called and the flag value is updated prior to
+    returning address of the object. Note that `tst r3, #1` instruction performs binary
+    **AND** between value **r3** and integer value **#1**, then next `bne` instruction
+    performs branch if result is not 0, i.e. the object was already initialised.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**CONCLUSION**: Access to global objects are a bit cheaper than access to local
+    static ones, because access to the latter involves a check whether the object
+    was already initialised.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Custom Destructors
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'And what about destruction of static objects with non-trivial destructors?
+    Let’s add a destructor to the above class and try to compile:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE48]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Somewhere in *.cpp file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE49]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This time the compilation will fail with following errors:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE50]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'According to [this](http://infocenter.arm.com/help/topic/com.arm.doc.ihi0041d/IHI0041D_cppabi.pdf)
+    document, the `__aeabi_atexit` function is used to register pointer to the destructor
+    function together with pointer to the relevant static object to be destructed
+    after `main` function returns. The reason for this behaviour is that these objects
+    must be destructed in the opposite order to which they were constructed. The compiler
+    cannot know the exact construction order for local static objects. There may even
+    be some static objects are not constructed at all. The `__dso_handle` is a global
+    pointer to the current address where the next **{destructor_ptr, object_ptr}**
+    pair will be stored. The `main` function of most bare metal applications is not
+    supposed to return and global/static objects will not be destructed. In this case
+    it will be enough to implement the required function the following way:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE51]'
+  prefs: []
+  type: TYPE_PRE
+- en: However, if your `main` function returns and then the code jumps back to the
+    initialisation/reset routine, there is a need to properly perform destruction
+    of global/static objects. You’ll have to allocate enough space to store all the
+    necessary **{destructor_ptr, object_ptr}** pairs, then in `__aeabi_atexit` function
+    store the pair in the area pointed by `__dso_handle`, while incrementing value
+    of later. Note, that `dso_handle` parameter to the `__aeabi_atexit` function is
+    actually a pointer to the global `__dso_handle` value. Then, when the `main` function
+    returns, invoke the stored destructors in the opposite order while passing addresses
+    of the relevant objects as their first arguments.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To verify all the stated above let’s take a look again at the generated code
+    of initialisation function (after the destructor was added):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE52]'
+  prefs: []
+  type: TYPE_PRE
+- en: Indeed, the call to the constructor immediately followed by the call to `__aeabi_atexit`
+    with address of the object in **r0** (first parameter), address of the destructor
+    in **r1** (second parameter) and address of `__dso_handle` in **r2** (third parameter).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**CONCLUSION**: It is better to design the “main” function to contain infinite
+    loop and never return to save the implementation of destructing global/static
+    objects functionality.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Abstract Classes
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The next thing to test is having abstract classes with pure virtual functions
+    while excluding linkage to standard library (using `-nostdlib` compilation option).
+    Below is an excerpt from [test_cpp_abstract_class](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_abstract_class)
+    application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE53]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Somewhere in the “main” function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE54]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The compilation will fail with following errors:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE55]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `__cxa_pure_virtual` is a function, address of which compiler writes in
+    the virtual table when the function is pure virtual. It may be called due to some
+    unnatural pointer abuse or when trying to invoke pure virtual function in the
+    destructor of the abstract base class. The call to this function should never
+    happen in the normal application run. If it happens it means there is a bug. It
+    is quite safe to implement this function with infinite loop or some way to report
+    the error to the developer, by flashing leds for example.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE56]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The requirement for `operator delete(void*)` is quite strange though, there
+    is no dynamic memory allocation in the source code. It has to be investigated.
+    Let’s stub the function and check the output of the compiler:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE57]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The virtual tables for the classes reside in `.rodata` section:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE58]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The last entry for both classes has the address of `AbstractBase::nonOverridenFunc`
+    function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE59]'
+  prefs: []
+  type: TYPE_PRE
+- en: The third entry in the virtual table of **Derived** class has the address of
+    `Derived::func` function, while the third entry in the virtual table of **AbstractBase**
+    class has the address of `__cxa_pure_virtual`, just like expected.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE60]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The first two entries in the virtual tables point to two different implementations
+    of the destructor. The first entry has the address of normal destructor implementation,
+    and the second one has an address of the second destructor implementation, that
+    invokes operator delete (has `_ZdlPv` symbol) after the destruction of the object:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE61]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It seems that when there is a virtual destructor, the compiler will have to
+    support direct invocation of the destructor as well as usage of operator delete.
+    In case of the former the compiler will use the first entry in the virtual table
+    for the destructor invocation, and in case of the latter the compiler will use
+    the second entry. Let’s try to add the following lines to our `main` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE62]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The compiler will add the following instructions to the `main` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE63]'
+  prefs: []
+  type: TYPE_PRE
+- en: The address of the virtual table is written into **r3**, then value of **r3**
+    is overwritten with address of the destructor function to call, and the call is
+    executed using `blx` instruction. The first invocation takes the address of destructor
+    function from the first entry of virtual table, while the second invocation takes
+    the address from second entry (offseted by `#4`). This is just like expected.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**CONCLUSION**: Having virtual destructor may require an implementation of
+    `operator delete(void*)` even if there is no dynamic memory allocation.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Templates
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Templates are notorious for the code bloating they produce. Some organisations
+    explicitly forbid usage of templates in their internal C++ coding standards. However,
+    templates is a very powerful tool, it is very difficult (if not impossible) to
+    write generic source code, that can be reused in multiple independent projects/platforms
+    without using templates, and without incurring any significant performance penalties.
+    I think developers, who are afraid or not allowed to use templates, will have
+    to implement the same concepts/modules over and over again with minor differences,
+    which are project/platform specific. To properly master the templates we have
+    to see the Assembler code duplication, that is generated by the compiler when
+    templates are used. Let’s try to compile a simple application [test_cpp_templates](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_templates)
+    that uses templated function with different type of input parameters:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE64]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'You may notice that function `func` is called with two parameters, one of type
+    `int` the other of type `unsigned`. These types have both the same size and should
+    generate more or less identical code. Let’s take a look at the generated code
+    of `main` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE65]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Yes, indeed, there are two calls to two different functions. However, the assembler
+    code of these functions is almost identical. Let’s also try to reuse the same
+    function with the same types but from different source file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE66]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The generated code is:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE67]'
+  prefs: []
+  type: TYPE_PRE
+- en: We see that the same functions at the same addresses are called, i. e. the linker
+    does its job of removing duplicates of the same functions from different object
+    files.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let’s also try to wrap the same function with a class and add one more template
+    argument:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE68]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Please note the dummy template parameter `TDummy` that is not used. Now, we
+    add two more calls to the `main` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE69]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Note, that the functionality of the calls is identical. The only difference
+    is the dummy template argument. Let’s take a look at the generated code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE70]'
+  prefs: []
+  type: TYPE_PRE
+- en: The compiler generated calls to two different functions, binary code of which
+    is identical.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**CONCLUSION**: The templates indeed require extra care and consideration.
+    It is also important not to overthink things. The well known notion of “Do not
+    do premature optimisations. It is much easier to make correct code faster, than
+    fast code correct.” is also applicable to code size. Do not try to optimise your
+    template code before the need arises. Make it work and work correctly first.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tag Dispatching
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The [tag dispatching](http://www.generic-programming.org/languages/cpp/techniques.php#tag_dispatching)
+    is a widely used idiom in C++ development. It used extensively in the following
+    chapters of this book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s try to compile [test_cpp_tag_dispatch](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_tag_dispatch)
+    application in [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project
+    and take a look at the code generated by the compiler.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE71]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Somewhere in the `main` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE72]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The code generated by the compiler looks like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE73]'
+  prefs: []
+  type: TYPE_PRE
+- en: Although the `Tag1` and `Tag2` are empty classes, the compiler still uses integer
+    value `0` as a first parameter to the function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let’s try to optimise this redundant `mov r0, #0` instruction away by making
+    it visible to the compiler that the tag parameter is not used:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE74]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Somewhere in the `main` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE75]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The code generated by the compiler looks like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE76]'
+  prefs: []
+  type: TYPE_PRE
+- en: In this case the compiler optimises away the tag parameter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Based on the above we may make a **CONCLUSION**: When the [tag dispatching](http://www.generic-programming.org/languages/cpp/techniques.php#tag_dispatching)
+    idiom is used, the function that receives a dummy (tag) parameter should be a
+    simple inline wrapper around other function that implements the required functionality.
+    In this case the compiler will optimise away the creation of tag object and will
+    call the wrapped function directly.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Basic Needs
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Prior to describing various embedded (bare metal) development concepts I’d like
+    to cover several basic needs that, I think, most developers will have to use in
+    their products.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Assertion
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: One of the basic needs during the development is having an ability to test various
+    assumptions and invariants in runtime when compiling the application in DEBUG
+    mode and remove the checks when compiling the application in RELEASE mode. The
+    standard C++ reuses `assert()` macro from standard C library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE77]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `assert()` macro evaluates to nothing in case `NDEBUG` symbol is defined,
+    otherwise it evaluates the condition. If the condition doesn’t return `true`,
+    it calls the `__assert_fail` function, provided by standard library, which in
+    turn calls `printf` to print error message to standard output followed by the
+    call to `abort` function, which is supposed to terminate an application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Both `printf` and `abort` functions are provided by standard library. However,
+    `printf` will require the implementation of `_write` function to print characters
+    to the debug output terminal, and `abort` will require implementation of `_exit`
+    function to terminate the application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'If standard library is excluded from the compilation (using `-nostdlib` compilation
+    option), the compilation will fail with `undefined reference to __assert_func`
+    error message. The developer will have to implement this function with correct
+    signature. To retrieve the correct signature you will have to open `assert.h`
+    standard header provided by your compiler. It will be something like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE78]'
+  prefs: []
+  type: TYPE_PRE
+- en: The attribute specifies that this function doesn’t return, so the compiler will
+    generate a call to it without setting any address to return to.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The conclusion from all the stated above is that using standard `assert()` macro
+    is possible, but somewhat inflexible. It is possible to access only global variables
+    from the functions described above, i.e. if there is a need to flash a led to
+    indicate assertion failure, then its control must be accessible through global
+    variables, which is a bit ugly. Another disadvantage of this approach is that
+    there are no convenient means to change the behaviour of the assert failure functionality
+    and after a while restore the original behaviour. Such behaviour may be helpful
+    to better identify the location of the assert that has failed. For example, override
+    the default assert failure behaviour with activating a specific led at the entrance
+    of some function, and restore the original assertion failure behaviour when function
+    returns.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Below is a short description of a better way to handle assert checks and failures.
+    The code is in [embxx](https://github.com/arobenko/embxx) library and can be reviewed
+    [here](https://github.com/arobenko/embxx/blob/master/embxx/util/Assert.h).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To resolve the problems described above and to handle the assertions C++ way
+    we will have to create generic assertion failure handling abstract class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE79]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'When implementing custom project specific assertion failure behaviour inherit
+    from the class above:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE80]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'To manage an object of the class above, we will have to create a singleton
+    class with static instance. It will store a pointer to the currently registered
+    assertion failure behaviour:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE81]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `reset` member function registers new object that manages assertion failure
+    behaviour and returns previous one, which can be used later to restore original
+    behaviour.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We will require a new macro to check assertion condition and invoke registered
+    failing behaviour:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE82]'
+  prefs: []
+  type: TYPE_PRE
+- en: Then in case of condition check failure, the `GASSERT()` macro checks whether
+    any custom assertion failure functionality registered and invokes its virtual
+    `fail` function. If not, then infinite loop is executed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To complete the whole picture we have to provide a convenient way to register
+    new assertion failure behaviours:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE83]'
+  prefs: []
+  type: TYPE_PRE
+- en: From now on, all we have do is to instantiate object of `EnableAssert` with
+    the behaviour that we want. Note that constructor of `EnableAssert` class can
+    receive any number of parameters and forwards them to the constructor of the internal
+    `assert_` object.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE84]'
+  prefs: []
+  type: TYPE_PRE
+- en: If there is a need to temporarily override the previous assertion failure behaviour,
+    just create another `EnableAssert` object. Once the latter is out of scope (the
+    object is destructed), previous behaviour will be restored.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE85]'
+  prefs: []
+  type: TYPE_PRE
+- en: '**SUMMARY**: The approach described above provides a flexible and convenient
+    way to control how the failures of various debug mode checks are reported to the
+    developer. All the modules in [embxx](https://github.com/arobenko/embxx) library
+    use the `GASSERT()` macro to verify their pre- and post-conditions as well as
+    internal assumptions.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Callback
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'As has been mentioned in the [Benefits of C++](#overview-benefits) chapter,
+    the main reason for choosing C++ over C is code reuse. When having some generic
+    piece of code that tries to use platform specific code and needs to receive some
+    kind of notifications from the latter, the need for some generic callback facility
+    arises. C++ provides [std::function](http://en.cppreference.com/w/cpp/utility/functional/function)
+    class for this purpose, it is possible to provide any callable object, such as
+    [lambda function](http://en.cppreference.com/w/cpp/language/lambda) or [std::bind](http://en.cppreference.com/w/cpp/utility/functional/bind)
+    expression:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE86]'
+  prefs: []
+  type: TYPE_PRE
+- en: There are two problems with using [std::function](http://en.cppreference.com/w/cpp/utility/functional/function).
+    It uses dynamic memory allocation and throws exception in case the function is
+    invoked without assigning callable object to it first. As a result [std::function](http://en.cppreference.com/w/cpp/utility/functional/function)
+    may be not suitable for use in most of the bare metal projects. We will have to
+    implement something similar, but without dynamic memory allocations and without
+    exceptions. Below is some short explanation of how to implement such a function
+    class. The implementation of the `StaticFunction` class is part of [embxx](https://github.com/arobenko/embxx)
+    library and its full code listing can be viewed [here](https://github.com/arobenko/embxx/blob/master/embxx/util/StaticFunction.h).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The restriction of inability to use dynamic memory allocation requires to use
+    additional parameter of storage size:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE87]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It seems that in most cases the callback object will contain pointer to member
+    function, pointer to handling object and some additional single parameter. This
+    is the reason for specifying the default storage space as equal to the size of
+    3 pointers. The “signature” template parameter is exactly the same as with [std::function](http://en.cppreference.com/w/cpp/utility/functional/function)
+    plus an optional storage area size template parameter:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE88]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'To properly implement `operator()`, there is a need to split the signature
+    into the return type and rest of parameters. To achieve this the following template
+    specialisation trick is used:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE89]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `StaticFunction` object needs an ability to store any type of callable
+    object as its internal data member and then invoke it in its `operator()` member
+    function. To support this functionality we will require additional helper classes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE90]'
+  prefs: []
+  type: TYPE_PRE
+- en: The callable object that will be stored in `handler_` data area and it will
+    be of type `InvokerBound<…​>` while invoked through interface of its base class
+    `Invoker`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There is a need to properly define `StorageType` for the `handler_` data member:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE91]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note that `StorageType` is an uninitialised storage with alignment required
+    to be able to store object of type `Invoker`. The `InvokerBound<…​>` class will
+    have the same alignment requirements as its base class `Invoker`, so it is safe
+    to store any object of type `InvokerBound<…​>` in the same area, as long as its
+    size doesn’t exceed the size of the `StorageType`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Also note that the actual size of the storage area is the requested `TSize`
+    plus the area required to store the object of `Invoker` class. The size of `InvokerBound<…​>`
+    object is size of its private member plus the size of its base class `Invoker`,
+    which will contain a single (hidden) pointer to its virtual table.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Any callable object may be assigned to `StaticFunction` using either constructor
+    or assignment operator:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE92]'
+  prefs: []
+  type: TYPE_PRE
+- en: Please pay attention that assignment operator has to call the destructor of
+    previous function, that was assigned to it, before storing a new callable object
+    in its place.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Also note that there are compile time checks using [static_assert](http://en.cppreference.com/w/cpp/language/static_assert)
+    that the size of the object to store in the storage area doesn’t exceed the allocated
+    size as well as alignment requirements still hold.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The invocation of the function will be implemented like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE93]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note that there are no exceptions in use and then the “must have” pre-condition
+    for function invocation is that a valid callable object has been assigned to it.
+    That is the reason for assertion check in the body of the function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To complete the implementation of `StaticFunction` class the following logic
+    must also be implemented:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Check whether the `StaticFunction` object is valid, i.e has any callable object
+    assigned to it.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Default construction - the function is invalid and cannot be invoked.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Copy/move construction + copy/move assignment functionality.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Clearing the function (invalidating).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Supporting both const and non-const `operator()` in the assigned callable object.
+    It requires both const and non-const `operator()` implementation of `StaticFunction`
+    as well as its internal `Invoker` and `InvokerBound<…​>` classes.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: All this I leave as an exercise to to the reader. To see the complete implementation
+    of the functionality described above open [this](https://github.com/arobenko/embxx/blob/master/embxx/util/StaticFunction.h)
+    link.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Data Serialisation
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Another essential need in embedded development is an ability to serialise data.
+    Most embedded products read data from some kind of sensors and/or communicate
+    with the control centre via some wired or wireless serial interface.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Before data is sent via a communication link, it must be serialised into a buffer,
+    and when received, deserialised from bytes also in a different buffer on the other
+    end. The data may be serialised using big or little endian, based on the communication
+    protocol used. The [embxx](https://github.com/arobenko/embxx) library provides
+    a generic code with an ability to read and write integral values from/to any buffer.
+    [Here](https://github.com/arobenko/embxx/blob/master/embxx/io/access.h) is the
+    source code for the functions described below.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The functions below (defined in namespace `embxx::io`) support read and write
+    of an integral value using any type of iterator:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE94]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'These functions receive reference to iterator of a buffer/container. When bytes
+    are read/written from/to the buffer, the iterator is incremented. The iterator
+    can be of any type as long as it supports dereferencing (`operator*()`), pre-increment
+    (`operator++`) and assignment to dereferenced object. For example, serialising
+    several values of various lengths into the array using big endian:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE95]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The contents of the buffer will be: `{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+    0x08, 0x09, 0x0a, 0x0b, 0x0c 0x0d, 0x0e, …}`'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Similar code of reading values from the buffer would be:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE96]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Another example is serialising data into a container that has `push_back()`
+    member functions, such as [std::vector](http://en.cppreference.com/w/cpp/container/vector)
+    or circular buffer. The data will be added at the end of the existing one:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE97]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Depending on a communication protocol there may be a need to serialise only
+    part of the value. For example some field of communication protocol is defined
+    having only 3 bytes. In this case the value will probably be stored in a variable
+    of `std::uint32_t` type. There is similar set of functions, but with additional
+    template parameter that specifies how many bytes to read/write:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE98]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'So to read/write 3 bytes will look like the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE99]'
+  prefs: []
+  type: TYPE_PRE
+- en: Sometimes the endianness of data serialisation may depend on some traits class
+    parameters. In order to be able to choose “Little” or “Big” variant functions
+    at compile time instead of runtime the tag parameter dispatch idiom must be used.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There are similar read/write functions, but instead of being differentiated
+    by name they have additional tag parameter to specify the endianness of serialisation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE100]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `traits::endian::Big` and `traits::endian::Little` are defined as empty
+    tag classes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE101]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'For example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE102]'
+  prefs: []
+  type: TYPE_PRE
+- en: So the code above is not aware what endianness is used to serialise the data.
+    It is provided as internal type of `Traits` class named `Endianness`. The compiler
+    will generate the call to appropriate `writeData()` function, which in turn forward
+    it to `writeBig()` or `writeLittle()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To serialise data using big endian the traits should be defined as following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE103]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The interface described above is very easy and convenient to use and quite
+    easy to implement using straightforward approach. However, any variation of template
+    parameters create an instantiation of new binary code which may create significant
+    code bloat if not used carefully. Consider the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Read/write of signed vs unsigned integer values. The serialisation/deserialisation
+    code is identical for both cases, but won’t be considered as such when instantiating
+    the functions. To optimise this case, there is a need to implement read/write
+    operations only for unsigned value, while the “signed” functions become wrappers
+    around the former. Don’t forget a sign extension operation when retrieving partial
+    signed value.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The read/write operations are more or less the same for any length of the values,
+    i.e of any types: `(unsigned) char`, `(unsigned) short`, `(unsigned) int`, etc…​
+    To optimise this case, there is a need for internal function that receives length
+    of serialised value as a run time parameter, while the functions described above
+    are mere wrappers around it.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Usage of the iterators also require caution. For example reading values may
+    be performed using regular `iterator` as well as `const_iterator`, i.e. iterator
+    pointing to const values. These are two different iterator types that will duplicate
+    the “read” functionality if both of them are used:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[PRE104]'
+  prefs: []
+  type: TYPE_PRE
+- en: It is possible to optimise the case above for random access iterator by using
+    temporary pointers to unsigned characters to read the required value. After retrieval
+    is complete, just increment the value of the passed iterator with number of characters
+    read.
+  prefs: []
+  type: TYPE_NORMAL
+- en: All the consideration points stated above require quite complex implementation
+    of the serialisation/deserialisation functionality with multiple levels of abstraction
+    which is beyond the scope of this book. It would be a nice exercise to try and
+    implement it yourself. Another option is to use the code as is from [embxx](https://github.com/arobenko/embxx)
+    library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Static (Fixed Size) Queue
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: There is almost always a need to have some kind of a queuing functionality.
+    A circular buffer is a good compromise between speed of execution and memory consumption
+    (vs [std::deque](http://en.cppreference.com/w/cpp/container/deque) for example).
+    If your product allows usage of dynamic memory allocation and/or exceptions than
+    [boost::circular_buffer](http://www.boost.org/doc/libs/1_55_0/doc/html/circular_buffer.html)
+    can be a good choice. However, if using dynamic memory allocation is not an option,
+    then there is no other choice but to implement a circular buffer with maximum
+    length known at compile time over C array or [std::array](http://en.cppreference.com/w/cpp/container/array).
+    [Here](https://github.com/arobenko/embxx/blob/master/embxx/container/StaticQueue.h)
+    is the implementation of `StaticQueue` functionality from [embxx](https://github.com/arobenko/embxx)
+    library. I won’t go into too much details or explain every line of code. Instead
+    I will emphasise several important points that must be taken into consideration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Invalid operations
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: There can always be an attempt to perform an invalid operation, such as access
+    an element outside the queue boundaries, or inserting new element when the queue
+    is full, or popping an element when queue is empty, etc…​ The conventional way
+    in C++ to handle these cases is to throw an exception. However, in embedded and
+    especially in bare metal programming it’s not an option. The right way to handle
+    these errors would be asserting on pre-conditions. The `StaticQueue` implementation
+    in [embxx](https://github.com/arobenko/embxx) library uses `GASSERT()` macro described
+    earlier. The checks will be compiled only in non-Release mode (`NDEBUG` not defined)
+    and in case of the failure it will invoke the project specific code the developer
+    has written to report assertion failure.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE105]'
+  prefs: []
+  type: TYPE_PRE
+- en: Construction/Destruction of the elements
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: When the queue is created it doesn’t contain any elements. However, it must
+    contain uninitialised space where elements can be created in the future. The space
+    must be of sufficient size and be properly aligned.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE106]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'When adding a new element to the queue, the “in-place” construction must be
+    performed:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE107]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'When an element removed from the queue, explicit destruction must be performed:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE108]'
+  prefs: []
+  type: TYPE_PRE
+- en: Iteration
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'There is often a need to iterate over the elements of the queue. The standard
+    sequential random access containers such as [std::array](http://en.cppreference.com/w/cpp/container/array),
+    [std::vector](http://en.cppreference.com/w/cpp/container/vector) or [std::deque](http://en.cppreference.com/w/cpp/container/deque)
+    may use a simple pointer (or a wrapper class around it) as iterator because address
+    of every element is greater than address of its predecessor. Incrementing a pointer
+    during the iteration would be enough to get an access to the next element. However,
+    in circular queue/buffer there may be a case when address of the beginning of
+    the queue is greater than address of the end of the queue:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Non linearised queue image](img/0cfcbd3711b7841ea9c52e2ab0e488f6.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'In this case having a simple pointer as iterator is not enough. There is a
+    need to check a wrap-around case when incrementing an iterator. However always
+    using this kind of iterator may incur undesired performance penalties. That is
+    when “leniarisation” concept pops up. When the queue is linearised, address of
+    every element is greater than the address of its predecessor and simple pointer
+    (linearised iterator) may be used to iterate over all the elements in the queue:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Linearised queue image](img/12344728af247c8d2f610f4a46738ce7.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'When the queue is not linearised, it either must be linearised (may be a bit
+    expensive, depending on the size of the queue) or iterate over all the elements
+    in two stages: first on the first (top) part, then on the second (bottom) part.
+    The `StaticQueue` implementation in [embxx](https://github.com/arobenko/embxx)
+    library provides two functions `arrayOne()` and `arrayTwo()` that return these
+    two ranges.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'However, there may be a need to read/write data from/to the queue without worrying
+    about the wrap-around case. Good example of such case would be having such circular
+    queue/buffer to contain data read from some communication interface, such as serial
+    port, and there is a need to deserialise 4 byte value from this buffer. The most
+    convenient way would be to use `embxx::io::readBig<4>(iter)` described previously.
+    To properly support this case we will need to have a bit more expensive iterator
+    that properly handles wrap-around when incremented and/or dereferenced. This is
+    the reason for having two types of iterators for `StaticQueue`: `LinearisedIterator`
+    and `Iterator`. The former is a simple `typedef` for a pointer which can be used
+    only on the linearised part of the queue and the latter may be used when iterating
+    without any knowledge whether there is a wrap-around case during the iteration.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When defining a new custom iterator class, there is a need to properly support
+    [std::iterator_traits](http://en.cppreference.com/w/cpp/iterator/iterator_traits)
+    for it. The traits are used to implement functions such as [std::advance](http://en.cppreference.com/w/cpp/iterator/advance)
+    or [std::distance](http://en.cppreference.com/w/cpp/iterator/distanc)). The requirement
+    is to define the following internal types:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE109]'
+  prefs: []
+  type: TYPE_PRE
+- en: Copying queues
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Care must be taken when copying/moving elements between the queues. The compiler
+    is not aware of the right type of the elements that are stored in the queue as
+    well as number of valid elements in the queue is unknown at compile time. When
+    using default copy/move constructor and/or assignment operator the compiler will
+    generate a code that copies raw bytes in the storage space between the queues.
+    It may work for the basic type or POD structs, but it is not the right way to
+    do the copying. There is a need to use copy/move constructors in case of constructions
+    or copy/move assignment operator in case of assignment of the valid elements and
+    not copy/move garbage data from unused space.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In addition to regular copy/move constructors and assignment operators, there
+    may also be a need to provide copy/move construction and/or copy/move assignment
+    from the queue that contains elements of the same type, but has different capacity:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE110]'
+  prefs: []
+  type: TYPE_PRE
+- en: Optimising code generation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'As we all know and confirmed in [Templates](#compiler_output-templates) chapter,
+    any difference in the value of template parameter will create new instantiation
+    of executable code. It means that having multiple queues of the same type, but
+    different sizes may bloat the executable in an unacceptable way. The best way
+    to solve this problem would be defining a base class that is templated only on
+    the type of the stored values and implements the whole logic of the queue while
+    the derived `StaticQueue` class will just provide the necessary storage area and
+    reuse (wrap) all the functions implemented in the base class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE111]'
+  prefs: []
+  type: TYPE_PRE
+- en: There are ways to optimise even more. Let’s take queues of `int` and `unsigned`
+    values for example. They have the same size and from the queue implementation
+    perspective there is no difference in handling them, so it would be a waste of
+    code space to allow the instantiation of the same binary code for the queue to
+    handle both of these types. Using template specialisation tricks we may implement
+    queues of signed integral types to be a mere wrappers around queues that contain
+    unsigned integral types. Additional example would be storage of the pointers to
+    any types. It would be wise to specialise `StaticQueue` of pointers to be a wrapper
+    around queue of `void*` pointers or even integral unsigned values of the same
+    size as pointers (such as `std::uint32_t` on 32 bit architecture or `std::uint64_t`
+    on 64 bit architecture).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thanks to the template specialisation there are virtually no limits to optimisations
+    we may apply. However I would like to remind you the well known saying “Premature
+    optimisations are the root of all evil”. Please avoid optimising your `StaticQueue`
+    implementation until the need arises.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Basic Concepts
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: As already mentioned in [Overview](#overview), this book explains and shows
+    examples of how to implement **soft** real time systems. This chapter will explain
+    basic concepts of asynchronous event handling as well as how to implement required
+    functionality without complex state machines, and/or task scheduing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Event Loop
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Most bare-metal embedded products require only two modes of operation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Interrupt (or service) mode
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Non-interrupt (or user) mode.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The job of the code, that is executed in interrupt mode, is to respond to hardware
+    events (interrupts) by performing minimal job of updating various status registers
+    and schedule proper handling of event (if applicable) to be executed in non-interrupt
+    mode. In most projects the interrupt handlers are not prioritised, and the next
+    hardware event (interrupt) won’t be handled until the previously called interrupt
+    handler returns, i.e. CPU is ready to return to non-interrupt mode. Therefore,
+    it is important for the interrupt handler to do its job as quickly as possible.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There are multiple ways to schedule the execution of event handling code in
+    non-interrupt mode from code being executed in interrupt mode. One of the easiest
+    and straightforward ones is to have some kind of global flag that indicates that
+    event has occurred and the processing is required:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE112]'
+  prefs: []
+  type: TYPE_PRE
+- en: It is quite clear that this approach is not scalable, i.e. will quickly become
+    a mess when number of hardware events the code needs to handle grows. The events
+    may also be handled not in the same order they occurred, which may create undesired
+    races and side effects on some systems.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Another widely used approach is to create a queue-like container (linked list
+    or circular buffer) of event IDs which are handled in the similar event loop:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE113]'
+  prefs: []
+  type: TYPE_PRE
+- en: The approach above is a bit better, it processes events in the same order they
+    occur, but still has its own disadvantages. Sometimes there is a need to attach
+    some extra information for the processing of the event. Usually it is done using
+    global variables, which introduces some extra complexity to the code and possibility
+    for races. The handling of some events may have several internal stages and require
+    busy wait(s) during the processing. These busy waits may significantly delay the
+    processing of other pending events. The usual way to resolve this kind of problem
+    is to create several state machines, that process this kind of events in stages.
+    Most of Real-Time OSes provide an ability to create independent tasks (threads),
+    that can be used to perform independent complex multiple staged workflows while
+    the OS performs context switching between them. Still, the code can very quickly
+    become too complex and difficult to maintain.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The approaches above are widely used in bare metal projects developed using
+    C programming language. Using C++ language built-in features as well as ready
+    to use classes from STL it is possible to simplify the complexity of the code
+    and implement proper asynchronous handling of events, which is easier to debug
+    and maintain.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'I would recommend using a queue of callable objects created by [std::bind()](http://en.cppreference.com/w/cpp/utility/functional/bind)
+    expressions or [lambda functions](http://en.cppreference.com/w/cpp/language/lambda).
+    The conventional C++ way would be using [std::list](http://en.cppreference.com/w/cpp/container/list)
+    of [std::function](http://en.cppreference.com/w/cpp/utility/functional/function)
+    objects. However, these classes use dynamic memory allocation and throw exceptions,
+    which may be not suitable for every bare metal project. Anyway, let’s just demonstrate
+    the idea using these two classes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE114]'
+  prefs: []
+  type: TYPE_PRE
+- en: This approach allows having complex processing of some events with many sub-stages
+    and busy waits while still allowing other independent events being processed.
+    All the handlers are executed in the same order they were pushed to the queue.
+    There is an ability to bind multiples additional parameters together with the
+    function call, which reduces a necessity to have global variables to pass values
+    around. There is no need to maintain a list of various event IDs, explicitly define
+    stages of state machine(s) or implement complex task switching between independent
+    threads (tasks).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Now, let’s try to get rid of dynamic memory allocation and possible exceptions.
+    The only way to achieve this is to have a compile time constant that specifies
+    the maximal size of the queue. The naive implementation would be using [StaticQueue](https://github.com/arobenko/embxx/blob/master/embxx/container/StaticQueue.h)
+    of [StaticFunction](https://github.com/arobenko/embxx/blob/master/embxx/util/StaticFunction.h)
+    objects described in [Basic Needs](#basic_needs-basic_needs) chapter. However,
+    the [StaticFunction](https://github.com/arobenko/embxx/blob/master/embxx/util/StaticFunction.h)
+    class definition requires compile time constant to specify the size of the area
+    to store all the data of the callable object. It must be big enough to contain
+    any possible callable object that will be pushed to the queue. For example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE115]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The queue will look like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Queue of StaticFunction image](img/36e66af77d4ca9c42efd7df19150f1d0.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: It is quite clear that lots of space may be wasted and this approach must be
+    optimised. What if we could push the callable object to the queue one after another
+    regardless of their actual size with a bit of extra space overhead (such as pointer
+    to v-table), that will help us to retrieve size of the object at runtime and remove
+    appropriate number of bytes from such queue after the callable object did its
+    job?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Optimised queue image](img/c04b0d3fa1439415bce8174fb65ba142.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: It looks much better. The space consumption is much more efficient.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To properly support this type of queue we must:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: implement polymorphic behaviour when calling every handler with same interface.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: implement polymorphic behaviour to retrieve the size of single handler in order
+    to know how many bytes are to be removed from the queue after the handler has
+    been called.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: properly handle wrap-around cases when the pushed handler cannot fit into the
+    area between the end of the queue and end of the allocated space.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The code of required classes will be like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE116]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The definition of the Queue type will be:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE117]'
+  prefs: []
+  type: TYPE_PRE
+- en: '`TSize` is a template parameter that specifies maximum size (in bytes) of the
+    queue storage area.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The code of pushing new handler to the queue will look like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE118]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note, that job of `getAllocPlace()` function is to make sure that continuous
+    storage area that is able to store the required callable object is created (by
+    resizing the queue) and return pointer to this area.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE119]'
+  prefs: []
+  type: TYPE_PRE
+- en: In case of wrap-around, when there is not enough space between the end of the
+    queue and end of its storage area, number of simple `Task` objects which do nothing
+    (the body of exec() function is empty) are pushed to fill the space till the end
+    of storage area to make the queue non-linearised, which in turn will allow creation
+    of continuous area of required size in the second half of the circular queue.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The event handling loop will be something like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE120]'
+  prefs: []
+  type: TYPE_PRE
+- en: The only remaining thing is to create a convenient and generic interface to
+    be able to add new handlers for execution from both interrupt and non-interrupt
+    contexts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Analogy with Threads
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'Before diving into implementation of such interface, I’d like to make an analogy
+    between interrupt/non-interrupt execution modes and two threads. The inter-threads
+    communication is managed using locks (such as [std::mutex](http://en.cppreference.com/w/cpp/thread/mutex))
+    and condition variables (such as [std::condition_variable_any](http://en.cppreference.com/w/cpp/thread/condition_variable_any)).
+    Using this analogy the handlers execution loop (executed in non-interrupt thread)
+    can be implemented like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE121]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And adding new execution handler from any thread can be:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE122]'
+  prefs: []
+  type: TYPE_PRE
+- en: If we think about interrupt and non-interrupt execution modes as two threads,
+    the locking in non-interrupt thread is equivalent to disabling interrupts; and
+    waiting for condition variable to be notified is equivalent for waiting for interrupts
+    (using `WFI` or `WFE` instructions in ARM architecture) while notification can
+    be automatic due to pending interrupts or implemented using `SEV` instruction.
+    However, our interrupt and non-interrupt mode threads differ slightly from conventional
+    threads. The non-interrupt mode one can be interrupted at any time by interrupt
+    mode, while the interrupt mode “thread” won’t be interrupted and doesn’t actually
+    need to protect itself from other thread’s intervention.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The whole logic of event handling loop in non-interrupt context described above
+    is generic except locking (disabling interrupts) and waiting for new handlers
+    to be added (waiting for interrupts) which are platform and architecture specific.
+    As I’ve mentioned before, the whole idea of using C++ instead of C in bare metal
+    development is to be able to write and reuse generic code while providing minimal
+    platform specific hardware control functionality. The [embxx](https://github.com/arobenko/embxx)
+    library provides [EventLoop](https://github.com/arobenko/embxx/blob/master/embxx/util/EventLoop.h)
+    class that receives the locking and condition variable classes as template parameters
+    and manages safe addition of new handlers and in-order execution of the latter
+    in non-interrupt context.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE123]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `TLock` class must expose the following public interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE124]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `TCond` class must expose the following public interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE125]'
+  prefs: []
+  type: TYPE_PRE
+- en: The example of such classes for Raspberry Pi platform may be found [here](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/EventLoopDevices.h).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE126]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The [EventLoop](https://github.com/arobenko/embxx/blob/master/embxx/util/EventLoop.h)
+    class exposes the following public interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE127]'
+  prefs: []
+  type: TYPE_PRE
+- en: I’ll leave the implementation of the functions above as an exercise to the reader.
+    Don’t forget to call `notify()` member function of condition variable when adding
+    new handler to the empty queue.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If needed, the reference implementation can be found [here](https://github.com/arobenko/embxx/blob/master/embxx/util/EventLoop.h).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Busy Loops
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The event loop described above is an easy and convenient way to implement soft
+    real-time systems. However, the main rule with such architecture is: **DON’T DO
+    BUSY LOOPS!** It means, if there is a real need to perform a busy wait before
+    proceeding to the next stage, do it by letting other events being handled as well.
+    The `EventLoop` class also provides `busyWait()` member function that does exactly
+    that.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE128]'
+  prefs: []
+  type: TYPE_PRE
+- en: Device-Driver-Component
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Now, after understanding what the event loop is and how to implement it in C++,
+    I’d like to describe **Device-Driver-Component** stack concept before proceeding
+    to practical examples.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Device-Driver-Component Stack](img/fdb9009ed5adde6403f5c0424c2eabc4.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The **Device** is a platform specific peripheral(s) control layer. Sometimes
+    it is called HAL - **H**ardware **A**bstraction **L**ayer. It has an access to
+    platform specific peripheral control registers. Its job is to implement predefined
+    interface required by upper **Driver** layer, handle the relevant interrupts and
+    report them to the **Driver** via callbacks.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The **Driver** is a generic platform independent layer. Its job is to receive
+    requests for asynchronous operation from the **Component** layer and forward the
+    request to the **Device**. It is also responsible for receiving notifications
+    about the interrupts from the **Device** via callbacks, perform minimal processing
+    of the hardware event if necessary and schedule the execution of proper event
+    handling callback from the **Component** in non interrupt context using [Event
+    Loop](#basic_concepts-event_loop).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The **Component** is a generic or product specific layer that works fully in
+    event loop (non-interrupt) context. It initiates asynchronous operations using
+    **Driver** while providing a callback object to be called in event loop context
+    when the asynchronous operation is complete.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There are several main operations required for any asynchronous event handling:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Start the operation.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Complete the operation.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Cancel the operation.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Suspend the operation.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Resume suspended operation.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: All the peripherals described in [Peripherals](#peripherals-peripherals) chapter
+    will follow the same scheme for these operations with minor changes, such as having
+    extra parameters or intermediate stages.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Starting Asynchronous Operation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: '![Image: Starting Asynchronous Operation](img/d55ee44d2098506f24f632ed26580331.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Any non-interrupt context operation is initiated from some event handler executed
+    by the [Event Loop](#basic_concepts-event_loop) or from the `main()` function
+    before the event loop started its execution. The handler being executed invokes
+    some function in some **Component**, which requests the **Driver** to perform
+    some asynchronous operation while providing a callback object to be executed when
+    such operation is complete. The **Driver** stores the provided callback object
+    and other parameters in its internal data structures, then forwards the request
+    to the **Device**, which configures the hardware accordingly and enables all the
+    required interrupts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Completing Asynchronous Operation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The first entity, that is aware of asynchronous operation completion, is **Device**
+    when appropriate interrupt occurs. It must report the completion to the **Driver**
+    somehow. As was described earlier, the **Device** is a platform specific layer
+    that resides at the bottom of the **Device-Driver-Component** stack and is not
+    aware of the generic **Driver** layer that uses it. The **Device** must provide
+    a way to set an operation completion report object. The **Driver** will usually
+    assign such object during construction/initialisation stage:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Assigning callback](img/ff8734b22d0ac7e95e0ba442cee9a2d6.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: When the expected interrupt occurs, the **Device** reports operation completion
+    to the **Driver**, which in turn schedules execution of the callback object from
+    the **Component** in non-interrupt context using [Event Loop](#basic_concepts-event_loop).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Completing Asynchronous Operation](img/592317061421f4e71798666cec91c43f.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Note that the operation may fail, due to some hardware faults, This is the reason
+    to have `status` parameter reporting success and/or error condition in both callback
+    invocations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Canceling Asynchronous Operation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: There must be an ability to cancel asynchronous operations in progress. For
+    example some **Component** activates asynchronous operation request on some hardware
+    peripheral together with asynchronous wait request to the timer to measure the
+    operation timeout. If timeout callback is invoked first, then there is a need
+    to cancel the outstanding asynchronous operation. Or the opposite, once the read
+    is successful, the timeout measure should be canceled. However, the cancellation
+    may be a bit tricky. One of the main requirements for asynchronous events handling
+    is that the **Component**'s callback **MUST** be called and called only **ONCE**.
+    It creates a situation when cancellation may become unsuccessful. For instance,
+    the callback of the asynchronous operation was posted for execution in Event Loop,
+    but hasn’t been executed by the latter yet. It brings us to the necessity to provide
+    an indication whether the cancellation request was successful. Simple boolean
+    return value is enough.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Canceling Asynchronous Operation](img/7e861c7f6aa0619952a0894a92db0c2e.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: When the cancellation is successful the **Component**'s callback object is invoked
+    with `status` specifying that operation was `Aborted`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: One possible case of unsuccessful cancellation is when callback was posted for
+    execution in event loop, but hasn’t been executed yet when cancellation is attempted.
+    In this case **Driver** is aware that there is no pending asynchronous operation
+    and can return `false` immediately.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Canceling Asynchronous Operation Unsuccessful1](img/54d7755ee1623080c3da41f98d5a14ee.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Another possible case of unsuccessful cancellation is when completion interrupt
+    occurs in the middle of cancellation request:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Canceling Asynchronous Operation Unsuccessful2](img/bc2050f265b813e038fe2ce1fc4471bc.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: In this case the **Device** must be able to handle such race condition appropriately,
+    by temporarily disabling interrupts before checking whether the completion callback
+    was executed. The **Driver** must also be able to handle interrupt context execution
+    in the middle on non-interrupt one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Suspend / Resume Asynchronous Operation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: There may be a **Driver**, that is required to support multiple asynchronous
+    operations at the same time, while managing internal queue of such requests and
+    issuing them one by one to the **Device**. In this case there is a need to prevent
+    "operation complete" callback being invoked in interrupt mode context, while trying
+    to access the internal data structures in the event loop (non-interrupt) context.
+    The **Device** must provide both `suspendOp()` and `resumeOp()` to suppress invocation
+    of the callback and allow it back again respectively. Usually suspension means
+    disabling the interrupts without stopping current operation, while resume means
+    re-enabling them again.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Suspending Asynchronous Operation](img/d03f3940a750b3576986324647a4ee0f.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Note that the `suspendOp()` request must also indicate whether the suspension
+    was successful or the completion callback has been already invoked in interrupt
+    mode, just like with the cancellation. After the operation being successfully
+    suspended, it must be either **resumed** or **canceled**.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Device** Function Invocation Context'
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Let’s think about the case when **Driver** supports multiple asynchronous operations
+    at the same time and queuing them internally while issueing start requests to
+    the **Device** one by one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Starting Multiple Asynchronous Operations](img/b5e5887bbb9c6972a4b642fbec02555e.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The reader may notice that the `startOp()` member function of the **Device**
+    was invoked in event loop (non-interrupt) context while the second time it was
+    in interrupt context right after the completion of the first operation was reported.
+    There may be a need for the **Device**'s implementation to differentiate between
+    these calls.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'One of the ways to do so is to have different names and make the **Driver**
+    use them depending on the current execution context:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE129]'
+  prefs: []
+  type: TYPE_PRE
+- en: Another way is to use a [tag dispatching idiom](http://www.generic-programming.org/languages/cpp/techniques.php#tag_dispatching),
+    which I decided to use in [embxx](https://github.com/arobenko/embxx) library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'It defines two extra tag structs in [embxx/device/context.h](https://github.com/arobenko/embxx/blob/master/embxx/device/context.h):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE130]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Then, almost every member function defined by **Device** class has to specify
+    extra tag parameter indicating context:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE131]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The **Driver** class will invoke the **Device** functions using relevant temporary
+    context object passed as the last parameter:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE132]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If some function needs to be called only in, say `EventLoop` context, and not
+    supported in `Interrupt` context, then it is enough to implement only supported
+    variant. If **Driver** layer tries to invoke the function with unsupported context
+    tag parameter, the compilation will fail:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE133]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If there is no need to differentiate between the contexts the function is invoked
+    in, then it is quite easy to unify them:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE134]'
+  prefs: []
+  type: TYPE_PRE
+- en: Reporting Errors
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: When issuing asynchronous operation request to the **Driver** and/or **Component**,
+    there must be a way to report success / failure status of the operation, and if
+    it failed provide some extra information about the reason of the failure. Providing
+    such information as first parameter to the callback functor object is a widely
+    used convention among the developers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In most cases, the numeric value of error code is good enough.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The [embxx](https://github.com/arobenko/embxx) library provides a short list
+    of such values in enumeration class defined in [embxx/error/ErrorCode.h](https://github.com/arobenko/embxx/blob/master/embxx/error/ErrorCode.h):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE135]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'There is also a wrapper class around the `embxx::error::ErrorCode`, called
+    `embxx::error::ErrorStatus` (defined in [embxx/error/ErrorStatus.h](https://github.com/arobenko/embxx/blob/master/embxx/error/ErrorStatus.h)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE136]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It allows implicit conversion from `embxx::error::ErrorCode` to `embxx::error::ErrorStatus`
+    and convenient evaluation whether error has occurred in `if` sentences:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE137]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'By convention every callback function provided with any asynchronous request
+    to any **Driver** and/or **Component** implemented in [embxx](https://github.com/arobenko/embxx)
+    library will receive `const embxx::error::ErrorStatus&` as its first argument:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE138]'
+  prefs: []
+  type: TYPE_PRE
+- en: Cooperation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'As it is seen in the charts above, the **Driver** must have an access to the
+    **Device** as well as **Event Loop** objects. However, the former is not aware
+    of the exact type of the latter. In order to write fully generic code, the **Device**
+    and **Event Loop** types must be provided as template arguments:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE139]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The **Component** needs an access only to the **Device** and maybe **Event
+    Loop**. The reference to the latter may be retrieved from the **Device** object
+    itself:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE140]'
+  prefs: []
+  type: TYPE_PRE
+- en: Storing Callback Object
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The **Driver** needs to provide a callback object to the **Device** to be called
+    when appropriate interrupt occurs. The **Component** also provides a callback
+    object to be invoked in non-interrupt context when the asynchronous operation
+    is complete, aborted or terminated due to some error condition. These callback
+    objects need to be stored somewhere. The best way to do so in conventional C++
+    is using [std::function](http://en.cppreference.com/w/cpp/utility/functional/function).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE141]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'There are two problems with using [std::function](http://en.cppreference.com/w/cpp/utility/functional/function):
+    exceptions and dynamic memory allocation. It is possible to suppress the usage
+    of exceptions by making sure that function object is never invoked without proper
+    object being assigned to it, and by overriding appropriate `__throw_*` function(s)
+    to remove exception handling code from binary image (described in [Exceptions](#compiler_output-exceptions)
+    chapter). However, it is impossible to get rid of dynamic memory allocation in
+    this case, which reduces number of bare metal products the **Driver** code can
+    be reused in, i.e. it makes the **Driver** class not fully generic.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The problem is resolved by defining the callback storage type as a template
+    parameter to the **Driver**:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE142]'
+  prefs: []
+  type: TYPE_PRE
+- en: For projects that allow dynamic memory allocation `std::function<…​>` can be
+    passed, for others `embxx::util::StaticFunction<…​>` or similar must be used.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Peripherals
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: It this chapter I will describe and give multiple examples of how to drive and
+    control multiple hardware peripherals while using [Device-Driver-Component](#basic_concepts-device_driver_component)
+    model in conjunction with [Event Loop](#basic_concepts-event_loop).
+  prefs: []
+  type: TYPE_NORMAL
+- en: All the generic, platform independent code provided here is implemented as part
+    of [embxx](https://github.com/arobenko/embxx) library while platform (Raspberry
+    Pi) specific code is taken from [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi)
+    project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: All the platform specific peripheral control classes reside in [src/device](https://github.com/arobenko/embxx_on_rpi/tree/master/src/device)
+    directory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The [src/app](https://github.com/arobenko/embxx_on_rpi/tree/master/src/app)
+    directory contains several simple applications, such as flashing the led or responding
+    to button presses.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are also common **Component** classes shared between the applications.
+    They reside in [src/component](https://github.com/arobenko/embxx_on_rpi/tree/master/src/component)
+    directory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In order to compile all the applications please follow the instructions described
+    in [Contents of This Book](#overview-contents).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Function Configuration
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In ARM platform every pin needs to be configured as either gpio input, gpio
+    output or having one of several alternative functions the microcontroller supports.
+    The `device::Function` class defined in [src/device/Function.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/Function.h)
+    and [src/device/Function.cpp](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/Function.cpp)
+    implements simple interface which allows every **Device** class configure the
+    pins it uses.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE143]'
+  prefs: []
+  type: TYPE_PRE
+- en: Every implemented **Device** class will receive reference to `Function` object
+    in its constructor and will have to use it to configure the pins as required.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Interrupts Management
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: There is one more componenet that every **Device** will use. It’s `device::InterruptMgr`
+    defined in [src/device/InterruptMgr.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/InterruptMgr.h).
+    The main responsibility of the object of this class is to control global level
+    interrupts, register interrupt handlers from various **Device**s and invoke the
+    appropriate handler when interrupt occurs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The interface of the `device::InterruptMgr` is defined as following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE144]'
+  prefs: []
+  type: TYPE_PRE
+- en: Every **Driver** will use `registerHandler()` member function to register its
+    member function as the handler for its `IrqId`. The `enableInterrupt()` and `disableInterrupt()`
+    are also used by the **Device** objects to control their interrupts on global
+    level.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In order to use the **Interrupt Manager** described above every application
+    has to implement proper interrupt handler that will retrieve the reference to
+    `device::InterruptMgr` object (via global/static variables) and invoke its `handleInterrupt()`
+    function, which in turn check the appropriate status register(s) and invoke registered
+    handler(s). Please note, that the handler will be executed in interrupt context.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The code will look something like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE145]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'There may also be a need to enable/disable all the interrupts by toggling `i`
+    flag in `CPS` register. The same [src/device/InterruptMgr.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/InterruptMgr.h)
+    file provides two function for this purpose:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE146]'
+  prefs: []
+  type: TYPE_PRE
+- en: Timer
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: It is customary in bare metal development to flash leds in the first application
+    (instead of writing "Hello world"). However most tutorials show how to do it synchronously
+    using loops to wait some time before changing state of the led. I’m going to describe
+    how to do it asynchronously using timer interrupt in conjunction with [Event Loop](#basic_concepts-event_loop).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Almost every embedded platform has usually one or two timer peripherals. One
+    such peripheral can be programmed to provide an interrupt after some period of
+    time. However, there may be a need to have multiple timers that can be activated
+    independently at the same time. It is quite clear that there should be an entity
+    that receives all the wait requests from various **Component**s in non-interrupt
+    context, then queues the wait requests internally, programs the timer peripheral
+    to provide an interrupt after some time, and finally reports the completion to
+    appropriate **Component** via callback also in non-interrupt (event loop) context.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Such entity can be a generic (platform independent) **Driver**, if it is provided
+    with platform specific **Device** object, that exposes some predefined public
+    interface and controls the actual platform specific hardware.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Timer Manager](img/a67cc244c849a27e966eb416cae967dd.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The asynchronous timer event handling follows the same pattern described in
+    [Device-Driver-Component](#basic_concepts-device_driver_component) chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Assigning Wait Complete Callback
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'Just like described in [Device-Driver-Component](#basic_concepts-device_driver_component)
+    chapter the **Driver** needs to provide the "Wait Complete" callback object to
+    be called when timer interrupt occurs. The assignment is usually performed during
+    initialisation/construction stage of the **Driver**:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Assigning callback](img/dccb7071cbc5d9b688d5cee035031989.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Starting Asynchronous Wait
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: '![Image: Starting Asynchronous Wait](img/4953a6e35964e8156cef471025c09521.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The **Driver** must be able to support multiple wait requests from various **Components**
+    and manage the internal queue accordingly. In the chart above the timer peripheral
+    activated on the first `asyncWait()` request. When the second request is issued
+    (assuming `timeout1 < timeout2` and existing wait mustn’t be stopped), the **Driver**
+    must prevent the completion of the currently scheduled timer countdown being reported
+    in interrupt context while interfering with an update to internal data structures.
+    The interrupts are disabled by calling `suspendWait()` member function of the
+    **Device**. The call to the `suspendWait()` returns `true`, which means the interrupts
+    are successfully disabled and it is safe to update internal data structures. If
+    the call to `suspendWait()` returns `false`, it means that the interrupt has already
+    occurred and there is no existing wait in progress, i.e. the second `asyncWait()`
+    actually becomes a first one in the new sequence.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There also may be a case when `timeout2 < timeout1` which means the order of
+    the timeout requests must be re-evaluated, and new wait re-programmed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Starting Asynchronous Wait](img/2f3e997cdf3fb5e2d15e799c32da9232.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The **Driver** must be able to cancel the existing timer countdown, evaluate
+    how much time has passed since the first request, evaluate the new values to reprogram
+    the timer **Device** countdown again.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Completing Asynchronous Wait
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: '![Image: Completing Asynchronous Wait](img/4b0b39503611d334698c8651189078e3.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Due to the fact that **Driver** may receive multiple independent wait requests,
+    it must reprogram the next wait (if such exists) while running in interrupt mode.
+    Please pay attention to `InterruptCtx()` tag parameter passed to the `startWait()`
+    member function of the **Device**. It indicates that the request is executed in
+    interrupt context, while the same request used `EventLoopCtx()` as the tag parameter
+    to specify that the call was performed in event loop (non-interrupt) context.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Canceling Asynchronous Wait
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: If there is a request to cancel the currently executed wait, the **Driver**
+    must receive the information about the elapsed time and reprogram the next wait
+    if such exists.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Canceling Asynchronous Operation](img/d422cfa87fbdddd84638c0791d06f5e3.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: If the cancellation request to some other wait, that hasn’t been forwarded to
+    the **Device**, the **Driver** just needs to update its internal data structures
+    without canceling currently performed timer countdown.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Canceling Asynchronous Operation](img/321c0ca2833bfecef585015ffb75db37.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The unsuccessful attempts to cancel wait is performed in exactly the same way
+    as described in [Device-Driver-Component](#basic_concepts-device_driver_component)
+    chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Canceling Asynchronous Operation](img/dde3390665241981d9a217e94adbd00b.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Identifying Wait Requests
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'There is obviously a need to have some kind of identification of the wait requests
+    in order to be able to cancel some specific request while keeping the rest in
+    waiting queue. One approach would be to have some kind of a handle which can be
+    used during the cancellation request:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE147]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Another one is to hide the handle in some wrapper class, which makes it a bit
+    safer to use:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE148]'
+  prefs: []
+  type: TYPE_PRE
+- en: The **Driver** itself has only one public function `allocTimer()`. It is used
+    to allocate the `Timer` object. All the wait and/or cancel requests are issued
+    to this timer object directly, which is declared to be a `friend` of the **Driver**
+    class, i.e. it is able to call private functions of the latter using the handle
+    it has. The destructor of the `Timer` makes sure that the handle is properly invalidated.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE149]'
+  prefs: []
+  type: TYPE_PRE
+- en: The second approach is a bit safer than the first one and it is used in the
+    implementation of such generic "Timer Management Driver" in [embxx](https://github.com/arobenko/embxx)
+    library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Specifying the Wait Duration
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The timer **Device** is platform specific. Some platforms may support wait duration
+    granularity of a microsecond, others can achieve only a millisecond. It usually
+    depends on the system clock speed. However, when using generic **Driver** and/or
+    **Component** there is a need to be able to write platform independent code that
+    performs wait of the specified duration regardless of the **Device** in use. The
+    **S**tandard **T**emplate **L**ibrary (**STL**) of C++11 standard provides convenient
+    [Date and Time Utilities](http://en.cppreference.com/w/cpp/chrono) that make such
+    usage possible.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In case the **Device** declares a minimal wait duration unit using [std::chrono::duration](http://en.cppreference.com/w/cpp/chrono/duration)
+    type, the **Driver** may use [std::chrono::duration_cast](http://en.cppreference.com/w/cpp/chrono/duration/duration_cast)
+    to convert the requested wait duration to supported duration units.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE150]'
+  prefs: []
+  type: TYPE_PRE
+- en: In the example above the minimal supported duration unit (`WaitTimeUnitDuration`)
+    is declared to be 1 millisecond. Please note that `startWait()` member function
+    expects to receive number of wait units, i.e. milliseconds as its first parameter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Then the definition of the `asyncWait()` member function of the **Driver**
+    may be defined like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE151]'
+  prefs: []
+  type: TYPE_PRE
+- en: In the example above the call below will perform correct adjustment of the duration
+    and will measure the same timeout with any **Device** whether the latter expects
+    milliseconds or microseconds in its `startWait()` member function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE152]'
+  prefs: []
+  type: TYPE_PRE
+- en: In case the developer tries to execute a wait of several microseconds when **Driver**
+    supports only milliseconds granularity, the compilation will fail.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE153]'
+  prefs: []
+  type: TYPE_PRE
+- en: Driver Implementation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The timer management **Driver** is a generic layer. It must work on any platform
+    with any timer **Device** object that exposes the right interface.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Such **Driver** is already implemented in [embxx](https://github.com/arobenko/embxx)
+    library as `embxx::driver::TimerMgr` and resides in [embxx/driver/TimerMgr.h](https://github.com/arobenko/embxx/blob/master/embxx/driver/TimerMgr.h)
+    while platform specific (Raspberry Pi) peripheral control object is implemented
+    in [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project as `device::Timer`
+    and resides in [src/device/Timer.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/Timer.h).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `embxx::driver::TimerMgr` is defined like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE154]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `TDevice` template parameter is Platform specific control class for timer
+    peripheral.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `TEventLoop` template parameter is the class of the [Event Loop](#basic_concepts-event_loop).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `TMaxTimers` template parameters specifies the maximal number of timer objects
+    the `TimerMgr` will be able to allocate. This parameter is required because `embxx::driver::TimerMgr`
+    was designed to be used in the systems without dynamic memory allocation. If dynamic
+    memory allocation is allowed, then it is quite easy to implement similar functionality
+    without this limitation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `TTimeoutHandler` template parameter specifies type of the timeout callback
+    object. This object must have `void (const embxx::error::ErrorStatus&)` signature
+    and expose similar interface to [std::function](http://en.cppreference.com/w/cpp/utility/functional/function)
+    or `embxx::util::StaticFunction`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `embxx::driver::TimerMgr` exposes the following public interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE155]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The reader may notice that `embxx::driver::TimerMgr` exposes only one public
+    function: `Timer allocTimer();`. This function returns simple `TimerMgr::Timer`
+    object which can be used to schedule new wait as well as cancel the previous wait
+    request. Also note that `TimerMgr::Timer` class is declared to be a `friend` of
+    `TimerMgr`. This is required to allow seamless delegation of the wait/cancel request
+    from `TimerMgr::Timer` to `TimerMgr` which is responsible for managing multiple
+    simultaneous wait requests and delegating them one by one to the the actual hardware
+    control object.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Then the led flashing application (implemented in [src/app/app_led_flash](https://github.com/arobenko/embxx_on_rpi/tree/master/src/app/app_led_flash))
+    can be as simple as the code below:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE156]'
+  prefs: []
+  type: TYPE_PRE
+- en: Platform Specific Timer Device
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'As it was already mentioned earlier, the `embxx::driver::TimerMgr` is a generic
+    **Driver** class that does most of the work of managing and scheduling independent
+    wait requests. It requires support from low level timer **Device** object to program
+    the actual hardware of the platform the code runs on. The `embxx::driver::TimerMgr`
+    is defined to receive the **Device** class as template parameter as well as reference
+    to the **Device** timer object in the constructor. The **Driver** doesn’t know
+    the exact **Device** type, but expects it to expose certain public interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE157]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The timer control **Device** class must expose the following public interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Define `WaitTimeUnitDuration` type as variation of [std::chrono::duration](https://en.cppreference.com/w/cpp/chrono/duration)
+    that specifies duration of single wait unit supported by the **Device**.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE158]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: 'Function to set the callback object to be invoked from timer interrupt:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE159]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: 'Functions to start timer countdown in both event loop (non-interrupt) and interrupt
+    contexts:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE160]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: Function to cancel timer countdown in event loop (non-interrupt) context. The
+    function must return true in case the wait was actually canceled and false when
+    there is no wait in progress.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE161]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: Function to suspend countdown (disable interrupts while the actual wait countdown
+    is not stopped) in event loop (non-interrupt) context. The function must return
+    true in case the wait was actually suspended and false when there is no wait in
+    progress. The call to this function will be followed either by `resumeWait()`
+    or by `cancelWait()`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE162]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: Function to resume countdown in event loop (non-interrupt) context.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE163]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: Function to retrieve elapsed time of the last executed wait. It will be called
+    right after the `cancelWait()`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE164]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: The definition and implementation of such timer device for Raspberry Pi platform
+    can be found in [src/device/Timer.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/Timer.h)
+    file of [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: UART
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Our next stage will be to support debug logging via UART interface. In conventional
+    C++ logging is performed using either [printf](http://en.cppreference.com/w/cpp/io/c/fprintf)
+    function or [output streams](http://en.cppreference.com/w/cpp/io/basic_ostream)
+    (such as [std::cout](http://en.cppreference.com/w/cpp/io/cout) or [std::cerr](http://en.cppreference.com/w/cpp/io/cerr)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'If `printf` is used the compilation may fail at the linking stage with following
+    errors:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE165]'
+  prefs: []
+  type: TYPE_PRE
+- en: Once these functions are stubbed with empty bodies, the compilation will succeed,
+    but the image size will be quite big (around 45KB).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `_sbrk` function is required to support dynamic memory allocation. The `printf`
+    function probably uses `malloc()` to allocate some temporary buffers. If we open
+    the assembly listing file we will see calls to `<malloc>` and `<free>`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `_write` function is used to write characters into the standard output
+    consol, which doesn’t exist in embedded product. The developer must use this function
+    implementation to write all the provided characters to UART serial interface.
+    Many developers implement this function in a straightforward synchronous way with
+    busy loop:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE166]'
+  prefs: []
+  type: TYPE_PRE
+- en: In this case the call to `printf` function will be blocking and won’t return
+    until all the characters are written one by one to UART, which takes a lot of
+    execution time. This approach is suitable for quick and dirty debugging, but will
+    quickly become impractical when the project grows.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In order to make the execution of `printf` quick, there must be some kind of
+    interrupt driven component that is responsible to buffer all the provided characters
+    and forward it to UART asynchronously one by one using "**TX buffer register is
+    free**" kind of interrupts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'One of disadvantages in using `printf` for logging is a necessity to specify
+    an output format of the printed variables:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE167]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In case the type of the printed variable changes, the developer must remember
+    to update type in the format string too. This is the reason why many C++ developers
+    prefer using streams instead of `printf`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE168]'
+  prefs: []
+  type: TYPE_PRE
+- en: Even if type of printed variable changes the compiler will generate a call to
+    appropriate overloaded `operator<<` of [std::ostream](http://en.cppreference.com/w/cpp/io/basic_ostream)
+    and the value will be printed correctly. The developer will also have to implement
+    the missing `_write` function to write provided characters somewhere (UART interface
+    in our case).
+  prefs: []
+  type: TYPE_NORMAL
+- en: However using C++ streams in bare metal development is often not an option.
+    They use exceptions to handle error cases as well as [locales](http://en.cppreference.com/w/cpp/locale/locale)
+    for formatting. The compilation of simple output statement with streams above
+    created image of more than 500KB using [GNU Tools for ARM Embedded Processors](https://launchpad.net/gcc-arm-embedded)
+    compiler.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To summarise all the stated above, there may be a problem to use standard [printf](http://en.cppreference.com/w/cpp/io/c/fprintf)
+    function or [output streams](http://en.cppreference.com/w/cpp/io/basic_ostream)
+    for debug logging, especially in systems with small memory and where dynamic memory
+    allocations and exceptions mustn’t be used. Our ultimate goal will be creation
+    of standard output stream like interface for debug logging while using asynchronous
+    event handling with [Device-Driver-Component](#basic_concepts-device_driver_component)
+    model and [Event Loop](#basic_concepts-event_loop) where most of the code is generic
+    and only smal part of managing write of a single character to the UART interface
+    is platform specific.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Asyncrhonous read and write operations on the UART interface are very similar
+    to the generic way of programming and handling asynchronous events described earlier
+    in [Device-Driver-Component](#basic_concepts-device_driver_component) chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Writing to UART
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: '**Stage1** - Sending asynchronous buffer write request from the **Component**
+    layer to **Driver** in event loop (non-interrupt) context.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Asyncrhonous write request](img/1f23d34c2bb100dda32ca47d2e438b85.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The **Component** calls `asyncWrite()` member function of the **Driver** and
+    provides pointer to the buffer, size of the buffer and the callback object to
+    invoke when the write is complete. The `asyncWrite()` function needs to be able
+    to receive any type of callable object, such as [std::bind](http://en.cppreference.com/w/cpp/utility/functional/bind)
+    expression or [lambda function](http://en.cppreference.com/w/cpp/language/lambda).
+    To achieve this the function must be templated:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE169]'
+  prefs: []
+  type: TYPE_PRE
+- en: According to the convention mentioned [earlier](#basic_concepts-device_driver_component),
+    the callback must receive an error status of whether the operation is successful
+    as its first parameter. When performing asynchronous operation on the buffer,
+    it can be required to know how many characters have been read / written before
+    the error occurred, in case the operation wasn’t successful. For this purpose
+    such callback object must receive number of bytes written as the second parameter,
+    i.e. expose the `void (const embxx::error::ErrorStatus& err, std::size_t bytesTransferred)`
+    signature.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When the **Driver** receives the asynchronous operation request, it forwards
+    it to the **Device**, letting the latter know how many bytes will be written during
+    the whole process. Please note that **Driver** uses `embxx::device::context::EventLoop`
+    tag parameter to specify that `startWrite()` member function of **Device** is
+    invoked in event loop (non-interrut) context. The job of the **Device** object
+    is to enable appropriate interrupts and return immediately. Once the interrupt
+    occurs, the stage of writing the data begins.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Stage2** - Writing provided data.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Writing provided data](img/2d9122657b5e657b158f66bbe60f14b5.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Once the interrupt of "TX available" occurs, the **Device** must let the **Driver**
+    know. There must obviously be some kind of callback involved, which **Driver**
+    must provide during its construction / initialisation stage. Let’s assume at this
+    moment that such assignment was successfully done, and **Device** is capable of
+    successfully notifying the **Driver**, that there is an ability to write character
+    to TX FIFO of the peripheral.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When the **Driver** receives such notification, it attempts to write as many
+    characters as possible:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE170]'
+  prefs: []
+  type: TYPE_PRE
+- en: This is because when "TX available" interrupt occurs, there may be a place for
+    multiple characters to be sent, not just one. Doing checks and writes in a loop
+    may save many CPU cycles.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Please note, that all these calls are performed in interrupt context. They are
+    marked in red in the picture above.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Once the Tx FIFO of the underlying **Device** is full or there are no more characters
+    to write, the callback returns. The whole cycle described above is repeated on
+    every "TX available" interrupt until the whole provided buffer is sent to the
+    **Device** for writing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Stage3** - Notifying caller about completion:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Once the whole buffer is sent to the **Device** for writing, the **Driver**
+    is aware that there will be no more writes performed. However it doesn’t report
+    completion until the **Device** itself calls appropriate callback indicating that
+    the operation has been indeed completed. Shifting the responsibility of identifying
+    when the operation is complete to **Device** will be needed later when we will
+    want to reuse the same **Driver** for [I2C](#peripherals-i2c) and [SPI](#peripherals-spi)
+    peripherals. It will be important to know when internal Tx FIFO of the peripheral
+    becomes empty after all the characters from previous operation have been written.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Notifying caller about completion](img/8e530f50bca824ce889ecad3c8fbb1dd.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Once the **Driver** receives notification from the **Device** (still in interrupt
+    context), that the write operation is complete, it bundles the callback object,
+    provided with initial `asyncWrite()` request, together with error status and number
+    of actual bytes transferred using [std::bind](http://en.cppreference.com/w/cpp/utility/functional/bind)
+    expression and sends the callable object to [Event Loop](#basic_concepts-event_loop)
+    for execution in event loop (non-interrupt) context.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reading from UART
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The reading from UART is done in a very similar manner.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Stage1** - Sending asynchronous buffer read request from the **Component**
+    layer to **Driver** in event loop (non-interrupt) context.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Asynchronous read request](img/608ac57466ab250b39f488a4b120a8a6.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The `asyncRead()` member function of the **Driver** should allow callback to
+    be callable object of any type (but one that exposes predefined signature of course).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE171]'
+  prefs: []
+  type: TYPE_PRE
+- en: '**Stage2** - Reading data into the buffer.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Writing provided data](img/9762f32a9d0fdf0f3d5f112c1181d5c4.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The callback’s implementation will be something like:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE172]'
+  prefs: []
+  type: TYPE_PRE
+- en: '**Stage3** - Notifying caller about completion:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Notifying caller about completion](img/33a83c0be75b520214c954774d258999.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Cancelling Asynchronous Operations
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The cancellation flow is very similar to the one described in [Device-Driver-Component](#basic_concepts-device_driver_component)
+    chapter:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Cancel read](img/2e0270bc64ba753a54379ca1985870d1.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: If the cancellation is successful, the callback must be invoked with error code
+    indicating that the operation was aborted (`embxx::error::ErrorCode::Aborted`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: One possible case of unsuccessful cancellation is when callback was posted for
+    execution in event loop, but hasn’t been executed yet when cancellation is attempted.
+    In this case **Driver** is aware that there is no pending asynchronous operation
+    and can return `false` immediately.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Cancel read](img/445034b4edb611b0168373383791eee9.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Another possible case of unsuccessful cancellation is when completion interrupt
+    occurs in the middle of cancellation request:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Cancel read](img/e0da1847dc7bfd273cd06b82865c02db.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Reading "Until"
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'There may be a case, when partial read needs to be performed, for example until
+    specific character is encountered. In this case the **Driver** is responsible
+    to monitor incoming characters and cancel the read into the buffer operation before
+    its completion:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Notifying caller about completion](img/0a896be41f04e713ace306cf9f7f3273.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Note, that previously **Driver** called `cancelRead()` member function of the
+    **Device** in event loop (non-interrupt) context, while in "read until" situation
+    the cancellation happens in interrupt mode. That requires **Device** to implement
+    these functions for both modes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE173]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `asyncReadUntil()` member function of the **Driver** should be able to receive
+    any stateless predicate object that defines `bool operator()(CharType ch) const`.
+    The predicate invocation should return `true` when expected character is received
+    and reading operation must be stopped.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE174]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It allows using complex conditions in evaluating the character. For example,
+    stopping when either `''\r''` or `''\n''` is encountered:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE175]'
+  prefs: []
+  type: TYPE_PRE
+- en: Device Implementation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'In this section I will try to describe in more details what **Device** class
+    needs to provide for the **Driver** to work correctly. First of all it needs to
+    define the type of characters used:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE176]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The **Driver** layer will reuse the definition of the character in its internal
+    functions:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE177]'
+  prefs: []
+  type: TYPE_PRE
+- en: There is a need for **Device** to be able to record callback objects from the
+    **Driver** in order to notify the latter about an ability to read/write next character
+    and about operation completion.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE178]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `OpAvailableHandler` and `OpCompleteHandler` type may be either hard coded
+    to be `std::function<void ()>` and `std::function<void (const embxx::error::ErrorStatus&)>`
+    respectively or passed as template parameters:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE179]'
+  prefs: []
+  type: TYPE_PRE
+- en: Choosing the "template parameters option" is useful when the same **Device**
+    class is reused between multiple applications for the same product line.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The next stage would be implementing all the required functions:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE180]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note, that there may be extra configuration functions specific for the peripheral
+    being controlled. For example baud rate, parity, flow control for UART. Such configuration
+    is almost always platform and/or product specific and usually performed at application
+    startup. It is irrelevant to the [Device-Driver-Component](#basic_concepts-device_driver_component)
+    model introduced in this book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE181]'
+  prefs: []
+  type: TYPE_PRE
+- en: The [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project has multiple
+    applications that use UART1 interface for logging. The peripheral control code
+    is the same for all of them and is implemented in [src/device/Uart1.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/Uart1.h).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Driver Implementation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: '**Driver** must be a generic piece of code, that can be reused with any **Device**
+    control object (as long as it exposed right public interface) and in any application,
+    including ones without dynamic memory allocation.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'First of all, we will need references to **Device** as well as [Event Loop](#basic_concepts-event_loop)
+    objects:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE182]'
+  prefs: []
+  type: TYPE_PRE
+- en: We will also need to store callbacks provided with any asynchronous operation.
+    Note that the "read" and "write" are independent operations and it should be possible
+    to perform `asyncRead()` and `asyncWrite()` calls at the same time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The only way to make **Driver** generic is to move responsibility of specifying
+    callback storage type up one level, i.e. we must put them as template parameters:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE183]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'As it was mentioned earlier in [Reading "Until"](#peripherals-uart-reading_until)
+    section, there is quite often a need to stop reading characters into the provided
+    buffer when some condition evaluates to true. It means there is also a need to
+    provide storage for the character evaluation predicate:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE184]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The example code above may work, but it contradicts to one of the basic principles
+    of C++: "You should pay only for what you use". In case of using UART for logging,
+    there is no input from the peripheral and it is a waist to keep data members for
+    "read" required to manage "read" operations. Let’s try to improve the situation
+    a little bit by using template specialisation as well as reduce number of template
+    parameters by using "Traits" aggregation struct.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE185]'
+  prefs: []
+  type: TYPE_PRE
+- en: Please note, that allowed number of pending "read" requests is specified as
+    0 in the traits struct above, i.e. the read operations are not allowed. The "read
+    complete" and "read until predicate" types are irrelevant and specified as [std::nullptr_t](http://en.cppreference.com/w/cpp/types/nullptr_t).
+    The instantiation of the **Driver** object must take it into account and not include
+    any "read" related functionality. In order to achieve this the **Driver** class
+    needs to have two independent sub-functionalities of "read" and "write". It may
+    be achieved by inheriting from two base classes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE186]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now, the template specialisation based on queue size should do the job:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE187]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note, that it is possible to implement general case when read/write queue size
+    is greater than 1. It will require some kind of request queuing (using [Static
+    (Fixed Size) Queue](#basic_needs-queue) for example) and will allow issuing multiple
+    asynchronous read/write requests at the same time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In order to support this extension, the **Device** class must implement some
+    extra functionality too:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The new read/write request can be issued by the **Driver** in interrupt context,
+    after previous operation reported completion.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE188]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: 'When new asynchronous read/write request is issued to the **Driver** it must
+    be able to prevent interrupt context callbacks from being invoked to avoid races
+    on the internal data structure:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE189]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: Please pay attention to the boolean return value of `suspend*()` functions.
+    They are like `cancel*()` ones, there is an indication whether the invocation
+    of the callbacks is suspended or there is no operation currently in progress.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Such generic **Driver** is already implemented in [embxx/driver/Character.h](https://github.com/arobenko/embxx/blob/master/embxx/driver/Character.h)
+    file of [embxx](https://github.com/arobenko/embxx) library. The **Driver** is
+    called "Character", because it reads/writes the provided buffer one character
+    at a time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Character Echo Application
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Now, it is time to do something practical. The [app_uart1_echo](https://github.com/arobenko/embxx_on_rpi/tree/master/src/app/app_uart1_echo)
+    application in [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project
+    implements simple single character echo.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `System` class in [System.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/app/app_uart1_echo/System.h)
+    file defines the **Device** and **Driver** layers:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE190]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Note that `UartSocket` uses default "TTraits" template parameter of `embxx::driver::Character`,
+    which is defined to be:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE191]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It allows usage of both "read" and "write" operations at the same time. Having
+    the definitions in place it is quite easy to implement the "echo" functionality:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE192]'
+  prefs: []
+  type: TYPE_PRE
+- en: Stream-like Printing Interface
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: As was mentioned earlier, our ultimate goal would be having standard output
+    stream like interface for debug output, which works asynchronously without any
+    blocking busy waits. Such interface must be a generic **Component**, which works
+    in non-interrupt context, while using recently covered generic "Character" **Driver**
+    in conjunction with platform specific "Uart" **Device**.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Such **Component** should be implemented as two sub-**Components**. One is "Stream
+    Buffer" which is responsible to maintain circular buffer of written characters
+    and flush them to the peripheral using "Character" **Driver** when needed. The
+    characters, that have been successfully written, are removed from the internal
+    buffer. The second one is "Stream" itself, which is responsible to convert various
+    values into characters and write them to the end of the "Stream Buffer".
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Stream](img/f6f2c3c8358634753d5c061f5eed6193.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Let’s start with "Output Stream Buffer" first. It needs to receive reference
+    to the **Driver** it’s going to use:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE193]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'There is also a need to have a buffer, where characters are stored before they
+    are written to the device. Remember that we are trying to create a **Component**,
+    which can be reused in multiple independent projects, including ones that do not
+    support dynamic memory allocation. Hence, [Static (Fixed Size) Queue](#basic_needs-queue)
+    may be a good choice for it. It means, there is a need to provide size of the
+    buffer as one of the template arguments:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE194]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The "Output Stream Buffer" needs to support two main operations:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pushing new single character at the end of the buffer.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Flushing all (or part of) written characters, i.e. activate asynchronous write
+    with **Driver**.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: When pushing a new character, there may be a case when the internal buffer is
+    full. In this case, the pushed character needs to be discarded and there must
+    be an indication whether "push" operation was successful. The function may return
+    either `bool` to indicate success of the operation or `std::size_t` to inform
+    the caller how may characters where written. If `0` is returned, the character
+    wasn’t written.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE195]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This limited number of operations is enough to implement "Output Stream" -
+    like interface. However, "Output Stream Buffer" can be useful in writing any serialised
+    data into the peripheral, not only the debug output. For example using standard
+    algorithms:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE196]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In the example above, [std::back_inserter](http://en.cppreference.com/w/cpp/iterator/back_inserter)
+    requires a container to define `push_back()` member function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE197]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'There also may be a need to iterate over written, but still not flushed, characters
+    and update some of them before the call to `flush()`. In other words the "Output
+    Stream Buffer" must be treated as random access container:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE198]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'As was mentioned earlier, the `OutStreamBuf` uses [Static (Fixed Size) Queue](#basic_needs-queue)
+    as its internal buffer and any characters pushed beyond the capacity gets discarded.
+    There must be a way to identify available capacity as well as request asynchronous
+    notification via callback when requested capacity becomes available:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE199]'
+  prefs: []
+  type: TYPE_PRE
+- en: Such "Output Stream Buffer" is already implemented in [embxx/io/OutStreamBuf.h](https://github.com/arobenko/embxx/blob/master/embxx/io/OutStreamBuf.h)
+    file of [embxx](https://github.com/arobenko/embxx) library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The next stage would be defining the "Output Stream" class, which will allow
+    printing of null terminated strings as well as various integral values.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE200]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We will also require the numeric base representation and manipulator. Unfortunately,
+    usage of `std::oct`, ``std::dec`or `std::hex`` manipulators will require inclusion
+    of standard library header [<ios>](http://en.cppreference.com/w/cpp/header/ios),
+    which in turn includes other standard stream related headers, which define some
+    static objects, which in turn are defined and instantiated in standard library.
+    It contradicts our main goal of writing generic code that doesn’t require standard
+    library to be used. It is better to define such manipulators ourselves:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE201]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The value of the numeric base representation must be taken into account when
+    creating string representation of numeric values. The usage is very similar to
+    standard:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE202]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It may be convenient to support a little bit of formatting, such as specifying
+    minimal width of the output as well as fill character:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE203]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The usage is very similar to the base manipulator:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE204]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Another useful manipulator is adding ''\n'' at the end as well as calling `flush()`,
+    just like `std::endl` does when using standard output streams:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE205]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Then usage example may be changed to:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE206]'
+  prefs: []
+  type: TYPE_PRE
+- en: '**To summarise**: The "Output Stream" object converts given integer value into
+    the printable characters and uses `pushBack()` member function of "Output Stream
+    Buffer" to pass these characters further. The request to `flush()` is also passed
+    on. When "Output Stream Buffer" receives a request to flush internal buffer it
+    activates the "Character" **Driver**, which it turn uses "UART" **Device** to
+    write characters to serial interface one by one. As the result of such cooperation,
+    the "printing" statement is very quick, there is no wait for all the characters
+    to be written before the function returns, like it is usually done with `printf()`.
+    All the characters are written at the background using interrupts, while the main
+    thread of the application continues its execution without stalling.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Such "Output Stream" is already implemented in [embxx/io/OutStream.h](https://github.com/arobenko/embxx/blob/master/embxx/io/OutStream.h)
+    file of [embxx](https://github.com/arobenko/embxx) library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Logging
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: In general, debug logging should be under conditional compilation, for example
+    only in **DEBUG** mode, while the printing code is excluded when compiling in
+    **RELEASE** mode.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE207]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Sometimes there is a need to easily change the amount of debug messages being
+    printed. For that purpose, the concept of logging levels is widely used:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE208]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The logging statement becomes a macro:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE209]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In this case all the logging attempts for level below `log::Info` get optimised
+    away by the compiler, because the `if` statement known to evaluate to `false`
+    at compile time:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE210]'
+  prefs: []
+  type: TYPE_PRE
+- en: It would be nice to be able to add some automatic formatting to the logged statements,
+    such as printing the log level and/or adding '\n' and flushing at the end. For
+    example, the code below
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE211]'
+  prefs: []
+  type: TYPE_PRE
+- en: to produce the following output
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE212]'
+  prefs: []
+  type: TYPE_PRE
+- en: with `'\n'` character and call to `flush()` at the end.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'It is easy to achieve when using some kind of wrapper logging class around
+    the output stream as well as relevant formatters. For example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE213]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The logging macro will look like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE214]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'A formatter can be defined by exposing the same interface, but wraps the original
+    `StreamLogger` or another formatter. For example let’s define formatter that calls
+    `flush()` member function of the stream when output is complete:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE215]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The definition of such logger would be:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE216]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The same `SLOG()` macro will work for this logger with extra formatting:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE217]'
+  prefs: []
+  type: TYPE_PRE
+- en: Let’s also add a formatter that capable of printing any value (and `'\n'` in
+    particular) at the end of the output.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE218]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The definition of the logger that adds `''\n''` character and then calls `flush()`
+    member function of the underlying stream would be:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE219]'
+  prefs: []
+  type: TYPE_PRE
+- en: While the construction will require to specify the character which is going
+    to be printed at the end, but before call to `flush()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE220]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'As the last formatter, let’s do the one that prefixes the output with log level
+    information:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE221]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The definition of the logger that prints such a prefix at the beginning and
+    `''\n''` at the end together with call to `flush()` would be:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE222]'
+  prefs: []
+  type: TYPE_PRE
+- en: Such `StreamLogger` together with multiple formatters is already implemented
+    in [embxx/util/StreamLogger.h](https://github.com/arobenko/embxx/blob/master/embxx/util/StreamLogger.h)
+    file of [embxx](https://github.com/arobenko/embxx) library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Logging Application
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'The [app_uart1_logging](https://github.com/arobenko/embxx_on_rpi/tree/master/src/app/app_uart1_logging)
+    application in [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project
+    implements logging of simple counter that gets incremented once a second:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE223]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The [System.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/app/app_uart1_logging/System.h)
+    file defines the whole output stack:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE224]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This application will produce the following output to the UART interface with
+    new line appearing every second:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE225]'
+  prefs: []
+  type: TYPE_PRE
+- en: Buffered Input
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: In many systems the UART interfaces are also used to communicate between various
+    microcontrollers on the same board or with external devices. When there are incoming
+    messages, the characters must be stored in some buffer before they can be processed
+    by some **Component**. Just like we had "Output Stream Buffer" for buffering outgoing
+    characters, we must have "Input Stream Buffer" for buffering incoming ones.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It must obviously have an access to the Character **Driver** and will probably
+    have a circular buffer to store incoming characters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE226]'
+  prefs: []
+  type: TYPE_PRE
+- en: The **Driver** won’t perform any read operations unless it is explicitly requested
+    to do so with its `asyncRead()` member function. Sometimes, there is a need to
+    keep characters flowing in and being stored in the buffer, even when the **Component**
+    responsible for processing them is not ready. In order to make this happen, the
+    "Input Stream Buffer" must be responsible for constantly requesting the **Driver**
+    to perform asynchronous read while providing space where these characters are
+    going to be stored.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE227]'
+  prefs: []
+  type: TYPE_PRE
+- en: Most of the times the responsible **Component** will require some number of
+    characters to be accumulated before their processing can be started. There is
+    a need to provide asynchronous notification callback request when appropriate
+    number of characters becomes available. The callback must be stored in the internal
+    data structures of the "Input Stream Buffer" and invoked when needed. Due to the
+    latter being developed as a generic class, there is a need to provide callback
+    storage type as a template parameter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE228]'
+  prefs: []
+  type: TYPE_PRE
+- en: Once the required number of characters is accumulated, the **Component** must
+    be able to access and process them. It means that "Input Stream Buffer" must also
+    be a container with random access iterators.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE229]'
+  prefs: []
+  type: TYPE_PRE
+- en: Please note, that all the access to the characters are done using const iterator.
+    It means we do not allow external and uncontrolled update of the characters inside
+    of the buffer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When the characters inside the buffer got processed and aren’t needed any more,
+    they need to be discarded to free the space inside the buffer for new ones to
+    come.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE230]'
+  prefs: []
+  type: TYPE_PRE
+- en: Morse Code Application
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The [app_uart1_morse](https://github.com/arobenko/embxx_on_rpi/tree/master/src/app/app_uart1_morse)
+    application in [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project
+    implements buffering of incoming characters in the "Input Stream Buffer" and uses
+    the [Morse Code](http://en.wikipedia.org/wiki/Morse_code) method to display them
+    by flashing the on-board led.
+  prefs: []
+  type: TYPE_NORMAL
+- en: First of all there is a need to have an access to the led to flash, input buffer
+    to store the incoming characters and timer manager to allocate a timer to measure
+    timeouts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE231]'
+  prefs: []
+  type: TYPE_PRE
+- en: Second, there is a need to define a Morse code sequences in terms of dots and
+    dashes duration as well as mapping an incoming character to the respective sequence.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE232]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now, the code that is responsible to flash a led is quite simple:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE233]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `nextLetter()` member function waits until one character becomes available
+    in the buffer, then maps it to the sequence and removes it from the buffer. If
+    the mapping exists it calls the `nextSyllable()` member function to start the
+    flashing sequence. The function activates the led and waits the relevant amount
+    of time, based on the provided dot or dash duration. After the timeout, the led
+    goes off and new wait is activated. However if the end of sequence is reached,
+    the wait will be of `InterSpacing` duration and `nextLetter()` member function
+    will be called again, otherwise the wait will be of `Spacing` duration and `nextSyllable()`
+    will be called again to activate the led and wait for the next period in the sequence.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Summary
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: After this quite a significant effort we’ve created a full generic stack to
+    perform asynchronous input/output operations over serial interface, such as UART.
+    It may be reused in multiple independent projects while providing platform specific
+    low level device control object at the bottom of this stack.
+  prefs: []
+  type: TYPE_NORMAL
+- en: GPIO
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In many cases, the GPIO input doesn’t need to be processed at the same time
+    the interrupt has occured. It can easilily be scheduled for execution in event
+    loop (non-interrupt) context using [Device-Driver-Component](#basic_concepts-device_driver_component)
+    model.
+  prefs: []
+  type: TYPE_NORMAL
+- en: According to what was written in [Device-Driver-Component](#basic_concepts-device_driver_component)
+    chapter and to what we’ve seen so far, the **Component** provides a callback object
+    together with the asynchronous operation request. The callback is executed only
+    **once** when the operation is compete, canceled or terminated due to some error.
+    If the operation needs to be repeated, another asynchronous operation needs to
+    be issued to the **Driver** while providing another callback object to be called
+    on operation completion.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The need for GPIO input handling is a bit different though. The line may change
+    its value multiple times between the reporting of the event to the **Component**
+    and the latter re-requesting asynchronous wait on value change. The **Driver**
+    must preserve the callback object, provided by the **Component**, and invoke it
+    every time the GPIO input value changes until the **Component** cancels the operation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s go through all the stages in more detail.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configuration
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: '![Image: GPIO register handler](img/90e3ce14c1196f65aa782b230c17f3b2.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The **Device** must provide a callback object to handle GPIO interrupts on all
+    the requested input lines.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The hardware must also be configured properly: input/output lines, the interrupts
+    on the rising/falling edges, etc. Such configuration is platform/product specific
+    and is not part of the generic [Device-Driver-Component](#basic_concepts-device_driver_component)
+    model presented in this book. Hence, the product specific **Component** must get
+    an access to the device object and configure it as needed.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Start Continuous Asynchronous Read Operation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The **Driver** must be able to support multiple asynchronous read operations
+    on different inputs. It means that it must protect an access to the internal data
+    structures by requesting the **Device** to suspend the callback invocation (i.e.
+    disable interrupts). Also to follow the pattern we used so far, there must be
+    a request to start or enable the **Device**'s operation on the first read request
+    and cancel or disable it on the last.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: GPIO read](img/f6b081b9112e86a15eaaa5006301ad64.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: The reader may notice that on the first `asyncReadCont()` request, the **Driver**
+    issued `suspend()` request to the **Device** and got `false` in return. It means
+    that the **Device**'s monitoring of the GPIO inputs hasn’t been started yet. That’s
+    the reason for the following call to `enable()`. On the second `asyncReadCont()`
+    request the call to `suspend()` returned true which was followed by the `resume()`
+    later.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reporting GPIO Input Event
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Now, every time the relevant GPIO interrupt occurs, the **Driver**'s handler
+    is invoked in interrupt mode context. It is responsible to schedule the execution
+    of **Component**'s handler in event loop (non-interrupt) context.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: GPIO interrupt report](img/1b681a9229882a3589b8ae8b5839b8a9.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Cancel Continuous Read Operation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'When the there is no need to monitor some input any more, the **Component**
+    may request the **Driver** to cancel the continuous asynchronous read operation.
+    In case of last recorded asynchronous read operation being canceled, the **Driver**
+    is responsible to let the **Device** know that no more GPIO interrupts are needed:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: GPIO cancel read](img/b5b76c4f10ec0cf51f3d62624461ef41.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: GPIO Device
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'Based on the information above, the platform specific GPIO control **Device**
+    object must provide the following public interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Define pin identification type.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE234]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: 'Function to provide a callback object to be called when interrupt occurs. The
+    callback parameters must provide an information of pin as well as final input
+    value that caused the interrupt. The callback object must implement the following
+    signature: "void (PinIdType, bool)" where the first parameter is pin and second
+    parameter is input value.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE235]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: Function to start / enable the GPIO input monitoring.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE236]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: Function to cancel / disable the GPIO input monitoring.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE237]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: Function to enable/disable gpio interrupts for single pin.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE238]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: Function to suspend invocation of callback in interrupt mode, i.e. disable gpio
+    interrupts.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE239]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: Function to resume suspended invocation of callback in interrupt mode, i.e.
+    enable gpio interrupts.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[PRE240]'
+  prefs:
+  - PREF_IND
+  type: TYPE_PRE
+- en: Such GPIO control **Device** class for RaspberryPi platform is implemented in
+    [src/device/Gpio.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/Gpio.h)
+    file of [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: GPIO Driver
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'First of all, we will need references to **Device** as well as [Event Loop](#basic_concepts-event_loop)
+    objects:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE241]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The **Driver** must also provide an ability to perform and cancel continuous
+    asynchronous read operations for multiple pins:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE242]'
+  prefs: []
+  type: TYPE_PRE
+- en: Like with any asynchronous operation so far the callback must receive status
+    information as its first parameter and probably the value of the input as the
+    second one. When the operation canceled with `cancelReadCont()`, the callback
+    must be invoked one last time with status specifying that operation was `Aborted`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The **Driver** is supposed to be a generic piece of code that can be reused
+    in multiple independent products, including ones without dynamic memory allocation
+    and/or exceptions. It means that the **Driver** class must receive maximum number
+    of the pins it is going to support and type of the callback storage.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE243]'
+  prefs: []
+  type: TYPE_PRE
+- en: The **Driver** doesn’t do anything special, it just receives the notification
+    from the **Device** that gpio interrupt has occurred, locates the appropriate
+    registered **Component**'s callback object (based on the pin information provided
+    by the **Device**), and uses **Event Loop** to schedule an execution of the **Component**'s
+    callback together with information about input’s value in event loop (non-interrupt)
+    context.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Such generic GPIO **Driver** is already implemented in [embxx/driver/Gpio.h](https://github.com/arobenko/embxx/blob/master/embxx/driver/Gpio.h)
+    file of [embxx](https://github.com/arobenko/embxx) library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Button Component
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project has a simple
+    button **Component**, implemented in [src/component/Button.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/component/Button.h).
+    It configures provided GPIO line to be an input and to have both rising and falling
+    edges interrupts. It also exposes simple interface to be able to monitor button
+    presses and releases.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE244]'
+  prefs: []
+  type: TYPE_PRE
+- en: Button Press Monitoring Application
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project also contains
+    a simple application called [app_button](https://github.com/arobenko/embxx_on_rpi/tree/master/src/app/app_button).
+    It monitors presses and releases of a single button connected to one of the GPIO
+    lines. When the button is pressed, the led is turned on for 1 second and "Button
+    Pressed" string is logged to UART. When the button is released, just "Button Released"
+    string is logged to UART without influencing the led state. If new button press
+    is recognised prior to 1 second timeout for the led being on, the led stays on
+    and a new 1 second timer countdown is started.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thanks to the [Device-Driver-Component](#basic_concepts-device_driver_component)
+    model and all levels of abstractions, the application code is quite simple.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE245]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The code for "button pressed" is as following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE246]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The code for "button release" is very simple:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE247]'
+  prefs: []
+  type: TYPE_PRE
+- en: I2C
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: '[I2C](http://en.wikipedia.org/wiki/I%C2%B2C) is serial communication bus. It
+    is very popular in embedded development and mostly used to communicate to various
+    low speed peripherals, such as eeproms and various sensors.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The control and use of I2C fits nicely into the [Device-Driver-Component](#basic_concepts-device_driver_component)
+    model described in this book. It is a serial interface and the controlling **Device**
+    object will have to read/write characters one by one, just like it was with [UART](#peripherals-uart).
+    It would be nice if we coud reuse the Character **Driver** we implemented before.
+    However, the I2C is multi-master / multi-slave bus and there is a need to specify
+    the slave ID (or address) when initiating read and/or write operation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ID Adaptor
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: It is quite clear that some kind of **ID Device Adaptor** is needed. It will
+    be constructed with additional ID parameter and will be responsible to forward
+    all the API calls from the Character **Driver** to I2C **Device** while adding
+    one extra parameter of ID.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Using ID Adapter](img/b53298dd7361c1f5e475378b3c82990c.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'The implementation of such adaptor is very simple and straightforward:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE248]'
+  prefs: []
+  type: TYPE_PRE
+- en: The same adaptor class is implemented in [embxx/device/IdDeviceCharAdapter.h](https://github.com/arobenko/embxx/blob/master/embxx/device/IdDeviceCharAdapter.h)
+    file of [embxx](https://github.com/arobenko/embxx) library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Operations Queue
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The I2C protocol allows existence of multiple independent slaves on the same
+    bus. It means there may be several independent **Components** that communicate
+    to different I2C devices (for example EEPROM and temperature sensor), but must
+    share the same **Device** control object and may issue read/write requests to
+    it in parallel. To resolve this problem, there must be some kind of operation
+    queuing facility that is responsible to queue all the read/write requests to the
+    **Device** and issue them one by one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The objects'' usage map looks like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Using Op Queue](img/68d05676fa65cb1c6dc3c67e44b905ea.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Such queue is a platform/product independent piece of code and it should be
+    implemented without using dynamic memory allocation and/or exceptions. It means
+    that it should receive number of various **Driver** objects, that may issue independent
+    read/write requests to it (i.e. size of the internal queue), as a template parameter
+    and probably use [Static (Fixed Size) Queue](#basic_needs-queue) to queue all
+    the requests that are coming in. It should also receive callback storage types
+    to report when a new character can be read/written, as well as when read/write
+    operation is complete.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE249]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'When the `TSize` template parameter is set to `1`, there is no need for all
+    the queuing facility and the `DeviceOpQueue` class may become a simple pass-through
+    inline class using template specialisation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE250]'
+  prefs: []
+  type: TYPE_PRE
+- en: Such queue is also implemented in [embxx](https://github.com/arobenko/embxx)
+    library. It resides in the [embxx/device/DeviceOpQueue.h](https://github.com/arobenko/embxx/blob/master/embxx/device/DeviceOpQueue.h)
+    file.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Please note that [ID Adaptor](#peripherals-i2c-id_adaptor) and [[peripherals-i2c-operations_queue]](#peripherals-i2c-operations_queue)
+    are both **Device** layer classes. The serve as wrappers to actual peripheral
+    control **Device** in order to expose the right interface to the upper layer **Driver**.
+  prefs: []
+  type: TYPE_NORMAL
+- en: I2C Device
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The only thing that remains is to properly implement I2C control device, which
+    can be used by the `DeviceOpQueue`, which in turn is used by the `IdAdaptor`.
+    The `IdAdaptor` object can be used with the existing `Character` **Driver** implemented
+    to be used with the [UART](#peripherals-uart) peripheral.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Based on the information above, the platform specific I2C control **Device**
+    object must provide the following public interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE251]'
+  prefs: []
+  type: TYPE_PRE
+- en: Such device to control **I2C0** interface on RaspberryPi platform is implemented
+    in [src/device/I2C0.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/I2C0.h)
+    file of [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: EEPROM Access Application
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project contains
+    an application called [app_i2c0_eeprom](https://github.com/arobenko/embxx_on_rpi/tree/master/src/app/app_i2c0_eeprom).
+    It implements a parallel access to 2 EEPROMs connected to the same I2C0 bus, but
+    having different addresses. The EEPROMs are accessed independently at the same
+    time with read/write operations. These operations are queued and managed by the
+    `DeviceOpQueue` object that wraps actual I2C control **Device** and forwards the
+    requests one by one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: SPI
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: '[SPI](http://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus) is also
+    quite popular serial communication interface. It is very similar to [I2C](#peripherals-i2c)
+    in terms of using it the [Device-Driver-Component](#basic_concepts-device_driver_component)
+    model described in this book. The main differences are:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: SPI uses "chip select" identification method instead of "address" of the peripheral.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: SPI is a double direction link - there are always read and write operations
+    that are executed in parallel (instead of only read or only write).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The "chip select" slave identefication will require the same "**ID Adaptor**"
+    that was used for [I2C](#peripherals-i2c) integration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Just like with [I2C](#peripherals-i2c), the [SPI](http://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus)
+    is a multi-slave bus. It allows connection of multiple independent devices to
+    the same MISO/MOSI/CLK lines of the SPI interface. It means there is a need for
+    the same "**Operations Queue**" that was used for [I2C](#peripherals-i2c) integration.
+    Due to the fact that SPI is a double direction link, the "**Operations Queue**"
+    must be able to forward, say, read operation request to the actual **Device**
+    even if "write" operation to the same slave device is already in progress.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It means that the objects' usage map is exactly the same as with [I2C](#peripherals-i2c).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Image: Using Op Queue](img/68d05676fa65cb1c6dc3c67e44b905ea.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: All the intermediate layers (Character **Driver**, ID Adaptor, Operations Queue)
+    in the map above must allow issuing read and write operations at the same time.
+    It becomes a responsibility of the product specific **Component** to be aware
+    what kind of the **Device** is used and not to issue these requests in parallel
+    if the actual **Device** (such as I2C) doesn’t support it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: SPI Device
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'Based on the information above, the platform specific SPI control **Device**
+    object must provide and implement exactly the same interface as [I2C](#peripherals-i2c)
+    **Device**:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE252]'
+  prefs: []
+  type: TYPE_PRE
+- en: Such device to control **SPI0** interface on RaspberryPi platform is implemented
+    in [src/device/Spi0.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/Spi0.h)
+    file of [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Other Nuances
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: SPI is quite often used with external persistent storage, such as SD card. Such
+    devices may have some significant delays between the block write operation on
+    the `MOSI` line and the time they send an acknowledgement about operation completion
+    on the `MISO` line. The SPI **Device** must constantly read the incoming bytes
+    until the expected `ACK`/`NACK` byte is received without de-asserting the `CS`
+    (chip select). If the **Component**, responsible for managing SPI flash memory,
+    issues only single "read" operation to wait for such an acknowledgement, the provided
+    buffer may get full before the required byte is received. In this case the SPI
+    control **Device** object is not aware that the new "read" request may follow
+    and has to de-assert the `CS`, which is undesireble.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In order to solve this problem, the Character **Driver** described in [UART](#peripherals-uart)
+    chapter must be extended to support issuing multiple read/write operations at
+    the same time. Such extension is based on the values of `ReadQueueSize`/`WriteQueueSize`
+    in the provided `Traits` class. These values indicate maximal number of simultaneous
+    read/write operations that may be issued to the **Driver**. The responsible **Component**,
+    in turn, must perform 2 or 3 "read until" operations at the same time to wait
+    for the expected response. Once the first buffer is full, the **Driver** will
+    post the **Component**'s callback object for execution in the event loop context,
+    while calling `startRead()` member function of the **Device** for the next pending
+    "read until" operation still in interrupt context to fill the second buffer. The
+    **Device** is responsible to continue its read operation without de-asserting
+    the `CS` line. While the second buffer being filled, the **Component** has enough
+    time to identify that there is no response in the filled buffer and re-issue the
+    "read until" request to the **Driver** while reusing the same buffer. This circle
+    of "read until" requests must continue until expected response is encountered
+    or until operation timeout, which is measured independently by the asynchronous
+    wait request to the [Timer](timer.md). It is up to the responsible **Component**
+    object to manage the operations to the Character **Driver** as well as the Timer
+    in event loop context and cancel one upon execution of callback from another.
+  prefs: []
+  type: TYPE_NORMAL
+- en: External Storage
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'As was mentioned in previous section, SPI is often used with external persistent
+    storage, such as SD card. In order to properly support it, there must be some
+    kind of `SpiFlash` management **Component**, that is responsible to implement
+    proper [communication protocol](https://www.sdcard.org/downloads/pls/simplified_specs/part1_410.pdf)
+    while providing necessary public interface. The minimal required interface will
+    have to be able to:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Asynchronously initialise the device.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Asynchronously read block of data.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Asynchronously write block of data.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Once such **Component** is implemented and tested, the next stage would be implementing
+    proper file system (FAT32) management **Component**, using the asynchronous functions
+    of the former. It will allow processing time consuming file system reads and writes
+    while still allowing processing of all other events without creating any performance
+    bottlenecks and without requiring any complex independent task scheduling.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Other
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: There are many other peripherals and/or protocols (such as I2S, USB, one wire).
+    The implementation and the main concepts should be pretty similar to the peripherals
+    covered so far. At this stage I do not plan to do it in this book. At least not
+    in the near future.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Various micro-controllers may also support [DMA](http://en.wikipedia.org/wiki/Direct_memory_access)
+    access to some peripherals. In this case the `Character` **Driver** that was covered
+    in [UART](#peripherals-uart) chapter must be replaced with some kind of `Block`
+    **Driver**, that will allow issuing of multiple read/write requests at the same
+    time and will receive only "operation complete" notifications from the **Device**.
+    I leave implementation of it as an excercise for the reader. At least for now.
+  prefs: []
+  type: TYPE_NORMAL
