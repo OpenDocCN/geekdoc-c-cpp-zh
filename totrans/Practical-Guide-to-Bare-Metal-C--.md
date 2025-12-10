@@ -57,21 +57,21 @@ To compile Raspberry Pi example applications in Linux environment use the follow
 
 *   Checkout [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project
 
-```
+```cpp
 > git clone https://github.com/arobenko/embxx_on_rpi.git
 > cd embxx_on_rpi
 ```
 
 *   Create separate build directory and cd to it
 
-```
+```cpp
 > mkdir build
 > cd build
 ```
 
 *   Generate makefiles
 
-```
+```cpp
 > cmake ..
 ```
 
@@ -79,7 +79,7 @@ Note that last parameter to cmake is relative or absolute path to the root of th
 
 *   Build the applications
 
-```
+```cpp
 > make
 ```
 
@@ -99,7 +99,7 @@ The CMake provides the following build types, which I believe are self-explanato
 
 To specify the required build type use `-DCMAKE_BUILD_TYPE=<value>` option of cmake utility:
 
-```
+```cpp
 > cmake -DCMAKE_BUILD_TYPE=Release ..
 ```
 
@@ -107,13 +107,13 @@ If no build type is specified, the default one is **None**, which is similar to 
 
 It is possible to specify the cross-compilation toolchain prefix. By default `arm-none-eabi-` is expected, i.e. `arm-none-eabi-gcc`, `arm-none-eabi-g++` and `arm-none-eabi-as` are used to compile the sources. If these utilities cannot be found in environment search paths, then you should specify the prefix passing `-DCROSS_COMPILE=<prefix>` option to cmake:
 
-```
+```cpp
 > cmake -DCROSS_COMPILE=/opt/arm-none-eabi-2013.05/bin/arm-none-eabi- ..
 ```
 
 To see the commands used to compile the sources, prefix `make` with `VERBOSE=1`:
 
-```
+```cpp
 > VERBOSE=1 make
 ```
 
@@ -135,7 +135,7 @@ To successfully use C++ language and its libraries in bare metal development it 
 
 The [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project contains several simple test application, which are intended to be used for binary code analysis only and not to be executed on the target platform. This applications reside in [src/test_cpp](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp) directory. In order to properly analyse the code that compiler produces for production environment, let’s compile all the applications in Release mode:
 
-```
+```cpp
 > git clone https://github.com/arobenko/embxx_on_rpi.git
 > mkdir -p <build_dir_somewhere>
 > cd <build_dir_somewhere>
@@ -169,19 +169,19 @@ It may happen that compiler generates some startup code for you, especially if y
 
 **Side note**: the assembler listing can be generated using the following command:
 
-```
+```cpp
 > arm-none-eabi-objdump -D -S app_binary > app.list
 ```
 
 Open the listing file and look for function with **CRT** string in it. **CRT** stands for “C Run-Time”. When using [this](https://launchpad.net/gcc-arm-embedded) compiler, the function that compiler has generated, is called `_mainCRTStartup`. Let’s take closer look what this function does.
 
-```
+```cpp
 00008198 <_mainCRTStartup>:
 ```
 
 Load the address of the end of the RAM and assign its value to stack pointer (sp).
 
-```
+```cpp
  8198:	e59f30f0 	ldr	r3, [pc, #240]	; 8290 <_mainCRTStartup+0xf8>
     819c:	e3530000 	cmp	r3, #0
     81a0:	059f30e4 	ldreq	r3, [pc, #228]	; 828c <_mainCRTStartup+0xf4>
@@ -190,7 +190,7 @@ Load the address of the end of the RAM and assign its value to stack pointer (sp
 
 Set the value of sp for various modes, the sizes of the stacks are determined by the compiler itself.
 
-```
+```cpp
  81a8:	e10f2000 	mrs	r2, CPSR
     81ac:	e312000f 	tst	r2, #15
     81b0:	0a000015 	beq	820c <_mainCRTStartup+0x74>
@@ -224,7 +224,7 @@ Set the value of sp for various modes, the sizes of the stacks are determined by
 
 Load the addresses of `__bss_start__` and `__bss_end__` symbols and zero all the area in between.
 
-```
+```cpp
  821c:	e59f0078 	ldr	r0, [pc, #120]	; 829c <_mainCRTStartup+0x104>
     8220:	e59f2078 	ldr	r2, [pc, #120]	; 82a0 <_mainCRTStartup+0x108>
     8224:	e0522000 	subs	r2, r2, r0
@@ -235,25 +235,25 @@ Load the addresses of `__bss_start__` and `__bss_end__` symbols and zero all the
 
 Call the `__libc_init_array` function provided by standard library which will initialise all the global objects. It will treat the area between `__init_array_start` and `__init_array_end` as list of pointers to initialisation functions and call them one by one.
 
-```
+```cpp
  8278:	eb000014 	bl	82d0 <__libc_init_array>
 ```
 
 Call the main function.
 
-```
+```cpp
  8284:	eb000010 	bl	82cc <main>
 ```
 
 If `main` function returns for some reason, call the exit function, which probably must be implemented as infinite loop or jumping back to the beginning of the startup code.
 
-```
+```cpp
  8288:	eb000008 	bl	82b0 <exit>
 ```
 
 Here comes local data
 
-```
+```cpp
  828c:	00080000 	andeq	r0, r8, r0
     8290:	04008000 	streq	r8, [r0], #-0
 	...
@@ -269,7 +269,7 @@ Also note, that pointers to initialisation functions of global variables reside 
 
 To implement the missing stage for use the following assembler instructions:
 
-```
+```cpp
 _entry:
     ldr pc,reset_handler_ptr        ;@  Processor Reset handler
     ldr pc,undefined_handler_ptr    ;@  Undefined instruction handler
@@ -309,7 +309,7 @@ reset:
 
 Please note that at interrupt vector table that resides at address 0x0000 contains branch instructions to the appropriate handlers, not just addresses of the handlers. Let’s take a closer look how these branching instructions look in our assembler listing file:
 
-```
+```cpp
 _entry:
     800c:	e59ff018 	ldr	pc, [pc, #24]	; 802c <reset_handler_ptr>
     8010:	e59ff018 	ldr	pc, [pc, #24]	; 8030 <undefined_handler_ptr>
@@ -347,7 +347,7 @@ _entry:
 
 The branching instructions load address of the interrupt function to “pc” register. However, the address of the function is stored somewhere and compiler generates access to this storage using relative offset to current “pc” register. This is the reason why we have to copy not just the branching instructions, but also the storage area where addresses of interrupt routines are stored:
 
-```
+```cpp
  ;@ Copy interrupt vector to its place
     ldr r0,=_entry
     mov r1,#0x0000
@@ -365,7 +365,7 @@ The branching instructions load address of the interrupt function to “pc” re
 
 Let’s try to compile simple application that uses dynamic memory allocation. The [test_cpp_vector](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_vector) application contains the following code:
 
-```
+```cpp
 std::vector<int> v;
 static const int MaxVecSize = 256;
 for (int i = 0; i < MaxVecSize; ++i) {
@@ -375,7 +375,7 @@ for (int i = 0; i < MaxVecSize; ++i) {
 
 It may happen that linking operation will fail with multiple referenced symbols being undefined:
 
-```
+```cpp
 unwind-arm.c:(.text+0x224): undefined reference to `__exidx_end'
 unwind-arm.c:(.text+0x228): undefined reference to `__exidx_start'
 /usr/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/libc.a(lib_a-abort.o): In function `abort':
@@ -403,7 +403,7 @@ collect2: error: ld returned 1 exit status
 
 The symbols `__exidx_start` and `__exidx_end` are required to indicate start and end of `.ARM.exidx` section. It is used for exception handling. They must be defined in the linker script:
 
-```
+```cpp
 .ARM.exidx :
 {
     __exidx_start = .;
@@ -422,7 +422,7 @@ Now, after successful compilation, take a good look at the size of the images of
 
 You may notice that size of [test_cpp_vector](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_vector) image is greater by approximately 100K than [test_cpp_simple](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_simple). It is due to C++ heap management and exceptions handling. Let’s try to see what happens to the size of the application if "C++" heap is replaced with “C” one without exceptions. You will have to override all the global C++ operators responsible for memory allocation/deallocation:
 
-```
+```cpp
 #include <cstdlib>
 #include <new> 
 void* operator new(size_t size) noexcept
@@ -484,21 +484,21 @@ It is possible to forbid usage of throw statements by providing certain options 
 
 When the compilation is performed with the options specified above and there is a `throw` statement in the code (for example `throw std::runtime_error("Some error")`), the compilation fails with error message:
 
-```
+```cpp
 main.cpp:34:42: error: exception handling disabled, use -fexceptions to enable
      throw std::runtime_error("Some error");
 ```
 
 However, all the `throw` statements from standard library are compiled in and cause the whole exception handling support code overhead to be included in the final binary image, despite the compilation options forbidding the exceptions. The test application [test_cpp_exceptions](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_exceptions) has simple code that causes the exceptions to be thrown:
 
-```
+```cpp
 std::vector<int> v;
 v.at(100) = 0;
 ```
 
 The generated code of the main function looks like this:
 
-```
+```cpp
 00015f60 <main>:
    15f60:	e92d4008 	push	{r3, lr}
    15f64:	e59f0000 	ldr	r0, [pc]	; 15f6c <main+0xc>
@@ -510,7 +510,7 @@ We also can see there are multiple exception related functions in the produced l
 
 If you would like to use STL classes that may throw exceptions, such as `std::string`, `std::vector`, but refuse to pay the expensive price of extra code space for exceptions handling, you’ll have to do two things. First, make sure that exception conditions never occur in your code run, i.e. if `throw` statement is about to get executed, it means there is a bug in your code. Second, override the definition of all the "__throw_*" functions the compiler tries to use. In order to identify all these functions you’ll have to temporarily disable usage of standard library by passing `-nostdlib` compilation option to your `gcc` compiler. For the code example above the compilation without standard library will fail with error message:
 
-```
+```cpp
 main.cpp.o: In function `main':
 main.cpp:(.text.startup+0x8): undefined reference to `std::__throw_out_of_range(char const*)'
 collect2: error: ld returned 1 exit status
@@ -518,7 +518,7 @@ collect2: error: ld returned 1 exit status
 
 Let’s try to override `std::__throw_out_of_range(char const*)`:
 
-```
+```cpp
 namespace std
 {
 
@@ -540,7 +540,7 @@ This time the compilation will succeed. Let’s now compile the result code with
 
 Let’s try to analyse the generated code when RTTI is in use. The [test_cpp_rtti](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_rtti) application in [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project contains the code listed below.
 
-```
+```cpp
 struct SomeClass
 {
     virtual void someFunc();
@@ -549,7 +549,7 @@ struct SomeClass
 
 Somewhere in *.cpp file:
 
-```
+```cpp
 void SomeClass::someFunc()
 {
 }
@@ -557,21 +557,21 @@ void SomeClass::someFunc()
 
 Somewhere in `main` function:
 
-```
+```cpp
 SomeClass someClass;
 someClass.someFunc();
 ```
 
 Let’s open the listing file and see what’s going on in there. The address of `SomeClass::someFunc()` seems to be `0x8300`:
 
-```
+```cpp
 00008300 <_ZN9SomeClass8someFuncEv>:
     8300:	e12fff1e 	bx	lr
 ```
 
 The virtual table for `SomeClass` class must be somewhere in `.rodata` section and contain address of `SomeClass::someFunc()`, i.e. it must have `0x8300` value inside:
 
-```
+```cpp
 Disassembly of section .rodata:
 
 ...
@@ -584,7 +584,7 @@ Disassembly of section .rodata:
 
 It is visible that compiler added some more entries to the virtual table in addition to the single virtual function we implemented. The address `0x9c04` is also located in `.rodata` section. It is some type related table:
 
-```
+```cpp
 00009c04 <_ZTI9SomeClass>:
     9c04:	00009c28 	andeq	r9, r0, r8, lsr #24
     9c08:	00009bf8 	strdeq	r9, [r0], -r8
@@ -593,7 +593,7 @@ It is visible that compiler added some more entries to the virtual table in addi
 
 Both `0x9c28` and `0x9bf8` are addresses in `.rodata*` section(s). The `0x9bf8` address seems to contain some data:
 
-```
+```cpp
 00009bf8 <_ZTS9SomeClass>:
     9bf8:	6d6f5339 	stclvs	3, cr5, [pc, #-228]!	; 9b1c <strcmp+0x180>
     9bfc:	616c4365 	cmnvs	ip, r5, ror #6
@@ -604,7 +604,7 @@ After a closer look we may decode this data to be `9SomeClass` ascii string.
 
 Address `0x9c28` is in the middle of some type related information table:
 
-```
+```cpp
 00009c20 <_ZTVN10__cxxabiv117__class_type_infoE>:
     9c20:	00000000 	andeq	r0, r0, r0
     9c24:	00009c50 	andeq	r9, r0, r0, asr ip
@@ -624,7 +624,7 @@ How these tables are used by the compiler is of little interest to us. What is i
 
 For some bare metal platforms it may be undesirable or even impossible to have this amount of extra binary code added to the binary image. The GNU compiler (`gcc`) provides an ability to disable **RTTI** by using `-no-rtti` option. Let’s check the virtual table of `SomeClass` class when this option is used:
 
-```
+```cpp
 Disassembly of section .rodata:
 
 00008320 <_ZTV9SomeClass>:
@@ -659,7 +659,7 @@ There also may be a need to provide an implementation of some functions or defin
 
 Another example is having call to [std::bind](http://en.cppreference.com/w/cpp/utility/functional/bind) function with [std::placeholders::_1](http://en.cppreference.com/w/cpp/utility/functional/placeholders), [std::placeholders::_2](http://en.cppreference.com/w/cpp/utility/functional/placeholders), etc. There will be a need to define these placeholders as global symbols:
 
-```
+```cpp
 #include <functional> namespace std
 {
 namespace placeholders
@@ -680,7 +680,7 @@ Even if there is a need for the standard library in the product being developed,
 
 Let’s analyse the code that initialises static objects. [test_cpp_statics](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_statics) is a simple application that has two static objects, one is in the global scope, the other is in the function scope.
 
-```
+```cpp
 class SomeObj
 {
 public:
@@ -725,14 +725,14 @@ int main(int argc, const char** argv)
 
 Note, that compiler will try to inline the code above if implemented in the same file. To properly analyse the code that initialises global variables, you should put implementation of constructor and `instanceGlobal()`/`instanceLocal()` functions into separate files. If `-nostdlib` option is passed to the compiler to exclude linking with standard library, the compilation of the code above will fail with following error:
 
-```
+```cpp
 main.cpp:(.text.startup+0x1c): undefined reference to `__cxa_guard_acquire'
 main.cpp:(.text.startup+0x3c): undefined reference to `__cxa_guard_release'
 ```
 
 It means that compiler attempts to make static variables initialisation thread-safe. The get it compiled you have to either implement the locking functionality yourself or allow compiler to do it in an unsafe way by adding `-fno-threadsafe-statics` compilation option. I think it is quite safe to use this option in the bare-metal development if you make sure the statics are not accessed in the interrupt context or have been initialised at the beginning of `main()` function before any interrupts are enabled. To grab a reference to such object without any use is enough:
 
-```
+```cpp
  auto& local = SomeObj::instanceLocal();
     static_cast<void>(local);
 ```
@@ -741,14 +741,14 @@ Now, let’s analyse the initialisation of `globalObj`. The `.init.array` sectio
 
 Disassembly of section .init.array:
 
-```
+```cpp
 00008180 <__init_array_start>:
     8180:	00008154 	andeq	r8, r0, r4, asr r1
 ```
 
 The initialisation function loads the address of the object and passes it to the constructor of `SomeObj` together with the initialisation parameters (“1” and “2” integer values).
 
-```
+```cpp
 00008154 <_GLOBAL__sub_I__ZN7SomeObj9globalObjE>:
     8154:	e59f0008 	ldr	r0, [pc, #8]	; 8164 <_GLOBAL__sub_I__ZN7SomeObj9globalObjE+0x10>
     8158:	e3a01001 	mov	r1, #1
@@ -766,7 +766,7 @@ Please remember to call all the initialisation functions from `.init.array` sect
 
 In the linker file:
 
-```
+```cpp
  .init.array :
     {
         __init_array_start = .;
@@ -778,7 +778,7 @@ In the linker file:
 
 In the startup code:
 
-```
+```cpp
  ;@ Call constructors of all global objects
     ldr r0, =__init_array_start
     ldr r1, =__init_array_end
@@ -797,7 +797,7 @@ globals_init_loop:
 
 However, if standard library is **NOT** excluded explicitly from the compilation, the `__libc_init_array` provided by the standard library may be used:
 
-```
+```cpp
  ;@ Call constructors of all global objects
     bl	__libc_init_array
 
@@ -808,7 +808,7 @@ However, if standard library is **NOT** excluded explicitly from the compilation
 
 Let’s also perform analysis of initialisation of `localObj` in `SomeObj::instanceLocal()`.
 
-```
+```cpp
 000080e4 <_ZN7SomeObj13instanceLocalEv>:
     80e4:	e92d4010 	push	{r4, lr}
     80e8:	e59f4028 	ldr	r4, [pc, #40]	; 8118 <_ZN7SomeObj13instanceLocalEv+0x34>
@@ -835,7 +835,7 @@ The code above loads the address of the flag that indicates that the object was 
 
 And what about destruction of static objects with non-trivial destructors? Let’s add a destructor to the above class and try to compile:
 
-```
+```cpp
 class SomeObj
 {
 public:
@@ -846,13 +846,13 @@ public:
 
 Somewhere in *.cpp file:
 
-```
+```cpp
 SomeObj::~SomeObj() {}
 ```
 
 This time the compilation will fail with following errors:
 
-```
+```cpp
 CMakeFiles/03_test_statics.dir/SomeObj.cpp.o: In function `SomeObj::instanceLocal()':
 SomeObj.cpp:(.text+0x44): undefined reference to `__aeabi_atexit'
 SomeObj.cpp:(.text+0x58): undefined reference to `__dso_handle'
@@ -863,7 +863,7 @@ SomeObj.cpp:(.text.startup+0x34): undefined reference to `__dso_handle'
 
 According to [this](http://infocenter.arm.com/help/topic/com.arm.doc.ihi0041d/IHI0041D_cppabi.pdf) document, the `__aeabi_atexit` function is used to register pointer to the destructor function together with pointer to the relevant static object to be destructed after `main` function returns. The reason for this behaviour is that these objects must be destructed in the opposite order to which they were constructed. The compiler cannot know the exact construction order for local static objects. There may even be some static objects are not constructed at all. The `__dso_handle` is a global pointer to the current address where the next **{destructor_ptr, object_ptr}** pair will be stored. The `main` function of most bare metal applications is not supposed to return and global/static objects will not be destructed. In this case it will be enough to implement the required function the following way:
 
-```
+```cpp
 extern "C" int __aeabi_atexit(
     void *object,
     void (*destructor)(void *),
@@ -882,7 +882,7 @@ However, if your `main` function returns and then the code jumps back to the ini
 
 To verify all the stated above let’s take a look again at the generated code of initialisation function (after the destructor was added):
 
-```
+```cpp
 00008170 <_GLOBAL__sub_I__ZN7SomeObj9globalObjE>:
     8170:	e92d4010 	push	{r4, lr}
     8174:	e59f4020 	ldr	r4, [pc, #32]	; 819c <_GLOBAL__sub_I__ZN7SomeObj9globalObjE+0x2c>
@@ -914,7 +914,7 @@ Indeed, the call to the constructor immediately followed by the call to `__aeabi
 
 The next thing to test is having abstract classes with pure virtual functions while excluding linkage to standard library (using `-nostdlib` compilation option). Below is an excerpt from [test_cpp_abstract_class](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_abstract_class) application.
 
-```
+```cpp
 class AbstractBase
 {
 public:
@@ -950,7 +950,7 @@ void Derived::func()
 
 Somewhere in the “main” function:
 
-```
+```cpp
 Derived obj;
 AbstractBase* basePtr = &obj;
 basePtr->func();
@@ -958,7 +958,7 @@ basePtr->func();
 
 The compilation will fail with following errors:
 
-```
+```cpp
 CMakeFiles/04_test_abstract_class.dir/AbstractBase.cpp.o: In function `AbstractBase::~AbstractBase()':
 AbstractBase.cpp:(.text+0x24): undefined reference to `operator delete(void*)'
 CMakeFiles/04_test_abstract_class.dir/AbstractBase.cpp.o:(.rodata+0x10): undefined reference to `__cxa_pure_virtual'
@@ -968,7 +968,7 @@ Derived.cpp:(.text+0x3c): undefined reference to `operator delete(void*)'
 
 The `__cxa_pure_virtual` is a function, address of which compiler writes in the virtual table when the function is pure virtual. It may be called due to some unnatural pointer abuse or when trying to invoke pure virtual function in the destructor of the abstract base class. The call to this function should never happen in the normal application run. If it happens it means there is a bug. It is quite safe to implement this function with infinite loop or some way to report the error to the developer, by flashing leds for example.
 
-```
+```cpp
 extern "C" void __cxa_pure_virtual()
 {
     while (true) {}
@@ -977,7 +977,7 @@ extern "C" void __cxa_pure_virtual()
 
 The requirement for `operator delete(void*)` is quite strange though, there is no dynamic memory allocation in the source code. It has to be investigated. Let’s stub the function and check the output of the compiler:
 
-```
+```cpp
 void operator delete(void *)
 {
 }
@@ -985,7 +985,7 @@ void operator delete(void *)
 
 The virtual tables for the classes reside in `.rodata` section:
 
-```
+```cpp
 Disassembly of section .rodata:
 
 000081a0 <_ZTV12AbstractBase>:
@@ -1005,14 +1005,14 @@ Disassembly of section .rodata:
 
 The last entry for both classes has the address of `AbstractBase::nonOverridenFunc` function:
 
-```
+```cpp
 000080e8 <_ZN12AbstractBase16nonOverridenFuncEv>:
     80e8:	e12fff1e 	bx	lr
 ```
 
 The third entry in the virtual table of **Derived** class has the address of `Derived::func` function, while the third entry in the virtual table of **AbstractBase** class has the address of `__cxa_pure_virtual`, just like expected.
 
-```
+```cpp
 0000810c <_ZN7Derived4funcEv>:
     810c:	e12fff1e 	bx	lr
 
@@ -1022,7 +1022,7 @@ The third entry in the virtual table of **Derived** class has the address of `De
 
 The first two entries in the virtual tables point to two different implementations of the destructor. The first entry has the address of normal destructor implementation, and the second one has an address of the second destructor implementation, that invokes operator delete (has `_ZdlPv` symbol) after the destruction of the object:
 
-```
+```cpp
 000080d8 <_ZN12AbstractBaseD1Ev>:
     80d8:	e59f3004 	ldr	r3, [pc, #4]	; 80e4 <_ZN12AbstractBaseD1Ev+0xc>
     80dc:	e5803000 	str	r3, [r0]
@@ -1067,14 +1067,14 @@ The first two entries in the virtual tables point to two different implementatio
 
 It seems that when there is a virtual destructor, the compiler will have to support direct invocation of the destructor as well as usage of operator delete. In case of the former the compiler will use the first entry in the virtual table for the destructor invocation, and in case of the latter the compiler will use the second entry. Let’s try to add the following lines to our `main` function:
 
-```
+```cpp
 basePtr->~AbstractBase();
 delete basePtr;
 ```
 
 The compiler will add the following instructions to the `main` function:
 
-```
+```cpp
  8190:	e59d3004 	ldr	r3, [sp, #4]
     8194:	e1a00004 	mov	r0, r4
     8198:	e5933000 	ldr	r3, [r3]
@@ -1093,7 +1093,7 @@ The address of the virtual table is written into **r3**, then value of **r3** is
 
 Templates are notorious for the code bloating they produce. Some organisations explicitly forbid usage of templates in their internal C++ coding standards. However, templates is a very powerful tool, it is very difficult (if not impossible) to write generic source code, that can be reused in multiple independent projects/platforms without using templates, and without incurring any significant performance penalties. I think developers, who are afraid or not allowed to use templates, will have to implement the same concepts/modules over and over again with minor differences, which are project/platform specific. To properly master the templates we have to see the Assembler code duplication, that is generated by the compiler when templates are used. Let’s try to compile a simple application [test_cpp_templates](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_templates) that uses templated function with different type of input parameters:
 
-```
+```cpp
 template <typename T>
 void func(T startValue)
 {
@@ -1123,7 +1123,7 @@ int main(int argc, const char** argv)
 
 You may notice that function `func` is called with two parameters, one of type `int` the other of type `unsigned`. These types have both the same size and should generate more or less identical code. Let’s take a look at the generated code of `main` function:
 
-```
+```cpp
 00008504 <main>:
     8504:	e92d4008 	push	{r3, lr}
     8508:	e3a00064 	mov	r0, #100	; 0x64
@@ -1135,7 +1135,7 @@ You may notice that function `func` is called with two parameters, one of type `
 
 Yes, indeed, there are two calls to two different functions. However, the assembler code of these functions is almost identical. Let’s also try to reuse the same function with the same types but from different source file:
 
-```
+```cpp
 void other()
 {
     int start1 = 300;
@@ -1148,7 +1148,7 @@ void other()
 
 The generated code is:
 
-```
+```cpp
 000080d8 <_Z5otherv>:
     80d8:	e92d4008 	push	{r3, lr}
     80dc:	e3a00f4b 	mov	r0, #300	; 0x12c
@@ -1162,7 +1162,7 @@ We see that the same functions at the same addresses are called, i. e. the linke
 
 Let’s also try to wrap the same function with a class and add one more template argument:
 
-```
+```cpp
 template <typename T, std::size_t TDummy>
 struct SomeTemplateClass
 {
@@ -1180,7 +1180,7 @@ struct SomeTemplateClass
 
 Please note the dummy template parameter `TDummy` that is not used. Now, we add two more calls to the `main` function:
 
-```
+```cpp
 int main(int argc, const char** argv)
 {
     ...
@@ -1194,7 +1194,7 @@ int main(int argc, const char** argv)
 
 Note, that the functionality of the calls is identical. The only difference is the dummy template argument. Let’s take a look at the generated code:
 
-```
+```cpp
 00008504 <main>:
     ...
     8518:	e3a00f7d 	mov	r0, #500	; 0x1f4
@@ -1214,7 +1214,7 @@ The [tag dispatching](http://www.generic-programming.org/languages/cpp/technique
 
 Let’s try to compile [test_cpp_tag_dispatch](https://github.com/arobenko/embxx_on_rpi/tree/master/src/test_cpp/test_cpp_tag_dispatch) application in [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project and take a look at the code generated by the compiler.
 
-```
+```cpp
 struct Tag1 {};
 struct Tag2 {};
 
@@ -1237,14 +1237,14 @@ private:
 
 Somewhere in the `main` function:
 
-```
+```cpp
 Dispatcher::func<Tag1>();
 Dispatcher::func<Tag2>();
 ```
 
 The code generated by the compiler looks like this:
 
-```
+```cpp
 000080fc <main>:
     80fc:	e92d4008 	push	{r3, lr}
     8100:	e3a00000 	mov	r0, #0
@@ -1258,7 +1258,7 @@ Although the `Tag1` and `Tag2` are empty classes, the compiler still uses intege
 
 Let’s try to optimise this redundant `mov r0, #0` instruction away by making it visible to the compiler that the tag parameter is not used:
 
-```
+```cpp
 class Dispatcher
 {
 public:
@@ -1290,14 +1290,14 @@ private:
 
 Somewhere in the `main` function:
 
-```
+```cpp
 Dispatcher::otherFunc<Tag1>();
 Dispatcher::otherFunc<Tag2>();
 ```
 
 The code generated by the compiler looks like this:
 
-```
+```cpp
 000080fc <main>:
     ...
     8110:	ebfffff2 	bl	80e0 <_ZN10Dispatcher13otherFuncTag1Ev>
@@ -1316,7 +1316,7 @@ Prior to describing various embedded (bare metal) development concepts I’d lik
 
 One of the basic needs during the development is having an ability to test various assumptions and invariants in runtime when compiling the application in DEBUG mode and remove the checks when compiling the application in RELEASE mode. The standard C++ reuses `assert()` macro from standard C library.
 
-```
+```cpp
 #include <cassert> …
 assert(some_condition);
 ```
@@ -1327,7 +1327,7 @@ Both `printf` and `abort` functions are provided by standard library. However, `
 
 If standard library is excluded from the compilation (using `-nostdlib` compilation option), the compilation will fail with `undefined reference to __assert_func` error message. The developer will have to implement this function with correct signature. To retrieve the correct signature you will have to open `assert.h` standard header provided by your compiler. It will be something like this:
 
-```
+```cpp
 void __assert_fail (const char *expr, const char *file, unsigned int line, const char *function) __attribute__ ((__noreturn__));
 ```
 
@@ -1339,7 +1339,7 @@ Below is a short description of a better way to handle assert checks and failure
 
 To resolve the problems described above and to handle the assertions C++ way we will have to create generic assertion failure handling abstract class:
 
-```
+```cpp
 class Assert
 {
 public:
@@ -1353,7 +1353,7 @@ public:
 
 When implementing custom project specific assertion failure behaviour inherit from the class above:
 
-```
+```cpp
 #include "embxx/util/Assert.h" 
 typedef ... Led;
 class LedOnAssert : public embxx::util::Assert
@@ -1382,7 +1382,7 @@ private:
 
 To manage an object of the class above, we will have to create a singleton class with static instance. It will store a pointer to the currently registered assertion failure behaviour:
 
-```
+```cpp
 class AssertManager
 {
 public:
@@ -1425,7 +1425,7 @@ The `reset` member function registers new object that manages assertion failure 
 
 We will require a new macro to check assertion condition and invoke registered failing behaviour:
 
-```
+```cpp
 #ifndef NDEBUG 
 #define GASSERT(expr) \
     ((expr)                               \
@@ -1443,7 +1443,7 @@ Then in case of condition check failure, the `GASSERT()` macro checks whether an
 
 To complete the whole picture we have to provide a convenient way to register new assertion failure behaviours:
 
-```
+```cpp
 template < typename TAssert>
 class EnableAssert
 {
@@ -1472,7 +1472,7 @@ private:
 
 From now on, all we have do is to instantiate object of `EnableAssert` with the behaviour that we want. Note that constructor of `EnableAssert` class can receive any number of parameters and forwards them to the constructor of the internal `assert_` object.
 
-```
+```cpp
 int main (int argc, const char* argv[])
 {
     ...
@@ -1485,7 +1485,7 @@ int main (int argc, const char* argv[])
 
 If there is a need to temporarily override the previous assertion failure behaviour, just create another `EnableAssert` object. Once the latter is out of scope (the object is destructed), previous behaviour will be restored.
 
-```
+```cpp
 int main (int argc, const char* argv[])
 {
     ...
@@ -1506,7 +1506,7 @@ int main (int argc, const char* argv[])
 
 As has been mentioned in the [Benefits of C++](#overview-benefits) chapter, the main reason for choosing C++ over C is code reuse. When having some generic piece of code that tries to use platform specific code and needs to receive some kind of notifications from the latter, the need for some generic callback facility arises. C++ provides [std::function](http://en.cppreference.com/w/cpp/utility/functional/function) class for this purpose, it is possible to provide any callable object, such as [lambda function](http://en.cppreference.com/w/cpp/language/lambda) or [std::bind](http://en.cppreference.com/w/cpp/utility/functional/bind) expression:
 
-```
+```cpp
 class LowLevelPeripheral {
 public:
     template <typename TFunc>
@@ -1548,14 +1548,14 @@ There are two problems with using [std::function](http://en.cppreference.com/w/c
 
 The restriction of inability to use dynamic memory allocation requires to use additional parameter of storage size:
 
-```
+```cpp
 template <typename TSignature, std::size_t TSize = sizeof(void*) * 3>
 class StaticFunction;
 ```
 
 It seems that in most cases the callback object will contain pointer to member function, pointer to handling object and some additional single parameter. This is the reason for specifying the default storage space as equal to the size of 3 pointers. The “signature” template parameter is exactly the same as with [std::function](http://en.cppreference.com/w/cpp/utility/functional/function) plus an optional storage area size template parameter:
 
-```
+```cpp
 typedef embxx::util::StaticFunction<void (int)> MyCallback;
 typedef embxx::util::StaticFunction<
     void (int, int), sizeof(void*) * 4> MyOtherCallback;
@@ -1563,7 +1563,7 @@ typedef embxx::util::StaticFunction<
 
 To properly implement `operator()`, there is a need to split the signature into the return type and rest of parameters. To achieve this the following template specialisation trick is used:
 
-```
+```cpp
 template <std::size_t TSize, typename TRet, typename... TArgs>
 class StaticFunction<TRet (TArgs...), TSize>
 {
@@ -1584,7 +1584,7 @@ private:
 
 The `StaticFunction` object needs an ability to store any type of callable object as its internal data member and then invoke it in its `operator()` member function. To support this functionality we will require additional helper classes:
 
-```
+```cpp
 class StaticFunction<TRet (TArgs...), TSize>
 {
     ...
@@ -1629,7 +1629,7 @@ The callable object that will be stored in `handler_` data area and it will be o
 
 There is a need to properly define `StorageType` for the `handler_` data member:
 
-```
+```cpp
 static const std::size_t StorageAreaSize = TSize + sizeof(Invoker);
 typedef typename
     std::aligned_storage<
@@ -1644,7 +1644,7 @@ Also note that the actual size of the storage area is the requested `TSize` plus
 
 Any callable object may be assigned to `StaticFunction` using either constructor or assignment operator:
 
-```
+```cpp
 template <std::size_t TSize, typename TRet, typename... TArgs>
 class StaticFunction<TRet (TArgs...), TSize>
 {
@@ -1701,7 +1701,7 @@ Also note that there are compile time checks using [static_assert](http://en.cpp
 
 The invocation of the function will be implemented like this:
 
-```
+```cpp
 template <std::size_t TSize, typename TRet, typename... TArgs>
 class StaticFunction<TRet (TArgs...), TSize>
 {
@@ -1741,7 +1741,7 @@ Before data is sent via a communication link, it must be serialised into a buffe
 
 The functions below (defined in namespace `embxx::io`) support read and write of an integral value using any type of iterator:
 
-```
+```cpp
 template <typename T, typename TIter>
 void writeBig(T value, TIter& iter);
 
@@ -1757,7 +1757,7 @@ T readLittle(TIter& iter);
 
 These functions receive reference to iterator of a buffer/container. When bytes are read/written from/to the buffer, the iterator is incremented. The iterator can be of any type as long as it supports dereferencing (`operator*()`), pre-increment (`operator++`) and assignment to dereferenced object. For example, serialising several values of various lengths into the array using big endian:
 
-```
+```cpp
 std::uint8_t buf[128];
 auto iter = &buf[0];
 
@@ -1774,7 +1774,7 @@ The contents of the buffer will be: `{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 
 
 Similar code of reading values from the buffer would be:
 
-```
+```cpp
 std::uint8_t buf[128];
 auto iter = &buf[0];
 
@@ -1785,7 +1785,7 @@ auto value3 = embxx::io::readBig<std::uint64_t>(iter);
 
 Another example is serialising data into a container that has `push_back()` member functions, such as [std::vector](http://en.cppreference.com/w/cpp/container/vector) or circular buffer. The data will be added at the end of the existing one:
 
-```
+```cpp
 std::vector<std::uint8_t> buf;
 auto iter = std::back_inserter(buf); // Will call push_back
                                      // on assignment
@@ -1798,7 +1798,7 @@ embxx::io::writeBig(value3, iter);
 
 Depending on a communication protocol there may be a need to serialise only part of the value. For example some field of communication protocol is defined having only 3 bytes. In this case the value will probably be stored in a variable of `std::uint32_t` type. There is similar set of functions, but with additional template parameter that specifies how many bytes to read/write:
 
-```
+```cpp
 template <std::size_t TSize, typename T, typename TIter>
 void writeBig(T value, TIter& iter);
 
@@ -1814,7 +1814,7 @@ T readLittle(TIter& iter);
 
 So to read/write 3 bytes will look like the following:
 
-```
+```cpp
 auto value = embxx::io::readBig<std::uint32_t, 3>(iter);
 embxx::io::writeBig<3>(value, iter);
 ```
@@ -1823,7 +1823,7 @@ Sometimes the endianness of data serialisation may depend on some traits class p
 
 There are similar read/write functions, but instead of being differentiated by name they have additional tag parameter to specify the endianness of serialisation:
 
-```
+```cpp
 /// Same as writeBig<T, TIter>(value, iter);
 template <typename T, typename TIter>
 void writeData(
@@ -1871,7 +1871,7 @@ T readData(TIter& iter, const traits::endian::Little& endian);
 
 The `traits::endian::Big` and `traits::endian::Little` are defined as empty tag classes:
 
-```
+```cpp
 namespace traits
 {
 
@@ -1889,7 +1889,7 @@ struct Little {};
 
 For example:
 
-```
+```cpp
 template <typename TTraits>
 class SomeClass
 {
@@ -1911,7 +1911,7 @@ So the code above is not aware what endianness is used to serialise the data. It
 
 To serialise data using big endian the traits should be defined as following:
 
-```
+```cpp
 struct MyTraits
 {
     typedef embxx::io::traits::endian::Big Endianness;
@@ -1930,7 +1930,7 @@ The interface described above is very easy and convenient to use and quite easy 
 
 *   Usage of the iterators also require caution. For example reading values may be performed using regular `iterator` as well as `const_iterator`, i.e. iterator pointing to const values. These are two different iterator types that will duplicate the “read” functionality if both of them are used:
 
-```
+```cpp
 char buf[128] = {…};
 const char* iter1 = &buf[0];
 char* iter2 = &buf[0];
@@ -1954,7 +1954,7 @@ There is almost always a need to have some kind of a queuing functionality. A ci
 
 There can always be an attempt to perform an invalid operation, such as access an element outside the queue boundaries, or inserting new element when the queue is full, or popping an element when queue is empty, etc…​ The conventional way in C++ to handle these cases is to throw an exception. However, in embedded and especially in bare metal programming it’s not an option. The right way to handle these errors would be asserting on pre-conditions. The `StaticQueue` implementation in [embxx](https://github.com/arobenko/embxx) library uses `GASSERT()` macro described earlier. The checks will be compiled only in non-Release mode (`NDEBUG` not defined) and in case of the failure it will invoke the project specific code the developer has written to report assertion failure.
 
-```
+```cpp
 template <typename T, std::size_t TSize>
 class StaticQueue
 {
@@ -1972,7 +1972,7 @@ public:
 
 When the queue is created it doesn’t contain any elements. However, it must contain uninitialised space where elements can be created in the future. The space must be of sufficient size and be properly aligned.
 
-```
+```cpp
 template <typename T, std::size_t TSize>
 class StaticQueue
 {
@@ -1995,7 +1995,7 @@ private:
 
 When adding a new element to the queue, the “in-place” construction must be performed:
 
-```
+```cpp
 template <typename T, std::size_t TSize>
 class StaticQueue
 {
@@ -2016,7 +2016,7 @@ public:
 
 When an element removed from the queue, explicit destruction must be performed:
 
-```
+```cpp
 template <typename T, std::size_t TSize>
 class StaticQueue
 {
@@ -2050,7 +2050,7 @@ However, there may be a need to read/write data from/to the queue without worryi
 
 When defining a new custom iterator class, there is a need to properly support [std::iterator_traits](http://en.cppreference.com/w/cpp/iterator/iterator_traits) for it. The traits are used to implement functions such as [std::advance](http://en.cppreference.com/w/cpp/iterator/advance) or [std::distance](http://en.cppreference.com/w/cpp/iterator/distanc)). The requirement is to define the following internal types:
 
-```
+```cpp
 template <typename T, std::size_t TSize>
 class StaticQueue
 {
@@ -2076,7 +2076,7 @@ Care must be taken when copying/moving elements between the queues. The compiler
 
 In addition to regular copy/move constructors and assignment operators, there may also be a need to provide copy/move construction and/or copy/move assignment from the queue that contains elements of the same type, but has different capacity:
 
-```
+```cpp
 template <typename T, std::size_t TSize>
 class StaticQueue
 {
@@ -2116,7 +2116,7 @@ public:
 
 As we all know and confirmed in [Templates](#compiler_output-templates) chapter, any difference in the value of template parameter will create new instantiation of executable code. It means that having multiple queues of the same type, but different sizes may bloat the executable in an unacceptable way. The best way to solve this problem would be defining a base class that is templated only on the type of the stored values and implements the whole logic of the queue while the derived `StaticQueue` class will just provide the necessary storage area and reuse (wrap) all the functions implemented in the base class:
 
-```
+```cpp
 namespace details
 {
 
@@ -2200,7 +2200,7 @@ The job of the code, that is executed in interrupt mode, is to respond to hardwa
 
 There are multiple ways to schedule the execution of event handling code in non-interrupt mode from code being executed in interrupt mode. One of the easiest and straightforward ones is to have some kind of global flag that indicates that event has occurred and the processing is required:
 
-```
+```cpp
 bool g_buttonPressed = false;
 
 void gpioInterruptHandler()
@@ -2238,7 +2238,7 @@ It is quite clear that this approach is not scalable, i.e. will quickly become a
 
 Another widely used approach is to create a queue-like container (linked list or circular buffer) of event IDs which are handled in the similar event loop:
 
-```
+```cpp
 enum EventId
 {
     EventId_ClockTick,
@@ -2289,7 +2289,7 @@ The approaches above are widely used in bare metal projects developed using C pr
 
 I would recommend using a queue of callable objects created by [std::bind()](http://en.cppreference.com/w/cpp/utility/functional/bind) expressions or [lambda functions](http://en.cppreference.com/w/cpp/language/lambda). The conventional C++ way would be using [std::list](http://en.cppreference.com/w/cpp/container/list) of [std::function](http://en.cppreference.com/w/cpp/utility/functional/function) objects. However, these classes use dynamic memory allocation and throw exceptions, which may be not suitable for every bare metal project. Anyway, let’s just demonstrate the idea using these two classes:
 
-```
+```cpp
 typedef std::list<std::function<void ()> > Queue;
 Queue handlers;
 
@@ -2375,7 +2375,7 @@ This approach allows having complex processing of some events with many sub-stag
 
 Now, let’s try to get rid of dynamic memory allocation and possible exceptions. The only way to achieve this is to have a compile time constant that specifies the maximal size of the queue. The naive implementation would be using [StaticQueue](https://github.com/arobenko/embxx/blob/master/embxx/container/StaticQueue.h) of [StaticFunction](https://github.com/arobenko/embxx/blob/master/embxx/util/StaticFunction.h) objects described in [Basic Needs](#basic_needs-basic_needs) chapter. However, the [StaticFunction](https://github.com/arobenko/embxx/blob/master/embxx/util/StaticFunction.h) class definition requires compile time constant to specify the size of the area to store all the data of the callable object. It must be big enough to contain any possible callable object that will be pushed to the queue. For example:
 
-```
+```cpp
 typedef embxx::util::StaticFunction<void (), sizeof(void*) * 10>  Func;
 typedef embxx::container::StaticQueue<Func, 1024> Queue;
 
@@ -2425,7 +2425,7 @@ To properly support this type of queue we must:
 
 The code of required classes will be like this:
 
-```
+```cpp
 class Task
 {
 public:
@@ -2479,7 +2479,7 @@ private:
 
 The definition of the Queue type will be:
 
-```
+```cpp
 typedef typename
     std::aligned_storage<
         sizeof(Task),
@@ -2494,7 +2494,7 @@ typedef embxx::container::StaticQueue<ArrayElemType, ArraySize> Queue;
 
 The code of pushing new handler to the queue will look like this:
 
-```
+```cpp
 template <typename TTask>
 bool addHandler(TTask&& task)
 {
@@ -2517,7 +2517,7 @@ bool addHandler(TTask&& task)
 
 Note, that job of `getAllocPlace()` function is to make sure that continuous storage area that is able to store the required callable object is created (by resizing the queue) and return pointer to this area.
 
-```
+```cpp
 ArrayElemType* getAllocPlace(std::size_t requiredQueueSize)
 {
     auto invalidIter = queue_.invalidIter();
@@ -2550,7 +2550,7 @@ In case of wrap-around, when there is not enough space between the end of the qu
 
 The event handling loop will be something like this:
 
-```
+```cpp
 while (true) {
     ...
     // Get an access pointer to next handler
@@ -2576,7 +2576,7 @@ The only remaining thing is to create a convenient and generic interface to be a
 
 Before diving into implementation of such interface, I’d like to make an analogy between interrupt/non-interrupt execution modes and two threads. The inter-threads communication is managed using locks (such as [std::mutex](http://en.cppreference.com/w/cpp/thread/mutex)) and condition variables (such as [std::condition_variable_any](http://en.cppreference.com/w/cpp/thread/condition_variable_any)). Using this analogy the handlers execution loop (executed in non-interrupt thread) can be implemented like this:
 
-```
+```cpp
 std::mutex lock_;
 std::condition_variable_any cond_;
 ...
@@ -2605,7 +2605,7 @@ while (true) {
 
 And adding new execution handler from any thread can be:
 
-```
+```cpp
 template <typename TTask>
 bool addHandler(TTask&& task)
 {
@@ -2619,7 +2619,7 @@ If we think about interrupt and non-interrupt execution modes as two threads, th
 
 The whole logic of event handling loop in non-interrupt context described above is generic except locking (disabling interrupts) and waiting for new handlers to be added (waiting for interrupts) which are platform and architecture specific. As I’ve mentioned before, the whole idea of using C++ instead of C in bare metal development is to be able to write and reuse generic code while providing minimal platform specific hardware control functionality. The [embxx](https://github.com/arobenko/embxx) library provides [EventLoop](https://github.com/arobenko/embxx/blob/master/embxx/util/EventLoop.h) class that receives the locking and condition variable classes as template parameters and manages safe addition of new handlers and in-order execution of the latter in non-interrupt context.
 
-```
+```cpp
 The class definition looks like this:
 template <std::size_t TSize, typename Tlock, typename TCond>
 class EventLoop
@@ -2630,7 +2630,7 @@ class EventLoop
 
 The `TLock` class must expose the following public interface:
 
-```
+```cpp
 class PlatformLock
 {
 public:
@@ -2656,7 +2656,7 @@ public:
 
 The `TCond` class must expose the following public interface:
 
-```
+```cpp
 class PlatformCond
 {
 public:
@@ -2676,7 +2676,7 @@ public:
 
 The example of such classes for Raspberry Pi platform may be found [here](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/EventLoopDevices.h).
 
-```
+```cpp
 class InterruptLock
 {
 public:
@@ -2733,7 +2733,7 @@ public:
 
 The [EventLoop](https://github.com/arobenko/embxx/blob/master/embxx/util/EventLoop.h) class exposes the following public interface:
 
-```
+```cpp
 template <std::size_t TSize, typename Tlock, typename TCond>
 class EventLoop
 {
@@ -2799,7 +2799,7 @@ If needed, the reference implementation can be found [here](https://github.com/a
 
 The event loop described above is an easy and convenient way to implement soft real-time systems. However, the main rule with such architecture is: **DON’T DO BUSY LOOPS!** It means, if there is a real need to perform a busy wait before proceeding to the next stage, do it by letting other events being handled as well. The `EventLoop` class also provides `busyWait()` member function that does exactly that.
 
-```
+```cpp
 template <std::size_t TSize, typename Tlock, typename TCond>
 class EventLoop
 {
@@ -2923,7 +2923,7 @@ The reader may notice that the `startOp()` member function of the **Device** was
 
 One of the ways to do so is to have different names and make the **Driver** use them depending on the current execution context:
 
-```
+```cpp
 class MyDevice
 {
 public:
@@ -2936,7 +2936,7 @@ Another way is to use a [tag dispatching idiom](http://www.generic-programming.o
 
 It defines two extra tag structs in [embxx/device/context.h](https://github.com/arobenko/embxx/blob/master/embxx/device/context.h):
 
-```
+```cpp
 namespace embxx
 {
 
@@ -2961,7 +2961,7 @@ struct Interrupt {};
 
 Then, almost every member function defined by **Device** class has to specify extra tag parameter indicating context:
 
-```
+```cpp
 class MyDevice
 {
 public:
@@ -2984,7 +2984,7 @@ public:
 
 The **Driver** class will invoke the **Device** functions using relevant temporary context object passed as the last parameter:
 
-```
+```cpp
 class MyDriver
 {
 public:
@@ -3013,7 +3013,7 @@ private:
 
 If some function needs to be called only in, say `EventLoop` context, and not supported in `Interrupt` context, then it is enough to implement only supported variant. If **Driver** layer tries to invoke the function with unsupported context tag parameter, the compilation will fail:
 
-```
+```cpp
 class MyDevice
 {
 public:
@@ -3029,7 +3029,7 @@ public:
 
 If there is no need to differentiate between the contexts the function is invoked in, then it is quite easy to unify them:
 
-```
+```cpp
 class SomeDevice
 {
 public:
@@ -3057,7 +3057,7 @@ In most cases, the numeric value of error code is good enough.
 
 The [embxx](https://github.com/arobenko/embxx) library provides a short list of such values in enumeration class defined in [embxx/error/ErrorCode.h](https://github.com/arobenko/embxx/blob/master/embxx/error/ErrorCode.h):
 
-```
+```cpp
 namespace embxx
 {
 
@@ -3081,7 +3081,7 @@ enum class ErrorCode
 
 There is also a wrapper class around the `embxx::error::ErrorCode`, called `embxx::error::ErrorStatus` (defined in [embxx/error/ErrorStatus.h](https://github.com/arobenko/embxx/blob/master/embxx/error/ErrorStatus.h)):
 
-```
+```cpp
 namespace embxx
 {
 
@@ -3140,7 +3140,7 @@ typedef ErrorStatusT<ErrorCode> ErrorStatus;
 
 It allows implicit conversion from `embxx::error::ErrorCode` to `embxx::error::ErrorStatus` and convenient evaluation whether error has occurred in `if` sentences:
 
-```
+```cpp
 embxx::error::ErrorStatus es;
 GASSERT(!es); // No error
 ...
@@ -3155,7 +3155,7 @@ if (es) {
 
 By convention every callback function provided with any asynchronous request to any **Driver** and/or **Component** implemented in [embxx](https://github.com/arobenko/embxx) library will receive `const embxx::error::ErrorStatus&` as its first argument:
 
-```
+```cpp
 void callback(const embxx::error::ErrorStatus& es, ... /* some other parameters */)
 {
     if (es == embxx::error::ErrorCode::Aborted) {
@@ -3174,7 +3174,7 @@ void callback(const embxx::error::ErrorStatus& es, ... /* some other parameters 
 
 As it is seen in the charts above, the **Driver** must have an access to the **Device** as well as **Event Loop** objects. However, the former is not aware of the exact type of the latter. In order to write fully generic code, the **Device** and **Event Loop** types must be provided as template arguments:
 
-```
+```cpp
 template <typename TDevice, typename TEventLoop>
 class MyDriver
 {
@@ -3198,7 +3198,7 @@ private:
 
 The **Component** needs an access only to the **Device** and maybe **Event Loop**. The reference to the latter may be retrieved from the **Device** object itself:
 
-```
+```cpp
 template <typename TDevice, typename TEventLoop>
 class MyDriver
 {
@@ -3236,7 +3236,7 @@ private:
 
 The **Driver** needs to provide a callback object to the **Device** to be called when appropriate interrupt occurs. The **Component** also provides a callback object to be invoked in non-interrupt context when the asynchronous operation is complete, aborted or terminated due to some error condition. These callback objects need to be stored somewhere. The best way to do so in conventional C++ is using [std::function](http://en.cppreference.com/w/cpp/utility/functional/function).
 
-```
+```cpp
 template <typename TDevice, typename TEventLoop>
 class MyDriver
 {
@@ -3266,7 +3266,7 @@ There are two problems with using [std::function](http://en.cppreference.com/w/c
 
 The problem is resolved by defining the callback storage type as a template parameter to the **Driver**:
 
-```
+```cpp
 template <typename TDevice,
           typename TEventLoop,
           typename TCallbackType>
@@ -3298,7 +3298,7 @@ In order to compile all the applications please follow the instructions describe
 
 In ARM platform every pin needs to be configured as either gpio input, gpio output or having one of several alternative functions the microcontroller supports. The `device::Function` class defined in [src/device/Function.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/Function.h) and [src/device/Function.cpp](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/Function.cpp) implements simple interface which allows every **Device** class configure the pins it uses.
 
-```
+```cpp
 class Function
 {
 public:
@@ -3329,7 +3329,7 @@ There is one more componenet that every **Device** will use. It’s `device::Int
 
 The interface of the `device::InterruptMgr` is defined as following:
 
-```
+```cpp
 template <typename THandler = embxx::util::StaticFunction<void ()> >
 class InterruptMgr
 {
@@ -3378,7 +3378,7 @@ In order to use the **Interrupt Manager** described above every application has 
 
 The code will look something like this:
 
-```
+```cpp
 extern "C"
 void interruptHandler()
 {
@@ -3388,7 +3388,7 @@ void interruptHandler()
 
 There may also be a need to enable/disable all the interrupts by toggling `i` flag in `CPS` register. The same [src/device/InterruptMgr.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/device/InterruptMgr.h) file provides two function for this purpose:
 
-```
+```cpp
 namespace device
 {
 
@@ -3466,7 +3466,7 @@ The unsuccessful attempts to cancel wait is performed in exactly the same way as
 
 There is obviously a need to have some kind of identification of the wait requests in order to be able to cancel some specific request while keeping the rest in waiting queue. One approach would be to have some kind of a handle which can be used during the cancellation request:
 
-```
+```cpp
 class MyTimerDriver
 {
 public:
@@ -3480,7 +3480,7 @@ public:
 
 Another one is to hide the handle in some wrapper class, which makes it a bit safer to use:
 
-```
+```cpp
 class MyTimerDriver
 {
 public:
@@ -3534,7 +3534,7 @@ private:
 
 The **Driver** itself has only one public function `allocTimer()`. It is used to allocate the `Timer` object. All the wait and/or cancel requests are issued to this timer object directly, which is declared to be a `friend` of the **Driver** class, i.e. it is able to call private functions of the latter using the handle it has. The destructor of the `Timer` makes sure that the handle is properly invalidated.
 
-```
+```cpp
 MyTimerDriver driver(...);
 auto timer = driver.allocTimer();
 timer.asyncWait(...);
@@ -3551,7 +3551,7 @@ The timer **Device** is platform specific. Some platforms may support wait durat
 
 In case the **Device** declares a minimal wait duration unit using [std::chrono::duration](http://en.cppreference.com/w/cpp/chrono/duration) type, the **Driver** may use [std::chrono::duration_cast](http://en.cppreference.com/w/cpp/chrono/duration/duration_cast) to convert the requested wait duration to supported duration units.
 
-```
+```cpp
 class MyTimerDevice
 {
 public:
@@ -3569,7 +3569,7 @@ In the example above the minimal supported duration unit (`WaitTimeUnitDuration`
 
 Then the definition of the `asyncWait()` member function of the **Driver** may be defined like this:
 
-```
+```cpp
 template <typename TDevice, ...>
 class MyTimerDriver
 {
@@ -3596,13 +3596,13 @@ public:
 
 In the example above the call below will perform correct adjustment of the duration and will measure the same timeout with any **Device** whether the latter expects milliseconds or microseconds in its `startWait()` member function.
 
-```
+```cpp
 timer.asyncWait(std::chrono::seconds(5), ...);
 ```
 
 In case the developer tries to execute a wait of several microseconds when **Driver** supports only milliseconds granularity, the compilation will fail.
 
-```
+```cpp
 timer.asyncWait(std::chrono::microseconds(5), ...);
 ```
 
@@ -3614,7 +3614,7 @@ Such **Driver** is already implemented in [embxx](https://github.com/arobenko/em
 
 The `embxx::driver::TimerMgr` is defined like this:
 
-```
+```cpp
 template <typename TDevice,
           typename TEventLoop,
           std::size_t TMaxTimers,
@@ -3657,7 +3657,7 @@ The `TTimeoutHandler` template parameter specifies type of the timeout callback 
 
 The `embxx::driver::TimerMgr` exposes the following public interface:
 
-```
+```cpp
 template <...>
 class TimerMgr
 {
@@ -3691,7 +3691,7 @@ The reader may notice that `embxx::driver::TimerMgr` exposes only one public fun
 
 Then the led flashing application (implemented in [src/app/app_led_flash](https://github.com/arobenko/embxx_on_rpi/tree/master/src/app/app_led_flash)) can be as simple as the code below:
 
-```
+```cpp
 namespace
 {
 
@@ -3761,7 +3761,7 @@ int main() {
 
 As it was already mentioned earlier, the `embxx::driver::TimerMgr` is a generic **Driver** class that does most of the work of managing and scheduling independent wait requests. It requires support from low level timer **Device** object to program the actual hardware of the platform the code runs on. The `embxx::driver::TimerMgr` is defined to receive the **Device** class as template parameter as well as reference to the **Device** timer object in the constructor. The **Driver** doesn’t know the exact **Device** type, but expects it to expose certain public interface:
 
-```
+```cpp
 template <typename TDevice, typename TEventLoop, ...>
 class TimerMgr
 {
@@ -3775,20 +3775,20 @@ The timer control **Device** class must expose the following public interface:
 
 1.  Define `WaitTimeUnitDuration` type as variation of [std::chrono::duration](https://en.cppreference.com/w/cpp/chrono/duration) that specifies duration of single wait unit supported by the **Device**.
 
-    ```
+    ```cpp
     typedef std::chrono::duration<...> WaitTimeUnitDuration;
     ```
 
 2.  Function to set the callback object to be invoked from timer interrupt:
 
-    ```
+    ```cpp
     template <typename TFunc>
     void setWaitCompleteCallback(TFunc&& func);
     ```
 
 3.  Functions to start timer countdown in both event loop (non-interrupt) and interrupt contexts:
 
-    ```
+    ```cpp
     void startWait(
         WaitTimeUnitDuration::rep waitTime, // num of wait units
         embxx::device::context::EventLoop context);
@@ -3799,25 +3799,25 @@ The timer control **Device** class must expose the following public interface:
 
 4.  Function to cancel timer countdown in event loop (non-interrupt) context. The function must return true in case the wait was actually canceled and false when there is no wait in progress.
 
-    ```
+    ```cpp
     bool cancelWait(embxx::device::context::EventLoop context);
     ```
 
 5.  Function to suspend countdown (disable interrupts while the actual wait countdown is not stopped) in event loop (non-interrupt) context. The function must return true in case the wait was actually suspended and false when there is no wait in progress. The call to this function will be followed either by `resumeWait()` or by `cancelWait()`.
 
-    ```
+    ```cpp
     bool suspendWait(embxx::device::context::EventLoop context);
     ```
 
 6.  Function to resume countdown in event loop (non-interrupt) context.
 
-    ```
+    ```cpp
     void resumeWait(embxx::device::context::EventLoop context);
     ```
 
 7.  Function to retrieve elapsed time of the last executed wait. It will be called right after the `cancelWait()`.
 
-    ```
+    ```cpp
     WaitTimeUnitDuration::rep getElapsed(embxx::device::context::EventLoop context) const;
     ```
 
@@ -3829,7 +3829,7 @@ Our next stage will be to support debug logging via UART interface. In conventio
 
 If `printf` is used the compilation may fail at the linking stage with following errors:
 
-```
+```cpp
 /usr/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o): In function `_sbrk_r':
 sbrkr.c:(.text._sbrk_r+0x18): undefined reference to `_sbrk'
 /usr/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/libc.a(lib_a-writer.o): In function `_write_r':
@@ -3853,7 +3853,7 @@ The `_sbrk` function is required to support dynamic memory allocation. The `prin
 
 The `_write` function is used to write characters into the standard output consol, which doesn’t exist in embedded product. The developer must use this function implementation to write all the provided characters to UART serial interface. Many developers implement this function in a straightforward synchronous way with busy loop:
 
-```
+```cpp
 extern "C" int _write(int file, char *ptr, int len)
 {
     int count = len;
@@ -3875,14 +3875,14 @@ In order to make the execution of `printf` quick, there must be some kind of int
 
 One of disadvantages in using `printf` for logging is a necessity to specify an output format of the printed variables:
 
-```
+```cpp
 std::int32_t i = ...; // some value
 printf("Value = %d\n");
 ```
 
 In case the type of the printed variable changes, the developer must remember to update type in the format string too. This is the reason why many C++ developers prefer using streams instead of `printf`:
 
-```
+```cpp
 std::int32_t i = ...; // some value
 std::cout << "Value = " << i << std::endl;
 ```
@@ -3903,7 +3903,7 @@ Asyncrhonous read and write operations on the UART interface are very similar to
 
 The **Component** calls `asyncWrite()` member function of the **Driver** and provides pointer to the buffer, size of the buffer and the callback object to invoke when the write is complete. The `asyncWrite()` function needs to be able to receive any type of callable object, such as [std::bind](http://en.cppreference.com/w/cpp/utility/functional/bind) expression or [lambda function](http://en.cppreference.com/w/cpp/language/lambda). To achieve this the function must be templated:
 
-```
+```cpp
 class CharacterDriver
 {
 public:
@@ -3929,7 +3929,7 @@ Once the interrupt of "TX available" occurs, the **Device** must let the **Drive
 
 When the **Driver** receives such notification, it attempts to write as many characters as possible:
 
-```
+```cpp
 typedef embxx::device::context::Interrupt InterruptContext;
 
 void canWriteCallback()
@@ -3970,7 +3970,7 @@ The reading from UART is done in a very similar manner.
 
 The `asyncRead()` member function of the **Driver** should allow callback to be callable object of any type (but one that exposes predefined signature of course).
 
-```
+```cpp
 class CharacterDriver
 {
 public:
@@ -3990,7 +3990,7 @@ public:
 
 The callback’s implementation will be something like:
 
-```
+```cpp
  void canReadCallback()
     {
         while(device_.canRead(InterruptContext())) {
@@ -4033,7 +4033,7 @@ There may be a case, when partial read needs to be performed, for example until 
 
 Note, that previously **Driver** called `cancelRead()` member function of the **Device** in event loop (non-interrupt) context, while in "read until" situation the cancellation happens in interrupt mode. That requires **Device** to implement these functions for both modes:
 
-```
+```cpp
 class MyDevice
 {
 public:
@@ -4044,7 +4044,7 @@ public:
 
 The `asyncReadUntil()` member function of the **Driver** should be able to receive any stateless predicate object that defines `bool operator()(CharType ch) const`. The predicate invocation should return `true` when expected character is received and reading operation must be stopped.
 
-```
+```cpp
 class MyDriver
 {
 public:
@@ -4062,7 +4062,7 @@ public:
 
 It allows using complex conditions in evaluating the character. For example, stopping when either `'\r'` or `'\n'` is encountered:
 
-```
+```cpp
 typedef embxx::error::ErrorStatus EmbxxErrorStatus;
 
 driver_.asyncReadUntil(
@@ -4082,7 +4082,7 @@ driver_.asyncReadUntil(
 
 In this section I will try to describe in more details what **Device** class needs to provide for the **Driver** to work correctly. First of all it needs to define the type of characters used:
 
-```
+```cpp
 class MyDevice
 {
 public:
@@ -4092,7 +4092,7 @@ public:
 
 The **Driver** layer will reuse the definition of the character in its internal functions:
 
-```
+```cpp
 template<typename TDevice, ...>
 class MyDriver
 {
@@ -4105,7 +4105,7 @@ public:
 
 There is a need for **Device** to be able to record callback objects from the **Driver** in order to notify the latter about an ability to read/write next character and about operation completion.
 
-```
+```cpp
 class MyDevice
 {
 public:
@@ -4148,7 +4148,7 @@ private:
 
 The `OpAvailableHandler` and `OpCompleteHandler` type may be either hard coded to be `std::function<void ()>` and `std::function<void (const embxx::error::ErrorStatus&)>` respectively or passed as template parameters:
 
-```
+```cpp
 template <typename TCanReadHandler,
           typename TCanWriteHandler,
           typename TReadCompleteHandler,
@@ -4172,7 +4172,7 @@ Choosing the "template parameters option" is useful when the same **Device** cla
 
 The next stage would be implementing all the required functions:
 
-```
+```cpp
 class MyDevice
 {
 public:
@@ -4212,7 +4212,7 @@ public:
 
 Note, that there may be extra configuration functions specific for the peripheral being controlled. For example baud rate, parity, flow control for UART. Such configuration is almost always platform and/or product specific and usually performed at application startup. It is irrelevant to the [Device-Driver-Component](#basic_concepts-device_driver_component) model introduced in this book.
 
-```
+```cpp
 class MyDevice
 {
 public:
@@ -4229,7 +4229,7 @@ The [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project has multipl
 
 First of all, we will need references to **Device** as well as [Event Loop](#basic_concepts-event_loop) objects:
 
-```
+```cpp
 template <typename TDevice, typename TEventLoop>
 class MyDriver
 {
@@ -4285,7 +4285,7 @@ We will also need to store callbacks provided with any asynchronous operation. N
 
 The only way to make **Driver** generic is to move responsibility of specifying callback storage type up one level, i.e. we must put them as template parameters:
 
-```
+```cpp
 template <typename TDevice,
           typename TEventLoop,
           typename TReadCompleteCallback,
@@ -4342,7 +4342,7 @@ private:
 
 As it was mentioned earlier in [Reading "Until"](#peripherals-uart-reading_until) section, there is quite often a need to stop reading characters into the provided buffer when some condition evaluates to true. It means there is also a need to provide storage for the character evaluation predicate:
 
-```
+```cpp
 template <typename TDevice,
           typename TEventLoop,
           typename TReadCompleteCallback,
@@ -4386,7 +4386,7 @@ private:
 
 The example code above may work, but it contradicts to one of the basic principles of C++: "You should pay only for what you use". In case of using UART for logging, there is no input from the peripheral and it is a waist to keep data members for "read" required to manage "read" operations. Let’s try to improve the situation a little bit by using template specialisation as well as reduce number of template parameters by using "Traits" aggregation struct.
 
-```
+```cpp
 struct MyOutputTraits
 {
     // The "read" handler storage type.
@@ -4411,7 +4411,7 @@ struct MyOutputTraits
 
 Please note, that allowed number of pending "read" requests is specified as 0 in the traits struct above, i.e. the read operations are not allowed. The "read complete" and "read until predicate" types are irrelevant and specified as [std::nullptr_t](http://en.cppreference.com/w/cpp/types/nullptr_t). The instantiation of the **Driver** object must take it into account and not include any "read" related functionality. In order to achieve this the **Driver** class needs to have two independent sub-functionalities of "read" and "write". It may be achieved by inheriting from two base classes.
 
-```
+```cpp
 template <typename TDevice,
           typename TEventLoop,
           typename TTraits = MyOutputTraits>
@@ -4453,7 +4453,7 @@ public:
 
 Now, the template specialisation based on queue size should do the job:
 
-```
+```cpp
 template <typename TDevice,
           typename TEventLoop,
           typename TReadHandler,
@@ -4520,7 +4520,7 @@ In order to support this extension, the **Device** class must implement some ext
 
 1.  The new read/write request can be issued by the **Driver** in interrupt context, after previous operation reported completion.
 
-    ```
+    ```cpp
     class MyDevice
     {
     public:
@@ -4531,7 +4531,7 @@ In order to support this extension, the **Device** class must implement some ext
 
 2.  When new asynchronous read/write request is issued to the **Driver** it must be able to prevent interrupt context callbacks from being invoked to avoid races on the internal data structure:
 
-    ```
+    ```cpp
     class MyDevice
     {
     public:
@@ -4552,7 +4552,7 @@ Now, it is time to do something practical. The [app_uart1_echo](https://github.c
 
 The `System` class in [System.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/app/app_uart1_echo/System.h) file defines the **Device** and **Driver** layers:
 
-```
+```cpp
 class System
 {
 public:
@@ -4581,7 +4581,7 @@ private:
 
 Note that `UartSocket` uses default "TTraits" template parameter of `embxx::driver::Character`, which is defined to be:
 
-```
+```cpp
 struct DefaultCharacterTraits
 {
     typedef embxx::util::StaticFunction<
@@ -4596,7 +4596,7 @@ struct DefaultCharacterTraits
 
 It allows usage of both "read" and "write" operations at the same time. Having the definitions in place it is quite easy to implement the "echo" functionality:
 
-```
+```cpp
 // Forward declaration
 void writeChar(System::UartSocket& uartSocket, System::Uart::CharType& ch);
 
@@ -4659,7 +4659,7 @@ Such **Component** should be implemented as two sub-**Components**. One is "Stre
 
 Let’s start with "Output Stream Buffer" first. It needs to receive reference to the **Driver** it’s going to use:
 
-```
+```cpp
 template <typename TDriver>
 class OutStreamBuf
 {
@@ -4677,7 +4677,7 @@ private:
 
 There is also a need to have a buffer, where characters are stored before they are written to the device. Remember that we are trying to create a **Component**, which can be reused in multiple independent projects, including ones that do not support dynamic memory allocation. Hence, [Static (Fixed Size) Queue](#basic_needs-queue) may be a good choice for it. It means, there is a need to provide size of the buffer as one of the template arguments:
 
-```
+```cpp
 template <typename TDriver,
           std::size_t TBufSize>
 class OutStreamBuf
@@ -4700,7 +4700,7 @@ The "Output Stream Buffer" needs to support two main operations:
 
 When pushing a new character, there may be a case when the internal buffer is full. In this case, the pushed character needs to be discarded and there must be an indication whether "push" operation was successful. The function may return either `bool` to indicate success of the operation or `std::size_t` to inform the caller how may characters where written. If `0` is returned, the character wasn’t written.
 
-```
+```cpp
 template <...>
 class OutStreamBuf
 {
@@ -4719,7 +4719,7 @@ public:
 
 This limited number of operations is enough to implement "Output Stream" - like interface. However, "Output Stream Buffer" can be useful in writing any serialised data into the peripheral, not only the debug output. For example using standard algorithms:
 
-```
+```cpp
 OutStreamBuf<...> outStreamBuf(...);
 std::array<std::uint8_t, 128> data = {{.../* some data*/}};
 
@@ -4729,7 +4729,7 @@ outStreamBuf.flush();
 
 In the example above, [std::back_inserter](http://en.cppreference.com/w/cpp/iterator/back_inserter) requires a container to define `push_back()` member function:
 
-```
+```cpp
 template <...>
 class OutStreamBuf
 {
@@ -4745,7 +4745,7 @@ public:
 
 There also may be a need to iterate over written, but still not flushed, characters and update some of them before the call to `flush()`. In other words the "Output Stream Buffer" must be treated as random access container:
 
-```
+```cpp
 template <...>
 class OutStreamBuf
 {
@@ -4778,7 +4778,7 @@ public:
 
 As was mentioned earlier, the `OutStreamBuf` uses [Static (Fixed Size) Queue](#basic_needs-queue) as its internal buffer and any characters pushed beyond the capacity gets discarded. There must be a way to identify available capacity as well as request asynchronous notification via callback when requested capacity becomes available:
 
-```
+```cpp
 template <typename TDriver,
           std::size_t TBufSize,
           typename TWaitHandler =
@@ -4814,7 +4814,7 @@ Such "Output Stream Buffer" is already implemented in [embxx/io/OutStreamBuf.h](
 
 The next stage would be defining the "Output Stream" class, which will allow printing of null terminated strings as well as various integral values.
 
-```
+```cpp
 template <typename TStreamBuf>
 class OutStream
 {
@@ -4898,7 +4898,7 @@ private:
 
 We will also require the numeric base representation and manipulator. Unfortunately, usage of `std::oct`, ``std::dec`or `std::hex`` manipulators will require inclusion of standard library header [<ios>](http://en.cppreference.com/w/cpp/header/ios), which in turn includes other standard stream related headers, which define some static objects, which in turn are defined and instantiated in standard library. It contradicts our main goal of writing generic code that doesn’t require standard library to be used. It is better to define such manipulators ourselves:
 
-```
+```cpp
 enum Base
 {
     bin, ///< Binary numeric base stream manipulator
@@ -4932,7 +4932,7 @@ private:
 
 The value of the numeric base representation must be taken into account when creating string representation of numeric values. The usage is very similar to standard:
 
-```
+```cpp
 OutStream<...> stream;
 
 stream << "var1=" << dec << var1 << "; var2=" << hex << var2 << '\n';
@@ -4941,7 +4941,7 @@ stream.flush();
 
 It may be convenient to support a little bit of formatting, such as specifying minimal width of the output as well as fill character:
 
-```
+```cpp
 class WidthManip : public ValueManipBase<std::size_t>
 {
 public:
@@ -5009,7 +5009,7 @@ private:
 
 The usage is very similar to the base manipulator:
 
-```
+```cpp
 OutStream<...> stream;
 
 stream << "var1=" << dec << setw(4) << var1 << "; var2=" << hex
@@ -5019,7 +5019,7 @@ stream.flush();
 
 Another useful manipulator is adding '\n' at the end as well as calling `flush()`, just like `std::endl` does when using standard output streams:
 
-```
+```cpp
 enum Endl
 {
     endl ///< End of line stream manipulator
@@ -5045,7 +5045,7 @@ private:
 
 Then usage example may be changed to:
 
-```
+```cpp
 OutStream<...> stream;
 
 stream << "var1=" << dec << setw(4) << var1 << "; var2=" << hex
@@ -5060,7 +5060,7 @@ Such "Output Stream" is already implemented in [embxx/io/OutStream.h](https://gi
 
 In general, debug logging should be under conditional compilation, for example only in **DEBUG** mode, while the printing code is excluded when compiling in **RELEASE** mode.
 
-```
+```cpp
 #ifndef NDEBUG
     stream << "Some info massage" << endl;
 #endif
@@ -5068,7 +5068,7 @@ In general, debug logging should be under conditional compilation, for example o
 
 Sometimes there is a need to easily change the amount of debug messages being printed. For that purpose, the concept of logging levels is widely used:
 
-```
+```cpp
 namespace log
 {
 
@@ -5087,7 +5087,7 @@ enum Level
 
 The logging statement becomes a macro:
 
-```
+```cpp
 const auto MinLogLevel = log::Info;
 
 #define LOG(stream__, level__, output__) \
@@ -5100,7 +5100,7 @@ const auto MinLogLevel = log::Info;
 
 In this case all the logging attempts for level below `log::Info` get optimised away by the compiler, because the `if` statement known to evaluate to `false` at compile time:
 
-```
+```cpp
 LOG(stream, log::Debug, "This message is not printed." << endl);
 LOG(stream, log::Info, "This message IS printed." << endl);
 LOG(stream, log::Warning, "This message IS printed also." << endl);
@@ -5108,7 +5108,7 @@ LOG(stream, log::Warning, "This message IS printed also." << endl);
 
 It would be nice to be able to add some automatic formatting to the logged statements, such as printing the log level and/or adding '\n' and flushing at the end. For example, the code below
 
-```
+```cpp
 LOG(stream, log::Debug, "This is DEBUG message.");
 LOG(stream, log::Info, "This is INFO message.");
 LOG(stream, log::Warning, "This is WARNING message.");
@@ -5116,7 +5116,7 @@ LOG(stream, log::Warning, "This is WARNING message.");
 
 to produce the following output
 
-```
+```cpp
 [DEBUG]: This is DEBUG message.
 [INFO]: This is INFO message.
 [WARNING]: This is WARNING message.
@@ -5126,7 +5126,7 @@ with `'\n'` character and call to `flush()` at the end.
 
 It is easy to achieve when using some kind of wrapper logging class around the output stream as well as relevant formatters. For example:
 
-```
+```cpp
 template <log::Level TLevel, typename TStream>
 class StreamLogger
 {
@@ -5167,7 +5167,7 @@ private:
 
 The logging macro will look like this:
 
-```
+```cpp
 #define SLOG(log__, level__, output__) \
     do { \
         if ((log__).MinLevel <= (level__)) { \
@@ -5180,7 +5180,7 @@ The logging macro will look like this:
 
 A formatter can be defined by exposing the same interface, but wraps the original `StreamLogger` or another formatter. For example let’s define formatter that calls `flush()` member function of the stream when output is complete:
 
-```
+```cpp
 template <typename TNextLayer>
 class StreamFlushSuffixer
 {
@@ -5217,7 +5217,7 @@ private:
 
 The definition of such logger would be:
 
-```
+```cpp
 typedef ... OutStream; // type of the output stream
 typedef
     StreamFlushSuffixer<
@@ -5230,7 +5230,7 @@ typedef
 
 The same `SLOG()` macro will work for this logger with extra formatting:
 
-```
+```cpp
 OutStream stream(... /* construction params */);
 Log log(stream);
 SLOG(log, log::Debug, "This is DEBUG message.\n");
@@ -5238,7 +5238,7 @@ SLOG(log, log::Debug, "This is DEBUG message.\n");
 
 Let’s also add a formatter that capable of printing any value (and `'\n'` in particular) at the end of the output.
 
-```
+```cpp
 template <typename T, typename TNextLayer>
 class StreamableValueSuffixer
 {
@@ -5275,7 +5275,7 @@ private:
 
 The definition of the logger that adds `'\n'` character and then calls `flush()` member function of the underlying stream would be:
 
-```
+```cpp
 typedef embxx::io::OutStream<...> OutStream;
 typedef
     StreamFlushSuffixer<
@@ -5291,7 +5291,7 @@ typedef
 
 While the construction will require to specify the character which is going to be printed at the end, but before call to `flush()`.
 
-```
+```cpp
 OutStream stream(...);
 Log log('\n', stream);
 SLOG(log, log::Debug, "This is DEBUG message.");
@@ -5299,7 +5299,7 @@ SLOG(log, log::Debug, "This is DEBUG message.");
 
 As the last formatter, let’s do the one that prefixes the output with log level information:
 
-```
+```cpp
 template <typename TNextLayer>
 class LevelStringPrefixer
 {
@@ -5344,7 +5344,7 @@ private:
 
 The definition of the logger that prints such a prefix at the beginning and `'\n'` at the end together with call to `flush()` would be:
 
-```
+```cpp
 typedef
     StreamFlushSuffixer<
         StreamableValueSuffixer<
@@ -5365,7 +5365,7 @@ Such `StreamLogger` together with multiple formatters is already implemented in 
 
 The [app_uart1_logging](https://github.com/arobenko/embxx_on_rpi/tree/master/src/app/app_uart1_logging) application in [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project implements logging of simple counter that gets incremented once a second:
 
-```
+```cpp
 namespace log = embxx::util::log;
 template <typename TLog, typename TTimer>
 void performLog(TLog& log, TTimer& timer, std::size_t& counter)
@@ -5418,7 +5418,7 @@ int main() {
 
 The [System.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/app/app_uart1_logging/System.h) file defines the whole output stack:
 
-```
+```cpp
 class System
 {
 public:
@@ -5487,7 +5487,7 @@ private:
 
 This application will produce the following output to the UART interface with new line appearing every second:
 
-```
+```cpp
 [INFO] Logging output: counter = 1 (0x1)
 [INFO] Logging output: counter = 2 (0x2)
 [INFO] Logging output: counter = 3 (0x3)
@@ -5500,7 +5500,7 @@ In many systems the UART interfaces are also used to communicate between various
 
 It must obviously have an access to the Character **Driver** and will probably have a circular buffer to store incoming characters.
 
-```
+```cpp
 template <typename TDriver, std::size_t TBufSize>
 class InStreamBuf
 {
@@ -5522,7 +5522,7 @@ private:
 
 The **Driver** won’t perform any read operations unless it is explicitly requested to do so with its `asyncRead()` member function. Sometimes, there is a need to keep characters flowing in and being stored in the buffer, even when the **Component** responsible for processing them is not ready. In order to make this happen, the "Input Stream Buffer" must be responsible for constantly requesting the **Driver** to perform asynchronous read while providing space where these characters are going to be stored.
 
-```
+```cpp
 template <typename TDriver, std::size_t TBufSize>
 class InStreamBuf
 {
@@ -5540,7 +5540,7 @@ public:
 
 Most of the times the responsible **Component** will require some number of characters to be accumulated before their processing can be started. There is a need to provide asynchronous notification callback request when appropriate number of characters becomes available. The callback must be stored in the internal data structures of the "Input Stream Buffer" and invoked when needed. Due to the latter being developed as a generic class, there is a need to provide callback storage type as a template parameter.
 
-```
+```cpp
 template <typename TDriver, std::size_t TBufSize, typename TWaitHandler>
 class InStreamBuf
 {
@@ -5560,7 +5560,7 @@ private:
 
 Once the required number of characters is accumulated, the **Component** must be able to access and process them. It means that "Input Stream Buffer" must also be a container with random access iterators.
 
-```
+```cpp
 template <typename TDriver, std::size_t TBufSize, typename TWaitHandler>
 class InStreamBuf
 {
@@ -5593,7 +5593,7 @@ Please note, that all the access to the characters are done using const iterator
 
 When the characters inside the buffer got processed and aren’t needed any more, they need to be discarded to free the space inside the buffer for new ones to come.
 
-```
+```cpp
 template <typename TDriver, std::size_t TBufSize, typename TWaitHandler>
 class InStreamBuf
 {
@@ -5609,7 +5609,7 @@ The [app_uart1_morse](https://github.com/arobenko/embxx_on_rpi/tree/master/src/a
 
 First of all there is a need to have an access to the led to flash, input buffer to store the incoming characters and timer manager to allocate a timer to measure timeouts.
 
-```
+```cpp
 template <typename TLed, typename TInBuf, typename TTimerMgr>
 class Morse
 {
@@ -5638,7 +5638,7 @@ private:
 
 Second, there is a need to define a Morse code sequences in terms of dots and dashes duration as well as mapping an incoming character to the respective sequence.
 
-```
+```cpp
 template <...>
 class Morse
 {
@@ -5703,7 +5703,7 @@ private:
 
 Now, the code that is responsible to flash a led is quite simple:
 
-```
+```cpp
 template <...>
 class Morse
 {
@@ -5836,32 +5836,32 @@ Based on the information above, the platform specific GPIO control **Device** ob
 
 1.  Define pin identification type.
 
-    ```
+    ```cpp
     typedef unsigned PinIdType;
     ```
 
 2.  Function to provide a callback object to be called when interrupt occurs. The callback parameters must provide an information of pin as well as final input value that caused the interrupt. The callback object must implement the following signature: "void (PinIdType, bool)" where the first parameter is pin and second parameter is input value.
 
-    ```
+    ```cpp
     template <typename TFunc>
     void setHandler(TFunc&& func);
     ```
 
 3.  Function to start / enable the GPIO input monitoring.
 
-    ```
+    ```cpp
     void start(embxx::device::context::EventLoop context);
     ```
 
 4.  Function to cancel / disable the GPIO input monitoring.
 
-    ```
+    ```cpp
     bool cancel(embxx::device::context::EventLoop context);
     ```
 
 5.  Function to enable/disable gpio interrupts for single pin.
 
-    ```
+    ```cpp
     void setEnabled(
         PinIdType pin,
         bool enabled,
@@ -5870,13 +5870,13 @@ Based on the information above, the platform specific GPIO control **Device** ob
 
 6.  Function to suspend invocation of callback in interrupt mode, i.e. disable gpio interrupts.
 
-    ```
+    ```cpp
     bool suspend(embxx::device::context::EventLoop context);
     ```
 
 7.  Function to resume suspended invocation of callback in interrupt mode, i.e. enable gpio interrupts.
 
-    ```
+    ```cpp
     void resume(embxx::device::context::EventLoop context);
     ```
 
@@ -5886,7 +5886,7 @@ Such GPIO control **Device** class for RaspberryPi platform is implemented in [s
 
 First of all, we will need references to **Device** as well as [Event Loop](#basic_concepts-event_loop) objects:
 
-```
+```cpp
 template <typename TDevice, typename TEventLoop>
 class MyGpioDriver
 {
@@ -5912,7 +5912,7 @@ private:
 
 The **Driver** must also provide an ability to perform and cancel continuous asynchronous read operations for multiple pins:
 
-```
+```cpp
 template <typename TDevice, typename TEventLoop>
 class MyGpioDriver
 {
@@ -5930,7 +5930,7 @@ Like with any asynchronous operation so far the callback must receive status inf
 
 The **Driver** is supposed to be a generic piece of code that can be reused in multiple independent products, including ones without dynamic memory allocation and/or exceptions. It means that the **Driver** class must receive maximum number of the pins it is going to support and type of the callback storage.
 
-```
+```cpp
 template <typename TDevice,
           typename TEventLoop,
           std::size_t TNumOfLines,
@@ -5973,7 +5973,7 @@ Such generic GPIO **Driver** is already implemented in [embxx/driver/Gpio.h](htt
 
 The [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project has a simple button **Component**, implemented in [src/component/Button.h](https://github.com/arobenko/embxx_on_rpi/blob/master/src/component/Button.h). It configures provided GPIO line to be an input and to have both rising and falling edges interrupts. It also exposes simple interface to be able to monitor button presses and releases.
 
-```
+```cpp
 template <typename TDriver,
           bool TActiveState,
           typename THandler = embxx::util::StaticFunction<void ()> >
@@ -6002,7 +6002,7 @@ The [embxx_on_rpi](https://github.com/arobenko/embxx_on_rpi) project also contai
 
 Thanks to the [Device-Driver-Component](#basic_concepts-device_driver_component) model and all levels of abstractions, the application code is quite simple.
 
-```
+```cpp
 int main() {
     auto& system = System::instance();
 
@@ -6037,7 +6037,7 @@ int main() {
 
 The code for "button pressed" is as following:
 
-```
+```cpp
 void buttonPressed(System::TimerMgr::Timer& timer)
 {
     static_cast<void>(timer);
@@ -6072,7 +6072,7 @@ void buttonPressed(System::TimerMgr::Timer& timer)
 
 The code for "button release" is very simple:
 
-```
+```cpp
 void buttonReleased()
 {
     auto& system = System::instance();
@@ -6096,7 +6096,7 @@ It is quite clear that some kind of **ID Device Adaptor** is needed. It will be 
 
 The implementation of such adaptor is very simple and straightforward:
 
-```
+```cpp
 template <typename TDevice>
 class IdAdaptor
 {
@@ -6218,7 +6218,7 @@ The objects' usage map looks like this:
 
 Such queue is a platform/product independent piece of code and it should be implemented without using dynamic memory allocation and/or exceptions. It means that it should receive number of various **Driver** objects, that may issue independent read/write requests to it (i.e. size of the internal queue), as a template parameter and probably use [Static (Fixed Size) Queue](#basic_needs-queue) to queue all the requests that are coming in. It should also receive callback storage types to report when a new character can be read/written, as well as when read/write operation is complete.
 
-```
+```cpp
 template <typename TDevice,
           std::size_t TSize,
           typename TCanDoOpHandler = embxx::util::StaticFunction<void()>,
@@ -6237,7 +6237,7 @@ private:
 
 When the `TSize` template parameter is set to `1`, there is no need for all the queuing facility and the `DeviceOpQueue` class may become a simple pass-through inline class using template specialisation:
 
-```
+```cpp
 template <typename TDevice>
 class DeviceOpQueue<TDevice, 1>
 {
@@ -6279,7 +6279,7 @@ The only thing that remains is to properly implement I2C control device, which c
 
 Based on the information above, the platform specific I2C control **Device** object must provide the following public interface:
 
-```
+```cpp
 class I2CDevice
 {
 public:
@@ -6363,7 +6363,7 @@ All the intermediate layers (Character **Driver**, ID Adaptor, Operations Queue)
 
 Based on the information above, the platform specific SPI control **Device** object must provide and implement exactly the same interface as [I2C](#peripherals-i2c) **Device**:
 
-```
+```cpp
 class SpiDevice
 {
 public:
