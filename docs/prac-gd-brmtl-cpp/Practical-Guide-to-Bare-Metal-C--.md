@@ -1,12 +1,6 @@
-<!--yml
 
-category: 未分类
 
-日期：2025-12-10 18:30:43
-
--->
-
-# 实用指南：裸机 C++
+# 裸金属 C++ 实践指南
 
 > 来源：[`arobenko.github.io/bare_metal_cpp/#_data_serialisation`](https://arobenko.github.io/bare_metal_cpp/#_data_serialisation)
 
