@@ -11,6 +11,7 @@
 +   [libuv 中文教程](docs/libuv-tut/README.md)
 +   [Linux C 一站式学习](docs/linux-c-1stop-lrn/README.md)
 +   [零基础学 qt4 编程](docs/lrn-qt4-0basic/README.md)
++   [裸金属 C++ 实践指南](docs/prac-gd-brmtl-cpp/README.md)
 +   [Qt 学习之路](docs/qt-lrn-way/README.md)
 +   [手把手教你做一个 C 语言编译器](docs/shoubashou-c-cmplr/README.md)
 +   [wxWidgets 跨平台 GUI 编程](docs/wx-xplat-gui-prog/README.md)
