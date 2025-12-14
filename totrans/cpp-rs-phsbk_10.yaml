@@ -1,328 +1,499 @@
 - en: Concepts, interfaces, and static dispatch
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 概念、接口和静态分发
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/concepts.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/concepts.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: '[https://cel.cs.brown.edu/crp/idioms/data_modeling/concepts.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/concepts.html)'
 - en: In C++, static dispatch over an interface is achieved by implementing a template
     function or template method that interacts with the type using some expected interface.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中，通过实现一个模板函数或模板方法与类型交互，从而在接口上实现静态分发。
 - en: The template function `twiceArea` in the example below makes use of an `area()`
     method on the template type parameter.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面示例中的模板函数`twiceArea`使用了模板类型参数上的`area()`方法。
 - en: To achieve the same goal in Rust involves defining a trait (`Shape`) with the
     desired method (`twice_area`) and using the trait as a bound on the type parameter
     for the generic function.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 要在Rust中实现相同的目标，需要定义一个特性和所需的方法（`twice_area`），并将特性和方法用作泛型函数类型参数的约束。
 - en: '[PRE0]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: // Interface that generic function will use
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: // 泛型函数将使用的接口
 - en: trait Shape {
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Shape {
 - en: fn area(&self) -> f64;
+  id: totrans-9
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64;
 - en: '}'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct Triangle {
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Triangle {
 - en: 'base: f64,'
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: f64,'
 - en: 'height: f64,'
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: f64,'
 - en: '}'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Implementation of interface for type
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: // 为类型实现接口
 - en: impl Shape for Triangle {
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Shape for Triangle {
 - en: fn area(&self) -> f64 {
+  id: totrans-17
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64 {
 - en: 0.5 * self.base * self.height
+  id: totrans-18
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 0.5 * self.base * self.height
 - en: '}'
+  id: totrans-19
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Generic function using interface
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: // 使用接口的泛型函数
 - en: 'fn twice_area<T: Shape>(shape: &T) -> f64 {'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn twice_area<T: Shape>(shape: &T) -> f64 {'
 - en: 2.0 * shape.area()
+  id: totrans-23
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 2.0 * shape.area()
 - en: '}'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let triangle = Triangle {
+  id: totrans-26
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let triangle = Triangle {
 - en: 'base: 1.0,'
+  id: totrans-27
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: 1.0,'
 - en: 'height: 1.0,'
+  id: totrans-28
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 1.0,'
 - en: '};'
+  id: totrans-29
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: println!("{}", twice_area(&triangle));
+  id: totrans-30
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", twice_area(&triangle));
 - en: '}'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-32
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Note that in the Rust example, the definition of the trait and the struct have
     not changed from the example in the chapter on [virtual methods and dynamic dispatch](./abstract_classes.html).
     Even so, this example does use static dispatch. This is the result of a design
     trade-off in Rust around the representation of vtables and vptrs which is [described
     later in that chapter](./abstract_classes.html#vtables-and-rust-trait-object-types).
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，在Rust示例中，特性和结构的定义与第[虚拟方法和动态分发](./abstract_classes.html)章节中的示例没有变化。即便如此，这个例子确实使用了静态分发。这是Rust在vtables和vptrs表示方面的设计权衡的结果，该结果将在该章节[稍后描述](./abstract_classes.html#vtables-and-rust-trait-object-types)。
 - en: The difference between Rust and C++ in the above examples arises from Rust being
     nominally typed (types must opt in to supporting a specific interface, merely
     having the right methods isn't enough) and C++'s template meta-programming enabling
     a kind of structural or duck typing (types only need to have the methods actually
     used, and there is no need to explicitly opt in to supporting an interface).
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 上面的示例中，Rust与C++之间的差异源于Rust的名义类型（类型必须选择支持特定的接口，仅仅有正确的方法是不够的）和C++的模板元编程，它实现了一种结构化或鸭子类型（类型只需要有实际使用的方法，无需显式选择支持接口）。
 - en: '[Templates vs generic functions](#templates-vs-generic-functions)'
+  id: totrans-35
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[模板与泛型函数](#templates-vs-generic-functions)'
 - en: The reason why Rust is nominally typed instead of structurally typed has to
     do with the difference between C++ templates and Rust generic functions. In particular,
     C++ templates are only type checked after all of the template arguments are provided
     and they are fully expanded, while Rust generic functions are type checked independently
     of the type arguments.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust之所以采用名义类型而非结构类型，与C++模板和Rust泛型函数之间的差异有关。特别是，C++模板只有在所有模板参数都提供并完全展开后才会进行类型检查，而Rust泛型函数则独立于类型参数进行类型检查。
 - en: Since the functions are checked before the type arguments are known, the methods
     and functions that can be applied to values of those types also need to be known
     before the type arguments are known.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于函数在类型参数已知之前就已经进行检查，因此那些类型值可以应用的方法和函数也必须在类型参数已知之前就已知。
 - en: This point in the programming language design space favors simplicity of reasoning
     about these functions over the flexibility that comes from the template programming
     approach. This becomes especially valuable when writing libraries that both provide
     generic functions defined in terms of other generic functions, for which a C++
     compiler can give many fewer static guarantees, since it would not be possible
     to test all possible instantiations.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 在编程语言设计空间中，这个点更倾向于推理这些函数的简单性，而不是模板编程方法带来的灵活性。当编写既提供基于其他泛型函数定义的泛型函数的库时，这一点尤其有价值，因为C++编译器可以提供的静态保证要少得多，因为不可能测试所有可能的实例化。
 - en: In both C++ and Rust, however, multiple implementations are generated by the
     compiler in order to achieve static dispatch.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，在C++和Rust中，编译器都会生成多个实现以实现静态分派。
 - en: '[C++ constraints and concepts](#c-constraints-and-concepts)'
+  id: totrans-40
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[C++约束和概念](#c-constraints-and-concepts)'
 - en: Rust's approach to static dispatch over an interface can be partially (but only
     partially) modeled with a strict application of [C++ concepts](https://en.cppreference.com/w/cpp/language/constraints).
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust对接口进行静态分派的方法可以通过对[C++概念](https://en.cppreference.com/w/cpp/language/constraints)的严格应用部分（但只是部分）地进行模拟。
 - en: 'The usual way to apply concepts is still structural and does not model Rust''s
     approach: it only requires that a specific method can be called, producing a specific
     type.'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 应用概念的传统方式仍然是结构化的，并不模仿Rust的方法：它只要求可以调用一个特定方法，产生一个特定类型。
 - en: '[PRE3]'
+  id: totrans-43
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: A closer equivalent to the above Rust program in C++ is to use a combination
     of abstract classes and concepts.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中，与上述Rust程序更接近的等效方法是使用抽象类和概念的组合。
 - en: '[PRE4]'
+  id: totrans-45
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: This is still not the same, however, because the concept only creates a requirement
     on the use of the template, not on the use of values of type `T` within the template.
     In Rust, the trait bound constrains both. So the following still compiles in C++.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，这仍然不同，因为概念只对模板的使用提出了要求，而不是对模板内`T`类型值的使用的限制。在Rust中，特质的界限约束了这两者。因此，以下代码在C++中仍然可以编译。
 - en: '[PRE5]'
+  id: totrans-47
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: However, the equivalent does not compile in Rust and instead produces an error.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，在Rust中，等效的代码无法编译，反而会产生错误。
 - en: '[PRE6]'
+  id: totrans-49
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[PRE7]'
+  id: totrans-50
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: These additional static checks mean that in many situations where C++ templates
     would be useful but hard to implement correctly, Rust generics are freely used.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些额外的静态检查意味着在许多情况下，当C++模板很有用但难以正确实现时，Rust泛型可以自由使用。
 - en: '[Required traits and ergonomics](#required-traits-and-ergonomics)'
+  id: totrans-52
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[所需特性和人体工程学](#required-traits-and-ergonomics)'
 - en: 'In the above examples, the function requiring a trait was defined using a generic
     type `T` with a separate requirement that `T` is a `Shape`, like this:'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上述示例中，要求特质的函数是使用具有单独要求`T`是`Shape`的泛型类型`T`定义的，如下所示：
 - en: '[PRE8]'
+  id: totrans-54
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: '[PRE9]'
+  id: totrans-55
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'These syntaxes are both common shorthands for `requires` clauses (C++) or `where`
     clauses (Rust):'
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些语法都是`requires`子句（C++）或`where`子句（Rust）的常见简写：
 - en: '[PRE10]'
+  id: totrans-57
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: '[PRE11]'
+  id: totrans-58
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: The more verbose form is preferred when there are many type parameters or those
     type parameters must implement many traits. An even shorter-hand available in
     some cases is the `impl` keyword.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 当存在许多类型参数或这些类型参数必须实现许多特性时，更冗长的形式是首选。在某些情况下，还可以使用更简短的`impl`关键字。
 - en: '[PRE12]'
+  id: totrans-60
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: '[PRE13]'
+  id: totrans-61
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: '[Generics and lifetimes](#generics-and-lifetimes)'
+  id: totrans-62
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[泛型和生命周期](#generics-and-lifetimes)'
 - en: When defining a template in C++ that makes use of a type template parameter,
     the lifetimes of references stored within objects of that type must be tracked
     manually by the programmer.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 当在C++中定义一个使用类型模板参数的模板时，程序员必须手动跟踪存储在该类型对象中的引用的生命周期。
 - en: The following (contrived) C++ example compiles without error, but could be used
     in a way that results in undefined behavior.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下（人为设计的）C++示例可以无错误编译，但可能会以导致未定义行为的方式使用。
 - en: '[PRE14]'
+  id: totrans-65
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: Rust checks the bounds on lifetimes of references contained within type parameters.
     [Just as with trait object types](./abstract_classes.html#trait-objects-and-lifetimes),
     these bounds are usually inferred according to the [lifetime elision rules](https://doc.rust-lang.org/reference/lifetime-elision.html).
     When they cannot be inferred, or they are inferred incorrectly, the bounds can
     be declared manually.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust检查类型参数中包含的引用的生命周期界限。[就像特质的对象类型](./abstract_classes.html#trait-objects-and-lifetimes)一样，这些界限通常根据[生命周期省略规则](https://doc.rust-lang.org/reference/lifetime-elision.html)推断。当它们无法推断或推断错误时，可以手动声明界限。
 - en: In the Rust transliteration of the above example, the lifetime bounds have to
     be given manually because the inferred bounds are incorrect. Without explicit
     bounds, the compiler produces an error.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上述示例的Rust翻译中，必须手动给出生命周期限制，因为推断的限制是不正确的。没有显式限制，编译器将产生错误。
 - en: '[PRE15]'
+  id: totrans-68
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: '[PRE16]'
+  id: totrans-69
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: The error message becomes clearer when the inferred lifetime bounds are made
     explicit. With the given type for `store`, the argument for `x` could be something
     that has a lifetime that does not last as long as the lifetimes in the contents
     in the box.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 当显式地给出推断的生命周期限制时，错误信息变得更加清晰。对于给定的`store`类型，`x`的参数可能是一个生命周期比盒子内容中的生命周期短的类型。
 - en: '[PRE17]'
+  id: totrans-71
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: For this specific case, the most general solution is to define a new lifetime
     parameter to bound both `S` and `dyn Shape`. The type parameter for the reference
     can be elided, because it will be assigned a fresh lifetime parameter.
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于这个特定的情况，最一般的解决方案是定义一个新的生命周期参数来限制`S`和`dyn Shape`。对于引用的类型参数可以省略，因为它将被分配一个新的生命周期参数。
 - en: '[PRE18]'
+  id: totrans-73
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: '#![allow(unused)] fn main() { trait Shape {}'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { trait Shape {} '
 - en: // Note the common bound
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: // 注意共同的边界
 - en: // -----------------here-\
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: // -----------------here-\
 - en: // ----------------------|---------------------------and here-\
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: // ----------------------|---------------------------and here-\
 - en: //                       v                                    v
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: //                       v                                    v
 - en: 'fn store<''s, S: Shape + ''s>(x: S, data: &mut Box<dyn Shape + ''s>) {'
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn store<''s, S: Shape + ''s>(x: S, data: &mut Box<dyn Shape + ''s>) {'
 - en: '*data = Box::new(x);'
+  id: totrans-80
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '*data = Box::new(x);'
 - en: '}'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE19]'
+  id: totrans-83
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Concepts,
     interfaces, and static dispatch)
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Concepts,
+    interfaces, and static dispatch)

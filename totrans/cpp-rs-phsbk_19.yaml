@@ -1,81 +1,124 @@
 - en: Zero-length arrays
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 空数组
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/null/zero_length_arrays.html](https://cel.cs.brown.edu/crp/idioms/null/zero_length_arrays.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/null/zero_length_arrays.html](https://cel.cs.brown.edu/crp/idioms/null/zero_length_arrays.html)
 - en: In C++ codebases that are written in a C style or that make use of C libraries,
     null pointers may be used to represent empty arrays.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在以C风格编写的C++代码库或使用C库的情况下，空指针可能被用来表示空数组。
 - en: In Rust, arrays of arbitrary size are represented as [slices](https://doc.rust-lang.org/book/ch04-03-slices.html).
     These slices can have zero length. Since [Rust vectors are convertible to slices](https://doc.rust-lang.org/std/vec/struct.Vec.html#impl-Deref-for-Vec%3CT,+A%3E),
     defining functions that work with slices enables them to be used with vectors
     as well.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Rust中，任意大小的数组被表示为[slices](https://doc.rust-lang.org/book/ch04-03-slices.html)。这些切片可以有零长度。由于[Rust向量可以转换为slices](https://doc.rust-lang.org/std/vec/struct.Vec.html#impl-Deref-for-Vec%3CT,+A%3E)，定义与切片一起工作的函数使得它们也可以与向量一起使用。
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'fn sum_slice(arr: &[i32]) -> i32 {'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn sum_slice(arr: &[i32]) -> i32 {'
 - en: let mut sum = 0;
+  id: totrans-7
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut sum = 0;
 - en: for x in arr {
+  id: totrans-8
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for x in arr {
 - en: sum += x;
+  id: totrans-9
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: sum += x;
 - en: '}'
+  id: totrans-10
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: sum
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: sum
 - en: '}'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let sum = sum_slice(&[]);
+  id: totrans-14
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let sum = sum_slice(&[]);
 - en: assert!(sum == 0);
+  id: totrans-15
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: assert!(sum == 0);
 - en: let sum2 = sum_slice(&vec![]);
+  id: totrans-16
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let sum2 = sum_slice(&vec![]);
 - en: assert!(sum2 == 0);
+  id: totrans-17
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: assert!(sum2 == 0);
 - en: '}'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Zero-length
     arrays)
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Zero-length
+    arrays)

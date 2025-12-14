@@ -1,248 +1,378 @@
 - en: Documentation (e.g., Doxygen)
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 文档（例如，Doxygen）
 - en: 原文：[https://cel.cs.brown.edu/crp/etc/documentation.html](https://cel.cs.brown.edu/crp/etc/documentation.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/etc/documentation.html](https://cel.cs.brown.edu/crp/etc/documentation.html)
 - en: While C++ has several documentation tools, such as Doxygen and Sphinx, Rust
     has a single documentation tool, [Rustdoc](https://doc.rust-lang.org/rustdoc/index.html).
     Rustdoc is supported by [`docs.rs`](https://docs.rs/), cargo, [rust-analyzer](https://rust-analyzer.github.io/),
     and is the tool used for documenting [the standard library](https://doc.rust-lang.org/std/vec/struct.Vec.html#blanket-implementations).
     Rustdoc is installed by default with the Rust toolchain for most distributions.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然 C++ 有几个文档工具，如Doxygen和Sphinx，但Rust只有一个文档工具，即[Rustdoc](https://doc.rust-lang.org/rustdoc/index.html)。Rustdoc由`docs.rs`、cargo、[rust-analyzer](https://rust-analyzer.github.io/)支持，并用于记录[标准库](https://doc.rust-lang.org/std/vec/struct.Vec.html#blanket-implementations)。对于大多数发行版，Rustdoc默认与Rust工具链一起安装。
 - en: The features and options available for Rustdoc are documented in the [Rustdoc
     Book](https://doc.rust-lang.org/rustdoc/). The book also documents [best practices
     for documenting Rust code](https://doc.rust-lang.org/rustdoc/how-to-write-documentation.html),
     which differ slightly from the recommended practices for documenting C++ code
     using Doxygen.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: Rustdoc可用的功能和选项在[Rustdoc手册](https://doc.rust-lang.org/rustdoc/)中有记录。该手册还记录了[记录Rust代码的最佳实践](https://doc.rust-lang.org/rustdoc/how-to-write-documentation.html)，这些最佳实践与使用Doxygen记录C++代码的推荐实践略有不同。
 - en: The Cargo integration is documented at in the Cargo book under the [`cargo doc`](https://doc.rust-lang.org/cargo/commands/cargo-doc.html)
     and [`cargo rustdoc`](https://doc.rust-lang.org/cargo/commands/cargo-rustdoc.html)
     commands, as well as in the [doctests section](https://doc.rust-lang.org/cargo/commands/cargo-test.html#documentation-tests)
     of the `cargo test` command.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: Cargo集成在Cargo手册的`cargo doc`和`cargo rustdoc`命令下进行文档记录，以及`cargo test`命令的[doctests部分](https://doc.rust-lang.org/cargo/commands/cargo-test.html#documentation-tests)。
 - en: This chapter compares some aspects of Rustdoc with Doxygen in order to help
     with understanding what to expect when using Rustdoc when coming from Doxygen
     or similar C++ documentation tools.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章比较了Rustdoc与Doxygen的一些方面，以帮助理解从Doxygen或类似的C++文档工具迁移到Rustdoc时可以期待什么。
 - en: '[Output formats](#output-formats)'
+  id: totrans-6
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[输出格式](#output-formats)'
 - en: Unlike Doxygen which can also produce PDF and man page output, Rustdoc only
     produces HTML output. The produced documentation does include client-side searching,
     which includes the ability to search by type signature.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 与Doxygen不同，Doxygen还可以生成PDF和man页面输出，Rustdoc只生成HTML输出。生成的文档包括客户端搜索功能，这包括通过类型签名进行搜索的能力。
 - en: The [rust-analyzer](https://rust-analyzer.github.io/) language server supports
     Rustdoc comments, and makes them available to editors with language server protocol
     support on hover, even for Rustdoc comments in the current project.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: '[rust-analyzer](https://rust-analyzer.github.io/)语言服务器支持Rustdoc注释，并通过语言服务器协议支持在悬停时将它们提供给具有语言服务器协议支持的编辑器，即使是当前项目的Rustdoc注释。'
 - en: '[Rustdoc comment syntax](#rustdoc-comment-syntax)'
+  id: totrans-9
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[Rustdoc注释语法](#rustdoc-comment-syntax)'
 - en: Unlike Doxygen, which has several supported comment syntaxes for C++, Rustup
     supports a single comment syntax. Comments beginning with `//!` document the top-level
     module or crate. Comments beginning with `///` document the following item.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 与支持多种C++注释语法的Doxygen不同，Rustup只支持一种注释语法。以`//!`开头的注释用于记录顶层模块或crate。以`///`开头的注释用于记录后续的项目。
 - en: '[PRE0]'
+  id: totrans-11
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-12
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { //! A description of this module or crate.'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { //! 对此模块或crate的描述。'
 - en: //!
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: //!
 - en: //! A longer description, with examples, etc.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: //! 更长的描述，包括示例等。
 - en: /// A description of this type.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: /// 对此类型的描述。
 - en: ///
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: ///
 - en: /// A longer description, with examples, etc.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: /// 更长的描述，包括示例等。
 - en: struct MyClass {
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: struct MyClass {
 - en: // ...
+  id: totrans-20
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-23
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: '[Special forms](#special-forms)'
+  id: totrans-24
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: '[特殊形式](#special-forms)'
 - en: The content of the comment up until the first blank line is treated similarly
     to the `@brief` form in Doxygen.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 注释内容直到第一行空白与Doxygen中的`@brief`形式处理类似。
 - en: Aside from that, Rustdoc does not have special forms for documenting various
     parts of an item, such as the parameters of a function. Instead, [Markdown syntax
     can be used](https://doc.rust-lang.org/rustdoc/how-to-write-documentation.html#markdown)
     to format the documentation, which is otherwise given in prose.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了这些，Rustdoc没有专门的形式来记录项的各个部分，例如函数的参数。相反，可以使用[Markdown语法](https://doc.rust-lang.org/rustdoc/how-to-write-documentation.html#markdown)来格式化文档，否则文档将以散文形式给出。
 - en: 'There are several common conventions used for structuring documentation comments.
     The most common convention is to include sections (defined using Markdown header
     syntax) for whichever of the following are necessary for the item being documented:'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 有几种常见的约定用于结构化文档注释。最常见的约定是包括以下必要的部分（使用Markdown标题语法定义）：
 - en: panics (for functions that panic, e.g., on [`Vec::split_at`](https://doc.rust-lang.org/std/vec/struct.Vec.html#panics-32)),
+  id: totrans-28
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: panics（对于会panic的函数，例如在[`Vec::split_at`](https://doc.rust-lang.org/std/vec/struct.Vec.html#panics-32)上），
 - en: safety (for unsafe functions, e.g., on [`Vec::split_at_unchecked`](https://doc.rust-lang.org/std/primitive.slice.html#safety-10)),
     and
+  id: totrans-29
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: safety（对于不安全的函数，例如在[`Vec::split_at_unchecked`](https://doc.rust-lang.org/std/primitive.slice.html#safety-10)上），以及
 - en: examples (e.g., on [`Vec::split_at`](https://doc.rust-lang.org/std/vec/struct.Vec.html#examples-105)).
+  id: totrans-30
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 示例（例如，在[`Vec::split_at`](https://doc.rust-lang.org/std/vec/struct.Vec.html#examples-105)上）。
 - en: The following comment compares documentation for a C++ function using Doxygen
     to documentation for a Rust function using Rustdoc.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下注释比较了使用Doxygen记录的C++函数的文档和使用Rustdoc记录的Rust函数的文档。
 - en: '[PRE3]'
+  id: totrans-32
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-33
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: '#![allow(unused)] fn main() { /// Computes the factorial.'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { /// 计算阶乘。'
 - en: ///
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: ///
 - en: /// Computes the factorial in a stack-safe way.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: /// 以堆栈安全的方式计算阶乘。
 - en: /// The factorial is defined as...
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: /// 阶乘被定义为...
 - en: ///
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: ///
 - en: '/// # Examples'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: '/// # 示例'
 - en: ///
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: ///
 - en: /// [PRE5]
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: /// [PRE5]
 - en: ///
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: ///
 - en: '/// # Panics'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: '/// # Panics'
 - en: ///
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: ///
 - en: /// Requires that `n >= 0`, otherwise panics.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: /// 要求`n >= 0`，否则会panic。
 - en: /// For the non-panicking version see
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: /// 对于非panic版本，请参阅
 - en: /// [`factorial_checked`].
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: /// [`factorial_checked`].
 - en: 'fn factorial(n: i32) -> i32 {'
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn factorial(n: i32) -> i32 {'
 - en: // ...
+  id: totrans-49
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: todo!() }
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: todo!() }
 - en: '}'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE6]'
+  id: totrans-52
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[Automatic documentation](#automatic-documentation)'
+  id: totrans-53
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: '[自动文档](#automatic-documentation)'
 - en: Many of the things that can be derived from the code are automatically included
     by Rustdoc. A major one is that trait implementations (e.g., on [`Vec`](https://doc.rust-lang.org/std/vec/struct.Vec.html#trait-implementations)),
     including blanket implementations (e.g., on [`Vec`](https://doc.rust-lang.org/std/vec/struct.Vec.html#blanket-implementations)),
     for a type do not have to be documented manually because implementations that
     are visible in the crate are automatically discovered and included by Rustdoc.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多可以从代码中推导出的内容都会被Rustdoc自动包含。其中之一是，对于类型（例如，在[`Vec`](https://doc.rust-lang.org/std/vec/struct.Vec.html#trait-implementations)上的）的特性和泛型实现（例如，在[`Vec`](https://doc.rust-lang.org/std/vec/struct.Vec.html#blanket-implementations)上的）不需要手动文档化，因为Rustdoc会自动发现并包含这些在crate中可见的实现。
 - en: '[Additional features](#additional-features)'
+  id: totrans-55
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: '[附加功能](#additional-features)'
 - en: Some valuable Rustdoc features may not be expected by someone coming from using
     Doxygen. Because those features provide significant benefit, they are pointed
     out here.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些有价值的Rustdoc特性可能不会让从使用Doxygen的人预料到。因为这些特性提供了显著的好处，所以在这里指出。
 - en: '[Doctest support via Rustdoc and `cargo test`](#doctest-support-via-rustdoc-and-cargo-test)'
+  id: totrans-57
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[通过Rustdoc和`cargo test`支持Doctest](#doctest-support-via-rustdoc-and-cargo-test)'
 - en: One specific benefit of including examples when documenting Rust programs using
     Rustdoc is that [the examples can be included in the test suite when running `cargo
     test`](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html).
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 当使用Rustdoc记录Rust程序时，包括示例的一个具体好处是，[在运行`cargo test`时，这些示例可以包含在测试套件中](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)。
 - en: The handling of examples as tests in Rustdoc includes logic for handling partial
     programs, so that even [the code example in the earlier comparison](#special-forms-comparison)
     can serve as a test.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: Rustdoc处理示例作为测试的逻辑包括处理部分程序，因此即使是[早期比较中的代码示例](#special-forms-comparison)也可以作为测试使用。
 - en: '[Local documentation for project and installed libraries](#local-documentation-for-project-and-installed-libraries)'
+  id: totrans-60
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[项目及安装库的本地文档](#local-documentation-for-project-and-installed-libraries)'
 - en: Local documentation for both the working project and dependent libraries can
     be viewed in-browser using `cargo doc --open`. Private items for the project can
     be included in the documentation by using `cargo doc --open --document-private-items`.
     Because Rustdoc comments are also used by the [rust-analyzer](https://rust-analyzer.github.io/)
     language server to provide documentation on hover in compatible editors, it is
     often worth it to document private items using Rustdoc comments.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以使用 `cargo doc --open` 在浏览器中查看工作项目和依赖库的本地文档。通过使用 `cargo doc --open --document-private-items`
+    可以将项目的私有项包含在文档中。因为 Rustdoc 注释也被 [rust-analyzer](https://rust-analyzer.github.io/)
+    语言服务器用于在兼容的编辑器中提供悬停文档，所以使用 Rustdoc 注释来记录私有项通常是值得的。
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Documentation
     (e.g., Doxygen))[](../etc/tests.html "Previous chapter")*[](../etc/build_systems.html
     "Next chapter")***[](../etc/tests.html "Previous chapter")*[](../etc/build_systems.html
     "Next chapter")***'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Documentation
+    (e.g., Doxygen)) [](../etc/tests.html "上一章") *[](../etc/build_systems.html "下一章")***
+    [](../etc/tests.html "上一章")* [](../etc/build_systems.html "下一章")***'

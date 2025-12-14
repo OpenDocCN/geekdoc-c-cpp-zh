@@ -1,11 +1,15 @@
 - en: Exceptions and error handling
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 异常和错误处理
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/exceptions.html](https://cel.cs.brown.edu/crp/idioms/exceptions.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/exceptions.html](https://cel.cs.brown.edu/crp/idioms/exceptions.html)
 - en: In C++ errors that are to be handled by the caller are sometimes indicated by
     sentinel values (e.g., `std::map::find` producing an empty iterator), sometimes
     indicated by exceptions (e.g., `std::vector::at` throwing `std::out_of_range`),
@@ -14,85 +18,124 @@
     by exceptions (e.g., `std::bad_cast`). Errors that are due to programming bugs
     often just result in undefined behavior (e.g., `std::vector::operator[]` when
     the index is out-of-bounds).
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中，调用者需要处理的错误有时通过哨兵值（例如，`std::map::find`生成一个空的迭代器）指示，有时通过异常（例如，`std::vector::at`抛出`std::out_of_range`），有时通过设置错误位（例如，`std::fstream::fail`）指示。不打算由调用者处理的错误通常通过异常指示（例如，`std::bad_cast`）。由于编程错误导致的错误通常只会导致未定义行为（例如，当索引超出范围时，`std::vector::operator[]`）。
 - en: In contrast, safe Rust has two mechanisms for indicating errors. When the error
     is expected to be handled by the caller (because it is due to, e.g., user input),
     the function returns a [`Result`](https://doc.rust-lang.org/std/result/index.html)
     or [`Option`](https://doc.rust-lang.org/std/option/index.html). When the error
     is due to a programming bug, the function panics. Undefined behavior can only
     occur if unchecked variants of functions are used with unsafe Rust.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 相反，安全Rust有两个机制来指示错误。当错误预期由调用者处理（例如，由于用户输入）时，函数返回一个`Result`或`Option`。当错误是由于编程错误时，函数会引发恐慌。只有在使用不安全的Rust和未检查的函数变体时，才会发生未定义行为。
 - en: Some libraries in Rust will offer two versions of an API, one which returns
     a `Result` or `Option` type and one of which panics, so that the interpretation
     of the error (expected exceptional case or programmer bug) can be chosen by the
     caller.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust中的一些库将提供API的两个版本，一个返回`Result`或`Option`类型，另一个会引发恐慌，这样调用者可以选择错误的解释（预期的异常情况或程序员错误）。
 - en: The major differences between using `Result` or `Option` and using exceptions
     are that
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用`Result`或`Option`与使用异常之间的主要区别在于：
 - en: '`Result` and `Option` force explicit handling of the error case in order to
     access the contained value. This also differs from `std::expected` in C++23.'
+  id: totrans-6
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '`Result`和`Option`强制显式处理错误情况以访问包含的值。这也与C++23中的`std::expected`不同。'
 - en: When propagating errors with `Result`, the types of the errors must match. There
     are libraries for making this easier to handle.
+  id: totrans-7
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在使用`Result`传播错误时，错误类型必须匹配。有一些库可以简化这一处理。
 - en: '[`Result` vs `Option`](#result-vs-option)'
+  id: totrans-8
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[`Result`与`Option`](#result-vs-option)'
 - en: 'The approaches demonstrated in the Rust examples in this chapter apply to both
     `Result` and `Option`. When the type is `Option` it indicates that there is no
     additional information to provide in the error case: `Option::None` does not contain
     a value, but `Result::Err` does. When there is no additional information, is usually
     because there is exactly one circumstance which can cause the error case.'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章中展示的Rust示例中的方法适用于`Result`和`Option`。当类型为`Option`时，表示在错误情况下没有额外的信息提供：`Option::None`不包含值，但`Result::Err`包含。当没有额外信息时，通常是因为只有一个可能导致错误情况的情况。
 - en: It is possible to convert between the two types.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 两种类型之间可以进行转换。
 - en: '[PRE0]'
+  id: totrans-11
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: fn main() {
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let r: Result<i32, &''static str> ='
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let r: Result<i32, &''static str> ='
 - en: None.ok_or("my error message");
+  id: totrans-14
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: None.ok_or("my error message");
 - en: 'let r2: Result<i32, &''static str> ='
+  id: totrans-15
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let r2: Result<i32, &''static str> ='
 - en: None.ok_or_else(|| "expensive error message");
+  id: totrans-16
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: None.ok_or_else(|| "expensive error message");
 - en: 'let o: Option<i32> = r.ok();'
+  id: totrans-17
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let o: Option<i32> = r.ok();'
 - en: '}'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE1]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Exceptions
     and error handling)'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Exceptions
+    and error handling)'

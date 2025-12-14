@@ -1,1055 +1,1617 @@
 - en: Expected errors
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 预期错误
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/exceptions/expected_errors.html](https://cel.cs.brown.edu/crp/idioms/exceptions/expected_errors.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/exceptions/expected_errors.html](https://cel.cs.brown.edu/crp/idioms/exceptions/expected_errors.html)
 - en: In C++, `throw` both produces an error (the thrown exception) and initiates
     non-local control flow (unwinding to the nearest `catch` block). In Rust, error
     values (`Option::None` or `Result::Err`) are returned as normal values from a
     function. Rust's `return` statement can be used to return early from a function.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，`throw` 既能产生错误（抛出的异常）并启动非局部控制流（回滚到最近的 `catch` 块）。在 Rust 中，错误值（`Option::None`
+    或 `Result::Err`）作为正常值从函数返回。Rust 的 `return` 语句可以用来从函数中提前返回。
 - en: '[PRE0]'
+  id: totrans-3
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { fn divide('
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { fn divide('
 - en: 'dividend: f64,'
+  id: totrans-6
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'dividend: f64,'
 - en: 'divisor: f64,'
+  id: totrans-7
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'divisor: f64,'
 - en: ) -> Option<f64> {
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> Option<f64> {
 - en: if divisor == 0.0 {
+  id: totrans-9
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if divisor == 0.0 {
 - en: return None;
+  id: totrans-10
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return None;
 - en: '}'
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Some(dividend / divisor)
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(dividend / divisor)
 - en: '}'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-15
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The requirement to have the return type indicate that an error is possible means
     that callbacks that are permitted to have errors need to be given an `Option`
     or `Result` return type. Omitting that is like requiring callbacks to be `noexcept`
     in C++. Functions that do not need to indicate errors but that will be used as
     callbacks where errors are permitted will need to wrap their results in `Option::Some`
     or `Result::Ok`.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 需要返回类型表明可能发生错误的要求意味着允许有错误的回调需要提供 `Option` 或 `Result` 返回类型。省略这一点就像在 C++ 中要求回调为
+    `noexcept` 一样。不需要表明错误但将在允许错误的地方用作回调的函数需要将它们的结果包装在 `Option::Some` 或 `Result::Ok`
+    中。
 - en: '[PRE3]'
+  id: totrans-17
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: fn produce_42() -> i32 {
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: fn produce_42() -> i32 {
 - en: '42'
+  id: totrans-20
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '42'
 - en: '}'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn fail() -> Option<i32> {
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: fn fail() -> Option<i32> {
 - en: None
+  id: totrans-23
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: None
 - en: '}'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn use_callback(
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: fn use_callback(
 - en: 'f: impl Fn() -> Option<i32>,'
+  id: totrans-26
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'f: impl Fn() -> Option<i32>,'
 - en: ) -> Option<i32> {
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> Option<i32> {
 - en: f()
+  id: totrans-28
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: f()
 - en: '}'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: // need to wrap produce_42 to match the
+  id: totrans-31
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 需要包装 produce_42 以匹配
 - en: // expected type
+  id: totrans-32
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 预期类型
 - en: let Some(x) =
+  id: totrans-33
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Some(x) =
 - en: use_callback(|| Some(produce_42()))
+  id: totrans-34
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: use_callback(|| Some(produce_42()))
 - en: else {
+  id: totrans-35
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: else {
 - en: // handle error
+  id: totrans-36
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 处理错误
 - en: return;
+  id: totrans-37
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-38
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: let Some(y) = use_callback(fail) else {
+  id: totrans-39
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Some(y) = use_callback(fail) else {
 - en: // handle error
+  id: totrans-40
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 处理错误
 - en: return;
+  id: totrans-41
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-42
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // use x and y
+  id: totrans-43
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // use x and y
 - en: '}'
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-45
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '[Handling errors](#handling-errors)'
+  id: totrans-46
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[处理错误](#handling-errors)'
 - en: In C++, the only way to handle exceptions is `catch`. In Rust, all of the features
     for dealing with [tagged unions](../data_modeling/tagged_unions.html) can be used
     with `Result` and `Option`. The most approach depends on the intention of the
     program.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，处理异常的唯一方法是 `catch`。在 Rust 中，可以使用 `Result` 和 `Option` 与所有处理 [标记联合](../data_modeling/tagged_unions.html)
+    的功能。最合适的方法取决于程序的目的。
 - en: The basic way of handling an error indicated by a `Result` in Rust is by using
     `match`.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，处理由 `Result` 指示的错误的基本方法是使用 `match`。
 - en: Using `match` is the most general approach, because it enables handling additional
     cases explicitly and can be used as an expression. `match` connotes equal importance
     of all branches.
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用 `match` 是最通用的方法，因为它可以显式处理额外的案例，并且可以用作表达式。`match` 表明所有分支具有同等重要性。
 - en: '[PRE6]'
+  id: totrans-50
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[PRE7]'
+  id: totrans-51
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: fn main() {
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut v = Vec::<i32>::new();
+  id: totrans-53
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut v = Vec::<i32>::new();
 - en: // ... populate v ...
+  id: totrans-54
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ... populate v ...
 - en: match v.get(0) {
+  id: totrans-55
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match v.get(0) {
 - en: Some(x) => {
+  id: totrans-56
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(x) => {
 - en: // use x
+  id: totrans-57
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // use x
 - en: '}'
+  id: totrans-58
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: None => {
+  id: totrans-59
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: None => {
 - en: // handle error
+  id: totrans-60
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 处理错误
 - en: '}'
+  id: totrans-61
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-62
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE8]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: Because handling only a single variant of a Rust enum is so common, the `if
     let` syntax support that use case. The syntax both makes it clear that only the
     one case is important and reduces the levels of indentation.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为只处理 Rust 枚举的一个变体非常常见，所以 `if let` 语法支持这种用法。该语法既清楚地表明只有一个案例很重要，又减少了缩进级别。
 - en: '`if let` is less general than `match`. It can also be used as an expression,
     but can only distinguish one case from the rest. `if let` connotes that the `else`
     case is not the normal case, but that some default handling will occur or some
     default value will be produced.'
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: '`if let` 比不上 `match` 通用。它也可以用作表达式，但只能区分一个案例与其他所有案例。`if let` 表明 `else` 情况不是正常情况，而是将发生某种默认处理或产生某个默认值。'
 - en: Note that with `Result`, `if let` does not enable accessing the error value.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，使用 `Result` 时，`if let` 不允许访问错误值。
 - en: '[PRE9]'
+  id: totrans-68
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: fn main() {
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut v = Vec::<i32>::new();
+  id: totrans-70
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut v = Vec::<i32>::new();
 - en: // ... populate v ...
+  id: totrans-71
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ... populate v ...
 - en: if let Some(x) = v.get(0) {
+  id: totrans-72
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if let Some(x) = v.get(0) {
 - en: // use x
+  id: totrans-73
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // use x
 - en: '} else {'
+  id: totrans-74
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} else {'
 - en: // handle error
+  id: totrans-75
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 处理错误
 - en: '}'
+  id: totrans-76
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE10]'
+  id: totrans-78
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: When the error handling involves some kind of control flow operation, like `break`
     or `return`, the `let else` syntax is even more concise.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 当错误处理涉及某种控制流操作，如 `break` 或 `return` 时，`let else` 语法甚至更简洁。
 - en: Much like normal `let` statements, `let else` statements can only be used where
     statements are expected. `let else` statements also connote that the else case
     is not the normal case, and that no further (normal) processing will occur.
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 与正常的 `let` 语句类似，`let else` 语句只能在期望语句的地方使用。`let else` 语句还意味着否则的情况不是正常情况，并且不会发生进一步的（正常）处理。
 - en: '[PRE11]'
+  id: totrans-81
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: fn main() {
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut v = Vec::<i32>::new();
+  id: totrans-83
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut v = Vec::<i32>::new();
 - en: // ... populate v ...
+  id: totrans-84
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ... 填充 v ...
 - en: let Some(x) = v.get(0) else {
+  id: totrans-85
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Some(x) = v.get(0) else {
 - en: // handle error
+  id: totrans-86
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 处理错误
 - en: return;
+  id: totrans-87
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-88
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // use x
+  id: totrans-89
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用 x
 - en: '}'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE12]'
+  id: totrans-91
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: '`Result` and `Option` also have some helper methods for handling errors. These
     methods resemble the methods on `std::expected` in C++.'
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Result` 和 `Option` 也有一些用于处理错误的辅助方法。这些方法类似于 C++ 中 `std::expected` 的方法。'
 - en: '[PRE13]'
+  id: totrans-93
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: '[PRE14]'
+  id: totrans-94
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: fn main() {
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let res: Result<i32, String> = Ok(42);'
+  id: totrans-96
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let res: Result<i32, String> = Ok(42);'
 - en: let x = res.map(|n| n * 2);
+  id: totrans-97
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = res.map(|n| n * 2);
 - en: '}'
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE15]'
+  id: totrans-99
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: These helper methods and others are described in detail in the documentation
     for [`Option`](https://doc.rust-lang.org/std/option/enum.Option.html#implementations)
     and [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html#implementations).
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些辅助方法和其它方法在 `Option` ([`Option`](https://doc.rust-lang.org/std/option/enum.Option.html#implementations))
+    和 `Result` ([`Result`](https://doc.rust-lang.org/std/result/enum.Result.html#implementations))
+    的文档中有详细描述。
 - en: '[Borrowed results](#borrowed-results)'
+  id: totrans-101
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[借用结果](#borrowed-results)'
 - en: In the above examples, the successful results are borrowed from the vector.
     It common to need to clone or copy the result into an owned copy, and to want
     to do so without having to match on and reconstruct the value. `Result` and `Option`
     have helper methods for these purposes.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上述示例中，成功的结果是从向量中借用的。通常需要将结果克隆或复制到拥有副本中，并且希望在不需要匹配和重建值的情况下这样做。`Result` 和 `Option`
+    有助于这些目的的辅助方法。
 - en: '[PRE16]'
+  id: totrans-103
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: fn main() {
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut v = Vec::<i32>::new();
+  id: totrans-105
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut v = Vec::<i32>::new();
 - en: v.push(42);
+  id: totrans-106
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: v.push(42);
 - en: 'let x: Option<&i32> = v.get(0);'
+  id: totrans-107
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let x: Option<&i32> = v.get(0);'
 - en: 'let y: Option<i32> = v.get(0).copied();'
+  id: totrans-108
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let y: Option<i32> = v.get(0).copied();'
 - en: let mut w = Vec::<String>::new();
+  id: totrans-109
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut w = Vec::<String>::new();
 - en: w.push("hello".to_string());
+  id: totrans-110
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: w.push("hello".to_string());
 - en: 'let s: Option<&String> = w.get(0);'
+  id: totrans-111
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let s: Option<&String> = w.get(0);'
 - en: 'let r: Option<String> = w.get(0).cloned();'
+  id: totrans-112
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let r: Option<String> = w.get(0).cloned();'
 - en: '}'
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE17]'
+  id: totrans-114
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: '[Propagating errors](#propagating-errors)'
+  id: totrans-115
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[传播错误](#propagating-errors)'
 - en: In C++, exceptions propagate automatically. In Rust, errors indicated by `Result`
     or `Option` must be explicitly propagated. The `?` operator is a convenience for
     this. There are also several methods for manipulating `Result` and `Option` that
     have a similar effect to propagating the error.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，异常会自动传播。在 Rust 中，由 `Result` 或 `Option` 指示的错误必须显式传播。`?` 操作符是这种便利的表示。还有几个用于操作
+    `Result` 和 `Option` 的方法，它们具有类似传播错误的效果。
 - en: '[PRE18]'
+  id: totrans-117
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: '[PRE19]'
+  id: totrans-118
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: '#![allow(unused)] fn main() { fn access_value('
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { fn access_value('
 - en: 'indices: Vec<usize>,'
+  id: totrans-120
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'indices: Vec<usize>,'
 - en: 'values: Vec<i32>,'
+  id: totrans-121
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'values: Vec<i32>,'
 - en: 'i: usize,'
+  id: totrans-122
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'i: usize,'
 - en: ) -> Option<i32> {
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> Option<i32> {
 - en: // * dereferences the &i32 to copy it
+  id: totrans-124
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // * 解引用 &i32 以复制它
 - en: // ? propagates the None
+  id: totrans-125
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ? 传播 None
 - en: let idx = *indices.get(i)?;
+  id: totrans-126
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let idx = *indices.get(i)?;
 - en: // returns the Option directly
+  id: totrans-127
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 直接返回 Option
 - en: values.get(idx).copied()
+  id: totrans-128
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: values.get(idx).copied()
 - en: '}'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE20]'
+  id: totrans-131
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: The above Rust example is equivalent to the following, which does not use the
     `?` operator. The version using `?` is more idiomatic.
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 上述 Rust 示例等价于以下示例，它没有使用 `?` 操作符。使用 `?` 的版本更符合习惯用法。
 - en: '[PRE21]'
+  id: totrans-133
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: '#![allow(unused)] fn main() { fn access_value('
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { fn access_value('
 - en: 'indices: Vec<usize>,'
+  id: totrans-135
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'indices: Vec<usize>,'
 - en: 'values: Vec<i32>,'
+  id: totrans-136
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'values: Vec<i32>,'
 - en: 'i: usize,'
+  id: totrans-137
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'i: usize,'
 - en: ) -> Option<i32> {
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> Option<i32> {
 - en: // matching through the & makes a copy of the i32
+  id: totrans-139
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 通过 & 匹配会复制 i32
 - en: let Some(&idx) = indices.get(i) else {
+  id: totrans-140
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Some(&idx) = indices.get(i) else {
 - en: return None;
+  id: totrans-141
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return None;
 - en: '};'
+  id: totrans-142
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // still returns the Option directly
+  id: totrans-143
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 仍然直接返回 Option
 - en: values.get(idx).copied()
+  id: totrans-144
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: values.get(idx).copied()
 - en: '}'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE22]'
+  id: totrans-147
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: The following example is also equivalent. It is not idiomatic (using `?` here
     is more readable), but does demonstrate one of the helper methods. `Option::and_then`
     is similar to [`std::optional::and_then` in C++23](https://en.cppreference.com/w/cpp/utility/optional/and_then).
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例也是等效的。它不是惯用的（在这里使用 `?` 更易读），但它确实演示了一个辅助方法。`Option::and_then` 与 C++23 中的
+    `std::optional::and_then` 类似([`std::optional::and_then` in C++23](https://en.cppreference.com/w/cpp/utility/optional/and_then)).
 - en: '[PRE23]'
+  id: totrans-149
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: '#![allow(unused)] fn main() { fn access_value('
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { fn access_value('
 - en: 'indices: Vec<usize>,'
+  id: totrans-151
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'indices: Vec<usize>,'
 - en: 'values: Vec<i32>,'
+  id: totrans-152
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'values: Vec<i32>,'
 - en: 'i: usize,'
+  id: totrans-153
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'i: usize,'
 - en: ) -> Option<i32> {
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> Option<i32> {
 - en: // matching through the & makes a copy of the i32
+  id: totrans-155
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 通过 & 匹配会复制 i32
 - en: indices
+  id: totrans-156
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: indices
 - en: .get(i)
+  id: totrans-157
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .get(i)
 - en: .and_then(|idx| values.get(*idx))
+  id: totrans-158
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .and_then(|idx| values.get(*idx))
 - en: .copied()
+  id: totrans-159
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .copied()
 - en: '}'
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE24]'
+  id: totrans-162
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: These helper methods and others are described in detail in the documentation
     for [`Option`](https://doc.rust-lang.org/std/option/enum.Option.html#implementations)
     and [`Result`](https://doc.rust-lang.org/std/result/enum.Result.html#implementations).
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些辅助方法和其它方法在 `Option` 和 `Result` 的文档中进行了详细描述 [Option](https://doc.rust-lang.org/std/option/enum.Option.html#implementations)
+    和 [Result](https://doc.rust-lang.org/std/result/enum.Result.html#implementations)。
 - en: '[Uncaught exceptions in `main`](#uncaught-exceptions-in-main)'
+  id: totrans-164
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[`main` 中的未捕获异常](#uncaught-exceptions-in-main)'
 - en: In C++ when an exception is uncaught, it terminates the program with a non-zero
     exit code and an error message. To achieve a similar result using `Result` in
     Rust, `main` can be given a return type of `Result`.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，当未捕获异常时，它将以非零退出代码和错误消息终止程序。要使用 Rust 中的 `Result` 实现类似的结果，可以将 `main` 的返回类型指定为
+    `Result`。
 - en: '[PRE25]'
+  id: totrans-166
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: '[PRE26]'
+  id: totrans-167
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: 'In Rust, the `main` function can return any type that implements the [`Termination`
     trait](https://doc.rust-lang.org/std/process/trait.Termination.html), such as
     `()`, `Result`, and [`ExitCode`](https://doc.rust-lang.org/std/process/struct.ExitCode.html).
     For example, `main` can return a result whose error type implements the [`Debug`
     trait](https://doc.rust-lang.org/std/fmt/trait.Debug.html):'
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，`main` 函数可以返回任何实现了 `Termination` 特质的类型，例如 `()`, `Result` 和 `ExitCode`。例如，`main`
+    可以返回一个错误类型实现了 `Debug` 特质的 `Result`：
 - en: '[PRE27]'
+  id: totrans-169
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: '#[derive(Debug)]'
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Debug)]'
 - en: struct InterestingError {
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: struct InterestingError {
 - en: 'message: &''static str,'
+  id: totrans-172
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'message: &''static str,'
 - en: 'other_interesting_value: i32,'
+  id: totrans-173
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'other_interesting_value: i32,'
 - en: '}'
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() -> Result<(), InterestingError> {
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() -> Result<(), InterestingError> {
 - en: Err(InterestingError {
+  id: totrans-176
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Err(InterestingError {
 - en: 'message: "oops",'
+  id: totrans-177
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'message: "oops",'
 - en: 'other_interesting_value: 9001,'
+  id: totrans-178
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'other_interesting_value: 9001,'
 - en: '})'
+  id: totrans-179
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '})'
 - en: '}'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE28]'
+  id: totrans-181
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: 'Running this program produces the output `Error: InterestingError { message:
     "oops", other_interesting_value: 9001 }` with an exit code of `1`.'
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: '运行此程序将输出 `Error: InterestingError { message: "oops", other_interesting_value:
+    9001 }` 并带有退出代码 `1`。'
 - en: '[Limitations to forcing error handling with `Result`](#limitations-to-forcing-error-handling-with-result)'
+  id: totrans-183
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[使用 `Result` 强制错误处理的限制](#limitations-to-forcing-error-handling-with-result)'
 - en: Returning `Result` or `Option` does not give the usual benefits when used with
     APIs that pass pre-allocated buffers by mutable reference. This is because the
     buffer is accessible outside of the `Result` or `Option`, and so the compiler
     cannot force handling of the error case.
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 当与通过可变引用传递预分配缓冲区的 API 一起使用时，返回 `Result` 或 `Option` 并不提供通常的好处。这是因为缓冲区可以在 `Result`
+    或 `Option` 之外访问，因此编译器无法强制处理错误情况。
 - en: For example, in the following example the result of `read_line` can be ignored,
     resulting in logic errors in the program. However, since the buffer is required
     to be initialized, it will not result in memory safety violations or undefined
     behavior.
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，在以下示例中，`read_line` 的结果可以被忽略，导致程序中出现逻辑错误。然而，由于需要初始化缓冲区，它不会导致内存安全违规或未定义的行为。
 - en: '[PRE29]'
+  id: totrans-186
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: fn main() {
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut buffer = String::with_capacity(1024);
+  id: totrans-188
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut buffer = String::with_capacity(1024);
 - en: std::io::stdin().read_line(&mut buffer);
+  id: totrans-189
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: std::io::stdin().read_line(&mut buffer);
 - en: // use buffer
+  id: totrans-190
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用缓冲区
 - en: '}'
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE30]'
+  id: totrans-192
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: Rust will produce a warning in this case, because of the [`#[must_use]` attribute](https://doc.rust-lang.org/reference/attributes/diagnostics.html#the-must_use-attribute)
     on `Result`.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于 `Result` 上有 `#[must_use]` 属性，Rust 将在这种情况下产生警告。
 - en: '[PRE31]'
+  id: totrans-194
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE31]'
 - en: '`Option` does not have a `#[must_use]` attribute, so functions that return
     an `Option` that must be handled (due to the `None` case indicating an error)
     should be annotated with the `#[must_use]` attribute. For example, the `get` method
     on slices returns `Option` and is [annotated as `#[must_use]`](https://doc.rust-lang.org/src/core/slice/mod.rs.html#592-595).'
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Option` 没有包含 `#[must_use]` 属性，因此必须处理返回 `Option` 的函数（由于 `None` 情况表示错误），应该使用
+    `#[must_use]` 属性进行注释。例如，切片的 `get` 方法返回 `Option` 并被 [标记为 `#[must_use]`](https://doc.rust-lang.org/src/core/slice/mod.rs.html#592-595)。'
 - en: '[Designing and implementing error types](#designing-and-implementing-error-types)'
+  id: totrans-196
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[设计和实现错误类型](#designing-and-implementing-error-types)'
 - en: One challenge to handling errors in Rust compared to C++ is that because error
     propagation in Rust is explicit, error values from different subsystems need to
     be combined into a single type in order to be propagated further up the stack.
     With C++ exceptions, this requires no special effort.
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 与 C++ 相比，在 Rust 中处理错误的一个挑战是，由于 Rust 中的错误传播是显式的，因此来自不同子系统的错误值需要组合成一个单一类型，以便进一步向上传播到堆栈。使用
+    C++ 异常则不需要特殊努力。
 - en: The following example shows how such an error type is implemented manually.
     Later examples show how the [thiserror](https://docs.rs/thiserror/latest/thiserror/)
     and [anyhow](https://docs.rs/anyhow/latest/anyhow/) crates can be used to reduce
     the verbosity of the implementation.
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了如何手动实现此类错误类型。后续示例将展示如何使用 [thiserror](https://docs.rs/thiserror/latest/thiserror/)
+    和 [anyhow](https://docs.rs/anyhow/latest/anyhow/) crate 来减少实现的冗长性。
 - en: '[PRE32]'
+  id: totrans-199
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE32]'
 - en: '[PRE33]'
+  id: totrans-200
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE33]'
 - en: '#![allow(unused)] fn main() { use std::error::Error;'
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { use std::error::Error;'
 - en: use std::fmt::Display;
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::fmt::Display;
 - en: use std::fmt::Formatter;
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::fmt::Formatter;
 - en: '#[derive(Debug)]'
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Debug)]'
 - en: struct ErrorA;
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: struct ErrorA;
 - en: impl Display for ErrorA {
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Display for ErrorA {
 - en: fn fmt(
+  id: totrans-207
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn fmt(
 - en: '&self,'
+  id: totrans-208
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '&self,'
 - en: 'fmt: &mut Formatter<''_>,'
+  id: totrans-209
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fmt: &mut Formatter<''_>,'
 - en: ) -> Result<(), std::fmt::Error> {
+  id: totrans-210
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) -> Result<(), std::fmt::Error> {
 - en: write!(fmt, "ErrorA produced")
+  id: totrans-211
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: write!(fmt, "ErrorA produced")
 - en: '}'
+  id: totrans-212
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Error for ErrorA {}
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Error for ErrorA {}
 - en: fn might_throw_A() -> Result<(), ErrorA> {
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: fn might_throw_A() -> Result<(), ErrorA> {
 - en: Ok(())
+  id: totrans-216
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Ok(())
 - en: '}'
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '#[derive(Debug)]'
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Debug)]'
 - en: struct ErrorB;
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: struct ErrorB;
 - en: impl Display for ErrorB {
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Display for ErrorB {
 - en: fn fmt(
+  id: totrans-221
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn fmt(
 - en: '&self,'
+  id: totrans-222
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '&self,'
 - en: 'fmt: &mut Formatter<''_>,'
+  id: totrans-223
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fmt: &mut Formatter<''_>,'
 - en: ) -> Result<(), std::fmt::Error> {
+  id: totrans-224
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) -> Result<(), std::fmt::Error> {
 - en: write!(fmt, "ErrorB produced")
+  id: totrans-225
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: write!(fmt, "ErrorB produced")
 - en: '}'
+  id: totrans-226
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Error for ErrorB {}
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Error for ErrorB {}
 - en: fn might_throw_B() -> Result<(), ErrorB> {
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: fn might_throw_B() -> Result<(), ErrorB> {
 - en: Ok(())
+  id: totrans-230
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Ok(())
 - en: '}'
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // This extra structure is needed to combine the errors
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: // 这个额外的结构是必要的，用于组合错误
 - en: '#[derive(Debug)]'
+  id: totrans-233
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Debug)]'
 - en: enum ErrorAOrB {
+  id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: enum ErrorAOrB {
 - en: ErrorA(ErrorA),
+  id: totrans-235
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ErrorA(ErrorA),
 - en: ErrorB(ErrorB),
+  id: totrans-236
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ErrorB(ErrorB),
 - en: '}'
+  id: totrans-237
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Display for ErrorAOrB {
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Display for ErrorAOrB {
 - en: fn fmt(
+  id: totrans-239
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn fmt(
 - en: '&self,'
+  id: totrans-240
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '&self,'
 - en: 'fmt: &mut Formatter<''_>,'
+  id: totrans-241
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fmt: &mut Formatter<''_>,'
 - en: ) -> Result<(), std::fmt::Error> {
+  id: totrans-242
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) -> Result<(), std::fmt::Error> {
 - en: match self {
+  id: totrans-243
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match self {
 - en: Self::ErrorA(err) => err.fmt(fmt),
+  id: totrans-244
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Self::ErrorA(err) => err.fmt(fmt),
 - en: Self::ErrorB(err) => err.fmt(fmt),
+  id: totrans-245
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Self::ErrorB(err) => err.fmt(fmt),
 - en: '}'
+  id: totrans-246
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-247
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Error for ErrorAOrB {}
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Error for ErrorAOrB {}
 - en: impl From<ErrorA> for ErrorAOrB {
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: impl From<ErrorA> for ErrorAOrB {
 - en: 'fn from(err: ErrorA) -> Self {'
+  id: totrans-251
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn from(err: ErrorA) -> Self {'
 - en: Self::ErrorA(err)
+  id: totrans-252
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Self::ErrorA(err)
 - en: '}'
+  id: totrans-253
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl From<ErrorB> for ErrorAOrB {
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: impl From<ErrorB> for ErrorAOrB {
 - en: 'fn from(err: ErrorB) -> Self {'
+  id: totrans-256
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn from(err: ErrorB) -> Self {'
 - en: Self::ErrorB(err)
+  id: totrans-257
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Self::ErrorB(err)
 - en: '}'
+  id: totrans-258
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-259
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn process() -> Result<(), ErrorAOrB> {
+  id: totrans-260
   prefs: []
   type: TYPE_NORMAL
+  zh: fn process() -> Result<(), ErrorAOrB> {
 - en: // the ? operator uses the From instance
+  id: totrans-261
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ? 操作符使用 From 实例
 - en: might_throw_A()?;
+  id: totrans-262
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: might_throw_A()?;
 - en: might_throw_B()?;
+  id: totrans-263
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: might_throw_B()?;
 - en: Ok(())
+  id: totrans-264
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Ok(())
 - en: '}'
+  id: totrans-265
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-266
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE34]'
+  id: totrans-267
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE34]'
 - en: The following example uses the [thiserror](https://docs.rs/thiserror/latest/thiserror/)
     crate to implement the same thing as in the above example. The C++ version shown
     for comparison is the same as in the previous example.
+  id: totrans-268
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例使用 [thiserror](https://docs.rs/thiserror/latest/thiserror/) crate 来实现与上述示例相同的功能。用于比较的
+    C++ 版本与上一个示例相同。
 - en: '[PRE35]'
+  id: totrans-269
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE35]'
 - en: '[PRE36]'
+  id: totrans-270
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE36]'
 - en: '[Error types for applications](#error-types-for-applications)'
+  id: totrans-271
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[应用程序的错误类型](#error-types-for-applications)'
 - en: When implementing an application (as opposed to a library), it is often the
     case that the specific type of error isn't as significant as the ability to easily
     propagate them without the verbosity of the above example. For those cases, the
@@ -1057,36 +1619,56 @@
     errors into a single error type, as well as the ability to produce one-off errors.
     Since the errors types used in conjunction with anyhow still need to implement
     the `std::error::Error` trait, anyhow is often used in conjunction with thiserror.
+  id: totrans-272
   prefs: []
   type: TYPE_NORMAL
+  zh: 当实现一个应用程序（而不是库）时，通常情况下，具体的错误类型并不像轻松传播错误的能力那样重要。对于这些情况，[anyhow](https://crates.io/crates/anyhow)
+    crate 提供了将错误组合成单个错误类型的机制，以及生成一次性错误的 capability。由于与 anyhow 一起使用的错误类型仍然需要实现 `std::error::Error`
+    trait，anyhow 通常与 thiserror 一起使用。
 - en: Discriminating based on the type of the error, as one would do with `catch`
     in C++, can be done with one of the [`downcast` methods](https://docs.rs/anyhow/latest/anyhow/struct.Error.html#method.downcast).
+  id: totrans-273
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据错误的类型进行区分，就像在 C++ 中使用 `catch` 一样，可以使用其中的一个 `【downcast】方法](https://docs.rs/anyhow/latest/anyhow/struct.Error.html#method.downcast)`。
 - en: '[PRE37]'
+  id: totrans-274
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE37]'
 - en: '[PRE38]'
+  id: totrans-275
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE38]'
 - en: '[Backtraces](#backtraces)'
+  id: totrans-276
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[回溯](#backtraces)'
 - en: Backtraces can be manually included with errors by defining a field with the
     type [`Backtrace`](https://doc.rust-lang.org/std/backtrace/index.html). The backtrace
     can be captured using the [`Backtrace::capture` method](https://doc.rust-lang.org/std/backtrace/struct.Backtrace.html#method.capture).
     The [module documentation](https://doc.rust-lang.org/std/backtrace/index.html)
     describes the configuration required to enable backtraces.
+  id: totrans-277
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以通过定义一个类型为 `Backtrace` 的字段来手动将回溯信息包含在错误中。[`Backtrace::capture` 方法](https://doc.rust-lang.org/std/backtrace/struct.Backtrace.html#method.capture)
+    可以用来捕获回溯。模块文档[描述了启用回溯所需的配置](https://doc.rust-lang.org/std/backtrace/index.html)。
 - en: Both [thiserror](https://docs.rs/thiserror/latest/thiserror/) and [anyhow](https://docs.rs/anyhow/latest/anyhow/)
     have support for conveniently adding backtrace information to errors. Instructions
     for including backtraces are given on the main documentation page for each crate.
+  id: totrans-278
   prefs: []
   type: TYPE_NORMAL
+  zh: 两者 [thiserror](https://docs.rs/thiserror/latest/thiserror/) 和 [anyhow](https://docs.rs/anyhow/latest/anyhow/)
+    都支持方便地将回溯信息添加到错误中。关于包含回溯的说明可以在每个crate的主文档页面上找到。
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Expected
     errors)
+  id: totrans-279
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处给我们关于此页面的反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Expected%20errors)

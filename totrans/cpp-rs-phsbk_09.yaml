@@ -1,266 +1,399 @@
 - en: Abstract classes, interfaces, and dynamic dispatch
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 抽象类、接口和动态分派
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/abstract_classes.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/abstract_classes.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/abstract_classes.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/abstract_classes.html)
 - en: In C++ when an interface will be used with dynamic dispatch to resolve invoked
     methods, the interface is defined using an abstract class. Types that implement
     the interface inherit from the abstract class. In Rust the interface is given
     by a *trait*, which is then implemented for the types that support that trait.
     Programs can then be written over *trait objects* that use that trait as their
     base type.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，当使用动态分派来解析调用的方法时，接口通过抽象类定义。实现该接口的类型从抽象类继承。在 Rust 中，接口由 *trait* 提供，然后为支持该
+    trait 的类型实现该 trait。程序可以编写在 *trait 对象* 上，这些对象使用该 trait 作为其基类型。
 - en: The following example defines an interface, two implementations of that interface,
     and a function that takes an argument that satisfies the interface. In C++ the
     interface is defined with an abstract class with pure virtual methods, and in
     Rust the interface is defined with a trait. In both languages, the function (`printArea`
     in C++ and `print_area` in Rust) invokes a method using dynamic dispatch.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例定义了一个接口、该接口的两个实现以及一个接受满足接口的参数的函数。在 C++ 中，接口通过具有纯虚方法的抽象类定义，而在 Rust 中，接口通过
+    trait 定义。在这两种语言中，函数（C++ 中的 `printArea` 和 Rust 中的 `print_area`）都使用动态分派调用方法。
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: // Define an interface
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: // 定义一个接口
 - en: trait Shape {
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Shape {
 - en: fn area(&self) -> f64;
+  id: totrans-8
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64;
 - en: '}'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct Triangle {
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Triangle {
 - en: 'base: f64,'
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: f64,'
 - en: 'height: f64,'
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: f64,'
 - en: '}'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Implement the interface for a concrete type
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: // 为具体类型实现接口
 - en: impl Shape for Triangle {
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Shape for Triangle {
 - en: fn area(&self) -> f64 {
+  id: totrans-16
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64 {
 - en: 0.5 * self.base * self.height
+  id: totrans-17
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 0.5 * self.base * self.height
 - en: '}'
+  id: totrans-18
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct Rectangle {
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Rectangle {
 - en: 'width: f64,'
+  id: totrans-21
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'width: f64,'
 - en: 'height: f64,'
+  id: totrans-22
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: f64,'
 - en: '}'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Implement the interface for a concrete type
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: // 为具体类型实现接口
 - en: impl Shape for Rectangle {
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Shape for Rectangle {
 - en: fn area(&self) -> f64 {
+  id: totrans-26
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64 {
 - en: self.width * self.height
+  id: totrans-27
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.width * self.height
 - en: '}'
+  id: totrans-28
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Use a value via a reference to the interface
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: // 通过接口的引用使用一个值
 - en: 'fn print_area(shape: &dyn Shape) {'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn print_area(shape: &dyn Shape) {'
 - en: println!("{}", shape.area());
+  id: totrans-32
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", shape.area());
 - en: '}'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let triangle = Triangle {
+  id: totrans-35
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let triangle = Triangle {
 - en: 'base: 1.0,'
+  id: totrans-36
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: 1.0,'
 - en: 'height: 1.0,'
+  id: totrans-37
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 1.0,'
 - en: '};'
+  id: totrans-38
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: print_area(&triangle);
+  id: totrans-39
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: print_area(&triangle);
 - en: // Use a value via an owned pointer to the
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 通过拥有指针使用一个值
 - en: // interface
+  id: totrans-41
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 接口
 - en: 'let shape: Box<dyn Shape> = if true {'
+  id: totrans-42
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let shape: Box<dyn Shape> = if true {'
 - en: Box::new(Rectangle {
+  id: totrans-43
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Box::new(Rectangle {
 - en: 'width: 1.0,'
+  id: totrans-44
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'width: 1.0,'
 - en: 'height: 1.0,'
+  id: totrans-45
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 1.0,'
 - en: '})'
+  id: totrans-46
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '})'
 - en: '} else {'
+  id: totrans-47
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} else {'
 - en: Box::new(triangle)
+  id: totrans-48
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Box::new(triangle)
 - en: '};'
+  id: totrans-49
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // Convert to a reference to the interface
+  id: totrans-50
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 转换为接口的引用
 - en: print_area(shape.as_ref());
+  id: totrans-51
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-53
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: There are several places where the Rust implementation differs slightly from
     the C++ implementation.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 的实现与 C++ 的实现略有不同的地方有几个。
 - en: In Rust, a trait's methods are always visible whenever the trait itself is visible.
     Additionally, the fact that a type implements a trait is always visible whenever
     both the trait and the type are visible. These properties of Rust explain the
     lack of visibility declarations in places where one might find them in C++.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，只要 trait 本身可见，其方法总是可见的。此外，类型实现 trait 的这一事实总是可见的，只要 trait 和类型都可见。Rust
+    的这些特性解释了为什么在某些地方可能会找到可见性声明，但在 Rust 中却没有。
 - en: In C++, to associate methods with a type rather than value of that type, you
     use the `static` keyword. In Rust, non-static methods take an explicit `self`
     parameter. This syntactic choice makes it possible to indicate (in way similar
     to other parameters) whether the method mutates the object (by taking `&mut self`
     instead of `&self`) and whether it takes ownership of the object (by taking `self`
     instead of `&self`).
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，要关联方法与类型而不是该类型的值，您使用 `static` 关键字。在 Rust 中，非静态方法需要一个显式的 `self` 参数。这种语法选择使得可以指示（以与其他参数类似的方式）方法是否修改对象（通过使用
+    `&mut self` 而不是 `&self`）以及它是否拥有对象（通过使用 `self` 而不是 `&self`）。
 - en: Rust methods do not need to be declared as virtual. Because of differences in
     vtable representation, all methods for a type are available for dynamic dispatch.
     Types of values that use vtables are indicated with the `dyn` keyword. This is
     further described [below](#vtables-and-rust-trait-object-types).
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 方法不需要声明为虚拟。由于 vtable 表示的不同，一个类型的所有方法都可用于动态分发。使用 vtable 的值的类型用 `dyn` 关键字表示。这将在[下面](#vtables-and-rust-trait-object-types)进一步描述。
 - en: Additionally, Rust does not have an equivalent for the virtual destructor declaration
     because in Rust every vtable includes the drop behavior (whether given by a user
     defined `Drop` implementation or not) required for the value.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，Rust 没有与虚拟析构函数声明等效的功能，因为在 Rust 中，每个 vtable 都包含用于值的析构行为（无论是否由用户定义的 `Drop`
+    实现提供）。
 - en: '[Vtables and Rust trait object types](#vtables-and-rust-trait-object-types)'
+  id: totrans-59
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[Vtables 和 Rust 特性对象类型](#vtables-and-rust-trait-object-types)'
 - en: C++ and Rust both requires some kind of indirection to perform dynamic dispatch
     against an interface. In C++ this indirection takes the form of a pointer to the
     abstract class (instead of the derived concrete class), making use of a vtable
     to resolve the virtual method.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 和 Rust 都需要某种形式的间接引用来对接口执行动态分发。在 C++ 中，这种间接引用的形式是抽象类的指针（而不是派生具体类的指针），并使用
+    vtable 来解析虚拟方法。
 - en: In the above Rust example, the type `dyn Shape` is the type of a trait object
     for the `Shape` trait. A trait object includes a vtable along with the underlying
     value.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上述 Rust 示例中，类型 `dyn Shape` 是 `Shape` 特性的特性对象类型。特性对象包含 vtable 和底层值。
 - en: In C++ all objects whose class inherits from a class with a virtual method have
     a vtable in their representation, whether dynamic dispatch is used or not. Pointers
     or references to objects are the same size as pointers to objects without virtual
     methods, but every object includes its vtable.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，所有从具有虚拟方法的类继承的类的对象在其表示中都有一个 vtable，无论是否使用动态分发。对象的指针或引用的大小与没有虚拟方法的对象的指针大小相同，但每个对象都包含其
+    vtable。
 - en: In Rust, vtables are present only when values are represented as trait objects.
     The reference to the trait object is twice the size of a normal reference since
     it includes both the pointer to the value and the pointer to the vtable. In the
@@ -268,283 +401,444 @@
     in its representation, but when the reference to it is converted to a reference
     to a trait object (so that it can be passed to `print_area`), that does include
     a pointer to the vtable.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，vtable 仅在值表示为特性对象时存在。特性对象的引用是正常引用的两倍大小，因为它包含指向值的指针和指向 vtable 的指针。在上面的
+    Rust 示例中，`main` 中的局部变量 `triangle` 在其表示中没有 vtable，但当将其引用转换为特性对象引用（以便可以传递给 `print_area`）时，它确实包含指向
+    vtable 的指针。
 - en: Additionally, just as abstract classes in C++ cannot be used as the type of
     a local variable, the type of a parameter of a function, or the type of a return
     value of a function, trait object types in Rust cannot be used in corresponding
     contexts. In Rust, this is enforced by the type `dyn Shape` not implementing the
     `Sized` marker trait, preventing it from being used in contexts that require knowing
     the size of a type statically.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，就像 C++ 中的抽象类不能用作局部变量的类型、函数参数的类型或函数返回值的类型一样，Rust 中的特性对象类型也不能在相应的上下文中使用。在 Rust
+    中，这是通过类型 `dyn Shape` 不实现 `Sized` 标记特性来强制执行的，防止它在需要静态地知道类型大小的上下文中使用。
 - en: The following example shows some places where a trait object type can and cannot
     be used due to not implementing `Sized`. The uses forbidden in Rust would also
     be forbidden in C++ because `Shape` is an abstract class.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了由于未实现 `Sized`，特性对象类型可以在某些地方使用，而在其他地方则不能。在 Rust 中被禁止使用的情况在 C++ 中也会被禁止，因为
+    `Shape` 是一个抽象类。
 - en: '[PRE3]'
+  id: totrans-66
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: trait Shape {
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Shape {
 - en: fn area(&self) -> f64; }   struct Triangle {
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64; }   struct Triangle {
 - en: 'base: f64, height: f64, }   impl Shape for Triangle {'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 'base: f64, height: f64, }   impl Shape for Triangle {'
 - en: fn area(&self) -> f64 { 0.5 * self.base * self.height } }   fn main() {
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64 { 0.5 * self.base * self.height } }   fn main() {
 - en: // Local variables must have a known size.
+  id: totrans-71
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 局部变量必须具有已知的大小。
 - en: '// let v: dyn Shape = Triangle { base: 1.0, height: 1.0 };'
+  id: totrans-72
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// let v: dyn Shape = Triangle { base: 1.0, height: 1.0 };'
 - en: // References always have a known size.
+  id: totrans-73
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 引用总是具有已知的大小。
 - en: 'let shape: &dyn Shape = &Triangle {'
+  id: totrans-74
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let shape: &dyn Shape = &Triangle {'
 - en: 'base: 1.0,'
+  id: totrans-75
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: 1.0,'
 - en: 'height: 1.0,'
+  id: totrans-76
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 1.0,'
 - en: '};'
+  id: totrans-77
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // Boxes also always have a known size.
+  id: totrans-78
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 盒子也总是具有已知的大小。
 - en: 'let boxed_shape: Box<dyn Shape> = Box::new(Triangle {'
+  id: totrans-79
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let boxed_shape: Box<dyn Shape> = Box::new(Triangle {'
 - en: 'base: 1.0,'
+  id: totrans-80
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: 1.0,'
 - en: 'height: 1.0,'
+  id: totrans-81
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 1.0,'
 - en: '});'
+  id: totrans-82
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '});'
 - en: // Types like Option<T> include the value of type T directly, and so also
+  id: totrans-83
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // Types like Option<T> include the value of type T directly, and so also
 - en: // need to know the size of T.
+  id: totrans-84
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // need to know the size of T.
 - en: '// let v: Option<dyn Shape> = Some(Triangle { base: 1.0, height: 1.0 });'
+  id: totrans-85
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// let v: Option<dyn Shape> = Some(Triangle { base: 1.0, height: 1.0 });'
 - en: '}'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Parameter types must have a known size.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: // Parameter types must have a known size.
 - en: '// fn print_area(shape: dyn Shape) { }'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: '// fn print_area(shape: dyn Shape) { }'
 - en: 'fn print_area(shape: &dyn Shape) {}'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn print_area(shape: &dyn Shape) {}'
 - en: '[PRE4]'
+  id: totrans-90
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: The decision to include the vtable in the reference instead of in the value
     is one part of what makes it reasonable to use traits both for polymorphism via
     dynamic dispatch and for [polymorphism via static dispatch, where one would use
     concepts in C++](./concepts.html).
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: The decision to include the vtable in the reference instead of in the value
+    is one part of what makes it reasonable to use traits both for polymorphism via
+    dynamic dispatch and for [polymorphism via static dispatch, where one would use
+    concepts in C++](./concepts.html).
 - en: '[Limitations of trait objects in Rust](#limitations-of-trait-objects-in-rust)'
+  id: totrans-92
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[Rust中特质对象的局限性](#limitations-of-trait-objects-in-rust)'
 - en: In Rust, not all traits can be used as the base trait for trait objects. The
     most commonly encountered restriction is that traits that require knowledge of
     the object's size via a `Sized` supertrait are not `dyn`-compatible. There are
     [additional restrictions](https://doc.rust-lang.org/reference/items/traits.html#dyn-compatibility).
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: In Rust, not all traits can be used as the base trait for trait objects. The
+    most commonly encountered restriction is that traits that require knowledge of
+    the object's size via a `Sized` supertrait are not `dyn`-compatible. There are
+    [additional restrictions](https://doc.rust-lang.org/reference/items/traits.html#dyn-compatibility).
 - en: '[Trait objects and lifetimes](#trait-objects-and-lifetimes)'
+  id: totrans-94
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[特质对象和生命周期](#trait-objects-and-lifetimes)'
 - en: Objects which are used with dynamic dispatch may contain pointers or references
     to other objects. In C++ the lifetimes of those references must be tracked manually
     by the programmer.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: Objects which are used with dynamic dispatch may contain pointers or references
+    to other objects. In C++ the lifetimes of those references must be tracked manually
+    by the programmer.
 - en: Rust checks the bounds on the lifetimes of references that the trait objects
     may contain. If the bounds are not given explicitly, they are determined according
     to the [lifetime elision rules](https://doc.rust-lang.org/reference/lifetime-elision.html#r-lifetime-elision.trait-object).
     The bound is part of the type of the trait object.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust checks the bounds on the lifetimes of references that the trait objects
+    may contain. If the bounds are not given explicitly, they are determined according
+    to the [lifetime elision rules](https://doc.rust-lang.org/reference/lifetime-elision.html#r-lifetime-elision.trait-object).
+    The bound is part of the type of the trait object.
 - en: Usually the elision rules pick the correct lifetime bound. Sometimes, the rules
     result in surprising error messages from the compiler. In those situations or
     when the compiler cannot determine which lifetime bound to assign, the bound may
     be given manually. The following example shows explicitly what the inferred lifetimes
     are for a structure storing a trait object and for the `print_area` function.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: Usually the elision rules pick the correct lifetime bound. Sometimes, the rules
+    result in surprising error messages from the compiler. In those situations or
+    when the compiler cannot determine which lifetime bound to assign, the bound may
+    be given manually. The following example shows explicitly what the inferred lifetimes
+    are for a structure storing a trait object and for the `print_area` function.
 - en: '[PRE5]'
+  id: totrans-98
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: trait Shape {
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Shape {
 - en: fn area(&self) -> f64; }   struct Triangle {
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64; }   struct Triangle {
 - en: 'base: f64, height: f64, }   impl Shape for Triangle {'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 'base: f64, height: f64, }   impl Shape for Triangle {'
 - en: fn area(&self) -> f64 { 0.5 * self.base * self.height } }   struct Scaled {
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64 { 0.5 * self.base * self.height } }   struct Scaled {
 - en: 'scale: f64,'
+  id: totrans-103
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'scale: f64,'
 - en: // 'static is the lifetime that would be inferred by the lifetime elision
+  id: totrans-104
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 'static is the lifetime that would be inferred by the lifetime elision
 - en: // rule [lifetime-elision.trait-object.default].
+  id: totrans-105
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // rule [lifetime-elision.trait-object.default].
 - en: 'shape: Box<dyn Shape + ''static>,'
+  id: totrans-106
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'shape: Box<dyn Shape + ''static>,'
 - en: '}'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Shape for Scaled {
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Shape for Scaled {
 - en: fn area(&self) -> f64 {
+  id: totrans-109
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64 {
 - en: self.scale * self.shape.area()
+  id: totrans-110
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.scale * self.shape.area()
 - en: '}'
+  id: totrans-111
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // These are the lifetimes that would be inferred by the lifetime elision rule
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: // These are the lifetimes that would be inferred by the lifetime elision rule
 - en: // [lifetime-elision.function.implicit-lifetime-parameters] for the reference
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: // [lifetime-elision.function.implicit-lifetime-parameters] for the reference
 - en: // and [lifetime-elision.trait-object.containing-type-unique] for the trait
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: // and [lifetime-elision.trait-object.containing-type-unique] for the trait
 - en: // bound.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: // bound.
 - en: 'fn print_area<''a>(shape: &''a (dyn Shape + ''a)) {'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn print_area<''a>(shape: &''a (dyn Shape + ''a)) {'
 - en: println!("{}", shape.area());
+  id: totrans-118
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", shape.area());
 - en: '}'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let triangle = Triangle {
+  id: totrans-121
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let triangle = Triangle {
 - en: 'base: 1.0,'
+  id: totrans-122
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: 1.0,'
 - en: 'height: 1.0,'
+  id: totrans-123
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 1.0,'
 - en: '};'
+  id: totrans-124
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: print_area(&triangle);
+  id: totrans-125
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: print_area(&triangle);
 - en: let scaled_triangle = Scaled {
+  id: totrans-126
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let scaled_triangle = Scaled {
 - en: 'scale: 2.0,'
+  id: totrans-127
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'scale: 2.0,'
 - en: 'shape: Box::new(triangle),'
+  id: totrans-128
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'shape: Box::new(triangle),'
 - en: '};'
+  id: totrans-129
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: print_area(&scaled_triangle);
+  id: totrans-130
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: print_area(&scaled_triangle);
 - en: '}'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE6]'
+  id: totrans-132
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Abstract
     classes, interfaces, and dynamic dispatch)
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=抽象类、接口和动态分派)

@@ -1,387 +1,580 @@
 - en: Curiously recurring template pattern (CRTP)
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 奇怪地反复出现的模板模式（CRTP）
 - en: 原文：[https://cel.cs.brown.edu/crp/patterns/crtp.html](https://cel.cs.brown.edu/crp/patterns/crtp.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/patterns/crtp.html](https://cel.cs.brown.edu/crp/patterns/crtp.html)
 - en: The C++ [curiously recurring template pattern](https://en.cppreference.com/w/cpp/language/crtp)
     is used to make the concrete type of the derived class available in the definition
     of methods defined in the base class.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 中的奇怪地反复出现的模板模式（CRTP）用于在基类中定义的方法的定义中使派生类的具体类型可用。
 - en: '[Sharing implementations with static polymorphism](#sharing-implementations-with-static-polymorphism)'
+  id: totrans-3
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[使用静态多态共享实现](#sharing-implementations-with-static-polymorphism)'
 - en: The basic use of the CRTP is for reducing redundancy in implementations that
     make use of static polymorphism. In this use case, the `this` pointer is cast
     to the type provided by the template parameter so that methods from the derived
     class can be called. This enables methods implemented in the base class to call
     methods in the derived class without having to declare them virtual, avoiding
     the cost of dynamic dispatch.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: CRTP 的基本用途是减少使用静态多态的实现中的冗余。在这个用例中，`this` 指针被转换为模板参数提供的类型，以便可以调用派生类的方法。这使得基类中实现的方法可以调用派生类中的方法，而无需将它们声明为虚拟的，避免了动态分派的开销。
 - en: In the following example, `Triangle` and `Square` have a common implementation
     of `twiceArea` without the need for dynamic dispatch. This use case is addressed
     in Rust using default trait methods.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 在下面的示例中，`Triangle` 和 `Square` 有一个共同的 `twiceArea` 实现，无需动态分派。这种用法在 Rust 中使用默认特质方法来解决。
 - en: '[PRE0]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-7
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: trait Shape {
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Shape {
 - en: fn area(&self) -> f64;
+  id: totrans-9
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64;
 - en: fn twice_area(&self) -> f64 {
+  id: totrans-10
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn twice_area(&self) -> f64 {
 - en: 2.0 * self.area()
+  id: totrans-11
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 2.0 * self.area()
 - en: '}'
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct Triangle {
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Triangle {
 - en: 'base: f64,'
+  id: totrans-15
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: f64,'
 - en: 'height: f64,'
+  id: totrans-16
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: f64,'
 - en: '}'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Shape for Triangle {
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Shape for Triangle {
 - en: fn area(&self) -> f64 {
+  id: totrans-19
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64 {
 - en: 0.5 * self.base * self.height
+  id: totrans-20
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 0.5 * self.base * self.height
 - en: '}'
+  id: totrans-21
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct Square {
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Square {
 - en: 'side: f64,'
+  id: totrans-24
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'side: f64,'
 - en: '}'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Shape for Square {
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Shape for Square {
 - en: fn area(&self) -> f64 {
+  id: totrans-27
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64 {
 - en: self.side * self.side
+  id: totrans-28
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.side * self.side
 - en: '}'
+  id: totrans-29
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let triangle = Triangle {
+  id: totrans-32
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let triangle = Triangle {
 - en: 'base: 2.0,'
+  id: totrans-33
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: 2.0,'
 - en: 'height: 1.0,'
+  id: totrans-34
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 1.0,'
 - en: '};'
+  id: totrans-35
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: 'let square = Square { side: 2.0 };'
+  id: totrans-36
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let square = Square { side: 2.0 };'
 - en: println!("{}", triangle.twice_area());
+  id: totrans-37
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", triangle.twice_area());
 - en: println!("{}", square.twice_area());
+  id: totrans-38
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", square.twice_area());
 - en: '}'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-40
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The reason why nothing additional needs to be done for the default method to
     invoke area statically in Rust is that calls to methods on `self` are always resolved
     statically in Rust. This is possible because [Rust does not have inheritance between
     concrete types](../idioms/data_modeling/inheritance_and_reuse.html). Despite being
     defined in the trait, the default method is actually implemented as part of the
     implementing struct.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 中默认方法调用 `area` 静态执行无需额外操作的原因是，在 Rust 中对 `self` 的方法调用始终是静态解析的。这是可能的，因为 [Rust
+    中没有具体类型之间的继承](../idioms/data_modeling/inheritance_and_reuse.html)。尽管默认方法是在特质中定义的，但实际上它是实现结构的一部分。
 - en: '[Method chaining](#method-chaining)'
+  id: totrans-42
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[方法链](#method-chaining)'
 - en: Another common use for the CRTP is for implementing method chaining when an
     implementation of a method to be chained is provided by a base class.
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: CRTP 的另一个常见用途是在基类提供了一个要链式调用的方法实现时实现方法链。
 - en: In C++ the template parameter is used to ensure that the type returned from
     the shared function is that of the derived class, so that further methods defined
     in the derived class can be called on it. The template parameter is also used
     to call a method on the derived type without declaring the method as virtual.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，模板参数用于确保从共享函数返回的类型是派生类的类型，这样就可以在它上面调用派生类中定义的进一步方法。模板参数还用于在派生类型上调用方法，而无需将该方法声明为虚拟的。
 - en: In Rust the template parameter is not required because the `Self` type is available
     in traits to refer to the type of the implementing struct.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，模板参数不是必需的，因为 `Self` 类型在特质中可用，可以用来引用实现结构的类型。
 - en: '[PRE3]'
+  id: totrans-46
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-47
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: '// No generic type is required: Self already'
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: // 不需要泛型类型：Self 已经
 - en: // refers to implementing type.
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: // 指的是实现类型。
 - en: trait Combinable {
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Combinable {
 - en: 'fn combine_with(&self, other: &Self) -> Self;'
+  id: totrans-51
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn combine_with(&self, other: &Self) -> Self;'
 - en: // concat has a default implementation in
+  id: totrans-52
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // concat 有一个默认实现
 - en: // terms of Self.
+  id: totrans-53
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 以 Self 的术语。
 - en: 'fn concat(&self, others: &[Self]) -> Self'
+  id: totrans-54
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn concat(&self, others: &[Self]) -> Self'
 - en: where
+  id: totrans-55
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: where
 - en: 'Self: Clone,'
+  id: totrans-56
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Self: Clone,'
 - en: '{'
+  id: totrans-57
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '{'
 - en: let mut acc = self.clone();
+  id: totrans-58
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut acc = self.clone();
 - en: for v in others {
+  id: totrans-59
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for v in others {
 - en: acc = acc.combine_with(v);
+  id: totrans-60
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: acc = acc.combine_with(v);
 - en: '}'
+  id: totrans-61
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: acc
+  id: totrans-62
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: acc
 - en: '}'
+  id: totrans-63
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '#[derive(Clone)]'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone)]'
 - en: struct Sum(i32);
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Sum(i32);
 - en: impl Sum {
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Sum {
 - en: // Sum includes an additional method that can be
+  id: totrans-68
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // Sum 包含一个额外的
 - en: // chained.
+  id: totrans-69
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 链式
 - en: 'fn mult(&self, n: i32) -> Self {'
+  id: totrans-70
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn mult(&self, n: i32) -> Self {'
 - en: Self(self.0 * n)
+  id: totrans-71
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Self(self.0 * n)
 - en: '}'
+  id: totrans-72
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Combinable for Sum {
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Combinable for Sum {
 - en: 'fn combine_with(&self, other: &Self) -> Self {'
+  id: totrans-75
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn combine_with(&self, other: &Self) -> Self {'
 - en: Self(self.0 + other.0)
+  id: totrans-76
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Self(self.0 + other.0)
 - en: '}'
+  id: totrans-77
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let s = Sum(0);
+  id: totrans-80
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let s = Sum(0);
 - en: let v = vec![Sum(1), Sum(2), Sum(3), Sum(4)];
+  id: totrans-81
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let v = vec![Sum(1), Sum(2), Sum(3), Sum(4)];
 - en: let x = s
+  id: totrans-82
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = s
 - en: .concat(&v)
+  id: totrans-83
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .concat(&v)
 - en: // Even though concat is part of the
+  id: totrans-84
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 即使 concat 是
 - en: // trait, it returns a value of the
+  id: totrans-85
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 特性，它返回一个
 - en: // implementing type, making it possible
+  id: totrans-86
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 实现类型，使其
 - en: // to chain methods specific to that type.
+  id: totrans-87
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 可以链式调用特定类型的
 - en: .mult(2)
+  id: totrans-88
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .mult(2)
 - en: .combine_with(&Sum(5));
+  id: totrans-89
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .combine_with(&Sum(5));
 - en: println!("{}", x.0)
+  id: totrans-90
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x.0)
 - en: '}'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-92
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Again, the reason why `Self` can refer to the implementing type is that [Rust
     does not have inheritance between concrete types](../idioms/data_modeling/inheritance_and_reuse.html).
     This contrasts with C++ where a value may be used at any number of types which
     are concrete, and so it would not be clear which type something like `Self` should
     refer to.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次，`Self` 可以引用实现类型的原因是 [Rust 不支持具体类型之间的继承](../idioms/data_modeling/inheritance_and_reuse.html)。这与
+    C++ 相比，其中值可以在任何数量的具体类型中使用，因此不清楚 `Self` 应该引用哪种类型。
 - en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Curiously
     recurring template pattern (CRTP))
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Curiously
+    recurring template pattern (CRTP))

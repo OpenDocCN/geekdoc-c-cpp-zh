@@ -1,359 +1,554 @@
 - en: User-defined conversions
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 用户定义的转换
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/user-defined_conversions.html](https://cel.cs.brown.edu/crp/idioms/user-defined_conversions.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/user-defined_conversions.html](https://cel.cs.brown.edu/crp/idioms/user-defined_conversions.html)
 - en: In C++ user-defined conversions are created using [converting constructors](https://en.cppreference.com/w/cpp/language/converting_constructor)
     or [conversion functions](https://en.cppreference.com/w/cpp/language/cast_operator).
     Because converting constructors are opt-out (via the `explicit` specifier), implicit
     conversions occur with regularity in C++ code. In the following example both the
     assignments and the function calls make use of implicit conversions as provided
     by a converting constructor.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，用户定义的转换是通过 [转换构造函数](https://en.cppreference.com/w/cpp/language/converting_constructor)
+    或 [转换函数](https://en.cppreference.com/w/cpp/language/cast_operator) 创建的。因为转换构造函数是可选的（通过
+    `explicit` 指示符），在 C++ 代码中隐式转换经常发生。在以下示例中，赋值和函数调用都使用了由转换构造函数提供的隐式转换。
 - en: Rust makes significantly less use of implicit conversions. Instead most conversions
     are explicit. The [`std::convert`](https://doc.rust-lang.org/std/convert/index.html)
     module provides several traits for working with user-defined conversions. In Rust,
     the below example makes use of explicit conversions by implementing the [`From`
     trait](https://doc.rust-lang.org/std/convert/trait.From.html).
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 显著减少了隐式转换的使用。相反，大多数转换都是显式的。`std::convert` 模块提供了几个 trait 用于处理用户定义的转换。在 Rust
+    中，以下示例通过实现 `From` trait 使用显式转换。
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: struct Widget;
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Widget;
 - en: impl From<i32> for Widget {
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: impl From<i32> for Widget {
 - en: 'fn from(_x: i32) -> Widget {'
+  id: totrans-8
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn from(_x: i32) -> Widget {'
 - en: Widget
+  id: totrans-9
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Widget
 - en: '}'
+  id: totrans-10
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl From<(i32, i32)> for Widget {
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: impl From<(i32, i32)> for Widget {
 - en: 'fn from(_x: (i32, i32)) -> Widget {'
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn from(_x: (i32, i32)) -> Widget {'
 - en: Widget
+  id: totrans-14
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Widget
 - en: '}'
+  id: totrans-15
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn process(w: Widget) {}'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn process(w: Widget) {}'
 - en: fn main() {
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let w1: Widget = 1.into();'
+  id: totrans-19
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let w1: Widget = 1.into();'
 - en: '// For construction this is more idiomatic:'
+  id: totrans-20
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 对于构造来说，这是更常见的做法：
 - en: let w1b = Widget::from(1);
+  id: totrans-21
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let w1b = Widget::from(1);
 - en: 'let w2: Widget = (4, 5).into();'
+  id: totrans-22
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let w2: Widget = (4, 5).into();'
 - en: '// For construction this is more idiomatic:'
+  id: totrans-23
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 对于构造来说，这是更常见的做法：
 - en: let w2b = Widget::from((4, 5));
+  id: totrans-24
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let w2b = Widget::from((4, 5));
 - en: process(1.into());
+  id: totrans-25
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: process(1.into());
 - en: process((4, 5).into());
+  id: totrans-26
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: process((4, 5).into());
 - en: '}'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-28
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The `into` method used above is provided via a [blanket implementations](https://doc.rust-lang.org/book/ch10-02-traits.html#using-trait-bounds-to-conditionally-implement-methods)
     for the [`Into trait`](https://doc.rust-lang.org/std/convert/trait.Into.html)
     for types that implement the `From` trait. Because of the existence of the [blanket
     implementation](https://doc.rust-lang.org/std/convert/trait.Into.html#impl-Into%3CU%3E-for-T),
     it is generally preferred to implement the `From` trait instead of the `Into`
     trait, and let the `Into` trait be provided by that blanket implementation.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 上面的 `into` 方法是通过为实现了 `From` trait 的类型提供的 [泛型实现](https://doc.rust-lang.org/book/ch10-02-traits.html#using-trait-bounds-to-conditionally-implement-methods)
+    来提供的。由于存在 [泛型实现](https://doc.rust-lang.org/std/convert/trait.Into.html#impl-Into%3CU%3E-for-T)，通常更倾向于实现
+    `From` trait 而不是 `Into` trait，并让 `Into` trait 由该泛型实现提供。
 - en: '[Conversion functions](#conversion-functions)'
+  id: totrans-30
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[转换函数](#conversion-functions)'
 - en: C++ conversion functions enable conversions in the other direction, from the
     defined class to another type.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 的转换函数允许从定义的类到其他类型的转换。
 - en: To achieve the same in Rust, the `From` trait can be implemented in the other
     direction. At least one of the source type or the target type must be defined
     in the same crate as the trait implementation.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 要在 Rust 中实现相同的功能，可以在相反方向上实现 `From` trait。至少源类型或目标类型中的一种必须在与 trait 实现相同的 crate
+    中定义。
 - en: '[PRE3]'
+  id: totrans-33
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: struct Point {
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Point {
 - en: 'x: i32,'
+  id: totrans-36
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: i32,'
 - en: 'y: i32,'
+  id: totrans-37
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: i32,'
 - en: '}'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl From<Point> for (i32, i32) {
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: impl From<Point> for (i32, i32) {
 - en: 'fn from(p: Point) -> (i32, i32) {'
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn from(p: Point) -> (i32, i32) {'
 - en: (p.x, p.y)
+  id: totrans-41
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: (p.x, p.y)
 - en: '}'
+  id: totrans-42
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn process(x: (i32, i32)) {}'
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn process(x: (i32, i32)) {}'
 - en: fn main() {
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let p1 = Point { x: 1, y: 2 };'
+  id: totrans-46
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let p1 = Point { x: 1, y: 2 };'
 - en: 'let p2 = Point { x: 3, y: 4 };'
+  id: totrans-47
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let p2 = Point { x: 3, y: 4 };'
 - en: 'let xy: (i32, i32) = p1.into();'
+  id: totrans-48
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let xy: (i32, i32) = p1.into();'
 - en: process(p2.into());
+  id: totrans-49
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: process(p2.into());
 - en: '}'
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-51
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Conversion functions are is often used to implement the safe bool pattern in
     C++, [which is addressed in a different way in Rust](./promotions_and_conversions.html#safe-bools).
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 转换函数通常用于在 C++ 中实现安全的布尔模式，[而在 Rust 中以不同的方式处理](./promotions_and_conversions.html#safe-bools)。
 - en: '[Borrowing conversions](#borrowing-conversions)'
+  id: totrans-53
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[借用转换](#borrowing-conversions)'
 - en: The methods in the `From` and `Into` traits take ownership of the values to
     be converted. When this is not desired in C++, the conversion function can just
     take and return references.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: '`From` 和 `Into` 特性中的方法会获取要转换的值的所有权。当在 C++ 中不希望这样做时，转换函数可以只接受并返回引用。'
 - en: To achieve the same in Rust the [`AsRef` trait](https://doc.rust-lang.org/std/convert/trait.AsRef.html)
     or [`AsMut` trait](https://doc.rust-lang.org/std/convert/trait.AsMut.html) are
     used.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了在 Rust 中实现相同的功能，使用 `AsRef` 特性[https://doc.rust-lang.org/std/convert/trait.AsRef.html](https://doc.rust-lang.org/std/convert/trait.AsRef.html)
+    或 `AsMut` 特性[https://doc.rust-lang.org/std/convert/trait.AsMut.html](https://doc.rust-lang.org/std/convert/trait.AsMut.html)。
 - en: '[PRE6]'
+  id: totrans-56
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[PRE7]'
+  id: totrans-57
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: struct Person {
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'name: String,'
+  id: totrans-59
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: String,'
 - en: '}'
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl AsRef<str> for Person {
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: impl AsRef<str> for Person {
 - en: fn as_ref(&self) -> &str {
+  id: totrans-62
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn as_ref(&self) -> &str {
 - en: '&self.name'
+  id: totrans-63
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '&self.name'
 - en: '}'
+  id: totrans-64
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn process(name: &str) {'
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn process(name: &str) {'
 - en: println!("{}", name);
+  id: totrans-67
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", name);
 - en: '}'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let alice = Person {
+  id: totrans-70
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let alice = Person {
 - en: 'name: "Alice".to_string(),'
+  id: totrans-71
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: "Alice".to_string(),'
 - en: '};'
+  id: totrans-72
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: process(alice.as_ref());
+  id: totrans-73
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: process(alice.as_ref());
 - en: '}'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE8]'
+  id: totrans-75
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: It is common to use `AsRef` or `AsMut` as a trait bound in function definitions.
     Using generics with an `AsRef` or `AsMut` bound allows clients to call the functions
     with anything that can be cheaply viewed as the type that the function wants to
     work with. Using this technique, the above definition of `process` would be defined
     as in the following example.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 在函数定义中，通常使用 `AsRef` 或 `AsMut` 作为特性界限。使用带有 `AsRef` 或 `AsMut` 界限的泛型允许客户端使用任何可以廉价地视为函数想要与之一起工作的类型的任何内容来调用函数。使用这种技术，上述
+    `process` 的定义可以像以下示例中那样定义。
 - en: '[PRE9]'
+  id: totrans-77
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: struct Person {
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'name: String, }   impl AsRef<str> for Person {'
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 'name: String, }   impl AsRef<str> for Person {'
 - en: 'fn as_ref(&self) -> &str { &self.name } }   fn process<T: AsRef<str>>(name:
     T) {'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn as_ref(&self) -> &str { &self.name } }   fn process<T: AsRef<str>>(name:
+    T) {'
 - en: println!("{}", name.as_ref());
+  id: totrans-81
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", name.as_ref());
 - en: '}'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let alice = Person {
+  id: totrans-84
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let alice = Person {
 - en: 'name: "Alice".to_string(),'
+  id: totrans-85
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: "Alice".to_string(),'
 - en: '};'
+  id: totrans-86
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: process(alice);
+  id: totrans-87
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: process(alice);
 - en: '}'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE10]'
+  id: totrans-89
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: This technique is often used with functions that take file system paths, so
     that literal strings can more easily be used as paths.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种技术通常与接受文件系统路径的函数一起使用，这样就可以更轻松地将文本字符串用作路径。
 - en: '[Fallible conversions](#fallible-conversions)'
+  id: totrans-91
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[可失败转换](#fallible-conversions)'
 - en: In C++ when conversions might fail it is possible (though usually discouraged)
     to throw an exception from the converting constructor or converting function.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，当转换可能失败时，从转换构造函数或转换函数抛出异常是可能的（尽管通常不鼓励这样做）。
 - en: Error handling in Rust [does not use exceptions](./exceptions.html). Instead
     the [`TryFrom` trait](https://doc.rust-lang.org/std/convert/trait.TryFrom.html)
     and [`TryInto` trait](https://doc.rust-lang.org/std/convert/trait.TryInto.html)
@@ -361,190 +556,287 @@
     in that they return a `Result`, which may indicate a failing case. When a conversion
     may fail one should implement `TryFrom` and rely on the client to call `unwrap`
     on the result, rather than panic in a `From` implementation.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 中的错误处理[不使用异常](./exceptions.html)。相反，使用 `TryFrom` 特性[https://doc.rust-lang.org/std/convert/trait.TryFrom.html](https://doc.rust-lang.org/std/convert/trait.TryFrom.html)
+    和 `TryInto` 特性[https://doc.rust-lang.org/std/convert/trait.TryInto.html](https://doc.rust-lang.org/std/convert/trait.TryInto.html)
+    来进行可能失败的转换。这些特性与 `From` 和 `Into` 不同，因为它们返回一个 `Result`，这可能会指示一个失败的情况。当一个转换可能失败时，应该实现
+    `TryFrom` 并依赖客户端调用结果上的 `unwrap`，而不是在 `From` 实现中恐慌。
 - en: '[PRE11]'
+  id: totrans-94
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '[PRE12]'
+  id: totrans-95
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: use std::convert::TryFrom;
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::convert::TryFrom;
 - en: use std::convert::TryInto;
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::convert::TryInto;
 - en: struct NonEmpty {
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: struct NonEmpty {
 - en: 's: String,'
+  id: totrans-99
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 's: String,'
 - en: '}'
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '#[derive(Clone, Copy, Debug)]'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone, Copy, Debug)]'
 - en: struct NonEmptyStringError;
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: struct NonEmptyStringError;
 - en: impl TryFrom<String> for NonEmpty {
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: impl TryFrom<String> for NonEmpty {
 - en: type Error = NonEmptyStringError;
+  id: totrans-104
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Error = NonEmptyStringError;
 - en: fn try_from(
+  id: totrans-105
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn try_from(
 - en: 's: String,'
+  id: totrans-106
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 's: String,'
 - en: ) -> Result<NonEmpty, NonEmptyStringError>
+  id: totrans-107
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) -> Result<NonEmpty, NonEmptyStringError>
 - en: '{'
+  id: totrans-108
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '{'
 - en: if s.is_empty() {
+  id: totrans-109
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if s.is_empty() {
 - en: Err(NonEmptyStringError)
+  id: totrans-110
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Err(NonEmptyStringError)
 - en: '} else {'
+  id: totrans-111
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} else {'
 - en: Ok(NonEmpty { s })
+  id: totrans-112
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Ok(NonEmpty { s })
 - en: '}'
+  id: totrans-113
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-114
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let res: Result<'
+  id: totrans-117
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let res: Result<'
 - en: NonEmpty,
+  id: totrans-118
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: NonEmpty,
 - en: NonEmptyStringError,
+  id: totrans-119
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: NonEmptyStringError,
 - en: = "".to_string().try_into();
+  id: totrans-120
   prefs:
   - PREF_IND
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: = "".to_string().try_into();
 - en: match res {
+  id: totrans-121
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match res {
 - en: Ok(ne) => {
+  id: totrans-122
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Ok(ne) => {
 - en: println!("Converted!");
+  id: totrans-123
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("Converted!");
 - en: '}'
+  id: totrans-124
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Err(err) => {
+  id: totrans-125
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Err(err) => {
 - en: println!("Couldn't convert");
+  id: totrans-126
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("Couldn't convert");
 - en: '}'
+  id: totrans-127
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-128
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE13]'
+  id: totrans-130
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: Just like with `From` and `Into`, there is a [blanket implementation](https://doc.rust-lang.org/std/convert/trait.TryInto.html#impl-TryInto%3CU%3E-for-T)
     for `TryInto` for everything that implements `TryFrom`.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 就像 `From` 和 `Into` 一样，对于实现了 `TryFrom` 的所有内容，都有一个 `TryInto` 的泛型实现[https://doc.rust-lang.org/std/convert/trait.TryInto.html#impl-TryInto%3CU%3E-for-T](https://doc.rust-lang.org/std/convert/trait.TryInto.html#impl-TryInto%3CU%3E-for-T)。
 - en: '[Implicit conversions](#implicit-conversions)'
+  id: totrans-132
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[隐式转换](#implicit-conversions)'
 - en: Rust does have one kind of user-defined implicit conversion, called [deref coercions](https://doc.rust-lang.org/std/ops/trait.Deref.html#deref-coercion),
     provided by the [`Deref` trait](https://doc.rust-lang.org/std/ops/trait.Deref.html)
     and [`DerefMut`trait](https://doc.rust-lang.org/std/ops/trait.DerefMut.html).
     These coercions exist for making pointer-like types more ergonomic to use.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 确实有一种用户定义的隐式转换，称为 [deref coercions](https://doc.rust-lang.org/std/ops/trait.Deref.html#deref-coercion)，由
+    `Deref` 特性 ([`Deref` trait](https://doc.rust-lang.org/std/ops/trait.Deref.html))
+    和 `DerefMut` 特性 ([`DerefMut` trait](https://doc.rust-lang.org/std/ops/trait.DerefMut.html))
+    提供。这些转换是为了使指针类型更易于使用。
 - en: An [example](https://doc.rust-lang.org/book/ch15-02-deref.html) of implementing
     the traits for a custom pointer-like type is given in the Rust book.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 书籍中给出了实现自定义指针类型特性的 [示例](https://doc.rust-lang.org/book/ch15-02-deref.html)。
 - en: '[Summary](#summary)'
+  id: totrans-135
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[总结](#summary)'
 - en: A summary of when to use which kind of conversion interface is given in the
     documentation for the [`std::convert` module](https://doc.rust-lang.org/std/convert/index.html).
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 `std::convert` 模块的文档中给出了何时使用哪种转换接口的总结 ([`std::convert` 模块](https://doc.rust-lang.org/std/convert/index.html))。
 - en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=User-defined
     conversions)
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: '`<link rel="stylesheet" type="text/css" href="../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=User-defined
+    conversions)`'

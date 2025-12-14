@@ -1,67 +1,96 @@
 - en: Header files
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 头文件
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/headers.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/headers.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: '[https://cel.cs.brown.edu/crp/idioms/encapsulation/headers.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/headers.html)'
 - en: One use of header files in C++ is to expose declarations that are defined in
     one translation units to other translation units without requiring the duplication
     of the declarations in multiple files. By convention, declarations that are not
     included in the header are considered to be private to the defining translation
     unit (though, to enforce this convention other mechanisms, such as [anonymous
     namespaces](./anonymous_namespaces.html), are required).
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: C++中头文件的一个用途是将定义在一个翻译单元中的声明暴露给其他翻译单元，而无需在多个文件中重复声明。按照惯例，未包含在头文件中的声明被认为是定义翻译单元的私有声明（尽管，为了强制执行此惯例，需要其他机制，例如[匿名命名空间](./anonymous_namespaces.html)）。
 - en: In contrast, Rust uses neither textually-included header files nor forward declarations.
     Instead, Rust modules control visibility and linkage simultaneously and expose
     public definitions for use by other modules.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 相比之下，Rust既不使用文本包含的头文件，也不使用前向声明。相反，Rust模块同时控制可见性和链接，并为其他模块提供公开定义。
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: In `person.rs`, the `Person` type is public but the `name` field is not. This
     prevents both direct construction of values of the type (similar to private members
     preventing aggregate initialization in C++) and prevents field access. The static
     method `Person::new(String)` and method `Person::name()` are exposed to clients
     of the module by the `pub` visibility declarations.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 在`person.rs`中，`Person`类型是公开的，但`name`字段不是。这防止了直接构造该类型的值（类似于私有成员在C++中防止聚合初始化）以及防止字段访问。通过`pub`可见性声明，静态方法`Person::new(String)`和方法`Person::name()`被暴露给模块的客户。
 - en: In the `client` module, the `mod` declaration defines the content of `person.rs`
     as a submodule named `person`. The `use` declaration brings the contents of the
     `person` module into scope.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 在`client`模块中，`mod`声明将`person.rs`的内容定义为名为`person`的子模块。`use`声明将`person`模块的内容引入作用域。
 - en: '[The essence of the difference](#the-essence-of-the-difference)'
+  id: totrans-8
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[差异的本质](#the-essence-of-the-difference)'
 - en: A C++ program is a collection of translation units. Header files are required
     to make providing forward declarations of definitions from other translation units
     manageable.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: C++程序是一系列翻译单元的集合。头文件是必需的，以便使提供其他翻译单元的定义的前向声明变得可管理。
 - en: A Rust program is a tree of modules. Definitions in one module may access items
     from other modules based on visibility declarations given in the definitions of
     the module themselves.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust程序是一个模块树。一个模块中的定义可以基于模块自身定义中给出的可见性声明访问其他模块中的项。
 - en: '[Submodules and additional visibility features](#submodules-and-additional-visibility-features)'
+  id: totrans-11
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[子模块和附加可见性功能](#submodules-and-additional-visibility-features)'
 - en: Modules and visibility declarations are more powerful than shown in the above
     example. More details on how to use modules, `pub`, and `use` to achieve encapsulation
     goals are described in the chapter on [private members and friends](./private_and_friends.html).
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 模块和可见性声明比上述示例中显示的更强大。关于如何使用模块、`pub`和`use`来实现封装目标的更多细节，请参阅[私有成员和友元](./private_and_friends.html)章节。
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Header
     files)
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Header
+    files)

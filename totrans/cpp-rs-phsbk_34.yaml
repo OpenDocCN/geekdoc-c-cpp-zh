@@ -1,236 +1,348 @@
 - en: Iterators and ranges
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 迭代器和范围
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/iterators.html](https://cel.cs.brown.edu/crp/idioms/iterators.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/iterators.html](https://cel.cs.brown.edu/crp/idioms/iterators.html)
 - en: Rust iterators resemble C++ [ranges](https://en.cppreference.com/w/cpp/ranges.html)
     in that they represent iterable sequence and can be manipulated similarly to using
     range views. Since C++ ranges are defined using iterators and ranges were only
     introduced in C++20, this chapter compares Rust iterators with both C++ iterators
     and with C++ ranges.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust迭代器与C++ [范围](https://en.cppreference.com/w/cpp/ranges.html) 类似，因为它们表示可迭序列，并且可以像使用范围视图一样进行操作。由于C++范围是用迭代器定义的，而范围仅在C++20中引入，因此本章将Rust迭代器与C++迭代器和C++范围进行比较。
 - en: 'Rust iterators are forward iterators, not [bidirectional or random access](#bidirectional-and-random-access-iterators).
     The definition of the `Iterator` trait reflects this: all of its methods are based
     on a `next` method which returns either an `Option::Some` containing the next
     item in the iteration or `Option::None`.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust迭代器是单向迭代器，不是[双向或随机访问迭代器](#bidirectional-and-random-access-iterators)。`Iterator`特质的定义反映了这一点：它所有的方法都是基于一个`next`方法，该方法返回一个包含迭代中下一个项目的`Option::Some`或`Option::None`。
 - en: A Rust iterator also does not represent an index into a structure the way that
     a C++ iterator does when used with functions from the C++ STL algorithms library,
     such as `std::sort`.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust迭代器也不像C++迭代器与C++ STL算法库中的函数（如`std::sort`）一起使用时那样表示结构中的索引。
 - en: Whether Rust iterators are input iterators or input/output iterators depends
     on whether the iterated items are owned values (input), references (input), or
     mutable references (input/output). The type of the iterated values typically reflects
     whether the structure being iterated over is an owned value, reference, or mutable
     reference. Rust iterators cannot be output iterators only because the iterated
     values must always be initialized.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust迭代器是输入迭代器还是输入/输出迭代器取决于迭代的项目是拥有值（输入）、引用（输入）还是可变引用（输入/输出）。迭代值的类型通常反映了正在迭代的结构是拥有值、引用还是可变引用。Rust迭代器不能仅作为输出迭代器，因为迭代值必须始终初始化。
 - en: In a sense, Rust's iterators are much more like C++23 generators (except that
     Rust [does not yet support coroutines](https://github.com/rust-lang/rust/issues/43122)).
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 在某种意义上，Rust的迭代器与C++23生成器非常相似（除了Rust[尚未支持协程](https://github.com/rust-lang/rust/issues/43122)）。
 - en: '[Iterators, ranges, and `for` loops](#iterators-ranges-and-for-loops)'
+  id: totrans-7
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[迭代器、范围和`for`循环](#iterators-ranges-and-for-loops)'
 - en: In C++, anything that has `begin()` and `end()` methods to return iterators
     (i.e., anything that models the C++20 `range` concept) can be used with a for
     loop. In Rust, anything that implements the [`IntoIterator`](https://doc.rust-lang.org/std/iter/trait.IntoIterator.html)
     trait can be used with a for loop. This includes iterators themselves, which implement
     the trait via a [blanket implementation](https://doc.rust-lang.org/std/iter/trait.IntoIterator.html).
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中，任何具有`begin()`和`end()`方法以返回迭代器的对象（即，任何符合C++20 `range`概念的模型）都可以与for循环一起使用。在Rust中，任何实现了`IntoIterator`特质的对象都可以与for循环一起使用。这包括迭代器本身，它们通过[泛型实现](https://doc.rust-lang.org/std/iter/trait.IntoIterator.html)来实现该特质。
 - en: '[PRE0]'
+  id: totrans-9
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-10
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: fn main() {
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut v = vec![1, 2, 3];
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut v = vec![1, 2, 3];
 - en: // prints 1, 2, 3
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 打印 1, 2, 3
 - en: for x in &mut v {
+  id: totrans-14
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for x in &mut v {
 - en: println!("{}", x);
+  id: totrans-15
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: '*x = *x + 1;'
+  id: totrans-16
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '*x = *x + 1;'
 - en: '}'
+  id: totrans-17
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // prints 2, 3, 4
+  id: totrans-18
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 打印 2, 3, 4
 - en: for x in &v {
+  id: totrans-19
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for x in &v {
 - en: println!("{}", x);
+  id: totrans-20
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: '}'
+  id: totrans-21
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-23
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: In both C++ and Rust, iterators can be used for reading, writing, or both. In
     Rust, the use of an iterator for writing depends on the type of the elements returned.
     In the case of `Vec<i32>` above, the `IntoIterator` trait implemented for `&mut
     Vec<i32>` produces an iterator over mutable references `&mut i32`, which enables
     modifying the values in the vector.^([1](#footnote-mut-iterator-safety))
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++和Rust中，迭代器都可以用于读取、写入或两者兼具。在Rust中，迭代器用于写入的使用取决于返回的元素类型。在上面的`Vec<i32>`的例子中，为`&mut
+    Vec<i32>`实现的`IntoIterator`特质产生了一个包含可变引用`&mut i32`的迭代器，这使得可以修改向量中的值.^([1](#footnote-mut-iterator-safety))
 - en: '[Ranges and views](#ranges-and-views)'
+  id: totrans-25
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[范围和视图](#ranges-and-views)'
 - en: Just as the [C++ ranges library](https://en.cppreference.com/w/cpp/ranges.html)
     provides many utility functions for defining pipelines to transform ranges, the
     Rust standard library defines many [iterator methods](https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.filter)
     transforming Rust iterators, including turning them back into collections like
     vectors.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如 [C++ 范围库](https://en.cppreference.com/w/cpp/ranges.html) 提供了许多定义管道的实用函数来转换范围一样，Rust
+    标准库定义了许多转换 Rust 迭代器的迭代器方法，包括将它们转换回像向量这样的集合。
 - en: '[PRE3]'
+  id: totrans-27
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-28
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: fn main() {
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let v = (1..)
+  id: totrans-30
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let v = (1..)
 - en: .filter(|i| i % 2 == 1)
+  id: totrans-31
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .filter(|i| i % 2 == 1)
 - en: .map(|i| i + 3)
+  id: totrans-32
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .map(|i| i + 3)
 - en: .take(10)
+  id: totrans-33
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .take(10)
 - en: .collect::<Vec<i32>>();
+  id: totrans-34
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .collect::<Vec<i32>>();
 - en: // use v...
+  id: totrans-35
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // use v...
 - en: '}'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-37
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: The Rust `collect` iterator method can convert the iterator into anything that
     implements `FromIterator`. If the type of `v` can be inferred from its later use,
     the type does not need to be specified in the call to `collect`.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 的 `collect` 迭代器方法可以将迭代器转换为实现了 `FromIterator` 的任何东西。如果 `v` 的类型可以从其后续使用中推断出来，则不需要在
+    `collect` 调用中指定类型。
 - en: In both C++ and in Rust, the view or iterator could be used directly as the
     value to loop over, without first converting to something like a vector. Similarly,
     in both languages the construction of the values is done lazily.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 和 Rust 中，视图或迭代器可以直接用作循环的值，而无需首先转换为类似向量这样的东西。同样，在这两种语言中，值的构造都是懒加载的。
 - en: '[PRE6]'
+  id: totrans-40
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[PRE7]'
+  id: totrans-41
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: fn main() {
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: for x in (1..)
+  id: totrans-43
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for x in (1..)
 - en: .filter(|i| i % 2 == 1)
+  id: totrans-44
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .filter(|i| i % 2 == 1)
 - en: .map(|i| i + 3)
+  id: totrans-45
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .map(|i| i + 3)
 - en: .take(10)
+  id: totrans-46
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .take(10)
 - en: '{'
+  id: totrans-47
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '{'
 - en: println!("{}", x);
+  id: totrans-48
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: '}'
+  id: totrans-49
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE8]'
+  id: totrans-51
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: Additional useful methods on iterators are provided by the third-party [itertools
     crate](https://docs.rs/itertools/latest/itertools/) via [extension traits](../patterns/adapter.html#extension-traits).
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过第三方 [itertools crate](https://docs.rs/itertools/latest/itertools/) 提供的迭代器附加有用方法，这些方法通过
+    [扩展特质](../patterns/adapter.html#extension-traits) 实现。
 - en: '[`IntoIterator` and ownership](#intoiterator-and-ownership)'
+  id: totrans-53
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[`IntoIterator` 和所有权](#intoiterator-and-ownership)'
 - en: The [`IntoIterator` trait](https://doc.rust-lang.org/std/iter/trait.IntoIterator.html)
     can be implemented for a type `T` itself, a reference `&T`, or a mutable reference
     `&mut T`. The possible types of the iterated items depend on what type the trait
@@ -238,151 +350,222 @@
     the items will be mutable references to items still owned by the original structure.
     If the type is `T`, then the items will be the owned items that were in the original
     structure.^([2](#footnote-owned-items-references))
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以为类型 `T` 本身、引用 `&T` 或可变引用 `&mut T` 实现 `IntoIterator` 特质。迭代项的可能类型取决于特质的实现类型。例如，如果为
+    `&mut T` 实现，则通常项将是原始结构体仍拥有的项的可变引用。如果类型是 `T`，则项将是原始结构体中的所有项的所有权项.^([2](#footnote-owned-items-references))
 - en: Since the behavior depends on the type of the structure used in the for loop,
     which may be inferred and therefore not visible, this can lead to surprising compilation
     errors. In particular, iterating over a vector `v` instead of a reference to the
     vector `&v` will consume the original vector, making it inaccessible.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于循环中使用的结构体类型的行为取决于可能推断出来且因此不可见的类型，这可能导致令人惊讶的编译错误。特别是，遍历向量 `v` 而不是向量引用 `&v`
+    将消耗原始向量，使其不可访问。
 - en: Iterating over a structure in C++ is most similar to calling `into_iter` on
     a mutable reference in Rust.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中遍历结构体与在 Rust 中对可变引用调用 `into_iter` 最相似。
 - en: '[PRE9]'
+  id: totrans-57
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: fn main() {
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut v = vec![
+  id: totrans-59
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut v = vec![
 - en: String::from("a"),
+  id: totrans-60
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: String::from("a"),
 - en: String::from("b"),
+  id: totrans-61
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: String::from("b"),
 - en: String::from("c"),
+  id: totrans-62
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: String::from("c"),
 - en: '];'
+  id: totrans-63
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '];'
 - en: for x in &v {
+  id: totrans-64
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for x in &v {
 - en: '// x: &String'
+  id: totrans-65
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// x: &String'
 - en: println!("{}", x);
+  id: totrans-66
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: '}'
+  id: totrans-67
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // since v was borrowed, not moved, it is still accessiable here.
+  id: totrans-68
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 由于v被借用，而不是移动，因此它在这里仍然可访问。
 - en: println!("{:?}", v);
+  id: totrans-69
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{:?}", v);
 - en: for x in &mut v {
+  id: totrans-70
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for x in &mut v {
 - en: '// x: &mut String'
+  id: totrans-71
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// x: &mut String'
 - en: x.push('!');
+  id: totrans-72
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x.push('!');
 - en: '}'
+  id: totrans-73
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // since v was borrowed, not moved, it is still accessiable here.
+  id: totrans-74
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 由于v被借用，而不是移动，因此它在这里仍然可访问。
 - en: // however, the content of v has been modified
+  id: totrans-75
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 然而，v的内容已被修改
 - en: println!("{:?}", v);
+  id: totrans-76
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{:?}", v);
 - en: for x in v {
+  id: totrans-77
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for x in v {
 - en: '// x: String'
+  id: totrans-78
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// x: String'
 - en: // drops x at the end of each iteration
+  id: totrans-79
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 每次迭代结束时释放x
 - en: '}'
+  id: totrans-80
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // v is no longer accessible, so this wouldn't compile
+  id: totrans-81
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // v不再可访问，因此这不会编译
 - en: // println!("{:?}", v);
+  id: totrans-82
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // println!("{:?}", v);
 - en: '}'
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE10]'
+  id: totrans-84
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: Most iterable types will also provide methods specifically for accessing the
     reference or mutable reference iterators. Conventionally, these are called `iter`
     and `iter_mut`. They are useful in situations where the iteration is not being
     immediately used with a for loop, but instead is used with other iterator methods,
     because of the relative precedence of the reference operator and of method invocation.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 大多数可迭代类型也会提供专门用于访问引用或可变引用迭代器的方法。传统上，这些方法被称为 `iter` 和 `iter_mut`。在迭代不是立即与 for
+    循环一起使用，而是与其他迭代器方法一起使用的情况下，它们非常有用，因为引用操作符和方法调用的相对优先级。
 - en: '[Identifying ranges for algorithms to operate on](#identifying-ranges-for-algorithms-to-operate-on)'
+  id: totrans-86
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[为算法操作识别范围](#identifying-ranges-for-algorithms-to-operate-on)'
 - en: C++ uses iterators to identify regions of structures on which functions from
     the STL algorithms library should operate. Rust iterators do not serve that purpose.
     Instead, there are two common alternatives.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 使用迭代器来识别结构上 STL 算法库中函数应该操作的区域。Rust 迭代器不服务于这个目的。相反，有两种常见的替代方案。
 - en: The first is that operations which operate strictly on forward iterators just
     operate directly on the iterator. Identifying specific parts of an iterator for
     this purpose can be done using the [iterator methods](https://doc.rust-lang.org/std/iter/trait.Iterator.html#provided-methods),
@@ -390,405 +573,603 @@
     or [`filter`](https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.filter).
     Alternatively, for some types [slices can be taken by indexing with a range](https://doc.rust-lang.org/book/ch04-03-slices.html)
     before converting to an iterator.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一种情况是，仅严格操作于前向迭代器的操作直接作用于迭代器。为了这个目的识别迭代器的特定部分可以通过使用迭代器方法来完成，例如 `take` 或 `filter`
+    方法。或者，对于某些类型，在转换为迭代器之前可以通过范围索引来获取切片（[slices can be taken by indexing with a range](https://doc.rust-lang.org/book/ch04-03-slices.html)）。
 - en: '[PRE11]'
+  id: totrans-89
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '[PRE12]'
+  id: totrans-90
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: fn main() {
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let v: Vec<i32> = (1..10).collect();'
+  id: totrans-92
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let v: Vec<i32> = (1..10).collect();'
 - en: let b = v
+  id: totrans-93
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let b = v
 - en: .iter()
+  id: totrans-94
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .iter()
 - en: .skip(2)
+  id: totrans-95
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .skip(2)
 - en: .take(5)
+  id: totrans-96
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .take(5)
 - en: .any(|n| n % 2 == 0);
+  id: totrans-97
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .any(|n| n % 2 == 0);
 - en: // or
+  id: totrans-98
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // or
 - en: let b2 = v[3..7].iter().any(|n| n % 2 == 0);
+  id: totrans-99
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let b2 = v[3..7].iter().any(|n| n % 2 == 0);
 - en: // ...
+  id: totrans-100
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE13]'
+  id: totrans-102
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: The second is that some of the algorithms operate on slices. For example, the
     [sort method](https://doc.rust-lang.org/std/primitive.slice.html#method.sort)
     in the Rust standard library operates on slices. This is similar to if in C++,
     a function were to operate on a `std::span` instead of on an iterator. Many of
     the methods available on `Vec<T>` are actually defined on `&[T]` and are made
     available on `Vec<T>` via [deref coercion](https://doc.rust-lang.org/book/ch15-02-deref.html).
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二种情况是，一些算法操作于切片。例如，Rust 标准库中的 [sort 方法](https://doc.rust-lang.org/std/primitive.slice.html#method.sort)
+    操作于切片。这类似于在 C++ 中，一个函数操作于 `std::span` 而不是迭代器。`Vec<T>` 上许多可用的方法实际上是在 `&[T]` 上定义的，并通过
+    [deref coercion](https://doc.rust-lang.org/book/ch15-02-deref.html) 在 `Vec<T>`
+    上提供。
 - en: '[PRE14]'
+  id: totrans-104
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: '[PRE15]'
+  id: totrans-105
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: fn main() {
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let mut v: Vec<i32> = (1..10).rev().collect();'
+  id: totrans-107
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let mut v: Vec<i32> = (1..10).rev().collect();'
 - en: println!("{:?}", v);
+  id: totrans-108
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{:?}", v);
 - en: v.sort();
+  id: totrans-109
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: v.sort();
 - en: println!("{:?}", v);
+  id: totrans-110
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{:?}", v);
 - en: '}'
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE16]'
+  id: totrans-112
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: '[Iterator invalidation](#iterator-invalidation)'
+  id: totrans-113
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[迭代器失效](#iterator-invalidation)'
 - en: In C++, operations sometimes only invalidate some iterators on a value, such
     as the `erase` method on `std::vector` only invaliding iterators to the erased
     element and those after it, but not the ones before it.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: In C++, operations sometimes only invalidate some iterators on a value, such
+    as the `erase` method on `std::vector` only invaliding iterators to the erased
+    element and those after it, but not the ones before it.
 - en: In Rust, the fact that iterators borrow the whole iterated value means that
     no operations modifying the value itself (such as erasing values from a vector)
     can be performed while iterating. Thus, there are no iterator invalidation rules
     to keep in mind while using Rust iterators.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，迭代器借用整个迭代值的特性意味着在迭代过程中不能执行修改值本身的操作（例如从向量中删除值）。因此，在使用 Rust 迭代器时没有需要记住的迭代器失效规则。
 - en: 'However, this also means that there are things that can be done with iterators
     in C++ that cannot be done with iterators in Rust, such as removing elements from
     a vector while iterating over it. Instead in Rust there are two possible approaches:
     use indices or use helper methods.'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，这也意味着在 C++ 中可以使用迭代器完成一些在 Rust 中无法完成的事情，例如在迭代过程中从向量中删除元素。相反，在 Rust 中有两种可能的方法：使用索引或使用辅助方法。
 - en: Using indices instead of iterators comes with the same challenges as it does
     in C++, with the exception that the program will panic instead of performing undefined
     behavior if an index is out of bounds in safe Rust.
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用索引而不是迭代器会带来与C++中相同的挑战，除了在安全Rust中，如果索引超出范围，程序会panic而不是执行未定义的行为。
 - en: Using the helper methods resembles the recommendations commonly given for writing
     against newer C++ standards. For example, to remove all elements of a particular
     value in Rust, one would use the [`Vec::retain`](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.retain)
     method, which is like `remove_if` or `erase_if` on `std::vector`, but with a negative
     predicate.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用辅助方法类似于通常推荐的针对较新C++标准的编写建议。例如，在Rust中删除特定值的所有元素时，会使用`[`Vec::retain](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.retain)`方法，这类似于`std::vector`上的`remove_if`或`erase_if`，但带有负谓词。
 - en: '[PRE17]'
+  id: totrans-119
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: '[PRE18]'
+  id: totrans-120
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: fn main() {
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut v = vec![1, 2, 3];
+  id: totrans-122
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut v = vec![1, 2, 3];
 - en: v.retain(|i| *i != 2);
+  id: totrans-123
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: v.retain(|i| *i != 2);
 - en: for x in &v {
+  id: totrans-124
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for x in &v {
 - en: println!("{}", x);
+  id: totrans-125
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: '}'
+  id: totrans-126
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE19]'
+  id: totrans-128
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: When using iterators, one would use the methods described in the section on
     [ranges and views](#ranges-and-views).
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 当使用迭代器时，会使用[范围和视图](#ranges-and-views)部分中描述的方法。
 - en: '[Implementing Rust iterators](#implementing-rust-iterators)'
+  id: totrans-130
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[实现Rust迭代器](#implementing-rust-iterators)'
 - en: This extended example defines a binary tree and preorder const iterator over
     the tree. The module structure is included in this example because defining private
     items will be an important part of later patterns used to simplify the implementation.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 本扩展示例定义了一个二叉树及其在树上的前序常量迭代器。模块结构包含在本示例中，因为定义私有项将是后续用于简化实现的模式的重要组成部分。
 - en: '[PRE20]'
+  id: totrans-132
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: '[PRE21]'
+  id: totrans-133
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: '#![allow(unused)] fn main() { mod tree {'
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { mod tree {'
 - en: /// Binary tree with values at every node.
+  id: totrans-135
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 每个节点都有值的二叉树。
 - en: /// Not necessarily balanced.
+  id: totrans-136
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 不一定是平衡的。
 - en: pub struct Tree<V> {
+  id: totrans-137
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct Tree<V> {
 - en: 'pub value: V,'
+  id: totrans-138
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub value: V,'
 - en: 'pub left: Option<Box<Tree<V>>>,'
+  id: totrans-139
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub left: Option<Box<Tree<V>>>,'
 - en: 'pub right: Option<Box<Tree<V>>>,'
+  id: totrans-140
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub right: Option<Box<Tree<V>>>,'
 - en: '}'
+  id: totrans-141
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE22]'
+  id: totrans-144
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: Much like how in C++ an iterator and a const iterator are distinct things, in
     Rust there are different iterators for owned values, references, and mutable references.
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 就像在C++中迭代器和常量迭代器是不同的事物一样，在Rust中，对于所有者值、引用和可变引用有不同的迭代器。
 - en: For example, for tree type `Tree<V>` would likely provide the following methods
     to support preorder iteration. For the methods that provide iteration over references,
     the references are borrowed from the original structure, and so the lifetime parameter
     `'a` relates the reference to the item to `self`.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，对于树类型`Tree<V>`，可能会提供以下方法以支持前序迭代。对于提供迭代引用的方法，引用是从原始结构中借用的，因此生命周期参数`'a`将引用与`self`中的项相关联。
 - en: '|  | method | item type |'
+  id: totrans-147
   prefs: []
   type: TYPE_TB
+  zh: '|  | 方法 | 项目类型 |'
 - en: '| --- | --- | --- |'
+  id: totrans-148
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| reference | `fn preorder<''a>(&''a self) -> IterPreorder<''a, V>` | `&''a
     V` |'
+  id: totrans-149
   prefs: []
   type: TYPE_TB
+  zh: '| 引用 | `fn preorder<''a>(&''a self) -> IterPreorder<''a, V>` | `&''a V` |'
 - en: '| mutable reference | `fn preorder_mut<''a>(&''a mut self) -> IterMutPreorder<''a,
     V>` | `&''a mut V` |'
+  id: totrans-150
   prefs: []
   type: TYPE_TB
+  zh: '| 可变引用 | `fn preorder_mut<''a>(&''a mut self) -> IterMutPreorder<''a, V>` |
+    `&''a mut V` |'
 - en: '| owned | `fn into_preorder(self) -> IntoIterPreorder<V>` | `V` |'
+  id: totrans-151
   prefs: []
   type: TYPE_TB
+  zh: '| 所有者 | `fn into_preorder(self) -> IntoIterPreorder<V>` | `V` |'
 - en: Just like with C++ iterators, the essential complexity of defining the iterator
     amounts to determining how to capture the suspended state of traversing the structure.
     In this case the suspended state consists of a stack of the rest of the trees
     to iterate.
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 就像C++迭代器一样，定义迭代器的基本复杂性在于确定如何捕获遍历结构的挂起状态。在这种情况下，挂起状态由要迭代的剩余树栈组成。
 - en: The implementations diverge in the interface provided. C++ requires several
     types and methods to be defined in order for the type to model a forward iterator.
     Rust requires only the definition of the element type that will be iterated and
     a `next` method.
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 实现在提供的接口上有所不同。C++要求定义多个类型和方法，以便类型可以模拟前向迭代器。Rust只需要定义将要迭代的元素类型和`next`方法。
 - en: '[PRE23]'
+  id: totrans-154
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: '[PRE24]'
+  id: totrans-155
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: '#![allow(unused)] fn main() { mod tree {'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { mod tree {'
 - en: '/// Binary tree with values at every node. /// Not necessarily balanced. pub
     struct Tree<V> { pub value: V, pub left: Option<Box<Tree<V>>>, pub right: Option<Box<Tree<V>>>,
     }      pub struct IterPreorder<''a, V>(Vec<&''a Tree<V>>);'
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: '/// 每个节点都有值的二叉树。 /// 不一定是平衡的。 pub struct Tree<V> { pub value: V, pub left:
+    Option<Box<Tree<V>>>, pub right: Option<Box<Tree<V>>>, }      pub struct IterPreorder<''a,
+    V>(Vec<&''a Tree<V>>);'
 - en: impl<'a, V> Iterator for IterPreorder<'a, V> {
+  id: totrans-158
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl<'a, V> Iterator for IterPreorder<'a, V> {
 - en: type Item = &'a V;
+  id: totrans-159
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Item = &'a V;
 - en: // This is like a combination of
+  id: totrans-160
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 这类似于一个组合
 - en: // operator++ and operator*
+  id: totrans-161
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 运算符++ 和运算符*
 - en: fn next(&mut self) -> Option<&'a V> {
+  id: totrans-162
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn next(&mut self) -> Option<&'a V> {
 - en: let Tree { value, left, right } = self.0.pop()?;
+  id: totrans-163
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Tree { value, left, right } = self.0.pop()?;
 - en: if let Some(right) = right {
+  id: totrans-164
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if let Some(right) = right {
 - en: self.0.push(right.as_ref());
+  id: totrans-165
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.0.push(right.as_ref());
 - en: '}'
+  id: totrans-166
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: if let Some(left) = left {
+  id: totrans-167
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if let Some(left) = left {
 - en: self.0.push(left.as_ref());
+  id: totrans-168
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.0.push(left.as_ref());
 - en: '}'
+  id: totrans-169
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Some(value)
+  id: totrans-170
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(value)
 - en: '}'
+  id: totrans-171
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-172
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE25]'
+  id: totrans-175
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: The remaining step is to make the original type iterable. In C++, this involves
     defining `begin` and `end` methods. In Rust, this involves either implementing
     a method that explicitly produces the iterator, or implementing the `IntoIterator`
     trait.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 剩下的步骤是将原始类型变为可迭代的。在 C++ 中，这涉及到定义 `begin` 和 `end` 方法。在 Rust 中，这涉及到实现一个显式产生迭代器的方法，或者实现
+    `IntoIterator` 特质。
 - en: When there are multiple possible iterations for a type and none of them are
     canonical, it is idiomatic to omit the `IntoIterator` trait implementation. Omitting
     the implementation requires users to intentionally choose the kind of iteration
     to use. The trait is implemented below to provide an example, but an unsorted
     binary tree is a case where it would be typical to omit the trait implementation,
     to force a user to pick between pre-, post-, and in-order iteration.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 当一个类型有多个可能的迭代方式且都不是规范方式时，省略 `IntoIterator` 特质实现是惯用的做法。省略实现需要用户有意选择要使用的迭代方式。以下提供了实现示例，但未排序的二叉树通常是省略特质实现的情况，这会强制用户在先序、后序和遍历顺序之间进行选择。
 - en: Because the implemented iterator is one for references, the trait actually is
     implemented for references to trees `&Tree<V>`, rather than `Tree<V>` directly.
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为实现的迭代器是引用迭代器，所以特质的实现实际上是针对树的引用 `&Tree<V>`，而不是 `Tree<V>` 本身。
 - en: '[PRE26]'
+  id: totrans-179
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: '[PRE27]'
+  id: totrans-180
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: mod tree {
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: mod tree {
 - en: '/// Binary tree with values at every node. /// Not necessarily balanced. pub
     struct Tree<V> { pub value: V, pub left: Option<Box<Tree<V>>>, pub right: Option<Box<Tree<V>>>,
     }   pub struct IterPreorder<''a, V>(Vec<&''a Tree<V>>);   impl<''a, V> Iterator
@@ -797,269 +1178,388 @@
     } = t; if let Some(right) = right { self.0.push(right.as_ref()); } if let Some(left)
     = left { self.0.push(left.as_ref()); } Some(value) } } } }      impl<V> Tree<V>
     {'
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: '/// 每个节点都有值的二叉树。不一定平衡。 pub struct Tree<V> { pub value: V, pub left: Option<Box<Tree<V>>>,
+    pub right: Option<Box<Tree<V>>>, }   pub struct IterPreorder<''a, V>(Vec<&''a
+    Tree<V>>);   impl<''a, V> Iterator for IterPreorder<''a, V> { type Item = &''a
+    V; fn next(&mut self) -> Option<&''a V> { match self.0.pop() { None => None, Some(t)
+    => { let Tree { value, left, right } = t; if let Some(right) = right { self.0.push(right.as_ref());
+    } if let Some(left) = left { self.0.push(left.as_ref()); } Some(value) } } } }      impl<V>
+    Tree<V> {'
 - en: pub fn preorder(&self) -> IterPreorder<V> {
+  id: totrans-183
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn preorder(&self) -> IterPreorder<V> {
 - en: IterPreorder(vec![self])
+  id: totrans-184
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: IterPreorder(vec![self])
 - en: '}'
+  id: totrans-185
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-186
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl<'a, V> IntoIterator for &'a Tree<V> {
+  id: totrans-187
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl<'a, V> IntoIterator for &'a Tree<V> {
 - en: type Item = &'a V;
+  id: totrans-188
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Item = &'a V;
 - en: type IntoIter = IterPreorder<'a, V>;
+  id: totrans-189
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type IntoIter = IterPreorder<'a, V>;
 - en: fn into_iter(self) -> Self::IntoIter {
+  id: totrans-190
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn into_iter(self) -> Self::IntoIter {
 - en: self.preorder()
+  id: totrans-191
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.preorder()
 - en: '}'
+  id: totrans-192
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-193
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: use tree::*;
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: use tree::*;
 - en: fn main() {
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let t = Tree {
+  id: totrans-197
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let t = Tree {
 - en: 'value: 1,'
+  id: totrans-198
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'value: 1,'
 - en: 'left: Some(Box::new(Tree {'
+  id: totrans-199
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'left: Some(Box::new(Tree {'
 - en: 'value: 2,'
+  id: totrans-200
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'value: 2,'
 - en: 'left: None,'
+  id: totrans-201
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'left: None,'
 - en: 'right: None,'
+  id: totrans-202
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'right: None,'
 - en: '})),'
+  id: totrans-203
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '})),'
 - en: 'right: Some(Box::new(Tree {'
+  id: totrans-204
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'right: Some(Box::new(Tree {'
 - en: 'value: 3,'
+  id: totrans-205
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'value: 3,'
 - en: 'left: Some(Box::new(Tree {'
+  id: totrans-206
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'left: Some(Box::new(Tree {'
 - en: 'value: 4,'
+  id: totrans-207
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'value: 4,'
 - en: 'left: None,'
+  id: totrans-208
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'left: None,'
 - en: 'right: None,'
+  id: totrans-209
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'right: None,'
 - en: '})),'
+  id: totrans-210
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '})),'
 - en: 'right: None,'
+  id: totrans-211
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'right: None,'
 - en: '})),'
+  id: totrans-212
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '})),'
 - en: '};'
+  id: totrans-213
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: for n in t.preorder() {
+  id: totrans-214
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for n in t.preorder() {
 - en: println!("{}", n);
+  id: totrans-215
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", n);
 - en: '}'
+  id: totrans-216
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: for n in &t {
+  id: totrans-217
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for n in &t {
 - en: println!("{}", n);
+  id: totrans-218
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", n);
 - en: '}'
+  id: totrans-219
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE28]'
+  id: totrans-221
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: Implementing the iterators for mutable references and owned values can be done
     similarly. With all three, there are three `IntoIterator` implementations, one
     for `&Tree<V>`, one for `&mut Tree<V>`, and one for `Tree<V>`.
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于可变引用和所有权的迭代器实现可以类似地进行。对于这三种情况，都有三个 `IntoIterator` 实现，一个用于 `&Tree<V>`，一个用于
+    `&mut Tree<V>`，一个用于 `Tree<V>`。
 - en: '[Reducing code duplication](#reducing-code-duplication)'
+  id: totrans-223
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: '[减少代码重复](#reducing-code-duplication)'
 - en: As with implementing iterators and const iterators in C++, implementing iterators
     for owned values, references, and mutable references can result in significant
     code duplication in Rust.
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: 与在 C++ 中实现迭代器和常量迭代器类似，在 Rust 中实现所有权的迭代器、引用和可变引用的迭代器可能会导致代码重复。
 - en: One pattern for addressing this involves defining a private trait that captures
     the decomposing of the type and then implementing the `Iterator` trait via a blanket
     implementation in terms of that trait. Wrapper structs can then be used to expose
     the iteration behavior without exposing the helper trait.
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 一种解决这个问题的模式是定义一个私有特质来捕获类型的分解，然后通过该特质的泛型实现来通过`Iterator`特质实现。然后可以使用包装结构体来暴露迭代行为而不暴露辅助特质。
 - en: The following example implements this pattern for the `Tree<V>` type above as
     an alternative to the simpler, but more duplicative, approach above.
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例实现了上述`Tree<V>`类型的模式，作为上述更简单但更冗余方法的替代方案。
 - en: '[PRE29]'
+  id: totrans-227
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: mod tree {
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: mod tree {
 - en: /// Binary tree with values at every node.
+  id: totrans-229
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 每个节点都有值的二叉树。
 - en: /// Not necessarily balanced.
+  id: totrans-230
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 不一定是平衡的。
 - en: pub struct Tree<V> {
+  id: totrans-231
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct Tree<V> {
 - en: 'pub value: V,'
+  id: totrans-232
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub value: V,'
 - en: 'pub left: Option<Box<Tree<V>>>,'
+  id: totrans-233
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub left: Option<Box<Tree<V>>>,'
 - en: 'pub right: Option<Box<Tree<V>>>,'
+  id: totrans-234
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub right: Option<Box<Tree<V>>>,'
 - en: '}'
+  id: totrans-235
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl<V> Tree<V> {
+  id: totrans-236
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl<V> Tree<V> {
 - en: // ... static methods for constructing trees ...
+  id: totrans-237
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ... 静态方法用于构建树 ...
 - en: '/// Constructs a new node with two /// subtrees. pub fn node(value: V, left:
     Tree<V>, right: Tree<V>) -> Tree<V> { Tree { value, left: Some(Box::new(left)),
     right: Some(Box::new(right)), } }   /// Constructs a new node with a left ///
@@ -1068,225 +1568,324 @@
     /// subtree. pub fn right(value: V, right: Tree<V>) -> Tree<V> { Tree { value,
     left: None, right: Some(Box::new(right)), } }   /// Constructs a new leaf node.
     pub fn leaf(value: V) -> Self { Tree { value, left: None, right: None, } }    }'
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: '/// 使用两个子树构建一个新的节点。 pub fn node(value: V, left: Tree<V>, right: Tree<V>) ->
+    Tree<V> { Tree { value, left: Some(Box::new(left)), right: Some(Box::new(right)),
+    } }   /// 使用左子树构建一个新的节点。 pub fn left(value: V, left: Tree<V>) -> Tree<V> { Tree
+    { value, left: Some(Box::new(left)), right: None, } }   /// 使用右子树构建一个新的节点。 pub
+    fn right(value: V, right: Tree<V>) -> Tree<V> { Tree { value, left: None, right:
+    Some(Box::new(right)), } }   /// 构建一个新的叶节点。 pub fn leaf(value: V) -> Self { Tree
+    { value, left: None, right: None, } }    }'
 - en: /// Internal trait for abstracting over access
+  id: totrans-239
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 用于抽象访问的内部特质
 - en: /// to the tree components.
+  id: totrans-240
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 到树组件。
 - en: ///
+  id: totrans-241
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ///
 - en: /// This reduces code duplication when
+  id: totrans-242
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 这减少了代码重复。
 - en: /// implementing behavior that is essentially
+  id: totrans-243
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 实现本质上
 - en: /// the same for Tree<V>, &Tree<V>,
+  id: totrans-244
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 对于Tree<V>，&Tree<V>，以及&mut Tree<V>也是同样的。
 - en: /// and &mut Tree<V>.
+  id: totrans-245
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 和Tree<V>，&Tree<V>，以及&mut Tree<V>。
 - en: 'trait Treeish: Sized {'
+  id: totrans-246
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'trait Treeish: Sized {'
 - en: type Output;
+  id: totrans-247
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output;
 - en: fn get(self) -> (Option<Self>, Self::Output, Option<Self>);
+  id: totrans-248
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn get(self) -> (Option<Self>, Self::Output, Option<Self>);
 - en: '}'
+  id: totrans-249
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl<V> Treeish for Tree<V> {
+  id: totrans-250
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl<V> Treeish for Tree<V> {
 - en: type Output = V;
+  id: totrans-251
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output = V;
 - en: fn get(self) -> (Option<Self>, Self::Output, Option<Self>) {
+  id: totrans-252
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn get(self) -> (Option<Self>, Self::Output, Option<Self>) {
 - en: let Tree { value, left, right } = self;
+  id: totrans-253
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Tree { value, left, right } = self;
 - en: (left.map(|x| *x), value, right.map(|x| *x))
+  id: totrans-254
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: (left.map(|x| *x), value, right.map(|x| *x))
 - en: '}'
+  id: totrans-255
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-256
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl<'a, V> Treeish for &'a Tree<V> {
+  id: totrans-257
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl<'a, V> Treeish for &'a Tree<V> {
 - en: type Output = &'a V;
+  id: totrans-258
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output = &'a V;
 - en: fn get(self) -> (Option<Self>, Self::Output, Option<Self>) {
+  id: totrans-259
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn get(self) -> (Option<Self>, Self::Output, Option<Self>) {
 - en: let Tree { value, left, right } = self;
+  id: totrans-260
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Tree { value, left, right } = self;
 - en: (left.as_deref(), value, right.as_deref())
+  id: totrans-261
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: (left.as_deref(), value, right.as_deref())
 - en: '}'
+  id: totrans-262
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-263
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl<'a, V> Treeish for &'a mut Tree<V> {
+  id: totrans-264
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl<'a, V> Treeish for &'a mut Tree<V> {
 - en: type Output = &'a mut V;
+  id: totrans-265
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output = &'a mut V;
 - en: fn get(self) -> (Option<Self>, Self::Output, Option<Self>) {
+  id: totrans-266
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn get(self) -> (Option<Self>, Self::Output, Option<Self>) {
 - en: let Tree { value, left, right } = self;
+  id: totrans-267
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Tree { value, left, right } = self;
 - en: (left.as_deref_mut(), value, right.as_deref_mut())
+  id: totrans-268
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: (left.as_deref_mut(), value, right.as_deref_mut())
 - en: '}'
+  id: totrans-269
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-270
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: /// Internal struct for implementing Iterator
+  id: totrans-271
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 用于实现Iterator的内部结构体
 - en: /// in terms of Treeish.
+  id: totrans-272
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 在Treeish的术语中。
 - en: struct Preorder<T>(Vec<T>);
+  id: totrans-273
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: struct Preorder<T>(Vec<T>);
 - en: impl<T> Iterator for Preorder<T>
+  id: totrans-274
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl<T> Iterator for Preorder<T>
 - en: where
+  id: totrans-275
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: where
 - en: 'T: Treeish,'
+  id: totrans-276
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'T: Treeish,'
 - en: '{'
+  id: totrans-277
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '{'
 - en: type Item = T::Output;
+  id: totrans-278
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Item = T::Output;
 - en: fn next(&mut self) -> Option<Self::Item> {
+  id: totrans-279
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn next(&mut self) -> Option<Self::Item> {
 - en: let next = self.0.pop();
+  id: totrans-280
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let next = self.0.pop();
 - en: match next {
+  id: totrans-281
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match next {
 - en: None => None,
+  id: totrans-282
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: None => None,
 - en: Some(t) => {
+  id: totrans-283
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(t) => {
 - en: // the helper trait is used here
+  id: totrans-284
   prefs:
   - PREF_IND
   - PREF_IND
@@ -1294,7 +1893,9 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 这里使用了辅助特质
 - en: let (left, value, right) = t.get();
+  id: totrans-285
   prefs:
   - PREF_IND
   - PREF_IND
@@ -1302,7 +1903,9 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let (left, value, right) = t.get();
 - en: if let Some(right) = right {
+  id: totrans-286
   prefs:
   - PREF_IND
   - PREF_IND
@@ -1310,7 +1913,9 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if let Some(right) = right {
 - en: self.0.push(right);
+  id: totrans-287
   prefs:
   - PREF_IND
   - PREF_IND
@@ -1319,7 +1924,9 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.0.push(right);
 - en: '}'
+  id: totrans-288
   prefs:
   - PREF_IND
   - PREF_IND
@@ -1327,7 +1934,9 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: if let Some(left) = left {
+  id: totrans-289
   prefs:
   - PREF_IND
   - PREF_IND
@@ -1335,7 +1944,9 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if let Some(left) = left {
 - en: self.0.push(left);
+  id: totrans-290
   prefs:
   - PREF_IND
   - PREF_IND
@@ -1344,7 +1955,9 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.0.push(left);
 - en: '}'
+  id: totrans-291
   prefs:
   - PREF_IND
   - PREF_IND
@@ -1352,7 +1965,9 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Some(value)
+  id: totrans-292
   prefs:
   - PREF_IND
   - PREF_IND
@@ -1360,309 +1975,445 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(value)
 - en: '}'
+  id: totrans-293
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-294
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-295
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-296
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Wrappers for exposing the iterator. The wrappers are necessary
+  id: totrans-297
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 用于暴露迭代器的包装器。包装器是必要的
 - en: // in order to keep Treeish private. Treeish::Output would
+  id: totrans-298
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 为了保持Treeish私有。Treeish::Output将
 - en: // otherwise be exposed and thus require Treeish to be public.
+  id: totrans-299
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 否则将暴露出来，因此需要将Treeish设置为public。
 - en: /// Preorder iterator
+  id: totrans-300
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 前序迭代器
 - en: pub struct IntoIterPreorder<V>(Preorder<Tree<V>>);
+  id: totrans-301
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct IntoIterPreorder<V>(Preorder<Tree<V>>);
 - en: /// Preorder iterator
+  id: totrans-302
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 前序迭代器
 - en: pub struct IterPreorder<'a, V>(Preorder<&'a Tree<V>>);
+  id: totrans-303
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct IterPreorder<'a, V>(Preorder<&'a Tree<V>>);
 - en: /// Preorder iterator
+  id: totrans-304
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 前序迭代器
 - en: pub struct IterMutPreorder<'a, V>(Preorder<&'a mut Tree<V>>);
+  id: totrans-305
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct IterMutPreorder<'a, V>(Preorder<&'a mut Tree<V>>);
 - en: // Delegate to the wrapped implementation.
+  id: totrans-306
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 委托给包装的实现。
 - en: impl<V> Iterator for IntoIterPreorder<V> {
+  id: totrans-307
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl<V> Iterator for IntoIterPreorder<V> {
 - en: type Item = V;
+  id: totrans-308
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Item = V;
 - en: fn next(&mut self) -> Option<Self::Item> {
+  id: totrans-309
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn next(&mut self) -> Option<Self::Item> {
 - en: self.0.next()
+  id: totrans-310
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.0.next()
 - en: '}'
+  id: totrans-311
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-312
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl<'a, V> Iterator for IterPreorder<'a, V> {
+  id: totrans-313
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl<'a, V> Iterator for IterPreorder<'a, V> {
 - en: type Item = &'a V;
+  id: totrans-314
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Item = &'a V;
 - en: fn next(&mut self) -> Option<Self::Item> {
+  id: totrans-315
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn next(&mut self) -> Option<Self::Item> {
 - en: self.0.next()
+  id: totrans-316
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.0.next()
 - en: '}'
+  id: totrans-317
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-318
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl<'a, V> Iterator for IterMutPreorder<'a, V> {
+  id: totrans-319
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl<'a, V> Iterator for IterMutPreorder<'a, V> {
 - en: type Item = &'a mut V;
+  id: totrans-320
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Item = &'a mut V;
 - en: fn next(&mut self) -> Option<Self::Item> {
+  id: totrans-321
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn next(&mut self) -> Option<Self::Item> {
 - en: self.0.next()
+  id: totrans-322
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.0.next()
 - en: '}'
+  id: totrans-323
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-324
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl<V> Tree<V> {
+  id: totrans-325
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl<V> Tree<V> {
 - en: pub fn preorder(self) -> IntoIterPreorder<V> {
+  id: totrans-326
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn preorder(self) -> IntoIterPreorder<V> {
 - en: IntoIterPreorder(Preorder(vec![self]))
+  id: totrans-327
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: IntoIterPreorder(Preorder(vec![self]))
 - en: '}'
+  id: totrans-328
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: pub fn preorder_ref(&self) -> IterPreorder<V> {
+  id: totrans-329
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn preorder_ref(&self) -> IterPreorder<V> {
 - en: IterPreorder(Preorder(vec![self]))
+  id: totrans-330
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: IterPreorder(Preorder(vec![self]))
 - en: '}'
+  id: totrans-331
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: pub fn preorder_ref_mut(&mut self) -> IterMutPreorder<V> {
+  id: totrans-332
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn preorder_ref_mut(&mut self) -> IterMutPreorder<V> {
 - en: IterMutPreorder(Preorder(vec![self]))
+  id: totrans-333
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: IterMutPreorder(Preorder(vec![self]))
 - en: '}'
+  id: totrans-334
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-335
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-336
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: use tree::*;
+  id: totrans-337
   prefs: []
   type: TYPE_NORMAL
+  zh: use tree::*;
 - en: fn main() {
+  id: totrans-338
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut t = Tree::node(
+  id: totrans-339
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut t = Tree::node(
 - en: 0,
+  id: totrans-340
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 0,
 - en: Tree::left(1, Tree::leaf(2)),
+  id: totrans-341
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Tree::left(1, Tree::leaf(2)),
 - en: Tree::node(3, Tree::leaf(4), Tree::right(5, Tree::leaf(6))),
+  id: totrans-342
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Tree::node(3, Tree::leaf(4), Tree::right(5, Tree::leaf(6))),
 - en: );
+  id: totrans-343
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: );
 - en: for x in t.preorder_ref_mut() {
+  id: totrans-344
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for x in t.preorder_ref_mut() {
 - en: '*x += 10;'
+  id: totrans-345
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '*x += 10;'
 - en: '}'
+  id: totrans-346
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: for x in t.preorder_ref() {
+  id: totrans-347
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for x in t.preorder_ref() {
 - en: println!("{}", x);
+  id: totrans-348
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: '}'
+  id: totrans-349
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-350
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE30]'
+  id: totrans-351
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: '[Bidirectional and random access iterators](#bidirectional-and-random-access-iterators)'
+  id: totrans-352
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[双向和随机访问迭代器](#bidirectional-and-random-access-iterators)'
 - en: The Rust standard library does not include support for bidirectional or random
     access iterators. For most of the use cases supported by those iterators, working
     with numeric indices suffices.
+  id: totrans-353
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust标准库不包含双向或随机访问迭代器的支持。对于这些迭代器支持的大多数用例，使用数字索引就足够了。
 - en: 'The standard library does have support for [double-ended iterators](https://doc.rust-lang.org/std/iter/trait.DoubleEndedIterator.html),
     which allow consuming items from the back of the iterator. However, each item
     can still only be consumed once: when the front and back meet in the middle, iteration
     is over.'
+  id: totrans-354
   prefs: []
   type: TYPE_NORMAL
+  zh: 标准库确实支持[双端迭代器](https://doc.rust-lang.org/std/iter/trait.DoubleEndedIterator.html)，这允许从迭代器的末尾消费项目。然而，每个项目仍然只能消费一次：当前端和后端在中部相遇时，迭代结束。
 - en: <link rel="stylesheet" type="text/css" href="../quiz/style.css">
+  id: totrans-355
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../quiz/style.css">
 - en: '* * *'
+  id: totrans-356
   prefs: []
   type: TYPE_NORMAL
+  zh: '* * *'
 - en: The safety of the mutable references is given by the fact that the references
     borrow from the vector, don't overlap, and are never produced by the iterator
     more than once. [↩](#fr-mut-iterator-safety-1)
+  id: totrans-357
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 可变引用的安全性由以下事实给出：引用从向量借用，不重叠，并且迭代器不会多次产生。 [↑](#fr-mut-iterator-safety-1)
 - en: The owned items might themselves be references, however. E.g., calling `into_iter`
     on a `Vec<&str>` will not result in iterating over `String` values even though
     the vector itself is consumed. [↩](#fr-owned-items-references-1)
+  id: totrans-358
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 拥有的项目本身可能是引用。例如，在`Vec<&str>`上调用`into_iter`不会导致迭代`String`值，即使该向量本身被消费。[↑](#fr-owned-items-references-1)
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Iterators
     and ranges)'
+  id: totrans-359
   prefs: []
   type: TYPE_NORMAL
+  zh: '[在此处点击以给我们关于此页面的反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Iterators
+    and ranges)'

@@ -1,681 +1,1030 @@
 - en: Overloading
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 重载
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/overloading.html](https://cel.cs.brown.edu/crp/idioms/overloading.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/overloading.html](https://cel.cs.brown.edu/crp/idioms/overloading.html)
 - en: C++ supports overloading of functions, so long as the invocations of the functions
     can be distinguished by the number or types of their arguments.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: C++支持函数重载，只要函数调用可以通过其参数的数量或类型来区分。
 - en: Rust does not support this kind of function overloading. Instead, Rust has a
     few different mechanisms (some of which C++ also has) for achieving the effects
     of overloading in a way that interacts better with type inference. The mechanisms
     usually involve making the commonalities between the overloaded functions apparent
     in the code.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust不支持这种类型的函数重载。相反，Rust有一些不同的机制（其中一些C++也有）来实现重载的效果，并且与类型推断更好地交互。这些机制通常涉及在代码中使重载函数之间的共同点明显。
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { fn twice(x: f64) -> f64 {'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { fn twice(x: f64) -> f64 {'
 - en: x + x
+  id: totrans-7
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x + x
 - en: '}'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '// error[E0428]: the name `twice` is defined multiple times'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '// error[E0428]: the name `twice` is defined multiple times'
 - en: '// fn twice(x: i32) -> i32 {'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '// fn twice(x: i32) -> i32 {'
 - en: //     x + x
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: //     x + x
 - en: // }
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: // }
 - en: '}'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-14
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: In practice, an example like the above would also likely be implemented in a
     more structured way even in C++, using templates.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上，即使是在C++中，上述示例也可能会以更结构化的方式实现，甚至使用模板。
 - en: When phrased this way, the example can be translated to Rust, with the notable
     addition of [requiring a trait bound on the type](./data_modeling/concepts.html).
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 这样表述后，示例可以翻译成Rust，值得注意的是，需要为类型添加[特性约束](./data_modeling/concepts.html)。
 - en: '[PRE3]'
+  id: totrans-17
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: '#![allow(unused)] fn main() { fn twice<T>(x: T) -> T::Output'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { fn twice<T>(x: T) -> T::Output'
 - en: where
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: where
 - en: 'T: std::ops::Add<T>,'
+  id: totrans-21
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'T: std::ops::Add<T>,'
 - en: 'T: Copy,'
+  id: totrans-22
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'T: Copy,'
 - en: '{'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: '{'
 - en: x + x
+  id: totrans-24
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x + x
 - en: '}'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-27
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '[Overloaded methods](#overloaded-methods)'
+  id: totrans-28
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[重载方法](#overloaded-methods)'
 - en: In C++ it is possible to have methods with the same name but different signatures
     on the same type. In Rust there can be at most one method with the same name for
     each trait implementation and at most one inherent method with the same name for
     a type.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中，可以在同一类型上具有具有相同名称但不同签名的多个方法。在Rust中，每个特性实现最多只能有一个具有相同名称的方法，对于类型来说，最多只能有一个具有相同名称的固有方法。
 - en: In cases where there are multiple methods with the same names because the method
     is defined for multiple traits, the desired method must be distinguished at the
     call site by specifying the trait.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 当存在多个具有相同名称的方法，因为方法为多个特性定义时，必须在调用位置通过指定特性来区分所需的方法。
 - en: '[PRE6]'
+  id: totrans-31
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: trait TraitA {
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: trait TraitA {
 - en: fn go(&self) -> String;
+  id: totrans-33
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn go(&self) -> String;
 - en: '}'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: trait TraitB {
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: trait TraitB {
 - en: fn go(&self) -> String;
+  id: totrans-36
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn go(&self) -> String;
 - en: '}'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct MyStruct;
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: struct MyStruct;
 - en: impl MyStruct {
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: impl MyStruct {
 - en: fn go(&self) -> String {
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn go(&self) -> String {
 - en: '"Called inherent method".to_string()'
+  id: totrans-41
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '"称为固有方法".to_string()'
 - en: '}'
+  id: totrans-42
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl TraitA for MyStruct {
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: impl TraitA for MyStruct {
 - en: fn go(&self) -> String {
+  id: totrans-45
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn go(&self) -> String {
 - en: '"Called Trait A method".to_string()'
+  id: totrans-46
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '"称为特性A方法".to_string()'
 - en: '}'
+  id: totrans-47
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl TraitB for MyStruct {
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: impl TraitB for MyStruct {
 - en: fn go(&self) -> String {
+  id: totrans-50
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn go(&self) -> String {
 - en: '"Called Trait B method".to_string()'
+  id: totrans-51
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '"称为特性B方法".to_string()'
 - en: '}'
+  id: totrans-52
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let my_struct = MyStruct;
+  id: totrans-55
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let my_struct = MyStruct;
 - en: // Calling the inherent method
+  id: totrans-56
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 调用固有方法
 - en: println!("{}", my_struct.go());
+  id: totrans-57
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", my_struct.go());
 - en: // Calling the method from TraitA
+  id: totrans-58
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 调用来自TraitA的方法
 - en: println!("{}", TraitA::go(&my_struct));
+  id: totrans-59
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", TraitA::go(&my_struct));
 - en: // Calling the method from TraitB
+  id: totrans-60
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 调用来自TraitB的方法
 - en: println!("{}", TraitB::go(&my_struct));
+  id: totrans-61
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", TraitB::go(&my_struct));
 - en: '}'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE7]'
+  id: totrans-63
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: One exception to this is when the methods are all from the same generic trait
     with with different type parameters for the implementations. In that case, if
     the signature is sufficient to determine which implementation to use, the trait
     does not need to be specified to resolve the method. This is common when using
     the [`From` trait](https://doc.rust-lang.org/std/convert/trait.From.html).
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种情况的一个例外是，当方法都来自同一个泛型特性，并且实现有不同的类型参数时。在这种情况下，如果签名足以确定要使用哪个实现，则不需要指定特性来解析方法。这在使用[`From`特性](https://doc.rust-lang.org/std/convert/trait.From.html)时很常见。
 - en: '[PRE8]'
+  id: totrans-65
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: struct Widget;
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Widget;
 - en: impl From<i32> for Widget {
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: impl From<i32> for Widget {
 - en: 'fn from(x: i32) -> Widget {'
+  id: totrans-68
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn from(x: i32) -> Widget {'
 - en: Widget
+  id: totrans-69
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Widget
 - en: '}'
+  id: totrans-70
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl From<f32> for Widget {
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: impl From<f32> for Widget {
 - en: 'fn from(x: f32) -> Widget {'
+  id: totrans-73
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn from(x: f32) -> Widget {'
 - en: Widget
+  id: totrans-74
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Widget
 - en: '}'
+  id: totrans-75
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: // Calls <Widget as From<i32>>::from
+  id: totrans-78
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 调用<Widget as From<i32>>::from
 - en: let w1 = Widget::from(5);
+  id: totrans-79
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let w1 = Widget::from(5);
 - en: // Calls <Widget as From<f32>>::from
+  id: totrans-80
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 调用<Widget as From<f32>>::from
 - en: let w2 = Widget::from(1.0);
+  id: totrans-81
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let w2 = Widget::from(1.0);
 - en: '}'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE9]'
+  id: totrans-83
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: '[Overloaded operators](#overloaded-operators)'
+  id: totrans-84
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[重载运算符](#overloaded-operators)'
 - en: In C++ most operators can either be overloaded either with a free-standing function
     or by providing a method defining the operator on a class.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，大多数运算符可以通过自由函数或通过在类上定义运算符的方法来重载。
 - en: Rust provides operator via implementation of specific traits. Implementing a
     method of the same name as required by the trait will not make a type usable with
     the operator if the trait is not implemented.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 通过特定特质的实现提供运算符。如果特质没有实现，即使实现了与特质要求同名的方法，也无法使类型与运算符一起使用。
 - en: '[PRE10]'
+  id: totrans-87
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: '[PRE11]'
+  id: totrans-88
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '#[derive(Clone, Copy)]'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone, Copy)]'
 - en: struct Vec2 {
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Vec2 {
 - en: 'x: f64,'
+  id: totrans-91
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: f64,'
 - en: 'y: f64,'
+  id: totrans-92
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: f64,'
 - en: '}'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl std::ops::Add for &Vec2 {
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: impl std::ops::Add for &Vec2 {
 - en: type Output = Vec2;
+  id: totrans-95
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output = Vec2;
 - en: // Note that the type of self here is &Vec2.
+  id: totrans-96
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 注意，这里的 self 类型是 &Vec2。
 - en: 'fn add(self, other: Self) -> Vec2 {'
+  id: totrans-97
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn add(self, other: Self) -> Vec2 {'
 - en: Vec2 {
+  id: totrans-98
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Vec2 {
 - en: 'x: self.x + other.x,'
+  id: totrans-99
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: self.x + other.x,'
 - en: 'y: self.y + other.y,'
+  id: totrans-100
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: self.y + other.y,'
 - en: '}'
+  id: totrans-101
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-102
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let a = Vec2 { x: 1.0, y: 2.0 };'
+  id: totrans-105
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let a = Vec2 { x: 1.0, y: 2.0 };'
 - en: 'let b = Vec2 { x: 3.0, y: 4.0 };'
+  id: totrans-106
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let b = Vec2 { x: 3.0, y: 4.0 };'
 - en: let c = &a + &b;
+  id: totrans-107
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let c = &a + &b;
 - en: '}'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE12]'
+  id: totrans-109
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: Additionally, sometimes it is best to provide trait implementations for various
     combinations of reference types, especially for types that implement the [`Copy
     trait`](./constructors/copy_and_move_constructors.html), since they are likely
     to want to be used either with or without taking a reference. For the example
     above, that involve defining four implementations.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，有时最好为各种引用类型的组合提供特质实现，特别是对于实现 `Copy 特质` 的类型，因为它们可能希望使用或不需要引用。对于上面的例子，需要定义四个实现。
 - en: '[PRE13]'
+  id: totrans-111
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: '#[derive(Clone, Copy)]'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone, Copy)]'
 - en: struct Vec2 {
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Vec2 {
 - en: 'x: f64,'
+  id: totrans-114
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: f64,'
 - en: 'y: f64,'
+  id: totrans-115
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: f64,'
 - en: '}'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl std::ops::Add<&Vec2> for &Vec2 {
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: impl std::ops::Add<&Vec2> for &Vec2 {
 - en: type Output = Vec2;
+  id: totrans-118
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output = Vec2;
 - en: 'fn add(self, other: &Vec2) -> Vec2 {'
+  id: totrans-119
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn add(self, other: &Vec2) -> Vec2 {'
 - en: Vec2 {
+  id: totrans-120
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Vec2 {
 - en: 'x: self.x + other.x,'
+  id: totrans-121
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: self.x + other.x,'
 - en: 'y: self.y + other.y,'
+  id: totrans-122
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: self.y + other.y,'
 - en: '}'
+  id: totrans-123
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-124
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // If Vec2 weren't so small, it might be desireable to re-use space in the below
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: // 如果 Vec2 不那么小，可能希望在下面重用空间
 - en: // implementations, since they take ownership.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: // 实现细节，因为它们需要所有者。
 - en: impl std::ops::Add<Vec2> for &Vec2 {
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: impl std::ops::Add<Vec2> for &Vec2 {
 - en: type Output = Vec2;
+  id: totrans-129
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output = Vec2;
 - en: 'fn add(self, other: Vec2) -> Vec2 {'
+  id: totrans-130
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn add(self, other: Vec2) -> Vec2 {'
 - en: Vec2 {
+  id: totrans-131
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Vec2 {
 - en: 'x: self.x + other.x,'
+  id: totrans-132
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: self.x + other.x,'
 - en: 'y: self.y + other.y,'
+  id: totrans-133
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: self.y + other.y,'
 - en: '}'
+  id: totrans-134
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-135
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl std::ops::Add<&Vec2> for Vec2 {
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: impl std::ops::Add<&Vec2> for Vec2 {
 - en: type Output = Vec2;
+  id: totrans-138
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output = Vec2;
 - en: 'fn add(self, other: &Vec2) -> Vec2 {'
+  id: totrans-139
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn add(self, other: &Vec2) -> Vec2 {'
 - en: Vec2 {
+  id: totrans-140
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Vec2 {
 - en: 'x: self.x + other.x,'
+  id: totrans-141
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: self.x + other.x,'
 - en: 'y: self.y + other.y,'
+  id: totrans-142
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: self.y + other.y,'
 - en: '}'
+  id: totrans-143
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-144
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl std::ops::Add<Vec2> for Vec2 {
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: impl std::ops::Add<Vec2> for Vec2 {
 - en: type Output = Vec2;
+  id: totrans-147
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output = Vec2;
 - en: 'fn add(self, other: Vec2) -> Vec2 {'
+  id: totrans-148
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn add(self, other: Vec2) -> Vec2 {'
 - en: Vec2 {
+  id: totrans-149
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Vec2 {
 - en: 'x: self.x + other.x,'
+  id: totrans-150
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: self.x + other.x,'
 - en: 'y: self.y + other.y,'
+  id: totrans-151
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: self.y + other.y,'
 - en: '}'
+  id: totrans-152
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-153
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let a = Vec2 { x: 1.0, y: 2.0 };'
+  id: totrans-156
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let a = Vec2 { x: 1.0, y: 2.0 };'
 - en: 'let b = Vec2 { x: 3.0, y: 4.0 };'
+  id: totrans-157
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let b = Vec2 { x: 3.0, y: 4.0 };'
 - en: let c = a + b;
+  id: totrans-158
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let c = a + b;
 - en: '}'
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE14]'
+  id: totrans-160
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: The repetition can be addressed by defining a macro.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过定义宏可以解决重复问题。
 - en: '[PRE15]'
+  id: totrans-162
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: '#[derive(Clone, Copy)]'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone, Copy)]'
 - en: struct Vec2 {
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Vec2 {
 - en: 'x: f64,'
+  id: totrans-165
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: f64,'
 - en: 'y: f64,'
+  id: totrans-166
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: f64,'
 - en: '}'
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: macro_rules! impl_add_vec2 {
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: macro_rules! impl_add_vec2 {
 - en: ($lhs:ty, $rhs:ty) => {
+  id: totrans-169
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ($lhs:ty, $rhs:ty) => {
 - en: impl std::ops::Add<$rhs> for $lhs {
+  id: totrans-170
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl std::ops::Add<$rhs> for $lhs {
 - en: type Output = Vec2;
+  id: totrans-171
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output = Vec2;
 - en: 'fn add(self, other: $rhs) -> Vec2 {'
+  id: totrans-172
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn add(self, other: $rhs) -> Vec2 {'
 - en: Vec2 {
+  id: totrans-173
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Vec2 {
 - en: 'x: self.x + other.x,'
+  id: totrans-174
   prefs:
   - PREF_IND
   - PREF_IND
@@ -683,7 +1032,9 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: self.x + other.x,'
 - en: 'y: self.y + other.y,'
+  id: totrans-175
   prefs:
   - PREF_IND
   - PREF_IND
@@ -691,222 +1042,339 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: self.y + other.y,'
 - en: '}'
+  id: totrans-176
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-177
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-178
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '};'
+  id: totrans-179
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: '}'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl_add_vec2!(&Vec2, &Vec2);
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: impl_add_vec2!(&Vec2, &Vec2);
 - en: impl_add_vec2!(&Vec2, Vec2);
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: impl_add_vec2!(&Vec2, Vec2);
 - en: impl_add_vec2!(Vec2, &Vec2);
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: impl_add_vec2!(Vec2, &Vec2);
 - en: impl_add_vec2!(Vec2, Vec2);
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: impl_add_vec2!(Vec2, Vec2);
 - en: fn main() {
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let a = Vec2 { x: 1.0, y: 2.0 };'
+  id: totrans-186
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let a = Vec2 { x: 1.0, y: 2.0 };'
 - en: 'let b = Vec2 { x: 3.0, y: 4.0 };'
+  id: totrans-187
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let b = Vec2 { x: 3.0, y: 4.0 };'
 - en: let c = a + b;
+  id: totrans-188
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let c = a + b;
 - en: '}'
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE16]'
+  id: totrans-190
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: '[Default arguments](#default-arguments)'
+  id: totrans-191
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[默认参数](#default-arguments)'
 - en: Default arguments in C++ are sometimes implemented in terms of function overloading.
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 中的默认参数有时是通过函数重载来实现的。
 - en: Rust does not have default arguments. Instead, arguments with `Option` type
     can be used to provide a similar effect.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 没有默认参数。相反，可以使用 `Option` 类型的参数来提供类似的效果。
 - en: '[PRE17]'
+  id: totrans-194
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: '[PRE18]'
+  id: totrans-195
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: use std::ops::Shl;
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::ops::Shl;
 - en: fn shift(
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: fn shift(
 - en: 'x: u32,'
+  id: totrans-198
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: u32,'
 - en: 'shift_amount: Option<u32>,'
+  id: totrans-199
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'shift_amount: Option<u32>,'
 - en: ) -> u32 {
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> u32 {
 - en: let a = shift_amount.unwrap_or(2);
+  id: totrans-201
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let a = shift_amount.unwrap_or(2);
 - en: x.shl(a)
+  id: totrans-202
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x.shl(a)
 - en: '}'
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let res = shift(7, None); // shifts by 2
+  id: totrans-205
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let res = shift(7, None); // 向右移位 2
 - en: '}'
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE19]'
+  id: totrans-207
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: '[Unrelated overloads](#unrelated-overloads)'
+  id: totrans-208
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[无关的重载](#unrelated-overloads)'
 - en: The lack of completely ad hoc overloading in Rust encourages the definition
     of traits that capture essential commonalities between types, so that functions
     can be implemented in terms of those interfaces and used generally. However, it
     also sometime encourages the anti-pattern of defining of traits that only capture
     incidental commonalities (such as having methods of the same name).
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 中完全的临时重载缺乏鼓励了定义特质，这些特质捕捉了类型之间的基本共同性，因此可以在这些接口上实现函数，并广泛使用。然而，这也有时鼓励了反模式，即定义仅捕捉偶然共同性的特质（例如具有相同名称的方法）。
 - en: It is better programming practice in those cases to simply define separate functions,
     rather than to shoehorn in a trait where no real commonality exists.
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这些情况下，简单地定义单独的函数是更好的编程实践，而不是强行塞入一个没有真正共同性的特质。
 - en: This is commonly seen in Rust in the naming conventions for constructor static
     methods. Instead of them all being named `new` with different arguments, they
     are [usually given names of the form `from_something`](https://rust-lang.github.io/api-guidelines/naming.html),
     where the `something` varies based on from what the value is being constructed,
     or a more specific name if appropriate.
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 这在 Rust 中常见于构造器静态方法的命名约定。它们不是都命名为 `new` 并带有不同的参数，而是通常被赋予形式为 `from_something`
+    的名称（[通常是这样的命名方式](https://rust-lang.github.io/api-guidelines/naming.html)），其中 `something`
+    根据构造的值而变化，或者如果适当，则使用更具体的名称。
 - en: '[PRE20]'
+  id: totrans-212
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: '#![allow(unused)] fn main() { struct Vec3 {'
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { struct Vec3 {'
 - en: 'x: f64,'
+  id: totrans-214
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: f64,'
 - en: 'y: f64,'
+  id: totrans-215
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: f64,'
 - en: 'z: f64,'
+  id: totrans-216
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'z: f64,'
 - en: '}'
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Vec3 {
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Vec3 {
 - en: 'fn from_x(x: f64) -> Vec3 {'
+  id: totrans-219
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn from_x(x: f64) -> Vec3 {'
 - en: 'Vec3 { x, y: 0.0, z: 0.0 }'
+  id: totrans-220
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Vec3 { x, y: 0.0, z: 0.0 }'
 - en: '}'
+  id: totrans-221
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn from_y(y: f64) -> Vec3 {'
+  id: totrans-222
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn from_y(y: f64) -> Vec3 {'
 - en: 'Vec3 { x: 0.0, y, z: 0.0 }'
+  id: totrans-223
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Vec3 { x: 0.0, y, z: 0.0 }'
 - en: '}'
+  id: totrans-224
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn diagonal(d: f64) -> Vec3 {'
+  id: totrans-225
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn diagonal(d: f64) -> Vec3 {'
 - en: 'Vec3 { x: d, y: d, z: d }'
+  id: totrans-226
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Vec3 { x: d, y: d, z: d }'
 - en: '}'
+  id: totrans-227
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE21]'
+  id: totrans-230
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: This differs from the conversion methods supported by the `From` and `Into`
     traits, which have the additional purpose of supporting trait bounds on generic
     functions which should take any type convertible to a specific type.
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 这与 `From` 和 `Into` 特质支持的转换方法不同，这些方法具有额外的目的，即支持泛型函数上的特质界限，这些函数应该接受任何可转换为特定类型的类型。
 - en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Overloading)
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Overloading)

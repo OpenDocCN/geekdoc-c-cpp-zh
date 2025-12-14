@@ -1,1354 +1,2037 @@
 - en: Visitor pattern and double dispatch
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: UnknownVar(&'a str),
 - en: 原文：[https://cel.cs.brown.edu/crp/patterns/visitor.html](https://cel.cs.brown.edu/crp/patterns/visitor.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: ) -> Result<i32, EvalError<'a>> {
 - en: In C++ the visitor pattern is typically used to enable adding behaviors to a
     type without modifying the class definitions. In Rust, the same goal is conventionally
     accomplished by using Rust enums, which resemble C++ [tagged unions](../idioms/data_modeling/tagged_unions.html).
     While the chapter on tagged unions compares using Rust enums with C++ `std::variant`,
     this chapter [compares using the visitor pattern in C++ with using Rust enums](#use-a-rust-enum-instead).
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 'body: Box<Exp>,'
 - en: Since the visitor pattern and double dispatch may be useful for other purposes
     as well, a [Rust visitor pattern version of the example](#visitors) is also given.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，访问者模式通常用于在不修改类定义的情况下向类型添加行为。在 Rust 中，传统上通过使用 Rust 枚举来实现相同的目标，这些枚举类似于
+    C++ 的[标记联合](../idioms/data_modeling/tagged_unions.html)。虽然关于标记联合的章节比较了使用 Rust
+    枚举与 C++ `std::variant`，但本章[比较了在 C++ 中使用访问者模式与使用 Rust 枚举](#use-a-rust-enum-instead)。
 - en: Extensions of the visitor pattern are sometimes used in C++ to make it possible
     to extend both data and behavior without modifying the original definitions (i.e.,
     to solve [the expression problem](https://cs.brown.edu/~sk/Publications/Papers/Published/kff-synth-fp-oo/)).
     Other approaches, enabled by Rust's traits and generics, are [more likely to be
     used in Rust](#varying-data-and-behavior).
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，有时会使用访问者模式来扩展数据和行为，而不修改原始定义（即解决[表达式问题](https://cs.brown.edu/~sk/Publications/Papers/Published/kff-synth-fp-oo/))。其他方法，得益于
+    Rust 的特性和泛型，更可能在 Rust 中使用（见[变化的数据和行为](#varying-data-and-behavior)）。
 - en: '[Use a Rust enum instead](#use-a-rust-enum-instead)'
+  id: totrans-5
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: Var(String),
 - en: For the first case, where the variants are fixed but behaviors are not, the
     idiomatic approach in Rust is to implement the data structure as an enum instead
     of as many structs with a common interface. This is similar to using `std::variant`
     in C++.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: let e = Let {
 - en: '[PRE0]'
+  id: totrans-7
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-8
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: use std::collections::HashMap;
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: // 构造一个表达式
 - en: // Define expressions.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 'var: String,'
 - en: //
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: // 运行评估器
 - en: // This covers the first 3 sections of the
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: '}),'
 - en: // C++ version.
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 'rhs: Box::new(Lit(2)),'
 - en: enum Exp {
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::collections::HashMap;
 - en: Var(String),
+  id: totrans-15
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'body: Box::new(Plus {'
 - en: Lit(i32),
+  id: totrans-16
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: //
 - en: Plus {
+  id: totrans-17
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'lhs: Box<Exp>,'
+  id: totrans-18
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .ok_or(EvalError::UnknownVar(x)),
 - en: 'rhs: Box<Exp>,'
+  id: totrans-19
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'rhs: Box<Exp>,'
 - en: '},'
+  id: totrans-20
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '},'
 - en: Let {
+  id: totrans-21
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let rv = eval(env, rhs)?;
 - en: 'var: String,'
+  id: totrans-22
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'exp: Box<Exp>,'
 - en: 'exp: Box<Exp>,'
+  id: totrans-23
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Ok(lv + rv)
 - en: 'body: Box<Exp>,'
+  id: totrans-24
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '},'
+  id: totrans-25
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Plus {
 - en: '}'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Exception for representing expression
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于第一种情况，其中变体是固定的但行为不是，Rust 中的惯用方法是将数据结构实现为枚举，而不是作为具有公共接口的许多结构体。这与在 C++ 中使用 `std::variant`
+    类似。
 - en: // evaluation errors
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 'lhs: Box<Exp>,'
 - en: '#[derive(Debug)]'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: Exp::Let { var, exp, body } => {
 - en: enum EvalError<'a> {
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: enum EvalError<'a> {
 - en: UnknownVar(&'a str),
+  id: totrans-31
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Define type for evaluation environment
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: // 定义评估环境类型
 - en: type Env<'a> = HashMap<&'a str, i32>;
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 'var: "x".to_string(),'
 - en: // Define evaluator
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: // 定义评估器
 - en: fn eval<'a>(
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果出于某种原因仍然需要访问者模式，它可以像在 C++ 中那样实现。这可以使使用访问者模式的程序的直接移植更加可行。然而，基于枚举的实现仍然应该被优先考虑。
 - en: 'env: &Env<''a>,'
+  id: totrans-37
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 这涵盖了前 3 个部分
 - en: 'e: &''a Exp,'
+  id: totrans-38
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Env<'a> = HashMap<&'a str, i32>;
 - en: ) -> Result<i32, EvalError<'a>> {
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: Let {
 - en: match e {
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Exp::Lit(n) => Ok(*n),
 - en: Exp::Var(x) => env
+  id: totrans-41
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Exp::Var(x) => env
 - en: .get(x.as_str())
+  id: totrans-42
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .get(x.as_str())
 - en: .cloned()
+  id: totrans-43
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{:?}", res);
 - en: .ok_or(EvalError::UnknownVar(x)),
+  id: totrans-44
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 表示表达式的例外
 - en: Exp::Lit(n) => Ok(*n),
+  id: totrans-45
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'e: &''a Exp,'
 - en: Exp::Plus { lhs, rhs } => {
+  id: totrans-46
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: let lv = eval(env, lhs)?;
+  id: totrans-47
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Exp::Plus { lhs, rhs } => {
 - en: let rv = eval(env, rhs)?;
+  id: totrans-48
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 评估错误
 - en: Ok(lv + rv)
+  id: totrans-49
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: use Exp::*;
 - en: '}'
+  id: totrans-50
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Exp::Let { var, exp, body } => {
+  id: totrans-51
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '[访问者](#visitors)'
 - en: let val = eval(env, exp)?;
+  id: totrans-52
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let lv = eval(env, lhs)?;
 - en: let mut env = env.clone();
+  id: totrans-53
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '#[derive(Debug)]'
 - en: env.insert(var, val);
+  id: totrans-54
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: env.insert(var, val);
 - en: eval(&env, body)
+  id: totrans-55
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .cloned()
 - en: '}'
+  id: totrans-56
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Lit(i32),
 - en: '}'
+  id: totrans-57
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: '};'
 - en: fn main() {
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: use Exp::*;
+  id: totrans-60
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 打印输出
 - en: // Construct an expression
+  id: totrans-61
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 由于访问者模式和双重分派可能还有其他用途，还提供了一个[示例的 Rust 访问者模式版本](#visitors)。
 - en: let e = Let {
+  id: totrans-62
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // C++ 版本。
 - en: 'var: "x".to_string(),'
+  id: totrans-63
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/patterns/visitor.html](https://cel.cs.brown.edu/crp/patterns/visitor.html)
 - en: 'exp: Box::new(Lit(3)),'
+  id: totrans-64
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'env: &Env<''a>,'
 - en: 'body: Box::new(Plus {'
+  id: totrans-65
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 定义表达式。
 - en: 'lhs: Box::new(Var("x".to_string())),'
+  id: totrans-66
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: enum Exp {
 - en: 'rhs: Box::new(Lit(2)),'
+  id: totrans-67
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '},'
 - en: '}),'
+  id: totrans-68
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: eval(&env, body)
 - en: '};'
+  id: totrans-69
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'lhs: Box::new(Var("x".to_string())),'
 - en: // Run the evaluator
+  id: totrans-70
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut env = env.clone();
 - en: let res = eval(&HashMap::new(), &e);
+  id: totrans-71
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let val = eval(env, exp)?;
 - en: // Print the output
+  id: totrans-72
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let res = eval(&HashMap::new(), &e);
 - en: println!("{:?}", res);
+  id: totrans-73
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match e {
 - en: '}'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: fn eval<'a>(
 - en: '[PRE2]'
+  id: totrans-75
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: '[Visitors](#visitors)'
+  id: totrans-76
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 'exp: Box::new(Lit(3)),'
 - en: If the visitor pattern is still needed for some reason, it can be implemented
     similarly to how it is in C++. This can make direct ports of programs that use
     the visitor pattern more feasible. However, the enum-based implementation should
     still be preferred.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 访问者模式和双重分派
 - en: The following example shows how to implement the same program as in the previous
     example, but using a visitor in Rust. The C++ program is identical to the previous
     one.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了如何使用 Rust 中的访问者实现与上一个示例相同的程序，但使用了 Rust。C++ 程序与上一个示例相同。
 - en: The example also demonstrates using double dispatch with trait objects in Rust.
     The expressions are represented as `dyn Exp` trait objects which accept a `dyn
     Visitor` trait object, and then call on the visitor the method specific to the
     type of expression.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例还演示了在 Rust 中使用双分派与 trait 对象。表达式表示为 `dyn Exp` trait 对象，它们接受一个 `dyn Visitor`
+    trait 对象，然后调用访问者针对表达式类型的特定方法。
 - en: '[PRE3]'
+  id: totrans-80
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-81
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: // This is NOT an idiomatic translation. The
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: // 这**不是**一个惯用的翻译。这是
 - en: // previous example using Rust enums is.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: // 以下是一个使用 Rust 枚举的先前示例。
 - en: use std::collections::HashMap;
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::collections::HashMap;
 - en: // Define types that the visitor can visit
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: // 定义访问者可以访问的类型
 - en: struct Lit(i32);
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Lit(i32);
 - en: struct Plus {
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Plus {
 - en: 'lhs: Box<dyn Exp>,'
+  id: totrans-88
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'lhs: Box<dyn Exp>,'
 - en: 'rhs: Box<dyn Exp>,'
+  id: totrans-89
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'rhs: Box<dyn Exp>,'
 - en: '}'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct Var(String);
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Var(String);
 - en: struct Let {
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Let {
 - en: 'name: String,'
+  id: totrans-93
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: String,'
 - en: 'exp: Box<dyn Exp>,'
+  id: totrans-94
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'exp: Box<dyn Exp>,'
 - en: 'body: Box<dyn Exp>,'
+  id: totrans-95
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'body: Box<dyn Exp>,'
 - en: '}'
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Define trait for expressions
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: // 定义表达式的 trait
 - en: trait Exp {
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Exp {
 - en: // Much like C++ can't have virtual template
+  id: totrans-99
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 类似于 C++ 不能有虚拟模板
 - en: // methods, Rust can't have trait objects
+  id: totrans-100
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 方法，Rust 不能有 trait 对象
 - en: // where the traits have generic methods.
+  id: totrans-101
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 其中 trait 有泛型方法。
 - en: //
+  id: totrans-102
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: //
 - en: // Therefore the visitor either has to be
+  id: totrans-103
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 因此访问者必须
 - en: // mutable to collect the results or the
+  id: totrans-104
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 可变以收集结果或
 - en: // accept method has to be specialized to a
+  id: totrans-105
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 接受方法必须专门化到一个
 - en: // specific return type.
+  id: totrans-106
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 具体的返回类型。
 - en: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>);'
+  id: totrans-107
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>);'
 - en: '}'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Define trait for the visitor
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: // 定义访问者的 trait
 - en: trait Visitor<'a> {
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Visitor<'a> {
 - en: 'fn visit_lit(&mut self, e: &''a Lit);'
+  id: totrans-111
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn visit_lit(&mut self, e: &''a Lit);'
 - en: 'fn visit_plus(&mut self, e: &''a Plus);'
+  id: totrans-112
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn visit_plus(&mut self, e: &''a Plus);'
 - en: 'fn visit_var(&mut self, e: &''a Var);'
+  id: totrans-113
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn visit_var(&mut self, e: &''a Var);'
 - en: 'fn visit_let(&mut self, e: &''a Let);'
+  id: totrans-114
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn visit_let(&mut self, e: &''a Let);'
 - en: '}'
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Implement accept behavior for each expression variant
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: // 为每个表达式变体实现 accept 行为
 - en: impl Exp for Lit {
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Exp for Lit {
 - en: 'fn accept<''a>(&''a self, v: &mut (dyn Visitor<''a>)) {'
+  id: totrans-118
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn accept<''a>(&''a self, v: &mut (dyn Visitor<''a>));'
 - en: v.visit_lit(self);
+  id: totrans-119
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: v.visit_lit(self);
 - en: '}'
+  id: totrans-120
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Exp for Plus {
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Exp for Plus {
 - en: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>) {'
+  id: totrans-123
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>) {'
 - en: v.visit_plus(self);
+  id: totrans-124
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: v.visit_plus(self);
 - en: '}'
+  id: totrans-125
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Exp for Var {
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Exp for Var {
 - en: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>) {'
+  id: totrans-128
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>) {'
 - en: v.visit_var(self);
+  id: totrans-129
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: v.visit_var(self);
 - en: '}'
+  id: totrans-130
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Exp for Let {
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Exp for Let {
 - en: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>) {'
+  id: totrans-133
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>) {'
 - en: v.visit_let(self);
+  id: totrans-134
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: v.visit_let(self);
 - en: '}'
+  id: totrans-135
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Define Visitor for evaluating expressions
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: // 定义用于评估表达式的访问者
 - en: // Error for representing expression evaluation
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: // 用于表示表达式评估的错误
 - en: // errors.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: // 错误。
 - en: //
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: //
 - en: // Has a lifetime parameter beacause it borrows
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: // 因为它借用了一个生命周期参数
 - en: // the name from the expression.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: // 从表达式中获取名称。
 - en: '#[derive(Debug)]'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Debug)]'
 - en: enum EvalError<'a> {
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: enum EvalError<'a> {
 - en: UnknownVar(&'a str),
+  id: totrans-145
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: UnknownVar(&'a str),
 - en: '}'
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Define type for evaluation environment
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: // 定义评估环境的类型
 - en: //
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: //
 - en: // Has a lifetime parameter because it borrows
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: // 因为它借用了一个生命周期参数
 - en: // the names from the expression.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: // 从表达式中获取名称。
 - en: type Env<'a> = HashMap<&'a str, i32>;
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: type Env<'a> = HashMap<&'a str, i32>;
 - en: // Define the evaluator
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: // 定义评估器
 - en: struct EvalVisitor<'a> {
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: struct EvalVisitor<'a> {
 - en: // Return value. Results propagate up the stack.
+  id: totrans-154
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 返回值。结果会向上传播到堆栈。
 - en: 'env: Env<''a>,'
+  id: totrans-155
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'env: Env<''a>,'
 - en: // Evaluation environment. Changes propagate
+  id: totrans-156
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 评估环境。更改会传播
 - en: // down the stack
+  id: totrans-157
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 向下传播到堆栈
 - en: 'value: Result<i32, EvalError<''a>>,'
+  id: totrans-158
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'value: Result<i32, EvalError<''a>>,'
 - en: '}'
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Define behavior for each case of the
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: // 定义每个情况的特定行为
 - en: // expression.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: // 表达式。
 - en: impl<'a> Visitor<'a> for EvalVisitor<'a> {
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: impl<'a> Visitor<'a> for EvalVisitor<'a> {
 - en: 'fn visit_lit(&mut self, e: &''a Lit) {'
+  id: totrans-163
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn visit_lit(&mut self, e: &''a Lit) {'
 - en: self.value = Ok(e.0);
+  id: totrans-164
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.value = Ok(e.0);
 - en: '}'
+  id: totrans-165
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn visit_plus(&mut self, e: &''a Plus) {'
+  id: totrans-166
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn visit_plus(&mut self, e: &''a Plus) {'
 - en: e.lhs.accept(self);
+  id: totrans-167
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: e.lhs.accept(self);
 - en: let Ok(lv) = self.value else {
+  id: totrans-168
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Ok(lv) = self.value else {
 - en: return;
+  id: totrans-169
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-170
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: e.rhs.accept(self);
+  id: totrans-171
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: e.rhs.accept(self);
 - en: let Ok(rv) = self.value else {
+  id: totrans-172
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Ok(rv) = self.value else {
 - en: return;
+  id: totrans-173
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-174
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: self.value = Ok(lv + rv);
+  id: totrans-175
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.value = Ok(lv + rv);
 - en: '}'
+  id: totrans-176
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn visit_var(&mut self, e: &''a Var) {'
+  id: totrans-177
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn visit_var(&mut self, e: &''a Var) {'
 - en: self.value = self
+  id: totrans-178
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.value = self
 - en: .env
+  id: totrans-179
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .env
 - en: .get(e.0.as_str())
+  id: totrans-180
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .get(e.0.as_str())
 - en: .ok_or(EvalError::UnknownVar(&e.0))
+  id: totrans-181
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .ok_or(EvalError::UnknownVar(&e.0))
 - en: .copied();
+  id: totrans-182
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .copied();
 - en: '}'
+  id: totrans-183
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn visit_let(&mut self, e: &''a Let) {'
+  id: totrans-184
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn visit_let(&mut self, e: &''a Let) {'
 - en: e.exp.accept(self);
+  id: totrans-185
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: e.exp.accept(self);
 - en: let Ok(val) = self.value else {
+  id: totrans-186
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Ok(val) = self.value else {
 - en: return;
+  id: totrans-187
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-188
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: let orig_env = self.env.clone();
+  id: totrans-189
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let orig_env = self.env.clone();
 - en: self.env.insert(e.name.as_ref(), val);
+  id: totrans-190
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.env.insert(e.name.as_ref(), val);
 - en: e.body.accept(self);
+  id: totrans-191
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: e.body.accept(self);
 - en: self.env = orig_env;
+  id: totrans-192
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.env = orig_env;
 - en: '}'
+  id: totrans-193
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: // Construct an expression
+  id: totrans-196
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // Construct an expression
 - en: let x = Plus {
+  id: totrans-197
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = Plus {
 - en: 'lhs: Box::new(Let {'
+  id: totrans-198
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'lhs: Box::new(Let {'
 - en: 'name: "x".to_string(),'
+  id: totrans-199
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: "x".to_string(),'
 - en: 'exp: Box::new(Lit(3)),'
+  id: totrans-200
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'exp: Box::new(Lit(3)),'
 - en: 'body: Box::new(Var("x".to_string())),'
+  id: totrans-201
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'body: Box::new(Var("x".to_string())),'
 - en: '}),'
+  id: totrans-202
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}),'
 - en: 'rhs: Box::new(Lit(2)),'
+  id: totrans-203
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'rhs: Box::new(Lit(2)),'
 - en: '};'
+  id: totrans-204
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // Construct the evaluator
+  id: totrans-205
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // Construct the evaluator
 - en: let mut visitor = EvalVisitor {
+  id: totrans-206
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut visitor = EvalVisitor {
 - en: 'value: Ok(0),'
+  id: totrans-207
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'value: Ok(0),'
 - en: 'env: HashMap::new(),'
+  id: totrans-208
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'env: HashMap::new(),'
 - en: '};'
+  id: totrans-209
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // Run the evaluator
+  id: totrans-210
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // Run the evaluator
 - en: x.accept(&mut visitor);
+  id: totrans-211
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x.accept(&mut visitor);
 - en: // Print the output
+  id: totrans-212
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // Print the output
 - en: println!("{:?}", visitor.value);
+  id: totrans-213
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{:?}", visitor.value);
 - en: '}'
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-215
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '[Varying data and behavior](#varying-data-and-behavior)'
+  id: totrans-216
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[Varying data and behavior](#varying-data-and-behavior)'
 - en: In C++, extensions to the visitor pattern are sometimes used to handle situations
     where both data and behavior and vary. However, those solutions also make use
     of dynamic casting. In Rust, that requires opting into [RTTI](./../idioms/rtti.html)
     by making `Any` a supertrait of the trait for the visitors, so they can be downcast.
     While this extension to the visitor pattern is possible to implement, the ergonomics
     of the approach make other approaches more common in Rust.
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: In C++, extensions to the visitor pattern are sometimes used to handle situations
+    where both data and behavior and vary. However, those solutions also make use
+    of dynamic casting. In Rust, that requires opting into [RTTI](./../idioms/rtti.html)
+    by making `Any` a supertrait of the trait for the visitors, so they can be downcast.
+    While this extension to the visitor pattern is possible to implement, the ergonomics
+    of the approach make other approaches more common in Rust.
 - en: One of the alternative approaches, adopted from functional programming and leveraging
     the design of traits and generics in Rust, is called ["data types à la carte"](https://www.cambridge.org/core/services/aop-cambridge-core/content/view/14416CB20C4637164EA9F77097909409/S0956796808006758a.pdf/data-types-a-la-carte.pdf).
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: One of the alternative approaches, adopted from functional programming and leveraging
+    the design of traits and generics in Rust, is called ["data types à la carte"](https://www.cambridge.org/core/services/aop-cambridge-core/content/view/14416CB20C4637164EA9F77097909409/S0956796808006758a.pdf/data-types-a-la-carte.pdf).
 - en: The following example shows a variation on the earlier examples using this pattern
     to make it so that two parts of the expression type can be defined separately
     and given evaluators separately. This approach can lead to performance problems
     (in large part due to the indirection through nested structures) or increases
     in compilation time, so its necessity should be carefully evaluated before it
     is used.
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: The following example shows a variation on the earlier examples using this pattern
+    to make it so that two parts of the expression type can be defined separately
+    and given evaluators separately. This approach can lead to performance problems
+    (in large part due to the indirection through nested structures) or increases
+    in compilation time, so its necessity should be carefully evaluated before it
+    is used.
 - en: '[PRE6]'
+  id: totrans-220
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: use std::collections::HashMap;
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::collections::HashMap;
 - en: // A type for combining separately-defined
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: // A type for combining separately-defined
 - en: // expressions. Defining individual expressions
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: // expressions. Defining individual expressions
 - en: // completely separately and then using an
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: // completely separately and then using an
 - en: // application-specific sum type instead of nesting
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: // application-specific sum type instead of nesting
 - en: // Sum can improve performance.
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: // Sum can improve performance.
 - en: enum Sum<L, R> {
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: enum Sum<L, R> {
 - en: Inl(L),
+  id: totrans-228
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Inl(L),
 - en: Inr(R),
+  id: totrans-229
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Inr(R),
 - en: '}'
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Define arithmetic expressions
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: // Define arithmetic expressions
 - en: enum ArithExp<E> {
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: enum ArithExp<E> {
 - en: Lit(i32),
+  id: totrans-233
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Lit(i32),
 - en: 'Plus { lhs: E, rhs: E },'
+  id: totrans-234
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Plus { lhs: E, rhs: E },'
 - en: '}'
+  id: totrans-235
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Define let bindings and variables
+  id: totrans-236
   prefs: []
   type: TYPE_NORMAL
+  zh: // Define let bindings and variables
 - en: enum LetExp<E> {
+  id: totrans-237
   prefs: []
   type: TYPE_NORMAL
+  zh: enum LetExp<E> {
 - en: Var(String),
+  id: totrans-238
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Var(String),
 - en: 'Let { name: String, exp: E, body: E },'
+  id: totrans-239
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Let { name: String, exp: E, body: E },'
 - en: '}'
+  id: totrans-240
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Combine the expressions
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: // Combine the expressions
 - en: type Sig<E> = Sum<ArithExp<E>, LetExp<E>>;
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: type Sig<E> = Sum<ArithExp<E>, LetExp<E>>;
 - en: // Define the fixed-point for recursive
+  id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: // Define the fixed-point for recursive
 - en: // expressions.
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: // expressions.
 - en: struct Exp(Sig<Box<Exp>>);
+  id: totrans-245
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Exp(Sig<Box<Exp>>);
 - en: // Define an evaluator
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: // Define an evaluator
 - en: // The evaluation environment
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: // The evaluation environment
 - en: type Env<'a> = HashMap<&'a str, i32>;
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: type Env<'a> = HashMap<&'a str, i32>;
 - en: // Evaluation errors
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: // Evaluation errors
 - en: '#[derive(Debug)]'
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Debug)]'
 - en: enum EvalError<'a> {
+  id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: enum EvalError<'a> {
 - en: UndefinedVar(&'a str),
+  id: totrans-252
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: UndefinedVar(&'a str),
 - en: '}'
+  id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // A trait for expressions that can
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: // A trait for expressions that can
 - en: // be evaluated.
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: // be evaluated.
 - en: trait Eval {
+  id: totrans-256
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Eval {
 - en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>>;'
+  id: totrans-257
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>>;'
 - en: '}'
+  id: totrans-258
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Implement the evaluator trait for
+  id: totrans-259
   prefs: []
   type: TYPE_NORMAL
+  zh: // Implement the evaluator trait for
 - en: // the administrative types
+  id: totrans-260
   prefs: []
   type: TYPE_NORMAL
+  zh: // the administrative types
 - en: 'impl<L: Eval, R: Eval> Eval for Sum<L, R> {'
+  id: totrans-261
   prefs: []
   type: TYPE_NORMAL
+  zh: 'impl<L: Eval, R: Eval> Eval for Sum<L, R> {'
 - en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
+  id: totrans-262
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
 - en: match self {
+  id: totrans-263
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match self {
 - en: Sum::Inl(left) => left.eval(env),
+  id: totrans-264
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Sum::Inl(left) => left.eval(env),
 - en: Sum::Inr(right) => right.eval(env),
+  id: totrans-265
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Sum::Inr(right) => right.eval(env),
 - en: '}'
+  id: totrans-266
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-267
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-268
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'impl<E: Eval> Eval for Box<E> {'
+  id: totrans-269
   prefs: []
   type: TYPE_NORMAL
+  zh: 'impl<E: Eval> Eval for Box<E> {'
 - en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
+  id: totrans-270
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
 - en: self.as_ref().eval(env)
+  id: totrans-271
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.as_ref().eval(env)
 - en: '}'
+  id: totrans-272
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-273
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Implement the trait for the desired variants.
+  id: totrans-274
   prefs: []
   type: TYPE_NORMAL
+  zh: // 为所需的变体实现特质的实现。
 - en: 'impl<E: Eval> Eval for ArithExp<E> {'
+  id: totrans-275
   prefs: []
   type: TYPE_NORMAL
+  zh: 'impl<E: Eval> Eval for ArithExp<E> {'
 - en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
+  id: totrans-276
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
 - en: match self {
+  id: totrans-277
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match self {
 - en: ArithExp::Lit(n) => Ok(*n),
+  id: totrans-278
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ArithExp::Lit(n) => Ok(*n),
 - en: ArithExp::Plus { lhs, rhs } => Ok(lhs.eval(env)? + rhs.eval(env)?),
+  id: totrans-279
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ArithExp::Plus { lhs, rhs } => Ok(lhs.eval(env)? + rhs.eval(env)?),
 - en: '}'
+  id: totrans-280
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-281
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-282
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'impl<E: Eval> Eval for LetExp<E> {'
+  id: totrans-283
   prefs: []
   type: TYPE_NORMAL
+  zh: 'impl<E: Eval> Eval for LetExp<E> {'
 - en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
+  id: totrans-284
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
 - en: match self {
+  id: totrans-285
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match self {
 - en: LetExp::Var(x) => env
+  id: totrans-286
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: LetExp::Var(x) => env
 - en: .get(x.as_str())
+  id: totrans-287
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .get(x.as_str())
 - en: .copied()
+  id: totrans-288
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .copied()
 - en: .ok_or(EvalError::UndefinedVar(x)),
+  id: totrans-289
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .ok_or(EvalError::UndefinedVar(x)),
 - en: LetExp::Let { name, exp, body } => {
+  id: totrans-290
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: LetExp::Let { name, exp, body } => {
 - en: let arg = exp.eval(env)?;
+  id: totrans-291
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let arg = exp.eval(env)?;
 - en: let mut env = env.clone();
+  id: totrans-292
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut env = env.clone();
 - en: env.insert(name, arg);
+  id: totrans-293
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: env.insert(name, arg);
 - en: body.eval(&env)
+  id: totrans-294
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: body.eval(&env)
 - en: '}'
+  id: totrans-295
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-296
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-297
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-298
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Since the trait is implemented for everything
+  id: totrans-299
   prefs: []
   type: TYPE_NORMAL
+  zh: // 由于特质为所有内容实现了
 - en: // inside of Exp, it can be implemented for Exp.
+  id: totrans-300
   prefs: []
   type: TYPE_NORMAL
+  zh: // 在 Exp 中，它可以针对 Exp 实现。
 - en: impl Eval for Exp {
+  id: totrans-301
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Eval for Exp {
 - en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
+  id: totrans-302
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
 - en: self.0.eval(env)
+  id: totrans-303
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.0.eval(env)
 - en: '}'
+  id: totrans-304
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-305
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // helpers for constructing expressions
+  id: totrans-306
   prefs: []
   type: TYPE_NORMAL
+  zh: // 构造表达式的辅助函数
 - en: 'fn lit(n: i32) -> Exp {'
+  id: totrans-307
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn lit(n: i32) -> Exp {'
 - en: Exp(Sum::Inl(ArithExp::Lit(n)))
+  id: totrans-308
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Exp(Sum::Inl(ArithExp::Lit(n)))
 - en: '}'
+  id: totrans-309
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn plus(lhs: Exp, rhs: Exp) -> Exp {'
+  id: totrans-310
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn plus(lhs: Exp, rhs: Exp) -> Exp {'
 - en: Exp(Sum::Inl(ArithExp::Plus {
+  id: totrans-311
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Exp(Sum::Inl(ArithExp::Plus {
 - en: 'lhs: Box::new(lhs),'
+  id: totrans-312
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'lhs: Box::new(lhs),'
 - en: 'rhs: Box::new(rhs),'
+  id: totrans-313
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'rhs: Box::new(rhs),'
 - en: '}))'
+  id: totrans-314
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}))'
 - en: '}'
+  id: totrans-315
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn var(x: &str) -> Exp {'
+  id: totrans-316
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn var(x: &str) -> Exp {'
 - en: Exp(Sum::Inr(LetExp::Var(x.to_string())))
+  id: totrans-317
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Exp(Sum::Inr(LetExp::Var(x.to_string())))
 - en: '}'
+  id: totrans-318
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn elet(name: &str, val: Exp, body: Exp) -> Exp {'
+  id: totrans-319
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn elet(name: &str, val: Exp, body: Exp) -> Exp {'
 - en: Exp(Sum::Inr(LetExp::Let {
+  id: totrans-320
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Exp(Sum::Inr(LetExp::Let {
 - en: 'name: name.to_string(),'
+  id: totrans-321
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: name.to_string(),'
 - en: 'exp: Box::new(val),'
+  id: totrans-322
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'exp: Box::new(val),'
 - en: 'body: Box::new(body),'
+  id: totrans-323
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'body: Box::new(body),'
 - en: '}))'
+  id: totrans-324
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}))'
 - en: '}'
+  id: totrans-325
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-326
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let e = elet("x", lit(3), plus(var("x"), lit(2)));
+  id: totrans-327
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let e = elet("x", lit(3), plus(var("x"), lit(2)));
 - en: println!("{:?}", e.eval(&HashMap::new()));
+  id: totrans-328
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{:?}", e.eval(&HashMap::new()));
 - en: '}'
+  id: totrans-329
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE7]'
+  id: totrans-330
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: One thing worth noting about the above implementation is that no dynamic dispatch
     was required.
+  id: totrans-331
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得注意的是，上述实现中不需要动态分发。
 - en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Visitor
     pattern and double dispatch)
+  id: totrans-332
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Visitor
+    pattern and double dispatch)

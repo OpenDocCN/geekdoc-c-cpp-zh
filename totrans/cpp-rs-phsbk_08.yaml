@@ -1,57 +1,81 @@
 - en: Data modeling
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 数据建模
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling.html](https://cel.cs.brown.edu/crp/idioms/data_modeling.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling.html](https://cel.cs.brown.edu/crp/idioms/data_modeling.html)
 - en: In C++ the mechanisms available for data modeling are classes, enums, and unions.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，可用于数据建模的机制有类、枚举和联合。
 - en: Rust, on the other hand, uses records ([structs](https://doc.rust-lang.org/book/ch05-00-structs.html))
     and algebraic data types ([enums](https://doc.rust-lang.org/book/ch06-00-enums.html)).
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 相反，Rust 使用记录（[结构体](https://doc.rust-lang.org/book/ch05-00-structs.html)）和代数数据类型（[枚举](https://doc.rust-lang.org/book/ch06-00-enums.html)）。
 - en: Although Rust supports one major piece of object oriented design, polymorphism
     using interfaces, Rust also has language features for modeling things using algebraic
     data types (which in simple cases are like a much more ergonomic `std::variant`).
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管 Rust 支持面向对象设计的一个重要方面，即使用接口的多态性，但 Rust 也具有用于使用代数数据类型（在简单情况下类似于更易于使用的 `std::variant`）建模事物的语言特性。
 - en: This section gives examples of common constructions used when programming in
     C++ and how to achieve the same effects using Rust's features.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 本节提供了在 C++ 中编程时使用的常见构造示例，以及如何使用 Rust 的功能实现相同的效果。
 - en: '[Fixed operations, varying data](#fixed-operations-varying-data)'
+  id: totrans-6
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[固定操作，可变数据](#fixed-operations-varying-data)'
 - en: In situations where one needs to model a fixed set of operations that clients
     will use, but the data that implements those operations are not fixed ahead of
     time, the approach in C++ and the approach in Rust are the same. In both cases
     interfaces that define the required operations are defined. Concrete types, possibly
     defined by the client, implement those interfaces.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 在需要建模一组固定操作，但实现这些操作的数据在事先不是固定的情况下，C++ 和 Rust 的方法相同。在两种情况下，都定义了定义所需操作的接口。具体类型，可能由客户端定义，实现这些接口。
 - en: This way of modeling data can make use of either [dynamic](./data_modeling/abstract_classes.html)
     or [static dispatch](./data_modeling/concepts.html), each of which is covered
     in its own section.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种建模数据的方式可以利用 [动态](./data_modeling/abstract_classes.html) 或 [静态分派](./data_modeling/concepts.html)，每个都在其自己的章节中进行了介绍。
 - en: '[Fixed data, varying operations](#fixed-data-varying-operations)'
+  id: totrans-9
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[固定数据，可变操作](#fixed-data-varying-operations)'
 - en: In situations where there is a fixed set of data but the operations that the
     data must support vary, there are a few approaches in C++. Which approaches are
     available to use depend on the version of the standard in use.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 在存在一组固定数据但必须支持的操作可变的情况下，C++ 中有一些方法。可用的方法取决于所使用的标准版本。
 - en: In older versions of the standard, one might use manually defined tagged unions.
     In newer versions, `std::variant` is available to improve the safety and ergonomics
     of tagged unions. [Both of these approaches map to the same approach in Rust](./data_modeling/tagged_unions.html).
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 在旧版标准中，可能会使用手动定义的标记联合。在新版本中，`std::variant` 可用于提高标记联合的安全性和易用性。[这两种方法在 Rust 中映射到相同的方法](./data_modeling/tagged_unions.html)。
 - en: Additionally, despite it not being strictly necessary to model a fixed set of
     variants, the visitor pattern is sometimes used for this situation, especially
     when using versions of the C++ standard before the introduction of `std::variant`.
@@ -60,21 +84,33 @@
     The chapter on the [visitor pattern](../patterns/visitor.html) describes when
     to use a Rust version of the visitor pattern or when to use Rust's enums (which
     are closer to `std::variant` than to C++ enums) to model the data.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，尽管建模一组固定的变体不是严格必要的，但访问者模式有时用于这种情况，尤其是在使用在引入 `std::variant` 之前的 C++ 标准版本时。在这些情况的大多数中，Rust
+    的惯用解决方案与将使用 [标记联合](./data_modeling/tagged_unions.html) 的 C++ 解决方案转换为 Rust 解决方案时所做的相同。关于
+    [访问者模式](../patterns/visitor.html) 的章节描述了何时使用 Rust 版本的访问者模式，何时使用 Rust 的枚举（它们比 C++
+    枚举更接近 `std::variant`）来建模数据。
 - en: '[Varying data and operations](#varying-data-and-operations)'
+  id: totrans-13
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[可变数据和操作](#varying-data-and-operations)'
 - en: When both data and operations may be extended by a client, the required solutions
     are more complex. In C++, the approach usually involves some kind of extension
     to the [visitor pattern](../patterns/visitor.html) along with dynamic casting.
     Because Rust does not support the kind of RTTI necessary for a dynamic cast operator,
     different approaches need to be used. Some of those approaches are discussed in
     the [chapter on the visitor pattern](../patterns/visitor.html#expression-problem).
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 当数据和操作都可能被客户端扩展时，所需的解决方案更为复杂。在C++中，通常涉及对[访问者模式](../patterns/visitor.html)的某种扩展，以及动态类型转换。由于Rust不支持动态类型转换操作所需的RTTI（运行时类型识别），需要使用不同的方法。其中一些方法在[关于访问者模式的章节](../patterns/visitor.html#expression-problem)中进行了讨论。
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Data
     modeling)'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处给我们关于此页面的反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Data
+    modeling)'

@@ -1,313 +1,467 @@
 - en: Object identity
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 对象身份
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/object_identity.html](https://cel.cs.brown.edu/crp/idioms/object_identity.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/object_identity.html](https://cel.cs.brown.edu/crp/idioms/object_identity.html)
 - en: In C++ the pointer to an object is sometimes used to represent its identity
     in terms of the logic of a program.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，对象的指针有时被用来表示程序逻辑中的其身份。
 - en: In some cases, this is a standard optimization, such as when implementing the
     copy assignment operator.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在某些情况下，这是一种标准的优化，例如在实现复制赋值运算符时。
 - en: In other cases the pointer value is used as a logical identity to distinguish
     between specific instances of an object that otherwise have the same properties.
     For example, representing a labeled graph where there may be distinct nodes that
     have the same label.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 在其他情况下，指针值被用作逻辑身份来区分具有相同属性的对象的具体实例。例如，表示一个可能具有不同标签的节点的带标签图。
 - en: In Rust, some of these cases are not applicable, and others cases are typically
     handled by instead by implementing a synthetic notion of identity for the values.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: In Rust，这些情况中的一些不适用，而其他情况通常通过实现值的合成身份概念来处理。
 - en: '[Overloading copy assignment and equality comparison operators](#overloading-copy-assignment-and-equality-comparison-operators)'
+  id: totrans-6
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[重载复制赋值和相等比较运算符](#overloading-copy-assignment-and-equality-comparison-operators)'
 - en: For example, when implementing the copy-assignment operator, one might short-circuit
     when the copied object and the assignee are the same. Note that in this use the
     pointer values are not stored.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，在实现复制赋值运算符时，如果复制的对象和被赋值的对象是相同的，可能会短路。注意，在这种情况下，指针值不会被存储。
 - en: This kind of optimization is unnecessary when implementing [Rust's equivalent
     to the copy assignment operator](./constructors/copy_and_move_constructors.html#assignment-operators)
     `Clone::clone_from`. The type of `Clone::clone_from` prevents the same object
     from being passed as both arguments, because one of the arguments is a mutable
     reference, which is exclusive, and so prevents the other reference argument from
     referring to the same object.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 在实现 [Rust 的复制赋值运算符等价物](./constructors/copy_and_move_constructors.html#assignment-operators)
+    `Clone::clone_from` 时，这种优化是不必要的。`Clone::clone_from` 的类型阻止同一个对象作为两个参数传递，因为其中一个参数是一个可变引用，它是排他的，因此阻止另一个引用参数引用同一个对象。
 - en: '[PRE0]'
+  id: totrans-9
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-10
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { struct Person {'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { struct Person {'
 - en: 'name: String,'
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: String,'
 - en: '}'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Clone for Person {
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 实现对 `Person` 的 `Clone` trait {
 - en: fn clone(&self) -> Self {
+  id: totrans-15
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn clone(&self) -> Self {
 - en: 'Self { name: self.name.clone() }'
+  id: totrans-16
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Self { name: self.name.clone() }'
 - en: '}'
+  id: totrans-17
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn clone_from(&mut self, source: &Self) {'
+  id: totrans-18
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn clone_from(&mut self, source: &Self) {'
 - en: // self and source cannot be the same here,
+  id: totrans-19
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // self 和 source 不能在这里相同，
 - en: // because that would mean there are a
+  id: totrans-20
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // because that would mean there are a
 - en: // mutable and an immutable reference to
+  id: totrans-21
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // mutable and an immutable reference to
 - en: // the same memory location. Therefore, a
+  id: totrans-22
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // the same memory location. Therefore, a
 - en: // check for assignment to self is not
+  id: totrans-23
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // check for assignment to self is not
 - en: // needed, even for the purpose of
+  id: totrans-24
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // needed, even for the purpose of
 - en: // optimization.
+  id: totrans-25
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // optimization.
 - en: self.name.clone_from(&source.name);
+  id: totrans-26
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.name.clone_from(&source.name);
 - en: '}'
+  id: totrans-27
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-30
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: In cases in C++ where most comparisons are between an object and itself (e.g.,
     the object's primary use is to be stored in a hash set), and comparison of unequal
     objects is expensive, comparing object identity might be used as optimization
     for the equality comparison operator overload.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，大多数比较都是在对象与其自身之间进行的（例如，对象的主要用途是存储在哈希集中），并且比较不等价对象是昂贵的，因此可能会使用对象身份比较作为相等比较运算符重载的优化。
 - en: For supporting similar operations in Rust, [`std::ptr::eq`](https://doc.rust-lang.org/std/ptr/fn.eq.html)
     can be used.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了在 Rust 中支持类似操作，可以使用 `std::ptr::eq`(https://doc.rust-lang.org/std/ptr/fn.eq.html)。
 - en: '[PRE3]'
+  id: totrans-33
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: '#![allow(unused)] fn main() { struct Person {'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { struct Person {'
 - en: 'name: String,'
+  id: totrans-36
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: String,'
 - en: // many other expensive-to-compare fields
+  id: totrans-37
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // many other expensive-to-compare fields
 - en: '}'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl PartialEq for Person {
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 实现对 `Person` 的 `PartialEq` trait {
 - en: 'fn eq(&self, other: &Self) -> bool {'
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn eq(&self, other: &Self) -> bool {'
 - en: if std::ptr::eq(self, other) {
+  id: totrans-41
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if std::ptr::eq(self, other) {
 - en: return true;
+  id: totrans-42
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return true;
 - en: '}'
+  id: totrans-43
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // compare other expensive-to-compare fields
+  id: totrans-44
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // compare other expensive-to-compare fields
 - en: 'true'
+  id: totrans-45
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'true'
 - en: '}'
+  id: totrans-46
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Eq for Person {}
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 实现对 `Person` 的 `Eq` trait {}
 - en: '}'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-50
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '[Distinguishing between values in a relational structure](#distinguishing-between-values-in-a-relational-structure)'
+  id: totrans-51
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[在关系结构中区分值](#distinguishing-between-values-in-a-relational-structure)'
 - en: The other use is when relationships between values are represented using a data
     structure external to the values, such as when representing a labeled graph in
     which multiple nodes might share the same label, but have edges between different
     sets of other nodes. This differs from the earlier case because the pointer value
     is preserved.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一种用法是当关系值使用外部于值的数据结构表示时，例如在表示一个标签图时，其中多个节点可能共享相同的标签，但与其他节点集之间有边。这与早期情况不同，因为指针值被保留。
 - en: One real-world example of this is in the LLVM codebase, where occurrences of
     declarations, statements, and expressions in the AST are distinguished by object
     identity. For example, variable expressions (`class DeclRefExpr`) contain the
     [pointer to the occurrence of the declaration to which the variable refers](https://github.com/llvm/llvm-project/blob/ddc48fefe389789f64713b5924a03fb2b7961ef3/clang/include/clang/AST/Expr.h#L1265C1-L1275C16).
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个现实世界的例子是在 LLVM 代码库中，其中 AST 中的声明、语句和表达式的出现通过对象标识来区分。例如，变量表达式（`class DeclRefExpr`）包含变量引用的声明出现的[指针](https://github.com/llvm/llvm-project/blob/ddc48fefe389789f64713b5924a03fb2b7961ef3/clang/include/clang/AST/Expr.h#L1265C1-L1275C16)。
 - en: 'Similarly, when comparing whether two variable declarations represent declarations
     of the same variable, [a pointer to some canonical `VarDecl` is used](https://github.com/llvm/llvm-project/blob/aa33c095617400a23a2b814c4defeb12e7761639/clang/lib/AST/Stmt.cpp#L1476-L1485):'
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 类似地，当比较两个变量声明是否代表同一变量的声明时，[使用一些规范 `VarDecl` 的指针](https://github.com/llvm/llvm-project/blob/aa33c095617400a23a2b814c4defeb12e7761639/clang/lib/AST/Stmt.cpp#L1476-L1485)：
 - en: '[PRE6]'
+  id: totrans-55
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: This kind of use is often discouraged in C++ because of the risk of use-after-free
     bugs, but might be used in performance sensitive applications where either storing
     the memory to represent the mapping or the additional indirection to resolve an
     entity's value from its identity is cost prohibitive.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种用法在 C++ 中通常是不被鼓励的，因为存在使用后释放的漏洞风险，但在性能敏感的应用程序中可能会使用，在这些应用程序中，存储表示映射的内存或从标识符解析实体值所需的额外间接引用的成本是过高的。
 - en: In Rust it is generally preferred to represent the identity of the objects with
     synthetic identifiers. This is in part as a technique for modeling self-referential
     data structures.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，通常更喜欢使用合成标识符来表示对象的标识。这在一定程度上是一种用于建模自引用数据结构的技巧。
 - en: As an example, one popular Rust graph library [petgraph](https://docs.rs/petgraph/latest/petgraph/)
     uses `u32` as its default node identity type. This incurs the cost of an extra
     call to dereference the synthetic identifier to the label of the represented node
     as well as the extra memory required to store the mapping from nodes to labels.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，一个流行的 Rust 图库 [petgraph](https://docs.rs/petgraph/latest/petgraph/) 使用 `u32`
+    作为其默认节点标识类型。这导致了额外的调用以解引用合成标识符到表示节点的标签，以及存储节点到标签映射所需的额外内存。
 - en: A simplified graph representation using the same synthetic identifier technique
     would look like the following, which represents the node identities by their index
     in the vectors that represent the labels and the edges.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用相同的合成标识符技术的一个简化的图表示如下，它通过表示标签和边的向量的索引来表示节点标识。
 - en: '[PRE7]'
+  id: totrans-60
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: '#![allow(unused)] fn main() { enum Color {'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { enum Color {'
 - en: Red,
+  id: totrans-62
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Red,
 - en: Blue
+  id: totrans-63
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Blue
 - en: '}'
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct Graph {
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Graph {
 - en: /// Maps from node id to node labels, which here are colors.
+  id: totrans-66
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 从节点 ID 到节点标签的映射，在这里是颜色。
 - en: 'nodes_labels: Vec<Color>,'
+  id: totrans-67
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'nodes_labels: Vec<Color>,'
 - en: /// Maps from node id to adjacent nodes ids.
+  id: totrans-68
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: /// 从节点 ID 到相邻节点 ID 的映射。
 - en: 'edges: Vec<Vec<usize>>,'
+  id: totrans-69
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'edges: Vec<Vec<usize>>,'
 - en: '}'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE8]'
+  id: totrans-72
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: If performance requirements make the use of synthetic identifiers unacceptable,
     then it may be necessary to use prevent the value from being moved. The [`Pin`
     and `PhantomPinned` structs](https://doc.rust-lang.org/std/pin/index.html) can
     be used to achieve an effect similar to deleting the move constructor in C++.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果性能要求使得使用合成标识符不可接受，那么可能需要使用防止值移动。可以使用 `Pin` 和 `PhantomPinned` 结构体（[链接](https://doc.rust-lang.org/std/pin/index.html)）来实现类似于在
+    C++ 中删除移动构造函数的效果。
 - en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Object
     identity)
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [点击此处给我们关于此页面的反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Object
+    identity)

@@ -1,547 +1,798 @@
 - en: Tagged unions and std::variant
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 标签联合和 std::variant
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/tagged_unions.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/tagged_unions.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/tagged_unions.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/tagged_unions.html)
 - en: '[C-style tagged unions](#c-style-tagged-unions)'
+  id: totrans-2
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[C 风格的标签联合](#c-style-tagged-unions)'
 - en: Because unions cannot be used for type punning in C++, they are usually used
     with a tag to discriminate between which variant of the union is active.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为在 C++ 中联合不能用于类型欺骗，所以它们通常与标签一起使用，以区分联合的哪个变体是活动的。
 - en: Rust's equivalent to union types are always tagged. They are a generalization
     of Rust enums, where additional data may be associated with the enum variants.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 的联合类型等价物总是带标签的。它们是 Rust 枚举的泛化，枚举变体可以关联额外的数据。
 - en: '[PRE0]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { enum Shape {'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { enum Shape {'
 - en: 'Rectangle { width: f64, height: f64 },'
+  id: totrans-8
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Rectangle { width: f64, height: f64 },'
 - en: 'Triangle { base: f64, height: f64 },'
+  id: totrans-9
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Triangle { base: f64, height: f64 },'
 - en: '}'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Shape {
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Shape {
 - en: fn area(&self) -> f64 {
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64 {
 - en: match self {
+  id: totrans-13
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match self {
 - en: Shape::Rectangle {
+  id: totrans-14
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Rectangle {
 - en: width,
+  id: totrans-15
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: width,
 - en: height,
+  id: totrans-16
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: height,
 - en: '} => width * height,'
+  id: totrans-17
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} => width * height,'
 - en: Shape::Triangle { base, height } => {
+  id: totrans-18
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Triangle { base, height } => {
 - en: 0.5 * base * height
+  id: totrans-19
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 0.5 * base * height
 - en: '}'
+  id: totrans-20
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-21
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-22
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-25
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: When matching on an enum, Rust requires that all variants of the enum be handled.
     In situations where `default` would be used with a C++ `switch` on the tag, a
     wildcard can be used in the Rust `match`.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 当匹配枚举时，Rust 要求处理枚举的所有变体。在 C++ 标签 `switch` 上使用 `default` 的情况下，Rust 的 `match`
+    中可以使用通配符。
 - en: '[PRE3]'
+  id: totrans-27
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-28
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: '#![allow(unused)] fn main() { enum Shape {'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { enum Shape {'
 - en: 'Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 },
     }   impl Shape {'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 'Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 },
+    }   impl Shape {'
 - en: fn print_shape(&self) {
+  id: totrans-31
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn print_shape(&self) {
 - en: match self {
+  id: totrans-32
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match self {
 - en: Shape::Rectangle { .. } => {
+  id: totrans-33
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Rectangle { .. } => {
 - en: println!("Rectangle");
+  id: totrans-34
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("Rectangle");
 - en: '}'
+  id: totrans-35
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: _ => {
+  id: totrans-36
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: _ => {
 - en: println!("Some other shape");
+  id: totrans-37
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("Some other shape");
 - en: '}'
+  id: totrans-38
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-39
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-43
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Rust does not support C++-style fallthrough where some behavior can be done
     before falling through to the next case. However, in Rust one can match on multiple
     enum variants simultaneously, so long as the simultaneous match patterns bind
     the same names with the same types.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 不支持 C++ 风格的 fallthrough，其中可以在转到下一个情况之前执行某些行为。然而，在 Rust 中，只要同时匹配的枚举变体绑定相同的名称和类型，就可以同时匹配多个枚举变体。
 - en: '[PRE6]'
+  id: totrans-45
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '#![allow(unused)] fn main() { enum Shape {'
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { enum Shape {'
 - en: 'Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 },
     }   impl Shape {'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 'Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 },
+    }   impl Shape {'
 - en: fn bounding_area(&self) -> f64 {
+  id: totrans-48
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn bounding_area(&self) -> f64 {
 - en: match self {
+  id: totrans-49
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match self {
 - en: Shape::Rectangle { height, width }
+  id: totrans-50
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Rectangle { height, width }
 - en: '| Shape::Triangle {'
+  id: totrans-51
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: height,
+  id: totrans-52
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: height,
 - en: 'base: width,'
+  id: totrans-53
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: width,'
 - en: '} => width * height,'
+  id: totrans-54
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} => width * height,'
 - en: '}'
+  id: totrans-55
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-56
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE7]'
+  id: totrans-59
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: '[Accessing the value without checking the discriminant](#accessing-the-value-without-checking-the-discriminant)'
+  id: totrans-60
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[访问值而不检查判别符](#accessing-the-value-without-checking-the-discriminant)'
 - en: Unlike with C-style unions, Rust always requires matching on the discriminant
     before accessing the values. If the variant is already known, e.g., due to an
     earlier check, then the code can usually be refactored to encode the knowledge
     in the type so that the second check (and corresponding error handling) can be
     omitted.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 与 C 风格的联合不同，Rust 总是在访问值之前要求匹配判别符。如果变体已经已知，例如，由于早期的检查，则通常可以将代码重构为在类型中编码知识，从而省略第二次检查（以及相应的错误处理）。
 - en: A C++ program like the following requires more restructuring of the types to
     achieve the same goal in Rust.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 类似于以下 C++ 程序的程序需要在 Rust 中对类型进行更多重构才能达到相同的目标。
 - en: The corresponding Rust program requires defining separate types for each variant
     of the `Shape` enum so that the fact that all of the value are of a given type
     can be expressed in the type system by having an array of `Triangle` instead of
     an array of `Shape`.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 对应的 Rust 程序需要为 `Shape` 枚举的每个变体定义单独的类型，以便通过使用 `Triangle` 数组而不是 `Shape` 数组来在类型系统中表达所有值都是给定类型的事实。
 - en: '[PRE8]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: '[PRE9]'
+  id: totrans-65
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: // Define a separate struct for each variant.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: // 为每个变体定义一个单独的结构体。
 - en: 'struct Rectangle { width: f64, height: f64 }'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 'struct Rectangle { width: f64, height: f64 }'
 - en: 'struct  Triangle { base: f64, height: f64 }'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 'struct  Triangle { base: f64, height: f64 }'
 - en: enum Shape {
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: enum Shape {
 - en: Rectangle(Rectangle),
+  id: totrans-70
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Rectangle(Rectangle),
 - en: Triangle(Triangle),
+  id: totrans-71
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Triangle(Triangle),
 - en: '}'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn get_shapes() -> Vec<Shape> {
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: fn get_shapes() -> Vec<Shape> {
 - en: vec![
+  id: totrans-74
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: vec![
 - en: Shape::Triangle(Triangle {
+  id: totrans-75
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Triangle(Triangle {
 - en: 'base: 1.0,'
+  id: totrans-76
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: 1.0,'
 - en: 'height: 1.0,'
+  id: totrans-77
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 1.0,'
 - en: '}),'
+  id: totrans-78
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}),'
 - en: Shape::Triangle(Triangle {
+  id: totrans-79
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Triangle(Triangle {
 - en: 'base: 1.0,'
+  id: totrans-80
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: 1.0,'
 - en: 'height: 1.0,'
+  id: totrans-81
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 1.0,'
 - en: '}),'
+  id: totrans-82
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}),'
 - en: Shape::Rectangle(Rectangle {
+  id: totrans-83
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Rectangle(Rectangle {
 - en: 'width: 1.0,'
+  id: totrans-84
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'width: 1.0,'
 - en: 'height: 1.0,'
+  id: totrans-85
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 1.0,'
 - en: '}),'
+  id: totrans-86
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}),'
 - en: ']'
+  id: totrans-87
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ']'
 - en: '}'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let shapes = get_shapes();
+  id: totrans-90
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let shapes = get_shapes();
 - en: // This iterator only iterates over triangles
+  id: totrans-91
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 这个迭代器仅遍历三角形
 - en: // and demonstrates that by iterating over
+  id: totrans-92
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 通过迭代
 - en: // the Triangle type instead of the Shape type.
+  id: totrans-93
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用三角形类型而不是形状类型。
 - en: let triangles = shapes
+  id: totrans-94
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let triangles = shapes
 - en: .iter()
+  id: totrans-95
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .iter()
 - en: // Keep only the triangles
+  id: totrans-96
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 仅保留三角形
 - en: .filter_map(|shape| match shape {
+  id: totrans-97
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .filter_map(|shape| match shape {
 - en: Shape::Triangle(t) => Some(t),
+  id: totrans-98
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Triangle(t) => Some(t),
 - en: _ => None,
+  id: totrans-99
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: _ => None,
 - en: '});'
+  id: totrans-100
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '});'
 - en: let mut total_base = 0.0;
+  id: totrans-101
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut total_base = 0.0;
 - en: for triangle in triangles {
+  id: totrans-102
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for triangle in triangles {
 - en: // Because the iterator produces Triangles
+  id: totrans-103
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 因为迭代器产生三角形
 - en: // instead of Shapes, base can be accessed
+  id: totrans-104
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 而不是 Shapes，可以直接访问 base
 - en: // directly.
+  id: totrans-105
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 直接访问。
 - en: total_base += triangle.base;
+  id: totrans-106
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: total_base += triangle.base;
 - en: '}'
+  id: totrans-107
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE10]'
+  id: totrans-109
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: This kind of use is common enough in Rust that the variants are often designed
     to have their own types from the start.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，这种用法很常见，变体通常从一开始就被设计成具有自己的类型。
 - en: This approach is also possible in C++. It is more commonly used along with `std::variant`
     in C++17 or later.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，这种方法也是可能的。它在 C++17 或更高版本中通常与 `std::variant` 一起使用。
 - en: '[`std::variant` (since C++17)](#stdvariant-since-c17)'
+  id: totrans-112
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[`std::variant` (since C++17)](#stdvariant-since-c17)'
 - en: When programming in C++ standards since C++17, `std::variant` can be used to
     represent a tagged union in a way that has more in common with Rust enums.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 当在 C++17 标准下编程时，`std::variant` 可以用来以更接近 Rust 枚举的方式表示标签联合。
 - en: '[PRE11]'
+  id: totrans-114
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: Because Rust doesn't depend on templates for this language feature, error messages
     when a variant is missed or when a new variant is added are easier to read, which
     removes one of the barriers to using tagged unions more frequently. Compare the
     errors in C++ (using gcc) and Rust when the `Triangle` case is omitted.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为 Rust 不依赖于模板来实现这种语言特性，所以当遗漏或添加新的标签联合变体时，错误信息更容易阅读，这消除了使用标签联合的障碍之一。比较 C++（使用
+    gcc）和 Rust 在省略 `Triangle` 情况下的错误。
 - en: 'The following two programs have the same error: each fails to handle a case
     of `Shape`.'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 'The following two programs have the same error: each fails to handle a case
+    of `Shape`.'
 - en: '[PRE12]'
+  id: totrans-117
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: '[PRE13]'
+  id: totrans-118
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: However, the error messages differ significantly.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，错误信息差异很大。
 - en: '[PRE14]'
+  id: totrans-120
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: '[PRE15]'
+  id: totrans-121
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: '[Using unsafe Rust to avoid checking the discriminant](#using-unsafe-rust-to-avoid-checking-the-discriminant)'
+  id: totrans-122
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[使用不安全的 Rust 来避免检查判别符](#using-unsafe-rust-to-avoid-checking-the-discriminant)'
 - en: In situations where rewriting code to use the [above approach](#accessing-the-value-without-checking-the-discriminant)
     is not possible, one can check the discriminant anyway and then use the [`unreachable!`
     macro](https://doc.rust-lang.org/std/macro.unreachable.html) to avoid handling
@@ -551,89 +802,138 @@
     can be used to both avoid handling the case and to indicate to the compiler that
     the optimizer should assume that the case cannot be reached, so the discriminant
     check can be optimized away.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 在无法重写代码以使用 [上述方法](#accessing-the-value-without-checking-the-discriminant) 的情况下，仍然可以检查判别符，然后使用
+    [`unreachable!` 宏](https://doc.rust-lang.org/std/macro.unreachable.html) 来避免处理不可能的情况。然而，这仍然涉及到实际检查判别符。如果必须避免检查判别符的成本，则可以使用
+    [不安全的函数 `unreachable_unchecked`](https://doc.rust-lang.org/std/hint/fn.unreachable_unchecked.html)
+    来避免处理该情况，并指示编译器优化器应假设该情况无法到达，从而可以优化掉判别符检查。
 - en: Much like how in the C++ example accessing an inactive variant is undefined
     behavior, reaching `unreachable_unchecked` is also undefined behavior. As with
     any `unsafe`-based performance optimizations, you always should measure the performance
     impact of safety checks first, and only reach for unsafe code if absolutely necessary.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 与在 C++ 示例中访问非活动变体是未定义行为类似，到达 `unreachable_unchecked` 也是未定义行为。与任何基于 `unsafe`
+    的性能优化一样，您始终应该首先测量安全检查的性能影响，并且只有在绝对必要时才求助于 `unsafe` 代码。
 - en: '[PRE16]'
+  id: totrans-125
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: enum Shape {
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: enum Shape {
 - en: 'Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 },
     }   impl Shape {'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 'Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 },
+    }   impl Shape {'
 - en: fn area(&self) -> f64 { match self { Shape::Rectangle { width, height, } =>
     width * height, Shape::Triangle { base, height } => { 0.5 * base * height } }
     } }   fn get_triangles() -> Vec<Shape> {
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: fn area(&self) -> f64 { match self { Shape::Rectangle { width, height, } =>
+    width * height, Shape::Triangle { base, height } => { 0.5 * base * height } }
+    } }   fn get_triangles() -> Vec<Shape> {
 - en: 'vec![ Shape::Triangle { base: 1.0, height: 1.0, }, Shape::Triangle { base:
     1.0, height: 1.0, }, ] }   use std::hint::unreachable_unchecked;'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 'vec![ Shape::Triangle { base: 1.0, height: 1.0, }, Shape::Triangle { base:
+    1.0, height: 1.0, }, ] }   use std::hint::unreachable_unchecked;'
 - en: fn main() {
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut total_base = 0.0;
+  id: totrans-131
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut total_base = 0.0;
 - en: for triangle in get_triangles() {
+  id: totrans-132
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for triangle in get_triangles() {
 - en: let Shape::Triangle { base, .. } = triangle else {
+  id: totrans-133
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Shape::Triangle { base, .. } = triangle else {
 - en: '// SAFETY: get_triangles is guaranteed to produce triangles, so'
+  id: totrans-134
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 安全性：get_triangles 确保会生成三角形，所以
 - en: // other cases aren't reachable.
+  id: totrans-135
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 其他情况无法到达。
 - en: unsafe { unreachable_unchecked() }
+  id: totrans-136
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: unsafe { unreachable_unchecked() }
 - en: '};'
+  id: totrans-137
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: total_base += base;
+  id: totrans-138
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: total_base += base;
 - en: '}'
+  id: totrans-139
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE17]'
+  id: totrans-141
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Tagged
     unions and std::variant)
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为我们关于此页面的反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Tagged
+    unions and std::variant)

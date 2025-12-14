@@ -1,645 +1,931 @@
 - en: Private constructors
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 私有构造函数
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/private_constructors.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/private_constructors.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: '[https://cel.cs.brown.edu/crp/idioms/encapsulation/private_constructors.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/private_constructors.html)'
 - en: In C++ constructors for classes can be made private by declaring them private,
     or by defining a class using `class` and using the default private visibility.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，可以通过声明为私有或使用 `class` 定义类并使用默认的私有可见性来使类的构造函数私有。
 - en: In Rust, constructors (the actual constructors, not ["constructor methods"](../constructors.html))
     for structs are visible from wherever the type and all fields are visible. To
     achieve similar visibility restrictions as in the C++ example, an additional private
     field needs to be added to the struct in Rust. Because Rust supports zero-sized
     types, the additional field can have no performance cost. The [unit type](https://doc.rust-lang.org/std/primitive.unit.html)
     has zero size and can be used for this purpose.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，结构体的构造函数（实际的构造函数，而不是 ["构造方法"](../constructors.html)）在类型及其所有字段可见的地方都是可见的。为了实现与
+    C++ 示例中类似的可见性限制，需要在 Rust 中的结构体中添加一个额外的私有字段。因为 Rust 支持零大小类型，所以额外的字段不会产生性能成本。[单元类型](https://doc.rust-lang.org/std/primitive.unit.html)
+    零大小，可以用于此目的。
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: mod person {
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: mod person {
 - en: pub struct Person {
+  id: totrans-7
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct Person {
 - en: 'pub name: String,'
+  id: totrans-8
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub name: String,'
 - en: 'pub age: i32,'
+  id: totrans-9
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub age: i32,'
 - en: '_private: (),'
+  id: totrans-10
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '_private: (),'
 - en: '}'
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Person {
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl Person {
 - en: pub fn new(
+  id: totrans-13
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn new(
 - en: 'name: String,'
+  id: totrans-14
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: String,'
 - en: 'age: i32,'
+  id: totrans-15
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: ) -> Person {
+  id: totrans-16
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) -> Person {
 - en: Person {
+  id: totrans-17
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Person {
 - en: name,
+  id: totrans-18
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: name,
 - en: age,
+  id: totrans-19
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: age,
 - en: '_private: (),'
+  id: totrans-20
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '_private: (),'
 - en: '}'
+  id: totrans-21
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-22
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-23
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: use person::*;
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: use person::*;
 - en: fn main() {
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: // field `_private` of struct `person::Person`
+  id: totrans-27
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 结构 `person::Person` 的 `_private` 字段
 - en: // is private
+  id: totrans-28
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 是私有的
 - en: // let alice = Person {
+  id: totrans-29
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // let alice = Person {
 - en: '//     name: "Alice".to_string(),'
+  id: totrans-30
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '//     name: "Alice".to_string(),'
 - en: '//     age: 42,'
+  id: totrans-31
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '//     age: 42,'
 - en: '//     _private: (),'
+  id: totrans-32
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '//     _private: (),'
 - en: // };
+  id: totrans-33
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // };
 - en: // cannot construct `person::Person` with
+  id: totrans-34
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 不能使用
 - en: // struct literal syntax due to private fields
+  id: totrans-35
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 由于私有字段，使用结构字面量语法
 - en: // let bob = Person {
+  id: totrans-36
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '//     name: "Bob".to_string(),'
+  id: totrans-37
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '//     name: "Bob".to_string(),'
 - en: '//     age: 55,'
+  id: totrans-38
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '//     age: 55,'
 - en: // };
+  id: totrans-39
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // };
 - en: let carol =
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let carol =
 - en: Person::new("Carol".to_string(), 20);
+  id: totrans-41
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Person::new("Carol".to_string(), 20);
 - en: // Can match on the public fields, and then
+  id: totrans-42
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 可以匹配公共字段，然后
 - en: // use .. to ignore the remaning ones.
+  id: totrans-43
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用 .. 忽略剩余的。
 - en: let Person { name, age, .. } = carol;
+  id: totrans-44
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Person { name, age, .. } = carol;
 - en: '}'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-46
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: '[Enums](#enums)'
+  id: totrans-47
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[枚举](#enums)'
 - en: Unlike C++ unions, but like `std::variant`, Rust enums do not have direct control
     over the visibility of their variants or the fields of their variants. In the
     following example, the `circle` variant of the `Shape` union is not public, so
     it can only be accessed from within the definition of `Shape`, as it is by the
     `make_circle` static method.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 与 C++ 联合不同，但与 `std::variant` 相似，Rust 枚举没有直接控制其变体或变体字段的可见性。在下面的示例中，`Shape` 联合的
+    `circle` 变体不是公开的，因此只能从 `Shape` 的定义内部访问，就像 `make_circle` 静态方法那样。
 - en: '[PRE3]'
+  id: totrans-49
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: In Rust visibility modifiers cannot be applied to individual enum variants or
     their fields.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，可见性修饰符不能应用于单个枚举变体或其字段。
 - en: '[PRE4]'
+  id: totrans-51
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: mod shape {
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: mod shape {
 - en: pub enum Shape {
+  id: totrans-53
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub enum Shape {
 - en: 'Triangle { base: f64, height: f64 },'
+  id: totrans-54
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Triangle { base: f64, height: f64 },'
 - en: 'Circle { radius: f64 },'
+  id: totrans-55
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Circle { radius: f64 },'
 - en: '}'
+  id: totrans-56
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: use shape::*;
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: use shape::*;
 - en: fn main() {
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: // Variant constructor is accesssible despite not being marked pub.
+  id: totrans-60
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 尽管没有标记为 pub，变体构造函数仍然是可访问的。
 - en: let triangle = Shape::Triangle {
+  id: totrans-61
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let triangle = Shape::Triangle {
 - en: 'base: 1.0,'
+  id: totrans-62
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: 1.0,'
 - en: 'height: 2.0,'
+  id: totrans-63
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 2.0,'
 - en: '};'
+  id: totrans-64
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: 'let circle = Shape::Circle { radius: 1.0 };'
+  id: totrans-65
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let circle = Shape::Circle { radius: 1.0 };'
 - en: // Fields accessbile despite not being marked pub.
+  id: totrans-66
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 尽管没有标记为 pub，字段仍然是可访问的。
 - en: match circle {
+  id: totrans-67
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match circle {
 - en: Shape::Triangle { base, height } => {
+  id: totrans-68
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Triangle { base, height } => {
 - en: 'println!("Triangle: {}, {}", base, height);'
+  id: totrans-69
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'println!("Triangle: {}, {}", base, height);'
 - en: '}'
+  id: totrans-70
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Shape::Circle { radius } => {
+  id: totrans-71
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Circle { radius } => {
 - en: println!("Circle {}", radius);
+  id: totrans-72
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("Circle {}", radius);
 - en: '}'
+  id: totrans-73
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-74
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-76
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Instead, to control construction of and pattern matching on the enum implementation,
     one of two approaches can be taken. The first controls construction of and access
     to the fields, but not inspection of which variant is active.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 相反，为了控制枚举实现的构建和模式匹配，可以采取两种方法之一。第一种控制字段的构建和访问，但不能检查哪个变体是活动的。
 - en: '[PRE6]'
+  id: totrans-78
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: mod shape {
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: mod shape {
 - en: pub struct Triangle {
+  id: totrans-80
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct Triangle {
 - en: 'pub base: f64,'
+  id: totrans-81
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub base: f64,'
 - en: 'pub height: f64,'
+  id: totrans-82
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub height: f64,'
 - en: '_private: (),'
+  id: totrans-83
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '_private: (),'
 - en: '}'
+  id: totrans-84
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: pub struct Circle {
+  id: totrans-85
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct Circle {
 - en: 'pub radius: f64,'
+  id: totrans-86
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub radius: f64,'
 - en: '_private: (),'
+  id: totrans-87
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '_private: (),'
 - en: '}'
+  id: totrans-88
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: pub enum Shape {
+  id: totrans-89
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub enum Shape {
 - en: Triangle(Triangle),
+  id: totrans-90
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Triangle(Triangle),
 - en: Circle(Circle),
+  id: totrans-91
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Circle(Circle),
 - en: '}'
+  id: totrans-92
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Shape {
+  id: totrans-93
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl Shape {
 - en: 'pub fn new_triangle(base: f64, height: f64) -> Shape {'
+  id: totrans-94
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub fn new_triangle(base: f64, height: f64) -> Shape {'
 - en: Shape::Triangle(Triangle {
+  id: totrans-95
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Triangle(Triangle {
 - en: base,
+  id: totrans-96
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: base,
 - en: height,
+  id: totrans-97
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: height,
 - en: '_private: (),'
+  id: totrans-98
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '_private: (),'
 - en: '})'
+  id: totrans-99
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '})'
 - en: '}'
+  id: totrans-100
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'pub fn new_circle(radius: f64) -> Shape {'
+  id: totrans-101
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub fn new_circle(radius: f64) -> Shape {'
 - en: Shape::Circle(Circle {
+  id: totrans-102
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Circle(Circle {
 - en: radius,
+  id: totrans-103
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: radius,
 - en: '_private: (),'
+  id: totrans-104
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '_private: (),'
 - en: '})'
+  id: totrans-105
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '})'
 - en: '}'
+  id: totrans-106
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-107
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: use shape::*;
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: use shape::*;
 - en: fn main() {
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let triangle = Shape::new_triangle(1.0, 2.0);
+  id: totrans-111
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let triangle = Shape::new_triangle(1.0, 2.0);
 - en: let circle = Shape::new_circle(1.0);
+  id: totrans-112
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let circle = Shape::new_circle(1.0);
 - en: match circle {
+  id: totrans-113
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match circle {
 - en: Shape::Triangle(Triangle { base, height, .. }) => {
+  id: totrans-114
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Triangle(Triangle { base, height, .. }) => {
 - en: 'println!("Triangle: {}, {}", base, height);'
+  id: totrans-115
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'println!("三角形: {}, {}", base, height);'
 - en: '}'
+  id: totrans-116
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Shape::Circle(Circle { radius, .. }) => {
+  id: totrans-117
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape::Circle(Circle { radius, .. }) => {
 - en: 'println!("Circle: {}", radius);'
+  id: totrans-118
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'println!("圆: {}", radius);'
 - en: '}'
+  id: totrans-119
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-120
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE7]'
+  id: totrans-122
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The second places the enum in a struct with a private field, preventing both
     construction and inspection from outside of the module.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二种方法将枚举放在具有私有字段的struct中，防止从模块外部进行构造和检查。
 - en: '[PRE8]'
+  id: totrans-124
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: mod shape {
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: mod shape {
 - en: enum ShapeKind {
+  id: totrans-126
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: enum ShapeKind {
 - en: 'Triangle { base: f64, height: f64 },'
+  id: totrans-127
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Triangle { base: f64, height: f64 },'
 - en: 'Circle { radius: f64 },'
+  id: totrans-128
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Circle { radius: f64 },'
 - en: '}'
+  id: totrans-129
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: pub struct Shape(ShapeKind);
+  id: totrans-130
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct Shape(ShapeKind);
 - en: impl Shape {
+  id: totrans-131
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl Shape {
 - en: 'pub fn new_circle(radius: f64) -> Shape {'
+  id: totrans-132
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub fn new_circle(radius: f64) -> Shape {'
 - en: Shape(ShapeKind::Circle { radius })
+  id: totrans-133
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape(ShapeKind::Circle { radius })
 - en: '}'
+  id: totrans-134
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'pub fn new_triangle(base: f64, height: f64) -> Shape {'
+  id: totrans-135
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub fn new_triangle(base: f64, height: f64) -> Shape {'
 - en: Shape(ShapeKind::Triangle { base, height })
+  id: totrans-136
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Shape(ShapeKind::Triangle { base, height })
 - en: '}'
+  id: totrans-137
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: pub fn print(&self) {
+  id: totrans-138
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn print(&self) {
 - en: match self.0 {
+  id: totrans-139
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match self.0 {
 - en: ShapeKind::Triangle { base, height } => {
+  id: totrans-140
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ShapeKind::Triangle { base, height } => {
 - en: 'println!("Triangle: {}, {}", base, height);'
+  id: totrans-141
   prefs:
   - PREF_IND
   - PREF_IND
@@ -647,21 +933,27 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'println!("三角形: {}, {}", base, height);'
 - en: '}'
+  id: totrans-142
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: ShapeKind::Circle { radius } => {
+  id: totrans-143
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ShapeKind::Circle { radius } => {
 - en: 'println!("Circle: {}", radius);'
+  id: totrans-144
   prefs:
   - PREF_IND
   - PREF_IND
@@ -669,344 +961,504 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'println!("圆: {}", radius);'
 - en: '}'
+  id: totrans-145
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-146
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-147
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-148
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: use shape::*;
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: use shape::*;
 - en: fn main() {
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let triangle = Shape::new_triangle(1.0, 2.0);
+  id: totrans-152
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let triangle = Shape::new_triangle(1.0, 2.0);
 - en: let circle = Shape::new_circle(1.0);
+  id: totrans-153
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let circle = Shape::new_circle(1.0);
 - en: // Does not compile because Shape has private fields.
+  id: totrans-154
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 由于Shape具有私有字段，无法编译。
 - en: // match circle {
+  id: totrans-155
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // match circle {
 - en: //   Shape(_) -> {}
+  id: totrans-156
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: //   Shape(_) -> {}
 - en: // }
+  id: totrans-157
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // }
 - en: circle.print();
+  id: totrans-158
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: circle.print();
 - en: '}'
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE9]'
+  id: totrans-160
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: If the purpose of making the variants private is to ensure that invariants are
     met, then it can be useful to expose the implementing enum (`ShapeKind`) but not
     the field of the wrapping struct (`Shape`), with the invariants only being guaranteed
     when the wrapping struct is used. In this case, it is necessary to make the field
     private and define a getter function, since otherwise the field would be modifiable,
     possibly violating the invariant that the wrapping struct represents.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果将变体设置为私有的目的是确保满足不变量，那么在保证封装结构体（Shape）使用时才保证不变量的情况下，暴露实现枚举（ShapeKind）但不暴露封装结构体的字段是有用的。在这种情况下，需要将字段设置为私有并定义一个获取器函数，因为否则字段将是可修改的，可能会违反封装结构体表示的不变量。
 - en: '[PRE10]'
+  id: totrans-162
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: mod shape {
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: mod shape {
 - en: pub enum ShapeKind {
+  id: totrans-164
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub enum ShapeKind {
 - en: 'Triangle { base: f64, height: f64 },'
+  id: totrans-165
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Triangle { base: f64, height: f64 },'
 - en: 'Circle { radius: f64 },'
+  id: totrans-166
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Circle { radius: f64 },'
 - en: '}'
+  id: totrans-167
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // The field of Shape is private.
+  id: totrans-168
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // Shape的字段是私有的。
 - en: pub struct Shape(ShapeKind);
+  id: totrans-169
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct Shape(ShapeKind);
 - en: impl Shape {
+  id: totrans-170
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl Shape {
 - en: 'pub fn new(kind: ShapeKind) -> Option<Shape> {'
+  id: totrans-171
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub fn new(kind: ShapeKind) -> Option<Shape> {'
 - en: // ... check invariants ...
+  id: totrans-172
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...检查不变量...
 - en: Some(Shape(kind))
+  id: totrans-173
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(Shape(kind))
 - en: '}'
+  id: totrans-174
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: pub fn get_kind(&self) -> &ShapeKind {
+  id: totrans-175
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn get_kind(&self) -> &ShapeKind {
 - en: '&self.0'
+  id: totrans-176
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '&self.0'
 - en: '}'
+  id: totrans-177
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-178
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: use shape::*;
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: use shape::*;
 - en: fn main() {
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let triangle = Shape::new(ShapeKind::Triangle {
+  id: totrans-182
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let triangle = Shape::new(ShapeKind::Triangle {
 - en: 'base: 1.0,'
+  id: totrans-183
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'base: 1.0,'
 - en: 'height: 2.0,'
+  id: totrans-184
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'height: 2.0,'
 - en: '});'
+  id: totrans-185
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '});'
 - en: 'let Some(circle) = Shape::new(ShapeKind::Circle { radius: 1.0 }) else {'
+  id: totrans-186
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let Some(circle) = Shape::new(ShapeKind::Circle { radius: 1.0 }) else {'
 - en: return;
+  id: totrans-187
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-188
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // Does not compile because Shape has private fields.
+  id: totrans-189
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 由于Shape具有私有字段，无法编译。
 - en: // match circle {
+  id: totrans-190
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // match circle {
 - en: //   Shape(c) => {}
+  id: totrans-191
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: //   Shape(c) => {}
 - en: // };
+  id: totrans-192
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // };
 - en: match circle.get_kind() {
+  id: totrans-193
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match circle.get_kind() {
 - en: ShapeKind::Triangle { base, height } => {
+  id: totrans-194
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ShapeKind::Triangle { base, height } => {
 - en: 'println!("Triangle: {}, {}", base, height);'
+  id: totrans-195
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'println!("三角形: {}, {}", base, height);'
 - en: '}'
+  id: totrans-196
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: ShapeKind::Circle { radius } => {
+  id: totrans-197
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ShapeKind::Circle { radius } => {
 - en: 'println!("Circle: {}", radius);'
+  id: totrans-198
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'println!("圆: {}", radius);'
 - en: '}'
+  id: totrans-199
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-200
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE11]'
+  id: totrans-202
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: The situation in Rust resembles the situation in C++ when using `std::variant`,
     for which it is not possible to make the variants themselves private. Instead
     either the constructors for the types that form the variants can be made private
     or the variant can be wrapped in a class with appropriate visibility controls.
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust中的情况类似于使用C++的`std::variant`时的情形，对于`std::variant`，无法使变体本身私有。相反，可以使得构成变体的类型的构造函数私有，或者将变体封装在具有适当可见性控制的类中。
 - en: '[Rust''s `#[non_exhaustive]` annotation](#rusts-non_exhaustive-annotation)'
+  id: totrans-204
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[Rust的`#[非穷尽性]`注解](#rusts-non_exhaustive-annotation)'
 - en: If a struct or enum is intended to be public within a [crate](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html),
     but should not be constructed outside of the crate, then the `#[non_exhaustive]`
     attribute can be used to constrain construction. The attribute can be applied
     to both structs and to individual enum variants with the same effect as adding
     a private field.
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果一个结构体或枚举打算在[crate](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html)内部公开，但不应该在crate外部构造，那么可以使用`#[非穷尽性]`属性来约束构造。该属性可以应用于结构体和单个枚举变体，效果与添加私有字段相同。
 - en: However, the attribute applies the constraint at the level of the crate, not
     at the level of a module.
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，该属性在crate级别应用约束，而不是在模块级别。
 - en: '[PRE12]'
+  id: totrans-207
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: '#![allow(unused)] fn main() { #[non_exhaustive]'
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { #[非穷尽性]'
 - en: pub struct Person {
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: pub struct Person {
 - en: 'pub name: String,'
+  id: totrans-210
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub name: String,'
 - en: 'pub age: i32,'
+  id: totrans-211
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub age: i32,'
 - en: '}'
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: pub enum Shape {
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: pub enum Shape {
 - en: '#[non_exhaustive]'
+  id: totrans-214
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '#[非穷尽性]'
 - en: 'Triangle { base: f64, height: f64 },'
+  id: totrans-215
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Triangle { base: f64, height: f64 },'
 - en: '#[non_exhaustive]'
+  id: totrans-216
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '#[非穷尽性]'
 - en: 'Circle { radius: f64 },'
+  id: totrans-217
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Circle { radius: f64 },'
 - en: '}'
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE13]'
+  id: totrans-220
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: The attribute is more typically used to force clients of a library to include
     the wildcard when matching on the struct fields, making it so that adding additional
     fields to a struct is not breaking change (i.e., that it does not [require the
     increase of the major version component when using semantic versioning](https://doc.rust-lang.org/cargo/reference/semver.html)).
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 该属性通常用于强制库的客户端在匹配结构体字段时包含通配符，使得向结构体添加额外字段不会引起破坏性变更（即，在使用语义版本控制时不需要增加主版本组件[链接](https://doc.rust-lang.org/cargo/reference/semver.html)）。
 - en: Applying the `#[non_exhaustive]` attribute to the enum itself makes it as if
     one of the variants were private, requiring a wildcard when matching on the variant
     itself. This has the same effect in terms of versioning as when used on a struct
     but is less advantageous. In most cases, code failing to compile when a new enum
     variant is added is desirable, since that indicates a new case that requires handling
     logic.
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: 将`#[非穷尽性]`属性应用于枚举本身，使得其中一个变体仿佛是私有的，在匹配变体本身时需要使用通配符。这在版本控制方面与应用于结构体时的效果相同，但不太有利。在大多数情况下，当添加新的枚举变体时，代码无法编译是期望的，因为这表明需要处理的新情况。
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Private
     constructors)
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处给我们关于此页面的反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Private
+    constructors)

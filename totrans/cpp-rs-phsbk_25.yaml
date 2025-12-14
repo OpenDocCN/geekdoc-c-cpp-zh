@@ -1,239 +1,361 @@
 - en: Setter and getter methods
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 设置器和获取器方法
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/setters_and_getters.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/setters_and_getters.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/setters_and_getters.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/setters_and_getters.html)
 - en: Setters and getters work similarly in C++ and Rust, but are used less frequently
     in Rust.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 和 Rust 中，设置器和获取器的工作方式相似，但在 Rust 中使用频率较低。
 - en: It would not be unusual to see the following representation of a two-dimensional
     vector in C++, which hides its implementation and provides setters and getters
     to access the fields. This choice would typically be made in case a representation
     change (such as using polar instead of rectangular coordinates) needed to be made
     later without breaking clients.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，看到以下二维向量的表示并不罕见，它隐藏了其实施细节，并提供了设置器和获取器来访问字段。这种选择通常是在需要稍后进行表示更改（例如，使用极坐标而不是直角坐标）时做出的，而不破坏客户端。
 - en: On the other hand, in Rust such a type would almost always be defined with public
     fields.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一方面，在 Rust 中，此类类型几乎总是使用公共字段定义。
 - en: '[PRE0]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { pub struct Vec2 {'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { pub struct Vec2 {'
 - en: // public fields instead of getters
+  id: totrans-8
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用公共字段而不是获取器
 - en: 'pub x: f64,'
+  id: totrans-9
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub x: f64,'
 - en: 'pub y: f64,'
+  id: totrans-10
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub y: f64,'
 - en: '}'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Vec2 {
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Vec2 {
 - en: // ... vector operations ...
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ... 向量操作 ...
 - en: '}'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: One major reason for the difference is a limitation of the borrow checker. With
     a getter function the entire structure is borrowed, preventing mutable use of
     other fields of the structure.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 差异的一个主要原因是借用检查器的限制。使用获取器函数时，整个结构体都被借用，从而阻止了对结构体其他字段的可变使用。
 - en: The following program will not compile because `get_name()` borrows all of `alice`.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下程序将无法编译，因为 `get_name()` 从 `alice` 中借用了所有内容。
 - en: '[PRE3]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'Some additional reasons for the difference in approach are:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些导致方法差异的其他原因包括：
 - en: 'Ergonomics: Public members make it possible to use pattern matching.'
+  id: totrans-22
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 人体工程学：公共成员使得使用模式匹配成为可能。
 - en: 'Transparency of performance: A change in representation would dramatically
     change the costs involved with the getters. Exposing the representation makes
     the cost change visible.'
+  id: totrans-23
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 性能透明度：表示的变化将显著改变获取器涉及的成本。暴露表示使成本变化可见。
 - en: 'Control over mutability: Static lifetime checking of mutable references removes
     concerns of unintended mutation of the value through Rust''s equivalent of observation
     pointers.'
+  id: totrans-24
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 对可变性的控制：静态生命周期检查可变引用消除了通过 Rust 的观察指针等效物对值进行意外修改的担忧。
 - en: '[Types with invariants and newtypes](#types-with-invariants-and-newtypes)'
+  id: totrans-25
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[具有不变性和新类型的类型](#types-with-invariants-and-newtypes)'
 - en: When types need to preserve invariants but the benefits of exposing fields are
     desired, a newtype pattern can be used. A wrapping "newtype" struct that represents
     the data with an invariant is defined and access to the fields of the underlying
     struct is provided by via a non-`mut` reference.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 当类型需要保持不变性但希望暴露字段的好处时，可以使用新类型模式。定义一个包装的“新类型”结构体来表示具有不变性的数据，并通过非 `mut` 引用提供对底层结构体字段访问。
 - en: '[PRE5]'
+  id: totrans-27
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '#![allow(unused)] fn main() { pub struct Vec2 {'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { pub struct Vec2 {'
 - en: 'pub x: f64,'
+  id: totrans-29
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub x: f64,'
 - en: 'pub y: f64,'
+  id: totrans-30
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub y: f64,'
 - en: '}'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: /// Represents a 2-vector that has magnitude 1.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: /// 表示一个模量为 1 的 2-向量。
 - en: pub struct Normalized(Vec2); // note the private field
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: pub struct Normalized(Vec2); // 注意私有字段
 - en: 'fn sqrt_approx_zero(x: f64) -> bool {'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn sqrt_approx_zero(x: f64) -> bool {'
 - en: x < 0.001
+  id: totrans-35
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x < 0.001
 - en: '}'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Normalized {
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Normalized {
 - en: 'pub fn from_vec2(v: Vec2) -> Option<Self> {'
+  id: totrans-38
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub fn from_vec2(v: Vec2) -> Option<Self> {'
 - en: if sqrt_approx_zero(v.x * v.x + v.y * v.x - 1.0) {
+  id: totrans-39
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if sqrt_approx_zero(v.x * v.x + v.y * v.x - 1.0) {
 - en: Some(Self(v))
+  id: totrans-40
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(Self(v))
 - en: '} else {'
+  id: totrans-41
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} else {'
 - en: None
+  id: totrans-42
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: None
 - en: '}'
+  id: totrans-43
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-44
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // The getter provides a reference to the underlying Vec2 value
+  id: totrans-45
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 获取器提供了一个对底层 Vec2 值的引用
 - en: // without permitting mutation.
+  id: totrans-46
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 不允许修改。
 - en: pub fn get(&self) -> &Vec2 {
+  id: totrans-47
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn get(&self) -> &Vec2 {
 - en: '&self.0'
+  id: totrans-48
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '&self.0'
 - en: '}'
+  id: totrans-49
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE6]'
+  id: totrans-52
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[Borrowing from indexed structures](#borrowing-from-indexed-structures)'
+  id: totrans-53
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[从索引结构借用](#borrowing-from-indexed-structures)'
 - en: A significant limitation that arises from the way that getter methods interact
     with the borrow checker is that it isn't possible to mutably borrow multiple elements
     from an indexed structure like a vector using a methods like `Vec::get_mut`.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于获取器方法与借用检查器交互的方式，产生的一个显著限制是，无法使用 `Vec::get_mut` 等方法从像向量这样的索引结构中可变借用多个元素。
 - en: The built-in indexed types have several methods for creating split views onto
     a structure. These can be used to create helper functions that match the requirements
     of a specific application.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 内置的索引类型有几种创建结构分割视图的方法。这些方法可以用来创建满足特定应用程序要求的辅助函数。
 - en: The Rustonomicon has [examples of implementing this pattern](https://doc.rust-lang.org/nomicon/borrow-splitting.html),
     using both safe and unsafe Rust.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: Rustonomicon 有 [实现此模式的示例](https://doc.rust-lang.org/nomicon/borrow-splitting.html)，使用了安全和不可安全
+    Rust。
 - en: '[Setter methods](#setter-methods)'
+  id: totrans-57
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[设置方法](#setter-methods)'
 - en: Setter methods also borrow the entire value, which causes the same problems
     as getters that return mutable references. As with getter methods, setter methods
     are mainly used when needed to preserve invariants.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 设置方法也会获取整个值，这会导致与返回可变引用的获取器相同的问题。与获取器方法一样，设置方法主要用于需要保持不变性时。
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Setter
     and getter methods)
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: '`<link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Setter
+    and getter methods)`'

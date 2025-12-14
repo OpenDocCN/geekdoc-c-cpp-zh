@@ -1,184 +1,279 @@
 - en: Constructors
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Constructors
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/constructors.html](https://cel.cs.brown.edu/crp/idioms/constructors.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/constructors.html](https://cel.cs.brown.edu/crp/idioms/constructors.html)
 - en: In C++, constructors initialize objects. At the point when a constructor is
     executed, storage for the object has been allocated and the constructor is only
     performing initialization.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，构造函数初始化对象。当构造函数执行时，对象已分配存储空间，构造函数只执行初始化。
 - en: 'Rust does not have constructors in the same way as C++. In Rust, there is a
     single fundamental way to create an object, which is to initialize all of its
     members at once. The term "constructor" or "constructor method" in Rust refers
     to something more like a factory: a static method associated with a type (i.e.,
     a method that does not have a `self` parameter), which returns a value of the
     type.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 与 C++ 不同，没有相同的构造函数。在 Rust 中，创建对象有唯一的基本方式，即一次性初始化其所有成员。Rust 中的“构造函数”或“构造函数方法”更像是工厂：与类型相关联的静态方法（即，没有
+    `self` 参数的方法），它返回该类型的值。
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: fn cpu_count() -> usize {
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: fn cpu_count() -> usize {
 - en: std::thread::available_parallelism().unwrap().get() }   struct ThreadPool {
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: std::thread::available_parallelism().unwrap().get() }   struct ThreadPool {
 - en: 'num_threads: usize'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 'num_threads: usize'
 - en: '}'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl ThreadPool {
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: impl ThreadPool {
 - en: fn new() -> Self {
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn new() -> Self {
 - en: 'Self { num_threads: cpu_count() }'
+  id: totrans-12
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Self { num_threads: cpu_count() }'
 - en: '}'
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn with_threads(nt: usize) -> Self {'
+  id: totrans-14
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn with_threads(nt: usize) -> Self {'
 - en: 'Self { num_threads: nt }'
+  id: totrans-15
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Self { num_threads: nt }'
 - en: '}'
+  id: totrans-16
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let p1 = ThreadPool::new();
+  id: totrans-19
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let p1 = ThreadPool::new();
 - en: let p2 = ThreadPool::with_threads(4);
+  id: totrans-20
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let p2 = ThreadPool::with_threads(4);
 - en: '}'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: In Rust, typically the primary constructor for a type is named `new`, especially
     if it takes no arguments. (See the chapter on [default constructors](./constructors/default_constructors.html).)
     Constructors based on some specific property of the value are usually named `with_<something>`,
     e.g., `ThreadPool::with_threads`. See the [naming guidelines](https://rust-lang.github.io/api-guidelines/naming.html)
     for the conventions on how to name constructor methods in Rust.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，通常一个类型的首选构造函数被命名为 `new`，尤其是当它不接受任何参数时。（参见关于[默认构造函数](./constructors/default_constructors.html)的章节。）基于值的某些特定属性的构造函数通常命名为
+    `with_<something>`，例如，`ThreadPool::with_threads`。请参阅[Rust 命名指南](https://rust-lang.github.io/api-guidelines/naming.html)，了解
+    Rust 中构造函数方法的命名约定。
 - en: If the fields to be initialized are visible, there is a reasonable default value,
     and the value does not manage a resource, then it is also common to use record
     update syntax to initialize a value based on some default value.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果要初始化的字段是可见的，有合理的默认值，并且该值不管理资源，那么使用记录更新语法根据某些默认值初始化值也是常见的。
 - en: '[PRE3]'
+  id: totrans-25
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: struct Point {
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Point {
 - en: 'x: i32,'
+  id: totrans-27
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: i32,'
 - en: 'y: i32,'
+  id: totrans-28
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'y: i32,'
 - en: 'z: i32,'
+  id: totrans-29
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'z: i32,'
 - en: '}'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Point {
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Point {
 - en: const fn zero() -> Self {
+  id: totrans-32
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: const fn zero() -> Self {
 - en: 'Self { x: 0, y: 0, z: 0 }'
+  id: totrans-33
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Self { x: 0, y: 0, z: 0 }'
 - en: '}'
+  id: totrans-34
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let x_unit = Point {
+  id: totrans-37
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x_unit = Point {
 - en: 'x: 1,'
+  id: totrans-38
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'x: 1,'
 - en: ..Point::zero()
+  id: totrans-39
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ..Point::zero()
 - en: '};'
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: '}'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE4]'
+  id: totrans-42
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: Despite the name, "record update syntax" does not modify a record but instead
     creates a new value based on another one, taking ownership of it in order to do
     so.
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管名为“记录更新语法”，但它并不修改记录，而是基于另一个值创建一个新的值，为了这样做而获取其所有权。
 - en: '[Storage allocation vs initialization](#storage-allocation-vs-initialization)'
+  id: totrans-44
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[存储分配与初始化](#storage-allocation-vs-initialization)'
 - en: In Rust, the actual construction of a structure or enum value occurs where the
     structure construction syntax (e.g., `ThreadPool { ... }`) is, after the evaluation
     of the expressions for the fields (e.g., `cpu_count()`).
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，结构体或枚举值的实际构造发生在结构体构造语法（例如，`ThreadPool { ... }`）的位置，在评估字段的表达式（例如，`cpu_count()`）之后。
 - en: A significant implication of this difference is that storage is not allocated
     for a struct in Rust at the point where the constructor method (such as `ThreadPool::with_threads`)
     is called, and in fact is not allocated until after the values of the fields of
@@ -187,146 +282,220 @@
     translate patterns such as a class which stores a pointer to itself upon construction
     (in Rust, this requires tools like [`Pin`](https://doc.rust-lang.org/std/pin/struct.Pin.html)
     and [`MaybeUninit`](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html)).
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种差异的一个重要影响是，在 Rust 中，在调用构造方法（如 `ThreadPool::with_threads`）时不会为结构体分配存储，实际上是在计算结构体字段值之后（从语言语义的角度来看——优化器可能仍然会避免复制）。因此，在
+    Rust 中没有直接的方法来翻译类似在构造时存储指向自身指针的类（在 Rust 中，这需要像 `Pin` 和 `MaybeUninit` 这样的工具）的模式。
 - en: '[Fallible constructors](#fallible-constructors)'
+  id: totrans-47
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[可失败构造函数](#fallible-constructors)'
 - en: In C++, the primary way constructors can indicate failure is by throwing exceptions.
     In Rust, because constructors are normal static methods, fallible constructors
     can instead return `Result` (akin to `std::expected`) or `Option` (akin to `std::optional`).^([1](#footnote-NonZero))
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，构造函数可以通过抛出异常来指示失败。在 Rust 中，因为构造函数是普通的静态方法，所以可失败构造函数可以返回 `Result`（类似于
+    `std::expected`）或 `Option`（类似于 `std::optional`）。^([1](#footnote-NonZero))
 - en: '[PRE5]'
+  id: totrans-49
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '[PRE6]'
+  id: totrans-50
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: struct ThreadPool {
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: struct ThreadPool {
 - en: 'num_threads: usize,'
+  id: totrans-52
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'num_threads: usize,'
 - en: '}'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '#[derive(Debug)]'
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Debug)]'
 - en: enum ThreadPoolError {
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: enum ThreadPoolError {
 - en: ZeroThreads,
+  id: totrans-56
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ZeroThreads,
 - en: '}'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl ThreadPool {
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: impl ThreadPool {
 - en: fn with_threads(
+  id: totrans-59
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn with_threads(
 - en: 'nt: usize,'
+  id: totrans-60
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'nt: usize,'
 - en: ) -> Result<Self, ThreadPoolError> {
+  id: totrans-61
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) -> Result<Self, ThreadPoolError> {
 - en: if nt == 0 {
+  id: totrans-62
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 如果 nt 等于 0 {
 - en: Err(ThreadPoolError::ZeroThreads)
+  id: totrans-63
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Err(ThreadPoolError::ZeroThreads)
 - en: '} else {'
+  id: totrans-64
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} else {'
 - en: 'Ok(Self { num_threads: nt })'
+  id: totrans-65
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Ok(Self { num_threads: nt })'
 - en: '}'
+  id: totrans-66
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-67
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: match ThreadPool::with_threads(0) {
+  id: totrans-70
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match ThreadPool::with_threads(0) {
 - en: Err(err) => println!("{:?}", err),
+  id: totrans-71
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Err(err) => println!("{:?}", err),
 - en: Ok(p) => {
+  id: totrans-72
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Ok(p) => {
 - en: // use p here
+  id: totrans-73
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用 p 这里
 - en: '}'
+  id: totrans-74
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-75
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE7]'
+  id: totrans-77
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: See [the chapter on exceptions](./exceptions.html) for more information on how
     C++ exceptions and exception handling translate to Rust.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 有关 C++ 异常和异常处理如何转换为 Rust 的更多信息，请参阅[异常章节](./exceptions.html)。
 - en: '* * *'
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: '* * *'
 - en: An alternative approach here would be to use `NonZero<usize>` as the type so
     that the error case wasn't possible in the first place. [↩](#fr-NonZero-1)
+  id: totrans-80
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 这里的一个替代方法是将 `NonZero<usize>` 作为类型，这样在最初就不可能发生错误情况。[↩](#fr-NonZero-1)
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Constructors)'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Constructors)'

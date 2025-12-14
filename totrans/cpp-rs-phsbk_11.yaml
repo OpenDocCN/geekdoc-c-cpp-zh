@@ -1,334 +1,508 @@
 - en: Enums
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 枚举
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/enums.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/enums.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/enums.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/enums.html)
 - en: In C++, enums are often used to model a fixed set of alternatives, especially
     when each of those enumerators corresponds to a specific integer value, such as
     is needed when working with hardware, system calls, or protocol implementations.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，枚举通常用于模拟一组固定的替代方案，特别是当每个枚举符对应于一个特定的整数值时，例如在处理硬件、系统调用或协议实现时。
 - en: For example, the various modes for a GPIO pin could be modeled as an enum, which
     would restrict methods using the mode to valid values.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，GPIO 引脚的各种模式可以模拟为枚举，这将限制使用该模式的方法只能使用有效值。
 - en: While Rust enums are [more general](./tagged_unions.html), they can still be
     used for this sort of modeling.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然 Rust 枚举更[通用](./tagged_unions.html)，但它们仍然可以用于这种类型的建模。
 - en: '[PRE0]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { #[repr(u8)]'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { #[repr(u8)]'
 - en: '#[derive(Clone, Copy)]'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone, Copy)]'
 - en: enum Pin {
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: enum Pin {
 - en: Pin1 = 0x01,
+  id: totrans-10
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Pin1 = 0x01,
 - en: Pin2 = 0x02,
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Pin2 = 0x02,
 - en: Pin3 = 0x04,
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Pin3 = 0x04,
 - en: '}'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '#[repr(u8)]'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[repr(u8)]'
 - en: '#[derive(Clone, Copy)]'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone, Copy)]'
 - en: enum Mode {
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: enum Mode {
 - en: Output = 0x03,
+  id: totrans-17
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Output = 0x03,
 - en: Pullup = 0x04,
+  id: totrans-18
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Pullup = 0x04,
 - en: Analog = 0x27,
+  id: totrans-19
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Analog = 0x27,
 - en: // ...
+  id: totrans-20
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: extern "C" {
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: extern "C" {
 - en: 'fn low_level_set_pin(pin: u8, mode: u8);'
+  id: totrans-23
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn low_level_set_pin(pin: u8, mode: u8);'
 - en: '}'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn set_pin_mode(pin: Pin, mode: Mode) {'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn set_pin_mode(pin: Pin, mode: Mode) {'
 - en: unsafe {
+  id: totrans-26
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: unsafe {
 - en: low_level_set_pin(pin as u8, mode as u8)
+  id: totrans-27
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: low_level_set_pin(pin as u8, mode as u8)
 - en: '};'
+  id: totrans-28
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: '}'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-31
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The `#[repr(u8)]` attribute ensures that the representation of the enum is the
     same as a byte (like declaring the underlying type of an enum in C++). The enum
     values can then be freely converted to the underlying type with the `as`.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: '`#[repr(u8)]` 属性确保枚举的表示与字节相同（就像在 C++ 中声明枚举的底层类型一样）。然后可以使用 `as` 将枚举值自由转换为底层类型。'
 - en: In C++ the standard way to convert from an integer to an enum is a static cast.
     However, this [requires that the user check the validity of the cast themselves](https://eel.is/c++draft/expr.static.cast#9).
     Often the conversion is done by a function that checks that the value to convert
     is a valid enum value.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，从整数转换为枚举的标准方式是静态转换。然而，这[要求用户自己检查转换的有效性](https://eel.is/c++draft/expr.static.cast#9)。通常，转换是通过一个函数完成的，该函数检查要转换的值是否是有效的枚举值。
 - en: In Rust the standard way to perform the conversion is to implement the `TryFrom`
     trait for the type and then use the `try_from` method or `try_into` method.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，执行转换的标准方式是为类型实现 `TryFrom` 特性，然后使用 `try_from` 方法或 `try_into` 方法。
 - en: '[PRE3]'
+  id: totrans-35
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-36
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: '#[repr(u8)] #[derive(Clone, Copy)] enum Pin {'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[repr(u8)] #[derive(Clone, Copy)] enum Pin {'
 - en: Pin1 = 0x01, Pin2 = 0x02, Pin3 = 0x04, }   use std::convert::TryFrom;
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: Pin1 = 0x01, Pin2 = 0x02, Pin3 = 0x04, }   use std::convert::TryFrom;
 - en: struct InvalidPin(u8);
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: struct InvalidPin(u8);
 - en: impl TryFrom<u8> for Pin {
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: impl TryFrom<u8> for Pin {
 - en: type Error = InvalidPin;
+  id: totrans-41
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Error = InvalidPin;
 - en: fn try_from(
+  id: totrans-42
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn try_from(
 - en: 'value: u8,'
+  id: totrans-43
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'value: u8,'
 - en: ) -> Result<Self, Self::Error> {
+  id: totrans-44
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) -> Result<Self, Self::Error> {
 - en: match value {
+  id: totrans-45
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match value {
 - en: 0x01 => Ok(Pin::Pin1),
+  id: totrans-46
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 0x01 => Ok(Pin::Pin1),
 - en: 0x02 => Ok(Pin::Pin2),
+  id: totrans-47
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 0x02 => Ok(Pin::Pin2),
 - en: 0x04 => Ok(Pin::Pin3),
+  id: totrans-48
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 0x04 => Ok(Pin::Pin3),
 - en: pin => Err(InvalidPin(pin)),
+  id: totrans-49
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pin => Err(InvalidPin(pin)),
 - en: '}'
+  id: totrans-50
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-51
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let Ok(p) = Pin::try_from(2) else {
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: let Ok(p) = Pin::try_from(2) else {
 - en: return;
+  id: totrans-55
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: '};'
 - en: // use pin p
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: // use pin p
 - en: '}'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-59
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: See [Exceptions and error handling](../exceptions.html) for examples of how
     to ergonomically handle the result of `try_from`.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 查看[异常和错误处理](../exceptions.html)以获取如何优雅地处理 `try_from` 结果的示例。
 - en: If low-level performance is more of a concern than memory safety, `std::mem::transmute`
     is analogous to a C++ reinterpret cast, but requires unsafe Rust because its use
     can result in undefined behavior. Uses of `std::mem::transmute` for this purpose
     should not be hidden behind an interface that can be called from safe Rust unless
     the interface can actually guarantee that the call will never happen with an invalid
     value.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果低级性能比内存安全更重要，`std::mem::transmute` 类似于 C++ 的 reinterpret_cast，但需要不安全 Rust，因为其使用可能导致未定义行为。除非接口可以实际保证调用永远不会使用无效值，否则不应将
+    `std::mem::transmute` 的使用隐藏在可以从安全 Rust 调用的接口后面。
 - en: '[Enums and methods](#enums-and-methods)'
+  id: totrans-62
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[枚举和方法](#枚举和方法)'
 - en: In C++ enums cannot have methods. Instead, to model an enum with methods one
     must define a wrapper class for the enum and define the methods on that wrapper
     class. In Rust, methods can be defined on an enum with an `impl` block, just like
     any other type.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，枚举不能有方法。相反，为了模拟具有方法的枚举，必须为枚举定义一个包装类，并在该包装类上定义方法。在 Rust 中，可以在具有 `impl`
+    块的枚举上定义方法，就像任何其他类型一样。
 - en: '[PRE6]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[PRE7]'
+  id: totrans-65
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: '#![allow(unused)] fn main() { #[repr(u8)]'
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { #[repr(u8)]'
 - en: '#[derive(Clone, Copy)]'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone, Copy)]'
 - en: enum Pin {
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: enum Pin {
 - en: Pin1 = 0x01,
+  id: totrans-69
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Pin1 = 0x01,
 - en: Pin2 = 0x02,
+  id: totrans-70
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Pin2 = 0x02,
 - en: Pin3 = 0x04,
+  id: totrans-71
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Pin3 = 0x04,
 - en: '}'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct LastPin;
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: struct LastPin;
 - en: impl Pin {
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Pin {
 - en: fn next(&self) -> Result<Self, LastPin> {
+  id: totrans-75
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn next(&self) -> Result<Self, LastPin> {
 - en: match self {
+  id: totrans-76
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match self {
 - en: Pin::Pin1 => Ok(Pin::Pin2),
+  id: totrans-77
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Pin::Pin1 => Ok(Pin::Pin2),
 - en: Pin::Pin2 => Ok(Pin::Pin3),
+  id: totrans-78
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Pin::Pin2 => Ok(Pin::Pin3),
 - en: Pin::Pin3 => Err(LastPin),
+  id: totrans-79
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Pin::Pin3 => Err(LastPin),
 - en: '}'
+  id: totrans-80
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-81
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE8]'
+  id: totrans-84
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Enums)
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Enums)

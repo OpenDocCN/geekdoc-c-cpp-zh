@@ -1,706 +1,1103 @@
 - en: Default constructors
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 默认构造函数
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/constructors/default_constructors.html](https://cel.cs.brown.edu/crp/idioms/constructors/default_constructors.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/constructors/default_constructors.html](https://cel.cs.brown.edu/crp/idioms/constructors/default_constructors.html)
 - en: C++ has a special concept of default constructors to support several scenarios
     in which they are implicitly called. Rust does not have the same notion of a default
     constructor. The most similar mechanism is the [`Default` trait](https://doc.rust-lang.org/std/default/trait.Default.html).
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 有一个特殊的默认构造函数概念，用于支持它们在隐式调用时的一些场景。Rust 没有相同的默认构造函数概念。最相似的是 `Default` 特性（[https://doc.rust-lang.org/std/default/trait.Default.html](https://doc.rust-lang.org/std/default/trait.Default.html)）。
 - en: '[PRE0]'
+  id: totrans-3
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { struct Person {'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { struct Person {'
 - en: 'age: i32,'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Person {
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Person {
 - en: pub const fn new() -> Self {
+  id: totrans-9
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub const fn new() -> Self {
 - en: 'Self { age: 0 }'
+  id: totrans-10
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Self { age: 0 }'
 - en: '}'
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Default for Person {
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Default for Person {
 - en: fn default() -> Self {
+  id: totrans-14
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn default() -> Self {
 - en: Self::new()
+  id: totrans-15
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Self::new()
 - en: '}'
+  id: totrans-16
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: If a structure has a useful default value (such as would be constructed by a
     default constructor in C++), then the type should provide [both](https://rust-lang.github.io/api-guidelines/interoperability.html?highlight=default#types-eagerly-implement-common-traits-c-common-traits)
     a `new` method that takes no arguments and an implementation of `Default`.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果一个结构体有一个有用的默认值（例如，在 C++ 中由默认构造函数构建的值），则类型应提供[两者](https://rust-lang.github.io/api-guidelines/interoperability.html?highlight=default#types-eagerly-implement-common-traits-c-common-traits)——一个不带参数的
+    `new` 方法和一个 `Default` 的实现。
 - en: Because `Default` is a normal trait, the default constructor defined in the
     example can be invoked using the usual syntax for invoking a static trait method,
     e.g., `Default::default()`.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为 `Default` 是一个普通特性，所以示例中定义的默认构造函数可以使用调用静态特性方法的常规语法来调用，例如，`Default::default()`。
 - en: '[Implicit initialization of class members](#implicit-initialization-of-class-members)'
+  id: totrans-22
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[类成员的隐式初始化](#implicit-initialization-of-class-members)'
 - en: In C++, if a member is not explicitly initialized by a constructor, then it
     is default-initialized. When the type of the member is a class, the default-initialization
     invokes the default constructor.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，如果一个成员没有被构造函数显式初始化，则它会被默认初始化。当成员的类型是类时，默认初始化会调用默认构造函数。
 - en: In Rust, if all of the fields of a struct implement the `Default` trait, then
     an implementation for the structure can be provided by the compiler.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，如果一个结构体的所有字段都实现了 `Default` 特性，那么编译器可以提供一个结构的实现。
 - en: '[PRE3]'
+  id: totrans-25
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-26
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: '#![allow(unused)] fn main() { #[derive(Default)]'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { #[derive(Default)]'
 - en: struct Person {
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'age: i32,'
+  id: totrans-29
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '#[derive(Default)]'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Default)]'
 - en: struct Student {
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Student {
 - en: 'person: Person,'
+  id: totrans-33
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'person: Person,'
 - en: '}'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-36
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: The `#[derive(Default)]` macros in Rust are equivalent to writing the following.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 中的 `#[derive(Default)]` 宏与以下代码等价。
 - en: '[PRE6]'
+  id: totrans-38
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '#![allow(unused)] fn main() { struct Person {'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { struct Person {'
 - en: 'age: i32,'
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Default for Person {
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Default for Person {
 - en: fn default() -> Self {
+  id: totrans-43
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn default() -> Self {
 - en: Self {
+  id: totrans-44
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Self {
 - en: 'age: Default::default()'
+  id: totrans-45
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: Default::default()'
 - en: '}'
+  id: totrans-46
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-47
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct Student {
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Student {
 - en: 'person: Person,'
+  id: totrans-50
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'person: Person,'
 - en: '}'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Default for Student {
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Default for Student {
 - en: fn default() -> Self {
+  id: totrans-53
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn default() -> Self {
 - en: Self {
+  id: totrans-54
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Self {
 - en: 'person: Default::default()'
+  id: totrans-55
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'person: Default::default()'
 - en: '}'
+  id: totrans-56
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-57
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE7]'
+  id: totrans-60
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: Unlike C++ where the default initialization value for integers is indeterminate,
     in Rust the default value for the primitive integer and floating point types [is
     zero](https://doc.rust-lang.org/std/primitive.i32.html#impl-Default-for-i32).
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 与 C++ 不同，在 C++ 中整数的默认初始化值是不确定的，而在 Rust 中，原始整数和浮点类型的默认值[是零](https://doc.rust-lang.org/std/primitive.i32.html#impl-Default-for-i32)。
 - en: Deriving the `Default` trait has a similar effect on code concision as eliding
     initialization in C++. In situations where all of the types implement the `Default`
     trait, but only some of the fields should have their default values, one can use
     [struct update syntax](https://doc.rust-lang.org/book/ch05-01-defining-structs.html#creating-instances-from-other-instances-with-struct-update-syntax)
     to define a constructor method without enumerating the values for all of the fields.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 继承 `Default` 特性对代码简洁性的影响与 C++ 中省略初始化类似。在所有类型都实现了 `Default` 特性，但只有一些字段应该有默认值的情况下，可以使用
+    [结构体更新语法](https://doc.rust-lang.org/book/ch05-01-defining-structs.html#creating-instances-from-other-instances-with-struct-update-syntax)
+    来定义一个构造方法，而不必枚举所有字段的值。
 - en: '[PRE8]'
+  id: totrans-63
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: '#![allow(unused)] fn main() { #[derive(Default)]'
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { #[derive(Default)]'
 - en: struct Person {
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'age: i32,'
+  id: totrans-66
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '#[derive(Default)]'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Default)]'
 - en: struct Student {
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Student {
 - en: 'person: Person,'
+  id: totrans-70
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'person: Person,'
 - en: 'favorite_color: Option<String>,'
+  id: totrans-71
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'favorite_color: Option<String>,'
 - en: '}'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Student {
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Student {
 - en: 'pub fn with_favorite_color(color: String) -> Self {'
+  id: totrans-74
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub fn with_favorite_color(color: String) -> Self {'
 - en: Student {
+  id: totrans-75
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Student {
 - en: 'favorite_color: Some(color),'
+  id: totrans-76
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'favorite_color: Some(color),'
 - en: ..Default::default()
+  id: totrans-77
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ..Default::default()
 - en: '}'
+  id: totrans-78
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-79
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE9]'
+  id: totrans-82
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: The performance of the struct update syntax [is up to the optimizer](https://godbolt.org/#z:OYLghAFBqd5TKALEBjA9gEwKYFFMCWALugE4A0BIEAZgQDbYB2AhgLbYgDkAjF%2BTXRMiAZVQtGIHgBYBQogFUAztgAKAD24AGfgCsp5eiyahSAVyVFyKxqiIEh1ZpgDC6embZMQAJnLOAGQImbAA5TwAjbFIpAE5yAAd0JWIHJjcPL19E5NShIJDwtiiYnnibbDs0kSIWUiIMz28ea2xbeyEauqICsMjog0tuxqyWofreopKpAEprdDNSVE4uAFIfAGZVgFYAIRxSAgA3bAgAEWwaFjN6Ihmds9WtAEEEswiAaktzOw/VaKUQg%2BqwA7Lsns8PlCPixgJwPgQNn4IaDHi8UZsdvtosdThcrjc7g8IW9Pt8zL8amYcMJgWCIdCPgkAY4/iymOQGdCrkcyMRsAB9DD0MggD4AeQSHSYqw2LhqhxMstwnPRILRzwhBDYCXoHypNKIdPBL0ZpI%2BNCYHwA7sQkAKeXyiILhWQIK6YvqiIrgDMPgBaZX6to0Y1cxlQg3MI2gk2QiMJx2HZ1C9yi/XoDjutOkObhhPQgB0hfx11uIBAOAJtwg91NBdR%2BcbarOXDm9G42343i4OnI6G4ACULEbAYtlsDNnxyERtG25gBrEDbLSGbjSfhsZernt9gdcfhKECr2e9tvkOCwFAYHUMaKUag3hJ3mKkHgADhBq7otwB1Aic7kBEwR1AAntw07AawpCgeKES6JUp7TjeHDCOKTD0OBZ7kDgERmMALgSPQR68PwOBsMYwCSNhhCkIhuIkX22DqJUZjOhB/DBM6HbYfQBARKQYFuDggHetqHHkCcpARMk2AXBRJh8SYc5zDQRjAEoABqBDYNakrMBJgjCGIEicDIcjCMoaiaNh%2BgtEYynmJYhj8UekBzOgUppCR/ouB8nlEP6jAnPQspnD4/DoFJhw4G5tatO0aROEwrjuE0Uh%2BIEwR9MUAzvjkKTSiMzR%2BEkhVpJM/QxPlFRVJ0tT1MVGUJfR9XdJVuXVdYDUNGlox%2BOMPTZVMeVzGOSxme2nbdoB%2B4fE5RCoB8PCFp%2BhZaB8ED4MQZCThsPAzPwp46DMcxINgLAHNQi7bmuXAbuQu6Rdwh7HjOKlTVwEXkFu0jbOtWjSGU748NsPggz4IIAGyPbNL3vWecyXgg8AQNeWB4IQJAUFQtB3qwHCGfIJmSOZRmKCoGiAfofgOaYI4tXV3gQM4TUtFlhRVVILRlXk6R9c0BV8x10w8GMbStUwXSNQLgwS0z0tDZznXc91wyy2MPUiwMYtjQsE3cOsWx7AcuLnJcZZEtsGrmuSvz/KQgJWrG%2BawvCiLIi2KLopiJs4ic5vVlbNvvF83oUkaUa0i79ZQsyjusg7TuqvGUJJvyqYip6krSrK8piUqGwqii6re882q6l61LRmGsdMqHlo2naDosLyyYujm2ZZ2KCrBL6AZBiIIa16nEaMEabBsV8wIbGcwb0DQFZVpbtaynGBZfIW6cph6M9zyImanB69wbOvBZKE2pctuePFdrD2H7sOlhfPrE5G99x3zuQ52XQM8VLiuO6D0twbBBIWbY989zwyPCeFSF5EBozQJmZ8jAcaPmQS%2BEAb5PzfgYM6R2/5AJQTAhJYhME4IITsBJFC0Z0KYUArhfChF6DEQkuRSi1E%2By0XoicRi/BmKsXYqRSgwg2iAT4gJISGNRKHC3MIqSMkVDyQ4X3OBalYRaR0npZkPZpzkxJmZWQ5MrJU1stkOmWCGYSLih5LyQgfJ%2BQCkFbAIUwrfSitEGK2AbGM2lMlVKmRBYcxyqLIWRUNZhIqsNLm4tEptRloEuWcSpZa2iSrTW6tEkZImGk0WetxycB8J9O%2BT1%2BzcHmiOJaK01obS2ljXa79DoIxOmdC6V1/63R4g9Up%2B5XqwMRp9b6W5tjSELLEWI2x3xaA/NIEEH4QQ%2BD%2BpA56B5mlfyXDwLQq4eIbBmg/eGn9TqSQBElaQQA%3D%3D%3D).
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 结构体更新语法的性能[取决于优化器](https://godbolt.org/#z:OYLghAFBqd5TKALEBjA9gEwKYFFMCWALugE4A0BIEAZgQDbYB2AhgLbYgDkAjF%2BTXRMiAZVQtGIHgBYBQogFUAztgAKAD24AGfgCsp5eiyahSAVyVFyKxqiIEh1ZpgDC6embZMQAJnLOAGQImbAA5TwAjbFIpAE5yAAd0JWIHJjcPL19E5NShIJDwtiiYnnibbDs0kSIWUiIMz28ea2xbeyEauqICsMjog0tuxqyWofreopKpAEprdDNSVE4uAFIfAGZVgFYAIRxSAgA3bAgAEWwaFjN6Ihmds9WtAEEEswiAaktzOw/VaKUQg%2BqwA7Lsns8PlCPixgJwPgQNn4IaDHi8UZsdvtosdThcrjc7g8IW9Pt8zL8amYcMJgWCIdCPgkAY4/iymOQGdCrkcyMRsAB9DD0MggD4AeQSHSYqw2LhqhxMstwnPRILRzwhBDYCXoHypNKIdPBL0ZpI%2BNCYHwA7sQkAKeXyiILhWQIK6YvqiIrgDMPgBaZX6to0Y1cxlQg3MI2gk2QiMJx2HZ1C9yi/XoDjutOkObhhPQgB0hfx11uIBAOAJtwg91NBdR%2BcbarOXDm9G42343i4OnI6G4ACULEbAYtlsDNnxyERtG25gBrEDbLSGbjSfhsZernt9gdcfhKECr2e9tvkOCwFAYHUMaKUag3hJ3mKkHgADhBq7otwB1Aic7kBEwR1AAntw07AawpCgeKES6JUp7TjeHDCOKTD0OBZ7kDgERmMALgSPQR68PwOBsMYwCSNhhCkIhuIkX22DqJUZjOhB/DBM6HbYfQBARKQYFuDggHetqHHkCcpARMk2AXBRJh8SYc5zDQRjAEoABqBDYNakrMBJgjCGIEicDIcjCMoaiaNh%2BgtEYynmJYhj8UekBzOgUppCR/ouB8nlEP6jAnPQspnD4/DoFJhw4G5tatO0aROEwrjuE0Uh%2BIEwR9MUAzvjkKTSiMzR%2BEkhVpJM/QxPlFRVJ0tT1MVGUJfR9XdJVuXVdYDUNGlox%2BOMPTZVMeVzGOSxme2nbdoB%2B4fE5RCoB8PCFp%2BhZaB8ED4MQZCThsPAzPwp46DMcxINgLAHNQi7bmuXAbuQu6Rdwh7HjOKlTVwEXkFu0jbOtWjSGU748NsPggz4IIAGyPbNL3vWecyXgg8AQNeWB4IQJAUFQtB3qwHCGfIJmSOZRmKCoGiAfofgOaYI4tXV3gQM4TUtFlhRVVILRlXk6R9c0BV8x10w8GMbStUwXSNQLgwS0z0tDZznXc91wyy2MPUiwMYtjQsE3cOsWx7AcuLnJcZZEtsGrmuSvz/KQgJWrG%2BawvCiLIi2KLopiJs4ic5vVlbNvvF83oUkaUa0i79ZQsyjusg7TuqvGUJJvyqYip6krSrK8piUqGwqii6re882q6l61LRmGsdMqHlo2naDosLyyYujm2ZZ2KCrBL6AZBiIIa16nEaMEabBsV8wIbGcwb0DQFZVpbtaynGBZfIW6cph6M9zyImanB69wbOvBZKE2pctuePFdrD2H7sOlhfPrE5G99x3zuQ52XQM8VLiuO6D0twbBBIWbY989zwyPCeFSF5EBozQJmZ8jAcaPmQS%2BEAb5PzfgYM6R2/5AJQTAhJYhME4IITsBJFC0Z0KYUArhfChF6DEQkuRSi1E%2By0XoicRi/BmKsXYqRSgwg2iAT4gJISGNRKHC3MIqSMkVDyQ4X3OBalYRaR0npZkPZpzkxJmZWQ5MrJU1stkOmWCGYSLih5LyQgfJ%2BQCkFbAIUwrfSitEGK2AbGM2lMlVKmRBYcxyqLIWRUNZhIqsNLm4tEptRloEuWcSpZa2iSrTW6tEkZImGk0WetxycB8J9O%2BT1%2BzcHmiOJaK01obS2ljXa79DoIxOmdC6V1/63R4g9Up%2B5XqwMRp9b6W5tjSELLEWI2x3xaA/NIEEH4QQ%2BD%2BpA56B5mlfyXDwLQq4eIbBmg/eGn9TqSQBElaQQA%3D%3D%3D).
 - en: '[Implicit initialization of array values](#implicit-initialization-of-array-values)'
+  id: totrans-84
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[数组值的隐式初始化](#implicit-initialization-of-array-values)'
 - en: In C++, arrays without explicit initialization are default-initialized using
     the default constructors.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，未显式初始化的数组使用默认构造函数进行默认初始化。
 - en: In Rust, the value with which to initialize the array must be provided.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，必须提供用于初始化数组的值。
 - en: '[PRE10]'
+  id: totrans-87
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: '[PRE11]'
+  id: totrans-88
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '#[derive(Default)]'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Default)]'
 - en: struct Person {
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'age: i32,'
+  id: totrans-91
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: // std::array::from_fn provides the index to the callback
+  id: totrans-94
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // std::array::from_fn 提供回调的索引
 - en: 'let people: [Person; 3] ='
+  id: totrans-95
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let people: [Person; 3] ='
 - en: std::array::from_fn(|_| Default::default());
+  id: totrans-96
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: std::array::from_fn(|_| Default::default());
 - en: // ...
+  id: totrans-97
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE12]'
+  id: totrans-99
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: If the type happens to be [trivially copyable](./copy_and_move_constructors.html#trivially-copyable-types),
     then a shorthand can be used.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果类型恰好是[可以简单复制的](./copy_and_move_constructors.html#trivially-copyable-types)，则可以使用简写。
 - en: '[PRE13]'
+  id: totrans-101
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: '#[derive(Clone, Copy, Default)]'
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone, Copy, Default)]'
 - en: struct Person {
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'age: i32,'
+  id: totrans-104
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let people: [Person; 3] = [Default::default(); 3];'
+  id: totrans-107
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let people: [Person; 3] = [Default::default(); 3];'
 - en: // ...
+  id: totrans-108
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE14]'
+  id: totrans-110
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: '[Container element initialization](#container-element-initialization)'
+  id: totrans-111
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[容器元素初始化](#container-element-initialization)'
 - en: In C++, the default constructor could be used to implicitly define collection
     types, such as `std::vector`. Before C++11, one value would be default constructed,
     and the elements would be copy constructed from that initial element. Since C++11,
     all elements are default constructed.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，默认构造函数可以用于隐式定义集合类型，例如 `std::vector`。在 C++11 之前，一个值会被默认构造，然后元素会从这个初始元素复制构造。自
+    C++11 以来，所有元素都进行默认构造。
 - en: As with array initialization, the values must be explicitly specified in Rust.
     The vector can be constructed from an array, enabling the same syntax as with
     arrays.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 与数组初始化类似，在 Rust 中必须显式指定值。可以从数组构建向量，使其具有与数组相同的语法。
 - en: '[PRE15]'
+  id: totrans-114
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: '[PRE16]'
+  id: totrans-115
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: '#[derive(Default)]'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Default)]'
 - en: struct Person {
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'age: i32,'
+  id: totrans-118
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let people_arr: [Person; 3] ='
+  id: totrans-121
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let people_arr: [Person; 3] ='
 - en: std::array::from_fn(|_| Default::default());
+  id: totrans-122
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: std::array::from_fn(|_| Default::default());
 - en: 'let people: Vec<Person> = Vec::from(people_arr);'
+  id: totrans-123
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let people: Vec<Person> = Vec::from(people_arr);'
 - en: // ...
+  id: totrans-124
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE17]'
+  id: totrans-126
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: In Rust, the vector can also be constructed [from an iterator](https://doc.rust-lang.org/book/ch13-02-iterators.html#methods-that-produce-other-iterators).
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，向量也可以从[迭代器](https://doc.rust-lang.org/book/ch13-02-iterators.html#methods-that-produce-other-iterators)中构建。
 - en: '[PRE18]'
+  id: totrans-128
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: '#[derive(Default)]'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Default)]'
 - en: struct Person {
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'age: i32,'
+  id: totrans-131
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let people: Vec<Person> = (0..3).map(|_| Default::default()).collect();'
+  id: totrans-134
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let people: Vec<Person> = (0..3).map(|_| Default::default()).collect();'
 - en: // ...
+  id: totrans-135
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE19]'
+  id: totrans-137
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: If the type implements the `Clone` trait, then the array can be constructed
     using the `vec!` macro. See the chapter on [copy constructors](./copy_and_move_constructors.html)
     for more details on `Clone`.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果类型实现了 `Clone` 特性，则可以使用 `vec!` 宏来构造数组。有关 `Clone` 的更多详细信息，请参阅[复制构造函数](./copy_and_move_constructors.html)章节。
 - en: '[PRE20]'
+  id: totrans-139
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: '#[derive(Clone, Default)]'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone, Default)]'
 - en: struct Person {
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'age: i32,'
+  id: totrans-142
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let people: Vec<Person> = vec![Default::default(); 3];'
+  id: totrans-145
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let people: Vec<Person> = vec![Default::default(); 3];'
 - en: // ...
+  id: totrans-146
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE21]'
+  id: totrans-148
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: '[Implicit initialization of local variables](#implicit-initialization-of-local-variables)'
+  id: totrans-149
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[隐式初始化局部变量](#implicit-initialization-of-local-variables)'
 - en: In C++, the default constructor is used to perform default-initialization of
     local variables that are not explicitly initialized.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，默认构造函数用于执行未显式初始化的局部变量的默认初始化。
 - en: In Rust, initialization of local variables is always explicit.
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，局部变量的初始化始终是显式的。
 - en: '[PRE22]'
+  id: totrans-152
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: '[PRE23]'
+  id: totrans-153
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: '#[derive(Clone, Default)]'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone, Default)]'
 - en: struct Person {
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'age: i32,'
+  id: totrans-156
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let person = Person::default();
+  id: totrans-159
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let person = Person::default();
 - en: // ...
+  id: totrans-160
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE24]'
+  id: totrans-162
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: '[Implicit initialization of the base class object](#implicit-initialization-of-the-base-class-object)'
+  id: totrans-163
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[基类对象的隐式初始化](#implicit-initialization-of-the-base-class-object)'
 - en: In C++, the default constructor is used to initialize the base class object
     if no other constructor is specified.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，如果没有指定其他构造函数，则使用默认构造函数来初始化基类对象。
 - en: '[PRE25]'
+  id: totrans-165
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: Since Rust does not have inheritance, there is no equivalent to this case. See
     the chapter on [implementation reuse](../data_modeling/inheritance_and_reuse.html)
     or the section on [traits in the Rust book](https://doc.rust-lang.org/book/ch10-02-traits.html)
     for alternatives.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于 Rust 没有继承，因此没有与此情况等效的内容。有关替代方案，请参阅[实现重用](../data_modeling/inheritance_and_reuse.html)章节或
+    Rust 书籍中关于[特质的章节](https://doc.rust-lang.org/book/ch10-02-traits.html)。
 - en: '[`std::unique_ptr`](#stdunique_ptr)'
+  id: totrans-167
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[`std::unique_ptr`](#stdunique_ptr)'
 - en: There are some additional cases where the `Default` trait is used in Rust, but
     default constructors are not used for initialization in C++.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，还有一些其他情况下使用 `Default` 特性，但在 C++ 中不使用默认构造函数进行初始化。
 - en: Rust's equivalent of smart pointers implement `Default` by delegating to the
     `Default` implementation of the contained type.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 的智能指针通过委托给包含类型的 `Default` 实现来实现 `Default`。
 - en: '[PRE26]'
+  id: totrans-170
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: '#[derive(Default)]'
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Default)]'
 - en: struct Person {
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'age: i32,'
+  id: totrans-173
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let b: Box<Person> = Default::default();'
+  id: totrans-176
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let b: Box<Person> = Default::default();'
 - en: // ...
+  id: totrans-177
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE27]'
+  id: totrans-179
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: This differs from the treatment of `std::unique_ptr` in C++ because unlike `Box`,
     `std::unique_ptr` is nullable, and so the default constructor for `std:unique_ptr`
     produces a pointer that owns nothing. The equivalent type in Rust is `Option<Box<Person>>`,
     for which the `Default` implementation produces `None`.
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 这与 C++ 中对 `std::unique_ptr` 的处理不同，因为与 `Box` 不同，`std::unique_ptr` 是可空的，因此 `std::unique_ptr`
+    的默认构造函数会产生一个不拥有任何内容的指针。Rust 中的等效类型是 `Option<Box<Person>>`，其 `Default` 实现产生 `None`。
 - en: '[Other uses of `Default`](#other-uses-of-default)'
+  id: totrans-181
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[其他 `Default` 的用法](#other-uses-of-default)'
 - en: '[`Option::unwrap_or_default`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_default)
     makes use of `Default`, which makes getting a default value when the `Option`
     does not contain a value more convenient.'
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: '[`Option::unwrap_or_default`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_default)
+    方法利用了 `Default`，这使得在 `Option` 不包含值时获取默认值变得更加方便。'
 - en: '[PRE28]'
+  id: totrans-183
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: '[PRE29]'
+  id: totrans-184
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: '#![allow(unused)] fn main() { fn go(x: Option<String>) {'
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { fn go(x: Option<String>) {'
 - en: 'let a: String = x.unwrap_or_default();'
+  id: totrans-186
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let a: String = x.unwrap_or_default();'
 - en: // if x was None, then a is ""
+  id: totrans-187
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 如果 x 是 None，则 a 是 ""
 - en: // ...
+  id: totrans-188
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE30]'
+  id: totrans-191
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: In C++ `std::optional::value_or` is not equivalent, because it would always
     construct the default, as opposed to only constructing the default when the `std::optional`
     is `std::nullopt`. The equivalent requires using `std::optional::or_else`.
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，`std::optional::value_or` 并不等价，因为它总是会构造默认值，而不仅仅是当 `std::optional` 是
+    `std::nullopt` 时才构造默认值。等价的做法需要使用 `std::optional::or_else`。
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Default
     constructors)
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Default
+    constructors)

@@ -1,78 +1,120 @@
 - en: Sentinel values
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 哨兵值
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/null/sentinel_values.html](https://cel.cs.brown.edu/crp/idioms/null/sentinel_values.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/null/sentinel_values.html](https://cel.cs.brown.edu/crp/idioms/null/sentinel_values.html)
 - en: Sentinel values are in-band value that indicates a special situation, such as
     having reached the end of valid data in an iterator.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 哨兵值是在带内值，表示特殊的情况，例如在迭代器中到达有效数据的末尾。
 - en: '[`nullptr`](#nullptr)'
+  id: totrans-3
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[`nullptr`](#nullptr)'
 - en: Many designs in C++ borrow the convention from C of using a null pointer as
     a sentinel value for a method that returns owned pointers. For example, a method
     that parses a large structure may produce `nullptr` in the case of failure.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多 C++ 中的设计借鉴了 C 的约定，即使用空指针作为返回拥有指针的方法的哨兵值。例如，一个解析大型结构的方法在失败的情况下可能会产生 `nullptr`。
 - en: A similar situation in Rust would make use of the type `Option<Box<LargeStructure>>`.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中类似的情况会使用类型 `Option<Box<LargeStructure>>`。
 - en: '[PRE0]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-7
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { struct LargeStructure {'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { struct LargeStructure {'
 - en: 'field: i32,'
+  id: totrans-9
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'field: i32,'
 - en: // many fields ...
+  id: totrans-10
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 许多字段 ...
 - en: '}'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn parse(
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: fn parse(
 - en: 'data: &[u8],'
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'data: &[u8],'
 - en: ) -> Option<Box<LargeStructure>> {
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> Option<Box<LargeStructure>> {
 - en: // ...
+  id: totrans-15
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: // on failure
+  id: totrans-16
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 失败时
 - en: None
+  id: totrans-17
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: None
 - en: '}'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The `Box<T>` type has the same meaning as `std::unique_ptr<T>` in terms of being
     a uniquely owned pointer to some `T` on the heap, but unlike `std::unique_ptr`,
     it cannot be null. Rust's `Option<T>` (which is similar to `std::optional<T>`
@@ -80,213 +122,327 @@
     as in `Optional<Box<T>>`. In [those cases (and in some other cases)](../data_modeling/template_specialization.html#niche-optimization)
     the compiler optimizes the representation to be the same size as `Box<T>` by leveraging
     the fact that `Box` cannot be null.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Box<T>` 类型在表示堆上某个 `T` 的唯一所有者指针方面与 `std::unique_ptr<T>` 具有相同的意义，但与 `std::unique_ptr`
+    不同，它不能为空。当与 `Box<T>` 结合使用时，Rust 的 `Option<T>`（在 C++ 中类似于 `std::optional<T>`）可以表示可选指针，例如
+    `Optional<Box<T>>`。在[这些情况（以及一些其他情况）](../data_modeling/template_specialization.html#niche-optimization)中，编译器利用
+    `Box` 不能为空的事实，将表示优化为与 `Box<T>` 相同的大小。'
 - en: In Rust it is also common to pay the cost for the extra byte to use a return
     type of `Result<T, E>` (which is akin to `std::expected` in C++23) in order to
     make the reason for the failure available at runtime.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，也常见为了在运行时提供失败原因而支付额外字节的成本，使用返回类型为 `Result<T, E>`（类似于 C++23 中的 `std::expected`）。
 - en: '[Integer sentinels](#integer-sentinels)'
+  id: totrans-23
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[整数哨兵](#integer-sentinels)'
 - en: When a possibly-failing function produces an integer, it is also common to use
     an otherwise unused or unlikely integer value as a sentinel value, such as `0`
     or `INT_MAX`.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 当一个可能失败的功能产生一个整数时，也常见使用其他未使用或不太可能的整数值作为哨兵值，例如 `0` 或 `INT_MAX`。
 - en: In Rust, the `Option` type is used for this purpose. In cases where the zero
     value really is not possible to produce, as with the GCD algorithm below, the
     type `NonZero<T>` can be used to indicate that fact. As with `Option<Box<T>>`,
     the compiler optimizes the representation to make use of the unused value (in
     this case `0`) to represent the `None` case to ensure that the representation
     of `Option<NonZero<T>>` is the same as the representation of `Option<T>`.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，`Option` 类型用于此目的。在零值确实无法产生的情况下，例如下面的 GCD 算法，可以使用类型 `NonZero<T>` 来表示这一点。与
+    `Option<Box<T>>` 一样，编译器优化表示以利用未使用的值（在这种情况下为 `0`），以确保 `Option<NonZero<T>>` 的表示与
+    `Option<T>` 的表示相同。
 - en: '[PRE3]'
+  id: totrans-26
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-27
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: use std::num::NonZero;
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::num::NonZero;
 - en: fn gcd(
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: fn gcd(
 - en: 'mut a: i32,'
+  id: totrans-30
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'mut a: i32,'
 - en: 'mut b: i32,'
+  id: totrans-31
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'mut b: i32,'
 - en: ) -> Option<NonZero<i32>> {
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> Option<NonZero<i32>> {
 - en: if a == 0 || b == 0 {
+  id: totrans-33
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 如果 a 等于 0 或 b 等于 0 {
 - en: return None;
+  id: totrans-34
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return None;
 - en: '}'
+  id: totrans-35
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: while b != 0 {
+  id: totrans-36
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: while b != 0 {
 - en: let temp = b;
+  id: totrans-37
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let temp = b;
 - en: b = a % b;
+  id: totrans-38
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: b = a % b;
 - en: a = temp;
+  id: totrans-39
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: a = temp;
 - en: '}'
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // At this point, a is guaranteed to not be
+  id: totrans-41
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 在这一点上，a 保证不会是
 - en: // zero. The `Some` case from `NonZero::new`
+  id: totrans-42
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 零。来自 `NonZero::new` 的 `Some` 情况
 - en: // has a different meaning than the `Some`
+  id: totrans-43
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 与 `Some` 的意义不同
 - en: // returned from this function, but here it
+  id: totrans-44
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 从此函数返回，但在这里
 - en: // happens to coincide.
+  id: totrans-45
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 碰巧一致。
 - en: NonZero::new(a.abs())
+  id: totrans-46
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: NonZero::new(a.abs())
 - en: '}'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: assert!(gcd(5, 0) == None); assert!(gcd(0, 5) == None); assert!(gcd(5, 1) ==
     NonZero::new(1)); assert!(gcd(1, 5) == NonZero::new(1)); assert!(gcd(2 * 2 * 3
     * 5 * 7, 2 * 2 * 7 * 11) == NonZero::new(2 * 2 * 7)); assert!(gcd(2 * 2 * 7 *
     11, 2 * 2 * 3 * 5 * 7) == NonZero::new(2 * 2 * 7)); }
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: assert!(gcd(5, 0) == None); assert!(gcd(0, 5) == None); assert!(gcd(5, 1) ==
+    NonZero::new(1)); assert!(gcd(1, 5) == NonZero::new(1)); assert!(gcd(2 * 2 * 3
+    * 5 * 7, 2 * 2 * 7 * 11) == NonZero::new(2 * 2 * 7)); assert!(gcd(2 * 2 * 7 *
+    11, 2 * 2 * 3 * 5 * 7) == NonZero::new(2 * 2 * 7)); }
 - en: '[PRE5]'
+  id: totrans-50
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: As an aside, it is also possible to avoid the redundant check for zero at the
     end, and without using unsafe Rust, by preserving the non-zeroness property throughout
     the algorithm.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为旁注，也可以通过在整个算法中保留非零属性来避免在末尾进行冗余的零检查，并且无需使用不安全的Rust。
 - en: '[PRE6]'
+  id: totrans-52
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: use std::num::NonZero;
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::num::NonZero;
 - en: 'fn gcd(x: i32, mut b: i32) -> Option<NonZero<i32>> {'
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn gcd(x: i32, mut b: i32) -> Option<NonZero<i32>> {'
 - en: if b == 0 {
+  id: totrans-55
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if b == 0 {
 - en: return None;
+  id: totrans-56
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return None;
 - en: '}'
+  id: totrans-57
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // a is guaranteed to be non-zero, so we record the fact in the type of a.
+  id: totrans-58
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // a是保证非零的，所以我们记录这个事实在a的类型中。
 - en: let mut a = NonZero::new(x)?;
+  id: totrans-59
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut a = NonZero::new(x)?;
 - en: while let Some(temp) = NonZero::new(b) {
+  id: totrans-60
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: while let Some(temp) = NonZero::new(b) {
 - en: b = a.get() % b;
+  id: totrans-61
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: b = a.get() % b;
 - en: a = temp;
+  id: totrans-62
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: a = temp;
 - en: '}'
+  id: totrans-63
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Some(a.abs())
+  id: totrans-64
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(a.abs())
 - en: '}'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: assert!(gcd(5, 0) == None); assert!(gcd(0, 5) == None); assert!(gcd(5, 1) ==
     NonZero::new(1)); assert!(gcd(1, 5) == NonZero::new(1)); assert!(gcd(2 * 2 * 3
     * 5 * 7, 2 * 2 * 7 * 11) == NonZero::new(2 * 2 * 7)); assert!(gcd(2 * 2 * 7 *
     11, 2 * 2 * 3 * 5 * 7) == NonZero::new(2 * 2 * 7)); }
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: assert!(gcd(5, 0) == None); assert!(gcd(0, 5) == None); assert!(gcd(5, 1) ==
+    NonZero::new(1)); assert!(gcd(1, 5) == NonZero::new(1)); assert!(gcd(2 * 2 * 3
+    * 5 * 7, 2 * 2 * 7 * 11) == NonZero::new(2 * 2 * 7)); assert!(gcd(2 * 2 * 7 *
+    11, 2 * 2 * 3 * 5 * 7) == NonZero::new(2 * 2 * 7)); }
 - en: '[PRE7]'
+  id: totrans-68
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: '[`std::optional`](#stdoptional)'
+  id: totrans-69
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[`std::optional`](#stdoptional)'
 - en: In situations where `std::optional` would be used as a sentinel value in C++,
     `Option` can be used for the same purpose in Rust. The main difference between
     the two is that safe Rust requires either explicitly checking whether the value
     is `None`, while in C++ one can attempt to access the value without checking (at
     the risk of undefined behavior).
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中，`std::optional`用作哨兵值的情况下，Rust中的`Option`可以用于相同的目的。这两者之间的主要区别在于，安全的Rust需要显式检查值是否为`None`，而在C++中，可以尝试访问值而不进行检查（这可能导致未定义的行为）。
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Sentinel
     values)
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Sentinel
+    values)

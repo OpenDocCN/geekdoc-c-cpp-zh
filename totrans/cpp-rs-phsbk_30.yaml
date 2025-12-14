@@ -1,255 +1,389 @@
 - en: Type promotions and conversions
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 类型提升和转换
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/promotions_and_conversions.html](https://cel.cs.brown.edu/crp/idioms/promotions_and_conversions.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/promotions_and_conversions.html](https://cel.cs.brown.edu/crp/idioms/promotions_and_conversions.html)
 - en: '[lvalue to rvalue](#lvalue-to-rvalue)'
+  id: totrans-2
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[左值到右值](#lvalue-to-rvalue)'
 - en: In C++ lvalues are automatically converted to rvalues when needed.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，当需要时，左值会自动转换为右值。
 - en: In Rust the equivalent of lvalues are "place expressions" (expressions that
     represent memory locations) and the equivalent of rvalues are "value expressions".
     Place expressions are automatically converted to value expressions when needed.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，左值的等效是“位置表达式”（表示内存位置的表达式），而右值的等效是“值表达式”。当需要时，位置表达式会自动转换为值表达式。
 - en: '[PRE0]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: fn main() {
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: // Local variables are place expressions,
+  id: totrans-8
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 局部变量是位置表达式，
 - en: let mut x = 0;
+  id: totrans-9
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut x = 0;
 - en: // and therefore may be assigned to.
+  id: totrans-10
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 因此可以被赋值。
 - en: x = 42;
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x = 42;
 - en: // x is converted to a value expression when
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 当需要时，x 被转换为值表达式
 - en: // needed.
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 需要时。
 - en: let y = x + 1;
+  id: totrans-14
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let y = x + 1;
 - en: '}'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: '[Array to pointer](#array-to-pointer)'
+  id: totrans-17
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[数组到指针](#array-to-pointer)'
 - en: In C++, arrays are automatically converted to pointers as required.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，数组根据需要自动转换为指针。
 - en: The equivalent to this in Rust is the automatic conversion of vector and array
     references to slice references.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中与此等效的是向量引用和数组引用自动转换为切片引用。
 - en: '[PRE3]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-21
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'fn third(ts: &[char]) -> Option<&char> {'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn third(ts: &[char]) -> Option<&char> {'
 - en: ts.get(2)
+  id: totrans-23
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ts.get(2)
 - en: '}'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let vec: Vec<char> = vec![''a'', ''b'', ''c''];'
+  id: totrans-26
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let vec: Vec<char> = vec![''a'', ''b'', ''c''];'
 - en: 'let arr: [char; 3] = [''a'', ''b'', ''c''];'
+  id: totrans-27
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let arr: [char; 3] = [''a'', ''b'', ''c''];'
 - en: third(&vec);
+  id: totrans-28
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: third(&vec);
 - en: third(&arr);
+  id: totrans-29
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: third(&arr);
 - en: '}'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-31
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Because slice references can be easily used in a memory-safe way, it is generally
     recommended in Rust to define functions in terms of slice references instead of
     in terms of references to vectors or arrays, unless vector-specific or array-specific
     functionality is needed.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为切片引用可以以内存安全的方式轻松使用，所以在 Rust 中通常建议用切片引用来定义函数，而不是用向量的引用或数组的引用，除非需要特定的向量或数组功能。
 - en: Unlike in C++ where the conversion from arrays to pointers is built into the
     language, this is actually a general mechanism provided by the [`Deref` trait](https://doc.rust-lang.org/std/ops/trait.Deref.html),
     which provides one kind of [user-defined conversion](./user-defined_conversions.html).
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 与 C++ 中的数组到指针的转换内置于语言不同，这实际上是由 `Deref` 特性提供的通用机制，该特性提供了一种[用户定义的转换](./user-defined_conversions.html)。
 - en: '[Function to pointer](#function-to-pointer)'
+  id: totrans-34
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[函数到指针](#function-to-pointer)'
 - en: In C++ functions and static member functions are automatically converted to
     function pointers.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，函数和静态成员函数会自动转换为函数指针。
 - en: Rust performs the same conversion. In addition to functions and members that
     do not take `self` as an argument, constructors (proper constructors) also have
     function type and can be converted to function pointers. Non-capturing closures
     do not have function type, but can also be converted to function pointers.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 执行相同的转换。除了不接收 `self` 参数的函数和成员之外，构造函数（正确构造函数）也有函数类型，并且可以转换为函数指针。非捕获闭包没有函数类型，但也可以转换为函数指针。
 - en: '[PRE6]'
+  id: totrans-37
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[PRE7]'
+  id: totrans-38
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: 'fn twice(x: i32) -> i32 {'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn twice(x: i32) -> i32 {'
 - en: x * x
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x * x
 - en: '}'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct MyPair(i32, i32);
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: struct MyPair(i32, i32);
 - en: impl MyPair {
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: impl MyPair {
 - en: fn new() -> MyPair {
+  id: totrans-44
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn new() -> MyPair {
 - en: MyPair(0, 0)
+  id: totrans-45
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: MyPair(0, 0)
 - en: '}'
+  id: totrans-46
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: // convert a function to a function pointer
+  id: totrans-49
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 将函数转换为函数指针
 - en: 'let twicePtr: fn(i32) -> i32 = twice;'
+  id: totrans-50
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let twicePtr: fn(i32) -> i32 = twice;'
 - en: let res = twicePtr(5);
+  id: totrans-51
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let res = twicePtr(5);
 - en: // convert a constructor to a function pointer
+  id: totrans-52
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 将构造函数转换为函数指针
 - en: 'let ctorPtr: fn(i32, i32) -> MyPair = MyPair;'
+  id: totrans-53
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let ctorPtr: fn(i32, i32) -> MyPair = MyPair;'
 - en: let pair = ctorPtr(10, 20);
+  id: totrans-54
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let pair = ctorPtr(10, 20);
 - en: // convert a static method to a function
+  id: totrans-55
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 将静态方法转换为函数
 - en: // pointer
+  id: totrans-56
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 指针
 - en: 'let methodPtr: fn() -> MyPair = MyPair::new;'
+  id: totrans-57
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let methodPtr: fn() -> MyPair = MyPair::new;'
 - en: let pair2 = methodPtr();
+  id: totrans-58
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let pair2 = methodPtr();
 - en: // convert a non-capturing closure to a
+  id: totrans-59
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 将非捕获闭包转换为函数
 - en: // function pointer
+  id: totrans-60
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 函数指针
 - en: 'let closure: fn(i32) -> i32 = |x: i32| x * 5;'
+  id: totrans-61
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let closure: fn(i32) -> i32 = |x: i32| x * 5;'
 - en: let closureRes = closure(2);
+  id: totrans-62
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let closureRes = closure(2);
 - en: '}'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE8]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: '[Numeric promotion and numeric conversion](#numeric-promotion-and-numeric-conversion)'
+  id: totrans-65
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[数值提升和数值转换](#numeric-promotion-and-numeric-conversion)'
 - en: In C++ there are several kinds of implicit conversions that occur between numeric
     types. The most commonly encountered are numeric promotions, which convert numeric
     types to larger types.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，数值类型之间存在几种隐式转换。最常见的是数值提升，它将数值类型转换为更大的类型。
 - en: These lossless conversions are not implicit in Rust. Instead, they must be performed
     explicitly using the `Into::into()` method. These conversions are provided by
     implementations of the [`From`](https://doc.rust-lang.org/std/convert/trait.From.html)
@@ -257,442 +391,666 @@
     list of conversions provided by the Rust standard library is [listed on the documentation
     page](https://doc.rust-lang.org/std/convert/trait.From.html#implementors) for
     the trait.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些无损转换在 Rust 中不是隐式的。相反，必须显式使用 `Into::into()` 方法来执行这些转换。这些转换由 `From` 和 `Into`
+    特性的实现提供。Rust 标准库提供的转换列表可以在该特性的文档页面（[文档页面](https://doc.rust-lang.org/std/convert/trait.From.html#implementors)）上找到。
 - en: '[PRE9]'
+  id: totrans-68
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: '[PRE10]'
+  id: totrans-69
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: fn main() {
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let x: i32 = 42;'
+  id: totrans-71
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let x: i32 = 42;'
 - en: 'let y: i64 = x.into();'
+  id: totrans-72
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let y: i64 = x.into();'
 - en: 'let a: f32 = 1.0;'
+  id: totrans-73
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let a: f32 = 1.0;'
 - en: 'let b: f64 = a.into();'
+  id: totrans-74
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let b: f64 = a.into();'
 - en: '}'
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE11]'
+  id: totrans-76
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: There are several implicit conversions that occur in C++ that are not lossless.
     For example, integers can be implicitly converted to unsigned integers in C++.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 中存在一些不是无损的隐式转换。例如，整数可以隐式转换为无符号整数。
 - en: In Rust, these conversions are also required to be explicit and are provided
     by the [`TryFrom`](https://doc.rust-lang.org/std/convert/trait.TryFrom.html) and
     [`TryInto`](https://doc.rust-lang.org/std/convert/trait.TryInto.html) traits which
     require handling the cases where the value does not map to the other type.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，这些转换也必须是显式的，并由 `TryFrom` 和 `TryInto` 特性提供，这些特性要求处理值不映射到其他类型的情况。
 - en: '[PRE12]'
+  id: totrans-79
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: '[PRE13]'
+  id: totrans-80
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: use std::convert::TryInto;
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::convert::TryInto;
 - en: fn main() {
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let x: i32 = 42;'
+  id: totrans-83
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let x: i32 = 42;'
 - en: 'let y: u32 = match x.try_into() {'
+  id: totrans-84
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let y: u32 = match x.try_into() {'
 - en: Ok(x) => x,
+  id: totrans-85
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Ok(x) => x,
 - en: Err(err) => {
+  id: totrans-86
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Err(err) => {
 - en: panic!("Can't convert! {:?}", err);
+  id: totrans-87
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: panic!("无法转换！ {:?}", err);
 - en: '}'
+  id: totrans-88
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '};'
+  id: totrans-89
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: '}'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE14]'
+  id: totrans-91
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: Some conversions that occur in C++ are supported by neither `From` nor `TryFrom`
     because there is not a clear choice of conversion or because they are not value-preserving.
     For example, in C++ `int32_t` can implicitly be converted to `float` despite `float`
     not being able to represent all 32 bit integers precisely, but in Rust there is
     no `TryFrom<i32>` implementation for `f32`.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，一些转换既不支持 `From` 也不支持 `TryFrom`，因为不存在明确的转换选择，或者因为它们不是值保持的。例如，在 C++ 中，`int32_t`
+    可以隐式转换为 `float`，尽管 `float` 无法精确表示所有 32 位整数，但在 Rust 中没有为 `f32` 实现 `TryFrom<i32>`。
 - en: In Rust the only way to convert from an `i32` to an `f32` is with the [`as`
     operator](https://doc.rust-lang.org/stable/reference/expressions/operator-expr.html#r-expr.as.coercions).
     The operator can actually be used to convert between other primitive types as
     well and does not panic or produce undefined behavior, but may not convert in
     the desired way (e.g., it may use a different rounding mode than desired or it
     may truncate rather than saturate as desired).
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，从 `i32` 转换到 `f32` 的唯一方法是使用 `as` 操作符（[`as` 操作符](https://doc.rust-lang.org/stable/reference/expressions/operator-expr.html#r-expr.as.coercions)）。实际上，该操作符可以用于在其它原始类型之间进行转换，并且不会引发
+    panic 或产生未定义的行为，但它可能不会按照预期的方式转换（例如，它可能使用与预期不同的舍入模式，或者它可能截断而不是饱和）。
 - en: '[PRE15]'
+  id: totrans-94
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: '[PRE16]'
+  id: totrans-95
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: fn main() {
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let x: i32 = 42;'
+  id: totrans-97
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let x: i32 = 42;'
 - en: 'let a: f32 = x as f32;'
+  id: totrans-98
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let a: f32 = x as f32;'
 - en: '}'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE17]'
+  id: totrans-100
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: '[`isize` and `usize`](#isize-and-usize)'
+  id: totrans-101
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: '[`isize` 和 `usize`](#isize-and-usize)'
 - en: In the Rust standard library the `isize` and `usize` types are used for values
     intended to used be indices (much like `size_t` in C++). However, their use for
     other purposes is usually discouraged in favor of using explicitly sized types
     such as `u32`. This results a situation where values of type `u32` have to be
     converted to `usize` for use in indexing, but `Into<usize>` is not implemented
     for `u32`.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 标准库中，`isize` 和 `usize` 类型用于表示索引值（类似于 C++ 中的 `size_t`）。然而，通常不鼓励用于其他目的，而是使用显式大小的类型，如
+    `u32`。这导致了一个情况，即类型为 `u32` 的值必须转换为 `usize` 以用于索引，但 `Into<usize>` 没有为 `u32` 实现。
 - en: In these cases, best practice is to use `TryInto`, and if further error handling
     of the failure cause is not desired, to call `unwrap`, creating a panic at the
     point of conversion.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这种情况下，最佳实践是使用 `TryInto`，如果不需要进一步处理失败原因的错误处理，则调用 `unwrap`，在转换点引发 panic。
 - en: This is preferred because it prevents the possibility of moving forward with
     an incorrect value. E.g., consider converting a `u64` to a `usize` that has a
     32-bit representation with `as`, which truncates the result. A value that is one
     greater than the `u32::MAX` will truncate to `0`, which would probably result
     in successfully retrieving the wrong value from a data structure, thus masking
     a bug and producing unexpected behavior.
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是一种更受欢迎的方法，因为它可以防止继续使用错误值的可能性。例如，考虑使用`as`将`u64`转换为具有32位表示的`usize`，这会截断结果。比`u32::MAX`大1的值将截断为`0`，这可能会在数据结构中成功检索到错误值，从而掩盖错误并产生意外的行为。
 - en: '[Enums](#enums)'
+  id: totrans-105
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: '[枚举](#enums)'
 - en: In C++ enums can be implicitly converted to integer types.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中，枚举可以隐式转换为整数类型。
 - en: In Rust the conversion requires the use of the `as` operator, and providing
     `From` and `TryFrom` implementations to move back and forth between the enum and
     its representation type is recommended. Examples and additional details are given
     in the [chapter on enums](./data_modeling/enums.html).
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Rust中，转换需要使用`as`运算符，并且建议提供`From`和`TryFrom`实现，以便在枚举及其表示类型之间来回移动。示例和更多细节在[枚举章节](./data_modeling/enums.html)中给出。
 - en: '[Qualification conversion](#qualification-conversion)'
+  id: totrans-108
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[资格转换](#qualification-conversion)'
 - en: In C++ qualification conversions enable the use of const (or volatile) values
     where the const (or volatile) qualifier is not expected.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中，资格转换允许在不需要资格转换的情况下使用const（或volatile）值。
 - en: In Rust the equivalent enables the use of `mut` variables and `mut` references
     to be used where non-`mut` variables or references are expected.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Rust中，等效的转换允许在期望非`mut`变量或引用的地方使用`mut`变量和`mut`引用。
 - en: '[PRE18]'
+  id: totrans-111
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: '[PRE19]'
+  id: totrans-112
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: 'fn display(msg: &str) {'
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn display(msg: &str) {'
 - en: println!("{}", msg);
+  id: totrans-114
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", msg);
 - en: '}'
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let mut s: String = "hello world".to_string();'
+  id: totrans-117
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let mut s: String = "hello world".to_string();'
 - en: 'let message: &mut str = s.as_mut();'
+  id: totrans-118
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let message: &mut str = s.as_mut();'
 - en: display(message);
+  id: totrans-119
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: display(message);
 - en: '}'
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE20]'
+  id: totrans-121
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: '[Integer literals](#integer-literals)'
+  id: totrans-122
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[整数字面量](#integer-literals)'
 - en: In C++ integer literals with no suffix indicating type have the smallest type
     in which they can fit from `int`, `long int`, or `long long int`. When the literal
     is then assigned to a variable of a different type, an implicit conversion is
     performed.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中，没有后缀表示类型的整数字面量具有从`int`、`long int`或`long long int`中可以容纳的最小类型。当字面量随后被分配给不同类型的变量时，将执行隐式转换。
 - en: In Rust, integer literals have their type inferred depending on context. When
     there is insufficient information to infer a type either `i32` is assumed or may
     require some type annotation to be given.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Rust中，整数字面量的类型取决于上下文。当没有足够的信息来推断类型时，默认假设为`i32`，或者可能需要提供一些类型注解。
 - en: '[PRE21]'
+  id: totrans-125
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: '[PRE22]'
+  id: totrans-126
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: fn main() {
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: '// error: literal out of range for `u32`'
+  id: totrans-128
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 错误：字面量超出`u32`的范围
 - en: '// let x: u32 = 4294967296;'
+  id: totrans-129
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// let x: u32 = 4294967296;'
 - en: // assumes i32
+  id: totrans-130
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 假设i32
 - en: let y = 1;
+  id: totrans-131
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let y = 1;
 - en: // fails to compile because it is inferred as i32
+  id: totrans-132
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 编译失败，因为它被推断为i32
 - en: // print!("{}", 4294967296);
+  id: totrans-133
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // print!("{}", 4294967296);
 - en: // These work, though.
+  id: totrans-134
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 这些是可行的。
 - en: println!("{}", 4294967296u64);
+  id: totrans-135
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", 4294967296u64);
 - en: 'let z: u64 = 4294967296;'
+  id: totrans-136
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let z: u64 = 4294967296;'
 - en: println!("{}", z);
+  id: totrans-137
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", z);
 - en: '}'
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE23]'
+  id: totrans-139
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: '[Safe bools](#safe-bools)'
+  id: totrans-140
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[安全的布尔值](#safe-bools)'
 - en: The safe bool idiom exists to make it possible to use types as conditions. Since
     C++11 this idiom is straightforward to implement.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 安全布尔值习语的存在是为了使类型作为条件使用成为可能。自C++11以来，这个习语变得容易实现。
 - en: In Rust instead of converting the value to a boolean, the normal idiom matches
     on the value instead. Depending on the situation, the mechanism used for matching
     might be `match`, `if let`, or `let else`.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Rust中，而不是将值转换为布尔值，通常使用`match`、`if let`或`let else`来匹配值。根据情况，可能使用的匹配机制是`match`、`if
+    let`或`let else`。
 - en: '[PRE24]'
+  id: totrans-143
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: '[PRE25]'
+  id: totrans-144
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: enum Wire {
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: enum Wire {
 - en: Ready(u32),
+  id: totrans-146
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Ready(u32),
 - en: NotReady,
+  id: totrans-147
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: NotReady,
 - en: '}'
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let wire = Wire::NotReady;
+  id: totrans-150
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let wire = Wire::NotReady;
 - en: // ...
+  id: totrans-151
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: // match
+  id: totrans-152
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // match
 - en: match wire {
+  id: totrans-153
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match wire {
 - en: Wire::Ready(v) => {
+  id: totrans-154
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Wire::Ready(v) => {
 - en: // use value v
+  id: totrans-155
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // use value v
 - en: '}'
+  id: totrans-156
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Wire::NotReady => {
+  id: totrans-157
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Wire::NotReady => {
 - en: // do something else
+  id: totrans-158
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 执行其他操作
 - en: '}'
+  id: totrans-159
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-160
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // if let
+  id: totrans-161
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // if let
 - en: if let Wire::Ready(v) = wire {
+  id: totrans-162
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if let Wire::Ready(v) = wire {
 - en: // use value v
+  id: totrans-163
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // use value v
 - en: '}'
+  id: totrans-164
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // let else
+  id: totrans-165
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // let else
 - en: let Wire::Ready(v) = wire else {
+  id: totrans-166
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Wire::Ready(v) = wire else {
 - en: // do something that doesn't continue,
+  id: totrans-167
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 执行一些不会继续的操作，
 - en: // like early return
+  id: totrans-168
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 类似于早期返回
 - en: return;
+  id: totrans-169
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-170
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: '}'
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE26]'
+  id: totrans-172
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: '[User-defined conversions](#user-defined-conversions)'
+  id: totrans-173
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[用户定义的转换](#user-defined-conversions)'
 - en: User-defined conversions are covered in a [separate chapter](./user-defined_conversions.html).
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 用户定义的转换将在[单独的章节](./user-defined_conversions.html)中介绍。
 - en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Type
     promotions and conversions)
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Type
+    promotions and conversions)

@@ -1,115 +1,173 @@
 - en: Anonymous namespaces and static
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 匿名命名空间和静态
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/anonymous_namespaces.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/anonymous_namespaces.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/anonymous_namespaces.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/anonymous_namespaces.html)
 - en: Anonymous namespaces in C++ are used to avoid symbol collisions between different
     translation units. Such collisions violate [the one definition rule](https://timsong-cpp.github.io/cppwp/n4950/basic.def.odr#14)
     and result in undefined behavior (which at best manifests as linking errors).
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 中的匿名命名空间用于避免不同翻译单元之间的符号冲突。这种冲突违反了[单一定义规则](https://timsong-cpp.github.io/cppwp/n4950/basic.def.odr#14)，并导致未定义的行为（在最坏的情况下表现为链接错误）。
 - en: For example, without the use of anonymous namespaces, the following would result
     in undefined behavior (and no linking error, due to the use of `inline` producing
     weak symbols in the object files).
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，如果不使用匿名命名空间，以下代码将导致未定义的行为（由于使用 `inline` 在对象文件中产生弱符号，因此没有链接错误）。
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: C++ static declarations are also used to achieve the same goal by making it
     so that a declaration has internal linkage (and so is not visible outside of the
     translation unit).
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 静态声明也用于通过使声明具有内部链接（因此不在翻译单元外部可见）来实现相同的目标。
 - en: Rust avoids the linkage problem by controlling linkage and visibility simultaneously,
     with declarations always also being definitions. Instead of translation units,
     programs are structured in terms of [modules](./headers.html), which provide both
     namespaces and visibility controls over definitions, enabling the Rust compiler
     to guarantee that symbol collision issues cannot happen.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 通过同时控制链接和可见性来避免链接问题，声明总是也是定义。与翻译单元不同，程序以[模块](./headers.html)的形式组织，它们提供命名空间和定义的可见性控制，使
+    Rust 编译器能够保证不会发生符号冲突问题。
 - en: The following Rust program achieves the same goal as the C++ program above,
     in terms of avoiding the collision of the two functions while making them available
     for use within the defining files.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下 Rust 程序在避免两个函数冲突的同时，使它们在定义文件内可用，与上面的 C++ 程序达到相同的目标。
 - en: '[PRE1]'
+  id: totrans-8
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { // a.rs'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { // a.rs'
 - en: mod a { fn common_function_name() {
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: mod a { fn common_function_name() {
 - en: // ...
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // b.rs
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: // b.rs
 - en: mod b { fn common_function_name() {
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: mod b { fn common_function_name() {
 - en: // ...
+  id: totrans-16
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '} }'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '} }'
 - en: '[PRE2]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Additionally,
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，
 - en: Unlike C++ namespaces, Rust modules (which provide namespacing as well as visibility
     controls) can only be defined once, and this is checked by the compiler.
+  id: totrans-21
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 与 C++ 命名空间不同，Rust 模块（它们提供命名空间以及可见性控制）只能定义一次，并且这是由编译器检查的。
 - en: Each file [defines a module which has to be explicitly included in the module
     hierarchy](https://doc.rust-lang.org/stable/book/ch07-05-separating-modules-into-different-files.html).
+  id: totrans-22
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 每个文件[定义了一个模块，该模块必须显式包含在模块层次结构中](https://doc.rust-lang.org/stable/book/ch07-05-separating-modules-into-different-files.html)。
 - en: Modules from Rust crates (libraries) are always qualified with some root module
     name, so they cannot conflict. If they would conflict, [the root module name must
     be replaced with some user-chosen name](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#renaming-dependencies-in-cargotoml).
+  id: totrans-23
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 来自 Rust 包（库）的模块始终带有某个根模块名称，因此它们不会冲突。如果它们会冲突，[根模块名称必须替换为用户选择的名称](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#renaming-dependencies-in-cargotoml)。
 - en: '[Caveats about C interoperability](#caveats-about-c-interoperability)'
+  id: totrans-24
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[关于 C 兼容性的注意事项](#caveats-about-c-interoperability)'
 - en: When using libraries not managed by Rust, the usual problems can occur if there
     are symbol collisions in the object files. This can arise when using C or C++
     static or dynamic libraries. It can also arise when using Rust static or dynamic
     libraries built for use in C or C++ programs.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 当使用由 Rust 不管理的库时，如果对象文件中存在符号冲突，可能会出现通常的问题。这在使用 C 或 C++ 静态或动态库时可能会发生。当使用为在 C
+    或 C++ 程序中使用而构建的 Rust 静态或动态库时，也可能发生。
 - en: Rust provides [`#[unsafe(no_mangle)]`](https://doc.rust-lang.org/reference/abi.html#the-no_mangle-attribute)
     to bypass name mangling in order to produce functions that can be easily referred
     to from C or C++. This can also cause undefined behavior due to name collision.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 提供了 `#[unsafe(no_mangle)]` 来绕过名称修饰，以便产生可以从 C 或 C++ 中轻松引用的函数。这也可能导致由于名称冲突而导致的未定义行为。
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Anonymous
     namespaces and static)
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Anonymous%20namespaces%20and%20static)

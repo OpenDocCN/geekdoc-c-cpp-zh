@@ -1,49 +1,71 @@
 - en: Placement new
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Placement new
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/placement_new.html](https://cel.cs.brown.edu/crp/idioms/placement_new.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/placement_new.html](https://cel.cs.brown.edu/crp/idioms/placement_new.html)
 - en: Some of the statements about Rust in this chapter are dependent on the specifics
     of how the compiler optimizes various programs. Unless otherwise state, the results
     presented here are based on rustc 1.87 using the [2024 language edition](https://doc.rust-lang.org/edition-guide/introduction.html).
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章中关于Rust的一些陈述取决于编译器如何优化各种程序的具体细节。除非另有说明，此处展示的结果是基于使用[2024语言版本](https://doc.rust-lang.org/edition-guide/introduction.html)的rustc
+    1.87。
 - en: The primary purposes of placement new in C++ are
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: C++中placement new的主要目的是
 - en: situations where [storage allocation is separate from initialization](#custom-allocators-and-custom-containers)
     such as in the implementation of `std::vector` or memory pools,
+  id: totrans-4
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 存储分配与初始化分离的情况，例如在`std::vector`或内存池的实现中。
 - en: situations where the structures need to be placed at a specific memory location,
     e.g., for [working with memory-mapped registers](#memory-mapped-registers-and-embedded-development),
     and
+  id: totrans-5
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 需要将结构放置在特定内存位置的情况，例如，[与内存映射寄存器一起工作](#memory-mapped-registers-and-embedded-development)，以及
 - en: '[storage reuse for performance reasons](#performance-and-storage-reuse).'
+  id: totrans-6
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[出于性能原因的存储重用](#performance-and-storage-reuse)。'
 - en: You also might have ended up on this page looking for [how to construct large
     values directly on the heap in Rust](#constructing-large-values-on-the-heap).
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 你也可能是因为寻找[如何在Rust中直接在堆上构造大值的方法](#constructing-large-values-on-the-heap)而来到这个页面。
 - en: There is an [open proposal](https://github.com/rust-lang/rfcs/pull/2884) for
     adding the features analogous to placement new in Rust, but the design of the
     features is still under discussion. In the meantime, for many of the use cases
     of placement new, there are either alternatives in safe Rust or approaches that
     use unsafe Rust that can accomplish the required behaviors.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 有一个[开放提案](https://github.com/rust-lang/rfcs/pull/2884)在Rust中添加与placement new类似的功能，但该功能的架构仍在讨论中。同时，对于placement
+    new的许多用例，在安全Rust中存在替代方案，或者使用不安全Rust的方法可以完成所需的行为。
 - en: '[Custom allocators and custom containers](#custom-allocators-and-custom-containers)'
+  id: totrans-9
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[自定义分配器和自定义容器](#custom-allocators-and-custom-containers)'
 - en: It is uncommon to use placement new for the first reason because the major use
     cases are covered by using STL containers with custom allocators. Similarly, Rust's
     standard libraries can be used with custom allocators. However, in Rust the API
@@ -52,37 +74,53 @@
     flag](https://doc.rust-lang.org/unstable-book/library-features/allocator-api.html).
     The Rust Book has [instructions on how to install the nightly toolchain](https://doc.rust-lang.org/book/appendix-07-nightly-rust.html#unstable-features)
     and the The Rust Unstable Book has [instructions on how to use unstable features](https://doc.rust-lang.org/unstable-book/).
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用placement new的第一个原因不常见，因为大多数用例已经被使用带有自定义分配器的STL容器所覆盖。同样，Rust的标准库也可以与自定义分配器一起使用。然而，在Rust中，自定义分配器的API仍然[不稳定](https://github.com/rust-lang/rust/issues/32838)，因此它们只能在使用带有[特性标志](https://doc.rust-lang.org/unstable-book/library-features/allocator-api.html)的nightly编译器时才可用。Rust
+    Book提供了[如何安装nightly工具链的说明](https://doc.rust-lang.org/book/appendix-07-nightly-rust.html#unstable-features)，而Rust
+    Unstable Book提供了[如何使用不稳定特性的说明](https://doc.rust-lang.org/unstable-book/)。
 - en: For stable Rust, there are libraries that cover many of the uses of allocators.
     For example, [bumpalo](https://docs.rs/bumpalo/latest/bumpalo/) provides a safe
     interface to a bump allocation arena, a [vector type using the arena](https://docs.rs/bumpalo/latest/bumpalo/collections/vec/struct.Vec.html),
     and other utility types using the arena.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于稳定的Rust，存在许多覆盖分配器用例的库。例如，[bumpalo](https://docs.rs/bumpalo/latest/bumpalo/)提供了一个对bump分配场的安全接口，一个[使用该场的向量类型](https://docs.rs/bumpalo/latest/bumpalo/collections/vec/struct.Vec.html)，以及其他使用该场的实用类型。
 - en: For implementing custom collection types that involves separate allocation and
     initialization of memory, the chapters in the Rustonomicon on [implementing `Vec`](https://doc.rust-lang.org/nomicon/vec/vec.html)
     are a useful resource.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于实现涉及单独分配和初始化内存的自定义集合类型，Rustonomicon中关于[实现`Vec`](https://doc.rust-lang.org/nomicon/vec/vec.html)的章节是一个有用的资源。
 - en: '[Memory-mapped registers and embedded development](#memory-mapped-registers-and-embedded-development)'
+  id: totrans-13
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[内存映射寄存器和嵌入式开发](#memory-mapped-registers-and-embedded-development)'
 - en: If you are using Rust for embedded development, you may want to additionally
     read the [Embedded Rust Book](https://docs.rust-embedded.org/book/). The chapters
     on [peripherals](https://docs.rust-embedded.org/book/peripherals/index.html) discuss
     how to work with structures that are located at a specific address in memory.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你正在使用Rust进行嵌入式开发，你可能还想额外阅读[嵌入式Rust书籍](https://docs.rust-embedded.org/book/)。关于[外设](https://docs.rust-embedded.org/book/peripherals/index.html)的章节讨论了如何与位于内存中特定地址的结构一起工作。
 - en: The Embedded rust Book also includes [a chapter on advice for embedded C programmers
     using Rust for embedded development](https://docs.rust-embedded.org/book/c-tips/index.html).
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 嵌入式Rust书籍还包括[一个章节，为使用Rust进行嵌入式开发的嵌入式C程序员提供建议](https://docs.rust-embedded.org/book/c-tips/index.html)。
 - en: '[Performance and storage reuse](#performance-and-storage-reuse)'
+  id: totrans-16
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[性能和存储重用](#performance-and-storage-reuse)'
 - en: This use of placement new in C++ for the purpose of reusing storage can usually
     be replaced in Rust by a simple assignment. Because [assignment in Rust is always
     a move, and in Rust moves do not leave behind objects that require destruction](./constructors/copy_and_move_constructors.html),
@@ -93,92 +131,140 @@
     the performance-sensitive code to confirm that the desired optimization was performed.
     Additionally, the generated assembly for specific functions can be examined using
     a tool like [cargo-show-asm](https://github.com/pacak/cargo-show-asm).
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中使用placement new来重用存储的这种用法通常可以用Rust中的简单赋值来替代。因为[Rust中的赋值总是移动操作，并且Rust中的移动不会留下需要销毁的对象](./constructors/copy_and_move_constructors.html)，优化器通常会为这种用例生成与placement
+    new类似的代码。在某些情况下，这也取决于[RVO或NRVO优化](./rvo.html)。虽然这些优化不是保证的，但它们对于常见的编码模式来说足够可靠，尤其是在与[基准测试](https://bheisler.github.io/criterion.rs/book/index.html)性能敏感的代码结合使用时，可以确认所需的优化已执行。此外，可以使用像[cargo-show-asm](https://github.com/pacak/cargo-show-asm)这样的工具来检查特定函数生成的汇编代码。
 - en: The Rust version of the following example relies on the optimizations [to achieve
     the desired behavior](https://godbolt.org/#z:OYLghAFBqd5TKALEBjA9gEwKYFFMCWALugE4A0BIEAZgQDbYB2AhgLbYgDkAjF%2BTXRMiAZVQtGIHgBYBQogFUAztgAKAD24AGfgCsp5eiyahSAVyVFyKxqiIEh1ZpgDC6embZMpATnLOAGQImbAA5TwAjbFIQADZyAAd0JWIHJjcPL19E5NShIJDwtiiY%2BJtsOzSRIhZSIgzPbx4/csqhatqiArDI6LjrGrqGrOaBzu6ikriASmt0M1JUTi4AUgAmAGYVgFYAIRxSAgA3bAgAEWwaFjN6Immds5WtAEFLczsAagDa4GwAdQImF%2BRA%2BKwA7Lsns8PjCPoCQB8LAQAF7YchQ8GPF4YzY7XZmJhKFg0U5MdAAfTYxmAjHu2yxzxoTA%2BmApAHcyABrCBshHrWJsMwg76kX4AoHYO6giFQ2EfQSkOFw5laAB0qp4Wi00shLzlcoAVGzQRszl8fv9AcCdbL9Xb4XD0Xq7dLHhtddCXQB6L2IlQfNm2u2WTAgEBIYJEMMRIyoTnkiLodQQfls%2B7uoOujFghlQpkfKnBCDTG3OmGMEGCkFKVCkFhEVBIE1mkViq2SsM4K43IjFlYZsss9lclNrAVCj41usNpDpj2YqFcWb0bjbfjeLg6cjobgAJQs1fmi2woM2fHIUc3S9mnJA2zWquksTB21iGwAHD5PzwZBtDNxpH4Ng7y0cgNy3HcuH4JQQFAy8dFmOBYBQDAcHwYgyEoag6EYVgOG4c9BGEMQJE4GQ5GEZQ1E0K9yH0NZDGpNB1khNZdmsbBbHsRwIGcYZvDWHh/CYTAJl6GJZCSFJuPSdxGhAQScmktIxOKPpZFaGSOiGOSskUzSqkGLpgh6NSJLGHTMgEoTLHGEzJnU2YlCPJZuHWDZglQDwcBNFxUBDLt%2B1wHEPKYLyzB8/sXBCQMNmC7EXjeMxPlbS0JRBcEPRhEMwxSVFyRBQF%2B3nHNioxF4iGwNgEiMSrfKIABPBJmHYE8ABUgqhbB1Eq0hmSOdBAQ%2BGMWDjXYkwgNrT1idQ53K54BqG1k/hHRbMA%2BA0p3rRsS0y20FQ%2BCAcpAPLsAKpV%2BzNLRioujYXA%2BTVrvdOEWJY3aZUHa4SA2tkIBiw6tpnEtUvFYFMtVIbLpenM5sHH0/RPQNBxGsaJrTMrBzZABaIKAD8QfbXtYc9BdsVKhLnkjAsWCLd6so%2BCQCGAVglAgRnmfQGgIAJ9LphLRtakzGEODYMgGrxU7Oe5i1QclOk3XptafubAsqrFjHPWWkd0YHZ5SeeJd/y4NcwO0fhIJcV62MnFyT3ctZ%2BHg69yCQbAWAOahlwAoCQNN2jIOg2CLzNvnyFve9H2fV8Py/Hwf2kP8Vy4DZ1zN7duEdkPyCQhB4AgFD0GqhhoiwiAMCLxgYlIHh3zBUCcN6mCIAiNOImCWoGoI/g29YUgGoAeQiXQKkvc9y44YR%2B6YehO9onAIjMYAXAkegYN4fgcCpExJDnghSBH45sDXrduoqIVli3SNOLT%2BgCAiOs%2B7cHA06IQ5gPX8gTlIRMVAuLeaWCKAK8swaBGGAEoAAagQbAbJ%2B7NQ3IReQJFJDkSIooFQGg076CEkYEwIBzCWEMHfGCkBZjoASDJNeWMsb3XIUQLGjATj0Eug7bcX9Dg4BIcWDiXE0hOBEvxAwgR7LiQMFJPIskrJiNyDJVSUwbKcQPu0IygiFG8OUXZQooibIqN0k0CyxktFmSkE5W2JijYm3AubbgHwCENgeqqWuqptQQHQiQRU7keDTEzsA7OKB5hEASEKUu5cEjF1IKEVq3A7GoAcU4k%2BhB3HwiEmg5BZFZBoKopg2i2DyBsjrAkLuXtjap39twfuQogkgk5rYg8sSeCOLBM4w6bgK7RFPBsLxPiEI3hANIJp2wNhrATrETUmp3zvm2O%2BI2gFyDAW2KBKx6coLWCDk7RCiB85oELmEyuISdnhJAMAHg2wUkMEbtQFutEe4dy7uQG5fdB7DzsHc8ezAiBTxnmneei9l70FXncze1Id5bkIPvSoJxj78FPqgc%2Bdyr5Jy3Lfe%2BHcn4X0dm/O5X8f7YD/sCwBWdQEsHAVAmBcDmB3NSeIFBGT5BZJolueijE8GoCtuxZFXCyEULSFQkMl1WVsRYpsD4WN%2B6sPQOwwER94BOUUW0bwvEBF6KESJORfQhLiJkqopSEi1UxDUUopg2l6jKoNfK41eqDC2UsvJHRmjTLyNMQsVyaximWLTpBD46h3yxCxrEaQHxgCoHqdsDUh03FkA6a67phstkBKqfstpESolcG9b6/1gbg0PVDeebAiSyDwgYlS0iUhaWUQwQyvQCk8kFKKRY0pEFymVInDUtNfqA1BpDWGiArTdntPtt44OwDZiu3dn0bhSdZnzMWR6jOqy4Ih16f01UgzhkbFGVocZkzplJxTn7RtKz1nFNYUsgOQ6emf2iCkRw0ggA%3D%3D).
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例的Rust版本依赖于[优化](https://godbolt.org/#z:OYLghAFBqd5TKALEBjA9gEwKYFFMCWALugE4A0BIEAZgQDbYB2AhgLbYgDkAjF%2BTXRMiAZVQtGIHgBYBQogFUAztgAKAD24AGfgCsp5eiyahSAVyVFyKxqiIEh1ZpgDC6embZMpATnLOAGQImbAA5TwAjbFIQADZyAAd0JWIHJjcPL19E5NShIJDwtiiY%2BJtsOzSRIhZSIgzPbx4/csqhatqiArDI6LjrGrqGrOaBzu6ikriASmt0M1JUTi4AUgAmAGYVgFYAIRxSAgA3bAgAEWwaFjN6Immds5WtAEFLczsAagDa4GwAdQImF%2BRA%2BKwA7Lsns8PjCPoCQB8LAQAF7YchQ8GPF4YzY7XZmJhKFg0U5MdAAfTYxmAjHu2yxzxoTA%2BmApAHcyABrCBshHrWJsMwg76kX4AoHYO6giFQ2EfQSkOFw5laAB0qp4Wi00shLzlcoAVGzQRszl8fv9AcCdbL9Xb4XD0Xq7dLHhtddCXQB6L2IlQfNm2u2WTAgEBIYJEMMRIyoTnkiLodQQfls%2B7uoOujFghlQpkfKnBCDTG3OmGMEGCkFKVCkFhEVBIE1mkViq2SsM4K43IjFlYZsss9lclNrAVCj41usNpDpj2YqFcWb0bjbfjeLg6cjobgAJQs1fmi2woM2fHIUc3S9mnJA2zWquksTB21iGwAHD5PzwZBtDNxpH4Ng7y0cgNy3HcuH4JQQFAy8dFmOBYBQDAcHwYgyEoag6EYVgOG4c9BGEMQJE4GQ5GEZQ1E0K9yH0NZDGpNB1khNZdmsbBbHsRwIGcYZvDWHh/CYTAJl6GJZCSFJuPSdxGhAQScmktIxOKPpZFaGSOiGOSskUzSqkGLpgh6NSJLGHTMgEoTLHGEzJnU2YlCPJZuHWDZglQDwcBNFxUBDLt%2B1wHEPKYLyzB8/sXBCQMNmC7EXjeMxPlbS0JRBcEPRhEMwxSVFyRBQF%2B3nHNioxF4iGwNgEiMSrfKIABPBJmHYE8ABUgqhbB1Eq0hmSOdBAQ%2BGMWDjXYkwgNrT1idQ53K54BqG1k/hHRbMA%2BA0p3rRsS0y20FQ%2BCAcpAPLsAKpV%2BzNLRioujYXA%2BTVrvdOEWJY3aZUHa4SA2tkIBiw6tpnEtUvFYFMtVIbLpenM5sHH0/RPQNBxGsaJrTMrBzZABaIKAD8QfbXtYc9BdsVKhLnkjAsWCLd6so%2BCQCGAVglAgRnmfQGgIAJ9LphLRtakzGEODYMgGrxU7Oe5i1QclOk3XptafubAsqrFjHPWWkd0YHZ5SeeJd/y4NcwO0fhIJcV62MnFyT3ctZ%2BHg69yCQbAWAOahlwAoCQNN2jIOg2CLzNvnyFve9H2fV8Py/Hwf2kP8Vy4DZ1zN7duEdkPyCQhB4AgFD0GqhhoiwiAMCLxgYlIHh3zBUCcN6mCIAiNOImCWoGoI/g29YUgGoAeQiXQKkvc9y44YR%2B6YehO9onAIjMYAXAkegYN4fgcCpExJDnghSBH45sDXrduoqIVli3SNOLT%2BgCAiOs%2B7cHA06IQ5gPX8gTlIRMVAuLeaWCKAK8swaBGGAEoAAagQbAbJ%2B7NQ3IReQJFJDkSIooFQGg076CEkYEwIBzCWEMHfGCkBZjoASDJNeWMsb3XIUQLGjATj0Eug7bcX9Dg4BIcWDiXE0hOBEvxAwgR7LiQMFJPIskrJiNyDJVSUwbKcQPu0IygiFG8OUXZQooibIqN0k0CyxktFmSkE5W2JijYm3AubbgHwCENgeqqWuqptQQHQiQRU7keDTEzsA7OKB5hEASEKUu5cEjF1IKEVq3A7GoAcU4k%2BhB3HwiEmg5BZFZBoKopg2i2DyBsjrAkLuXtjap39twfuQogkgk5rYg8sSeCOLBM4w6bgK7RFPBsLxPiEI3hANIJp2wNhrATrETUmp3zvm2O%2BI2gFyDAW2KBKx6coLWCDk7RCiB85oELmEyuISdnhJAMAHg2wUkMEbtQFutEe4dy7uQG5fdB7DzsHc8ezAiBTxnmneei9l70FXncze1Id5bkIPvSoJxj78FPqgc%2Bdyr5Jy3Lfe%2BHcn4X0dm/O5X8f7YD/sCwBWdQEsHAVAmBcDmB3NSeIFBGT5BZJolueijE8GoCtuxZFXCyEULSFQkMl1WVsRYpsD4WN%2B6sPQOwwER94BOUUW0bwvEBF6KESJORfQhLiJkqopSEi1UxDUUopg2l6jKoNfK41eqDC2UsvJHRmjTLyNMQsVyaximWLTpBD46h3yxCxrEaQHxgCoHqdsDUh03FkA6a67phstkBKqfstpESolcG9b6/1gbg0PVDeebAiSyDwgYlS0iUhaWUQwQyvQCk8kFKKRY0pEFymVInDUtNfqA1BpDWGiArTdntPtt44OwDZiu3dn0bhSdZnzMWR6jOqy4Ih16f01UgzhkbFGVocZkzplJxTn7RtKz1nFNYUsgOQ6emf2iCkRw0ggA%3D%3D)来实现所需的行为。
 - en: '[PRE0]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#[derive(Default)]'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Default)]'
 - en: struct LargeWidget {
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: struct LargeWidget {
 - en: 'id: usize,'
+  id: totrans-23
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'id: usize,'
 - en: '}'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn do_work(w: &mut LargeWidget) {'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn do_work(w: &mut LargeWidget) {'
 - en: for i in 0..100 {
+  id: totrans-26
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for i in 0..100 {
 - en: '*w = LargeWidget { id: i };'
+  id: totrans-27
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '*w = LargeWidget { id: i };'
 - en: // use w
+  id: totrans-28
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // use w
 - en: std::hint::black_box(&w);
+  id: totrans-29
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: std::hint::black_box(&w);
 - en: '}'
+  id: totrans-30
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut scratch = LargeWidget::default();
+  id: totrans-33
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut scratch = LargeWidget::default();
 - en: do_work(&mut scratch);
+  id: totrans-34
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: do_work(&mut scratch);
 - en: '}'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-36
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Adding in a `Drop` implementation for `LargeWidget` does result in the drop
     function being called on each loop iteration, but makes the generated assembly
     much harder to read, and so has been omitted from the example.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 为 `LargeWidget` 添加 `Drop` 实现会导致在每次循环迭代时调用析构函数，但这会使生成的汇编代码难以阅读，因此已从示例中省略。
 - en: '[Constructing large values on the heap](#constructing-large-values-on-the-heap)'
+  id: totrans-38
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[在堆上构造大值](#constructing-large-values-on-the-heap)'
 - en: '`new` in C++ constructs objects directly in dynamic storage, and placement
     `new` constructs them directly in the provided location. In Rust, `Box::new` is
     a normal function, so the value is constructed on the stack and then moved to
     the heap (or to the storage provided by the custom allocator).'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: '`new` 在 C++ 构造对象直接在动态存储中，而 placement `new` 直接在提供的位置构造它们。在 Rust 中，`Box::new`
+    是一个普通函数，因此值是在栈上构造的，然后移动到堆（或由自定义分配器提供的存储）。'
 - en: While the initial construction of the value on the stack can sometimes be optimized
     away, in order to guarantee that the stack is not used for the large value requires
     the use of unsafe Rust and `MaybeUninit`. Additionally, the mechanisms available
@@ -187,267 +273,407 @@
     possible to incrementally initialize a structure (either field-by-field or element-by-element),
     so that the entire structure does not have to be on the stack at once. The same
     optimizations do apply, however, and so the additional copies might be avoided.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: '虽然值在栈上的初始构造有时可以被优化掉，但为了保证不使用栈来存储大值，需要使用不安全的 Rust 和 `MaybeUninit`。此外，用于在堆上初始化值的机制并不能保证值不会首先在栈上创建然后移动到堆上。相反，它们只是使逐步初始化结构（无论是按字段还是按元素）成为可能，这样整个结构就不必一次性全部位于栈上。然而，相同的优化也适用，因此可能避免额外的复制。 '
 - en: '[PRE3]'
+  id: totrans-41
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-42
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: fn main() {
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'const SIZE: usize = 8_000_000;'
+  id: totrans-44
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'const SIZE: usize = 8_000_000;'
 - en: // optimization here makes it not overflow
+  id: totrans-45
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 此处的优化避免了溢出
 - en: // the stack with opt-level=2
+  id: totrans-46
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用 opt-level=2 的栈
 - en: let mut b = Box::new([0; SIZE]);
+  id: totrans-47
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut b = Box::new([0; SIZE]);
 - en: for i in 0..SIZE {
+  id: totrans-48
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for i in 0..SIZE {
 - en: b[i] = 42;
+  id: totrans-49
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: b[i] = 42;
 - en: '}'
+  id: totrans-50
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // use b so that it isn't optimized away
+  id: totrans-51
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用 b 以确保它不会被优化掉
 - en: std::hint::black_box(&b);
+  id: totrans-52
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: std::hint::black_box(&b);
 - en: '}'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-54
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: On the other hand, directly defining the array as `[42; SIZE]` does result in
     the value being first constructed on the stack, which produces an error when run.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 在另一方面，直接将数组定义为 `[42; SIZE]` 会导致值首先在栈上构造，这会在运行时产生错误。
 - en: '[PRE6]'
+  id: totrans-56
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: fn main() {
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'const SIZE: usize = 8_000_000;'
+  id: totrans-58
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'const SIZE: usize = 8_000_000;'
 - en: let b = Box::new([42; SIZE]);
+  id: totrans-59
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let b = Box::new([42; SIZE]);
 - en: // use b so that it isn't optimized away
+  id: totrans-60
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用 b 以确保它不会被优化掉
 - en: std::hint::black_box(&b);
+  id: totrans-61
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: std::hint::black_box(&b);
 - en: '}'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE7]'
+  id: totrans-63
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: '[PRE8]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: While construction of the values directly on the heap is not possible to enforce,
     it is possible to incrementally construct the value by using unsafe Rust, which
     avoids overflowing the stack. This technique relies on both [`MaybeUninit`](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html)
     and [`addr_of_mut!`](https://doc.rust-lang.org/std/ptr/macro.addr_of_mut.html).
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然直接在堆上构造值无法强制执行，但可以通过使用不安全的 Rust 来逐步构造值，从而避免栈溢出。这种技术依赖于 `MaybeUninit` 和 `addr_of_mut!`。
 - en: '[PRE9]'
+  id: totrans-66
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: fn main() {
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'const SIZE: usize = 8_000_000;'
+  id: totrans-68
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'const SIZE: usize = 8_000_000;'
 - en: let mut b = Box::<[i32; SIZE]>::new_uninit();
+  id: totrans-69
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut b = Box::<[i32; SIZE]>::new_uninit();
 - en: let bptr = b.as_mut_ptr();
+  id: totrans-70
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let bptr = b.as_mut_ptr();
 - en: for i in 0..SIZE {
+  id: totrans-71
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for i in 0..SIZE {
 - en: unsafe {
+  id: totrans-72
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: unsafe {
 - en: std::ptr::addr_of_mut!(((*bptr)[i])).write(42);
+  id: totrans-73
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: std::ptr::addr_of_mut!(((*bptr)[i])).write(42);
 - en: '}'
+  id: totrans-74
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-75
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: let b2 = unsafe { b.assume_init() };
+  id: totrans-76
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let b2 = unsafe { b.assume_init() };
 - en: for i in 0..SIZE {
+  id: totrans-77
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for i in 0..SIZE {
 - en: println!("{}", b2[i]);
+  id: totrans-78
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", b2[i]);
 - en: '}'
+  id: totrans-79
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE10]'
+  id: totrans-81
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: Depending on what is need, this particular use can be generalized.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据需要，这种特定用法可以被泛化。
 - en: '[PRE11]'
+  id: totrans-83
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '#![allow(unused)] fn main() { fn init_with<T, const SIZE: usize>('
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { fn init_with<T, const SIZE: usize>('
 - en: 'f: impl Fn(usize) -> T,'
+  id: totrans-85
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'f: impl Fn(usize) -> T,'
 - en: ) -> Box<[T; SIZE]> {
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> Box<[T; SIZE]> {
 - en: let mut b = Box::<[T; SIZE]>::new_uninit();
+  id: totrans-87
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut b = Box::<[T; SIZE]>::new_uninit();
 - en: let bptr = b.as_mut_ptr();
+  id: totrans-88
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let bptr = b.as_mut_ptr();
 - en: for i in 0..SIZE {
+  id: totrans-89
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: for i in 0..SIZE {
 - en: unsafe {
+  id: totrans-90
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: unsafe {
 - en: std::ptr::addr_of_mut!(((*bptr)[i]))
+  id: totrans-91
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: std::ptr::addr_of_mut!(((*bptr)[i]))
 - en: .write(f(i));
+  id: totrans-92
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: .write(f(i));
 - en: '}'
+  id: totrans-93
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-94
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: unsafe { b.assume_init() }
+  id: totrans-95
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: unsafe { b.assume_init() }
 - en: '}'
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE12]'
+  id: totrans-98
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: Note that a more idiomatic way to deal with a large array on the heap is to
     represent it as either a boxed slice or a vector instead of a boxed array, in
     which case using iterators to define the value avoids constructing it on the stack,
     and does not require the use of unsafe Rust.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，处理堆上的大数组时，更符合习惯的方式是将它表示为boxed slice或vector，而不是boxed array。在这种情况下，使用迭代器定义值可以避免在栈上构造它，并且不需要使用unsafe
+    Rust。
 - en: '[PRE13]'
+  id: totrans-100
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: '#![allow(unused)] fn main() { fn init_with<T, const SIZE: usize>('
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { fn init_with<T, const SIZE: usize>('
 - en: 'f: impl Fn(usize) -> T,'
+  id: totrans-102
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'f: impl Fn(usize) -> T,'
 - en: ) -> Box<[T]> {
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> Box<[T]> {
 - en: (0..SIZE).map(f).collect()
+  id: totrans-104
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: (0..SIZE).map(f).collect()
 - en: '}'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE14]'
+  id: totrans-107
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Placement
     new)'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Placement
+    new)'

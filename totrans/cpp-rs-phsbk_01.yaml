@@ -1,72 +1,106 @@
 - en: C++ to Rust Phrasebook
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: C++到Rust短语手册
 - en: 原文：[https://cel.cs.brown.edu/crp/title-page.html](https://cel.cs.brown.edu/crp/title-page.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/title-page.html](https://cel.cs.brown.edu/crp/title-page.html)
 - en: This book is designed to help C++ programmers learn Rust. It provides translations
     of common C++ patterns into idiomatic Rust. Each pattern is described through
     concrete code examples along with high-level discussion of engineering trade-offs.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书旨在帮助C++程序员学习Rust。它将常见的C++模式翻译成惯用的Rust。每个模式都通过具体的代码示例以及高级的工程权衡讨论来描述。
 - en: The book can be read front-to-back, but it is designed to be used random-access.
     When you are writing Rust code and think, "I know how to do this in C++ but not
     Rust," then look for the corresponding chapter in this book.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书可以从前到后阅读，但它设计成可以随机访问。当你编写Rust代码并想，“我知道如何在C++中这样做，但不知道如何在Rust中做”时，请查找本书中相应的章节。
 - en: This book was hand-written by expert C++ and Rust programmers at Brown University's
     [Cognitive Engineering Lab](https://cel.cs.brown.edu/). Our goal is to provide
     accurate information with a tasteful degree of detail. No text in this book was
     written by AI.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 这本书是由布朗大学认知工程实验室的专家C++和Rust程序员手写的。[认知工程实验室](https://cel.cs.brown.edu/)的目标是提供准确的信息，并带有适当的细节程度。本书中的所有文本均非AI撰写。
 - en: If you would like updates on when we add new chapters to this book, you can
     [drop your email here](https://forms.gle/rcrdZihmT81LWy6F6).
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你希望了解我们何时添加新章节到本书，你可以[在此处留下你的电子邮件](https://forms.gle/rcrdZihmT81LWy6F6)。
 - en: '[Other resources](#other-resources)'
+  id: totrans-6
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[其他资源](#other-resources)'
 - en: If you have zero Rust experience, you might consider first reading [The Rust
     Programming Language](https://rust-book.cs.brown.edu/) or getting a quick overview
     at [Learn X in Y Minutes](https://learnxinyminutes.com/rust/).
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你没有任何Rust经验，你可能首先考虑阅读[《Rust编程语言》](https://rust-book.cs.brown.edu/)或快速浏览[Learn
+    X in Y Minutes](https://learnxinyminutes.com/rust/)。
 - en: If you are primarily an embedded systems programmer using C or C++, this book
     is a complement to [The Embedded Rust Book](https://docs.rust-embedded.org/book/).
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你主要使用C或C++进行嵌入式系统编程，这本书是[《嵌入式Rust手册》](https://docs.rust-embedded.org/book/)的补充。
 - en: Compared to resources like the [Rustonomicon](https://doc.rust-lang.org/nomicon/)
     and [Learn Rust With Entirely Too Many Linked Lists](https://rust-unofficial.github.io/too-many-lists/),
     this book is less about "Rust behind the scenes" and more about explicitly describing
     how Rust works in terms of C++.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 与像[Rustonomicon](https://doc.rust-lang.org/nomicon/)和[用大量链表学习Rust](https://rust-unofficial.github.io/too-many-lists/)这样的资源相比，本书更少关注“Rust幕后”，而是明确描述了Rust在C++术语下的工作方式。
 - en: '[Feedback on this book](#feedback-on-this-book)'
+  id: totrans-10
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[本书反馈](#feedback-on-this-book)'
 - en: 'At the bottom of every page there is a link to a form where you can submit
     feedback: typos, factual errors, or any other issues you spot.'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 每一页底部都有一个链接，你可以通过表单提交反馈：错别字、事实错误或你发现的任何其他问题。
 - en: If you answer the quizzes at the end of each chapter, we will save your responses
     anonymously for research purposes.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你回答了每章末尾的测验，我们将匿名保存你的回答以供研究之用。
 - en: '[Acknowledgements](#acknowledgements)'
+  id: totrans-13
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[致谢](#acknowledgements)'
 - en: This work was supported by the DARPA under Agreement No. HR00112420354\. Any
     opinions, findings, and conclusions or recommendations expressed in this material
     are those of the authors and do not reflect the views of our funders.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 本作品得到了DARPA的支持，协议编号为No. HR00112420354。本材料中表达的意见、发现、结论或建议均为作者的观点，并不反映资助者的观点。
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=C++
     to Rust Phrasebook)'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处为此页提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=C++
+    to Rust Phrasebook)'

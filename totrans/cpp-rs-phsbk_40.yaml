@@ -1,171 +1,250 @@
 - en: Pre-allocated buffers
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 预分配缓冲区
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/out_params/pre-allocated_buffers.html](https://cel.cs.brown.edu/crp/idioms/out_params/pre-allocated_buffers.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/out_params/pre-allocated_buffers.html](https://cel.cs.brown.edu/crp/idioms/out_params/pre-allocated_buffers.html)
 - en: 'There are situations where large quantities of data need to be returned from
     a function that will be called repeatedly, so that incurring the copies involved
     in returning by value or repeated heap allocations would be cost prohibitive.
     Some of these situations include:'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 有一些情况需要从将被反复调用的函数中返回大量数据，因此涉及通过值返回或重复堆分配的副本将会成本高昂。这些情况包括：
 - en: performing file or network IO,
+  id: totrans-3
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 执行文件或网络IO，
 - en: communicating with graphics hardware,
+  id: totrans-4
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 与图形硬件通信，
 - en: communicating with hardware on embedded systems, or
+  id: totrans-5
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 与嵌入式系统上的硬件通信，或
 - en: implementing cryptography algorithms.
+  id: totrans-6
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 实现加密算法。
 - en: In these situations, C++ programs tend to pre-allocate buffers that are reused
     for all calls. This also usually enables allocating the buffer on the stack, rather
     than having to use dynamic storage.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这种情况下，C++程序往往会预分配缓冲区，这些缓冲区将被用于所有调用。这通常也使得可以在栈上分配缓冲区，而不是必须使用动态存储。
 - en: The following example pre-allocates a buffer and reads a large file into it
     within a loop.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例在循环中预分配一个缓冲区并将大文件读入其中。
 - en: '[PRE0]'
+  id: totrans-9
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-10
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: use std::fs::File;
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::fs::File;
 - en: use std::io::{BufReader, Read};
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::io::{BufReader, Read};
 - en: fn main() -> Result<(), std::io::Error> {
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() -> Result<(), std::io::Error> {
 - en: let mut f = BufReader::new(File::open(
+  id: totrans-14
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut f = BufReader::new(File::open(
 - en: '"/path/to/file",'
+  id: totrans-15
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '"/path/to/file",'
 - en: )?);
+  id: totrans-16
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: )?);
 - en: let mut buf = [0u8; 1024];
+  id: totrans-17
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut buf = [0u8; 1024];
 - en: loop {
+  id: totrans-18
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: loop {
 - en: let count = f.read(&mut buf)?;
+  id: totrans-19
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let count = f.read(&mut buf)?;
 - en: if count == 0 {
+  id: totrans-20
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if count == 0 {
 - en: break;
+  id: totrans-21
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: break;
 - en: '}'
+  id: totrans-22
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // use data in buf
+  id: totrans-23
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用buf中的数据
 - en: '}'
+  id: totrans-24
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Ok(())
+  id: totrans-25
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Ok(())
 - en: '}'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-27
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The major difference between the C++ program and the Rust program is that in
     the Rust program the buffer must be initialized before it can be used. In most
     cases, this one-time initialization cost is not significant. When it is, unsafe
     Rust is required to avoid the initialization.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: C++程序和Rust程序之间的主要区别在于，在Rust程序中，必须在使用之前初始化缓冲区。在大多数情况下，这种一次性初始化成本并不显著。当它是的时候，需要使用不安全Rust来避免初始化。
 - en: The technique for avoiding initialization makes use of [`std::mem::MaybeUninit`](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html).
     [Examples of safe usage of `MaybeUninit`](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html#examples)
     are given in the API documentation for the type.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 避免初始化的技术使用了`[`std::mem::MaybeUninit`](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html)。API文档中给出了该类型的[安全使用`MaybeUninit`的示例](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html#examples)。
 - en: The IO API in stable Rust does not include support for `MaybeUninit`. Instead,
     there is a [new safe API being developed](#upcoming-changes-and-borrowedbuf) that
     will enable avoiding initialization without requiring unsafe Rust in code that
     uses the API.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 稳定版Rust的IO API不包含对`MaybeUninit`的支持。相反，正在开发一个新的安全API，它将允许在不要求使用不安全Rust的情况下避免初始化。
+    [关于`MaybeUninit`的安全使用示例](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html)可以在该类型的API文档中找到。
 - en: If the callee might need to grow the provided buffer and dynamic allocation
     is allowed, then a `&mut Vec<T>` can be used instead of `&mut [T]`. This is similar
     to providing a `std::vector<T>&` in C++. To avoid unnecessary reallocation, the
     vector can be created using `Vec::<T>::with_capacity(n)`.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果被调用者可能需要扩展提供的缓冲区并且允许动态分配，则可以使用`&mut Vec<T>`而不是`&mut [T]`。这类似于在C++中提供`std::vector<T>&`。为了避免不必要的重新分配，可以使用`Vec::<T>::with_capacity(n)`来创建向量。
 - en: '[A note on reading files](#a-note-on-reading-files)'
+  id: totrans-32
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[关于读取文件的说明](#a-note-on-reading-files)'
 - en: While the examples here use IO to demonstrate re-using pre-allocated buffers,
     there are higher-level interfaces available for reading from `File`s, both from
     the [`Read`](https://doc.rust-lang.org/std/io/trait.Read.html) and [`BufRead`](https://doc.rust-lang.org/std/io/trait.BufRead.html)
     traits, and from convenience functions in [`std::io`](https://doc.rust-lang.org/std/io/index.html#functions-1)
     and in [`std::fs`](https://doc.rust-lang.org/std/fs/index.html#functions-1).
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然这里的示例使用IO来演示重用预分配的缓冲区，但还有更高层次的接口可以从`File`中读取，无论是从`[`Read`](https://doc.rust-lang.org/std/io/trait.Read.html)`和`[`BufRead`](https://doc.rust-lang.org/std/io/trait.BufRead.html)`特质，还是从`[`std::io`](https://doc.rust-lang.org/std/io/index.html#functions-1)`和`[`std::fs`](https://doc.rust-lang.org/std/fs/index.html#functions-1)`中的便利函数。
 - en: The techniques described here are useful, however, in other situations where
     a reusable buffer is required, such as when interacting with hardware APIs, when
     using existing C or C++ libraries, or when implementing algorithms that produce
     larges amount of data in chunks, such as cryptography algorithms.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里描述的技术在其他需要可重用缓冲区的情况下很有用，例如在与硬件API交互时，在使用现有的C或C++库时，或者当实现产生大量数据的算法时，例如加密算法。
 - en: '[Upcoming changes and `BorrowedBuf`](#upcoming-changes-and-borrowedbuf)'
+  id: totrans-35
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[即将到来的更改和 `BorrowedBuf`](#upcoming-changes-and-borrowedbuf)'
 - en: The Rust community is refining approaches to working with uninitialized buffers.
     On the nightly branch of Rust, one can use [`BorrowedBuf`](https://doc.rust-lang.org/std/io/struct.BorrowedBuf.html)
     to achieve the same results as when using slices of `MaybeUninit`, but without
     having to write any unsafe code. The IO APIs for avoiding unnecessary initialization
     use `BorrowedBuf` instead of slices of `MaybeUninit`.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust社区正在改进处理未初始化缓冲区的方法。在Rust的nightly分支上，可以使用[`BorrowedBuf`](https://doc.rust-lang.org/std/io/struct.BorrowedBuf.html)来实现与使用`MaybeUninit`切片相同的结果，但无需编写任何不安全代码。用于避免不必要的初始化的IO
+    API使用`BorrowedBuf`而不是`MaybeUninit`切片。
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Pre-allocated
     buffers)
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Pre-allocated
+    buffers)

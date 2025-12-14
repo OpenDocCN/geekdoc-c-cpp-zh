@@ -1,470 +1,670 @@
 - en: Private members and friends
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 私有成员和朋友
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/private_and_friends.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/private_and_friends.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/private_and_friends.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/private_and_friends.html)
 - en: '[Private members](#private-members)'
+  id: totrans-2
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[私有成员](#private-members)'
 - en: In C++ the unit of encapsulation is the class. Access specifiers (`private`,
     `protected`, and `public`) that control access to members are enforced at the
     class boundary.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，封装的单位是类。访问指定符（`private`、`protected` 和 `public`）控制成员的访问，并在类边界上强制执行。
 - en: In Rust the module is the unit of encapsulation. Item visibility (Rust's analog
     to access specifiers) controls access to items at the module boundary.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，模块是封装的单位。项目可见性（Rust 的访问指定符类似物）控制模块边界上的项目访问。
 - en: '[PRE0]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: mod person {
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: mod person {
 - en: pub struct Person {
+  id: totrans-8
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct Person {
 - en: 'pub name: String,'
+  id: totrans-9
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub name: String,'
 - en: // this field is private
+  id: totrans-10
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 此字段是私有的
 - en: 'age: i32,'
+  id: totrans-11
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: '}'
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Person {
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl Person {
 - en: // Because age is private, a public
+  id: totrans-14
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 因为年龄是私有的，需要一个公共
 - en: // constructor method is needed to create
+  id: totrans-15
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 构造方法需要创建
 - en: // values outside of the person module.
+  id: totrans-16
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 模块外部的值。
 - en: pub fn new(
+  id: totrans-17
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn new(
 - en: 'name: String,'
+  id: totrans-18
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: String,'
 - en: 'age: i32,'
+  id: totrans-19
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: i32,'
 - en: ) -> Person {
+  id: totrans-20
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) -> Person {
 - en: Person { name, age }
+  id: totrans-21
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Person { name, age }
 - en: '}'
+  id: totrans-22
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-23
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Free functions in the same module can
+  id: totrans-24
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 同一模块中的自由函数可以在
 - en: // access private fields because the unit of
+  id: totrans-25
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 访问私有字段，因为访问的
 - en: // encapsulation is the module, not the
+  id: totrans-26
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 封装是模块，而不是
 - en: // struct.
+  id: totrans-27
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 结构体。
 - en: fn example() {
+  id: totrans-28
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn example() {
 - en: let alice =
+  id: totrans-29
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let alice =
 - en: Person::new("Alice".to_string(), 42);
+  id: totrans-30
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Person::new("Alice".to_string(), 42);
 - en: println!("{}", alice.name);
+  id: totrans-31
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", alice.name);
 - en: // The private field is visible here,
+  id: totrans-32
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 私有字段在这里可见，
 - en: // within the module.
+  id: totrans-33
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 在模块内部。
 - en: println!("{}", alice.age);
+  id: totrans-34
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", alice.age);
 - en: '}'
+  id: totrans-35
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: use person::Person;
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: use person::Person;
 - en: fn main() {
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let alice =
+  id: totrans-39
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let alice =
 - en: Person::new("Alice".to_string(), 42);
+  id: totrans-40
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Person::new("Alice".to_string(), 42);
 - en: println!("{}", alice.name);
+  id: totrans-41
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", alice.name);
 - en: // compilation error
+  id: totrans-42
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 编译错误
 - en: // println!("{}", alice.age);
+  id: totrans-43
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // println!("{}", alice.age);
 - en: '}'
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-45
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: In the Rust example, the [constructor for `Person` is private](./private_constructors.html)
     because one of the fields is private.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 的示例中，`Person` 的构造函数是私有的[因为其中一个字段是私有的](./private_constructors.html)。
 - en: '[Friends](#friends)'
+  id: totrans-47
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[朋友](#friends)'
 - en: Because encapsulation is at the module level in Rust, associated methods for
     types can access internals of other types defined in the same module. This subsumes
     most uses of the C++ `friend` declaration.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为在 Rust 中封装是在模块级别，因此类型的相关方法可以访问同一模块中定义的其他类型的内部。这涵盖了 C++ `friend` 声明的大多数用途。
 - en: For example, defining a binary tree in C++ requires that the class representing
     the nodes of the tree declare the main binary tree class as a friend in order
     for it to access internal methods while keeping them private from other uses.
     This would be required even if the `TreeNode` class were defined as an inner class
     of `BinaryTree`.
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，在 C++ 中定义二叉树需要表示树节点的类将主二叉树类声明为友元，以便它可以访问内部方法，同时将它们对其他使用保持私有。即使 `TreeNode`
+    类被定义为 `BinaryTree` 的内部类，也需要这样做。
 - en: In Rust, however, both types can be defined in the same module, and so have
     access to each other's private fields and methods. The module as a whole provides
     a collection of types, methods, and functions that together define a encapsulated
     concept.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，在 Rust 中，这两种类型可以在同一个模块中定义，并且可以访问彼此的私有字段和方法。整个模块提供了一组类型、方法和函数，共同定义了一个封装的概念。
 - en: '[PRE3]'
+  id: totrans-51
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-52
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: mod binary_tree {
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: mod binary_tree {
 - en: pub struct BinaryTree {
+  id: totrans-54
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct BinaryTree {
 - en: // This field is not visible outside of
+  id: totrans-55
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 此字段在模块外部不可见
 - en: // the module.
+  id: totrans-56
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 在模块内部。
 - en: 'root: Option<Box<TreeNode>>,'
+  id: totrans-57
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'root: Option<Box<TreeNode>>,'
 - en: '}'
+  id: totrans-58
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl BinaryTree {
+  id: totrans-59
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl BinaryTree {
 - en: pub fn new() -> BinaryTree {
+  id: totrans-60
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn new() -> BinaryTree {
 - en: 'BinaryTree { root: None }'
+  id: totrans-61
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'BinaryTree { root: None }'
 - en: '}'
+  id: totrans-62
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'pub fn insert(&mut self, value: i32) {'
+  id: totrans-63
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub fn insert(&mut self, value: i32) {'
 - en: insert(&mut self.root, value);
+  id: totrans-64
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: insert(&mut self.root, value);
 - en: '}'
+  id: totrans-65
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-66
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // This struct and all its fields are not
+  id: totrans-67
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 此结构和所有其字段均不可见
 - en: // visible outside of the module.
+  id: totrans-68
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 在模块外部可见。
 - en: struct TreeNode {
+  id: totrans-69
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: struct TreeNode {
 - en: 'value: i32,'
+  id: totrans-70
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'value: i32,'
 - en: 'left: Option<Box<TreeNode>>,'
+  id: totrans-71
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'left: Option<Box<TreeNode>>,'
 - en: 'right: Option<Box<TreeNode>>,'
+  id: totrans-72
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'right: Option<Box<TreeNode>>,'
 - en: '}'
+  id: totrans-73
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl TreeNode {
+  id: totrans-74
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl TreeNode {
 - en: 'fn new(value: i32) -> TreeNode {'
+  id: totrans-75
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn new(value: i32) -> TreeNode {'
 - en: TreeNode {
+  id: totrans-76
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: TreeNode {
 - en: value,
+  id: totrans-77
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: value,
 - en: 'left: None,'
+  id: totrans-78
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'left: None,'
 - en: 'right: None,'
+  id: totrans-79
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'right: None,'
 - en: '}'
+  id: totrans-80
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-81
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn insert(&mut self, value: i32) {'
+  id: totrans-82
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn insert(&mut self, value: i32) {'
 - en: if value < self.value {
+  id: totrans-83
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if value < self.value {
 - en: insert(&mut self.left, value);
+  id: totrans-84
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: insert(&mut self.left, value);
 - en: '} else {'
+  id: totrans-85
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} else {'
 - en: insert(&mut self.right, value);
+  id: totrans-86
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: insert(&mut self.right, value);
 - en: '}'
+  id: totrans-87
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-88
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-89
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // This free function is not visible outside
+  id: totrans-90
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 此自由函数在模块外部不可见
 - en: // of the module.
+  id: totrans-91
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 在模块外部可见。
 - en: fn insert(
+  id: totrans-92
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn insert(
 - en: 'node: &mut Option<Box<TreeNode>>,'
+  id: totrans-93
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'node: &mut Option<Box<TreeNode>>,'
 - en: 'value: i32,'
+  id: totrans-94
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'value: i32,'
 - en: ) {
+  id: totrans-95
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) {
 - en: match node {
+  id: totrans-96
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match node {
 - en: None => {
+  id: totrans-97
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: None => {
 - en: '*node = Some(Box::new('
+  id: totrans-98
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '*node = Some(Box::new('
 - en: TreeNode::new(value),
+  id: totrans-99
   prefs:
   - PREF_IND
   - PREF_IND
@@ -472,286 +672,415 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: TreeNode::new(value),
 - en: ));
+  id: totrans-100
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ));
 - en: '}'
+  id: totrans-101
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Some(ref mut left) => {
+  id: totrans-102
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(ref mut left) => {
 - en: left.insert(value);
+  id: totrans-103
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: left.insert(value);
 - en: '}'
+  id: totrans-104
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-105
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-106
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // This brings the (public) type into scope.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: // 这将（公开）类型引入作用域。
 - en: use binary_tree::BinaryTree;
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: use binary_tree::BinaryTree;
 - en: fn main() {
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut b = BinaryTree::new();
+  id: totrans-111
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut b = BinaryTree::new();
 - en: b.insert(42);
+  id: totrans-112
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: b.insert(42);
 - en: '}'
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-114
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '[Passkey idiom](#passkey-idiom)'
+  id: totrans-115
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[Passkey 习语](#passkey-idiom)'
 - en: In the previous C++ example, the `TreeNode` constructor has to be public in
     order to be used with `make_unique`. Fortunately, the constructor is still inaccessible
     outside of the containing class, but it is not always the case that such helper
     classes can be inner classes.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 在之前的 C++ 示例中，`TreeNode` 构造函数必须公开才能与 `make_unique` 一起使用。幸运的是，构造函数仍然在包含类之外不可访问，但并非所有辅助类都可以是内部类。
 - en: To make the constructor effectively private when it is not possible, one might
     need to use a programming pattern like [the passkey idiom](https://chromium.googlesource.com/chromium/src/+/HEAD/docs/patterns/passkey.md).
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 要使构造函数在不可能的情况下实际上私有，可能需要使用像 [Passkey 习语](https://chromium.googlesource.com/chromium/src/+/HEAD/docs/patterns/passkey.md)
+    这样的编程模式。
 - en: The passkey idiom is also sometimes used to provide finer-grained control over
     access to members than is possible with friend declarations. In either case, the
     effect is achieved by modeling a capability-like system.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: Passkey 习语有时也用于提供比友元声明更细粒度的对成员的访问控制。在任一情况下，效果是通过模拟一个能力类系统来实现的。
 - en: In Rust, it is possible to express the same idiom in order to achieve the same
     effect.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，可以通过相同的习语来表达相同的效果，以实现相同的效果。
 - en: '[PRE6]'
+  id: totrans-120
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[PRE7]'
+  id: totrans-121
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: pub trait Maker<K, B> {
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: pub trait Maker<K, B> {
 - en: 'fn make(passkey: K, args: B) -> Self;'
+  id: totrans-123
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn make(passkey: K, args: B) -> Self;'
 - en: '}'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Generic helper that we want to be able to call
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: // 我们希望能够调用的泛型辅助器。
 - en: // an otherwise private function or method.
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: // 一个否则私有的函数或方法。
 - en: 'fn alloc_thing<K, B, T: Maker<K, B>>('
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn alloc_thing<K, B, T: Maker<K, B>>('
 - en: 'passkey: K,'
+  id: totrans-128
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'passkey: K,'
 - en: 'args: B,'
+  id: totrans-129
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'args: B,'
 - en: ) -> Box<T> {
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> Box<T> {
 - en: Box::new(Maker::<K, B>::make(passkey, args))
+  id: totrans-131
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Box::new(Maker::<K, B>::make(passkey, args))
 - en: '}'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: mod person {
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: mod person {
 - en: use super::*;
+  id: totrans-134
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: use super::*;
 - en: use std::marker::PhantomData;
+  id: totrans-135
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: use std::marker::PhantomData;
 - en: pub struct Person {
+  id: totrans-136
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct Person {
 - en: 'pub name: String,'
+  id: totrans-137
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub name: String,'
 - en: 'age: u32,'
+  id: totrans-138
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: u32,'
 - en: '}'
+  id: totrans-139
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // A zero-sized type to act as the passkey.
+  id: totrans-140
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 一个零大小的类型，用作 passkey。
 - en: pub struct Passkey {
+  id: totrans-141
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct Passkey {
 - en: // This field is zero-sized. It is also
+  id: totrans-142
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 此字段为零大小。它也是
 - en: // private, which prevents construction
+  id: totrans-143
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 私有，这阻止了构造
 - en: // of Passkey outside of the person
+  id: totrans-144
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 的人之外的 Passkey
 - en: // module.
+  id: totrans-145
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 模块。
 - en: '_phantom: PhantomData<()>,'
+  id: totrans-146
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '_phantom: PhantomData<()>,'
 - en: '}'
+  id: totrans-147
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Person {
+  id: totrans-148
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl Person {
 - en: // Private method that will be exposed
+  id: totrans-149
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 私有方法将被公开
 - en: // with a passkey wrapper.
+  id: totrans-150
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用 passkey 包装器。
 - en: 'fn new(name: String, age: u32) -> Person {'
+  id: totrans-151
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn new(name: String, age: u32) -> Person {'
 - en: Person { name, age }
+  id: totrans-152
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Person { name, age }
 - en: '}'
+  id: totrans-153
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Method that uses external helper that
+  id: totrans-154
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用外部辅助器的方法的实现
 - en: // requires access to another
+  id: totrans-155
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 需要访问另一个
 - en: // otherwise-private method.
+  id: totrans-156
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 否则私有的方法。
 - en: fn alloc(
+  id: totrans-157
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn alloc(
 - en: 'name: String,'
+  id: totrans-158
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: String,'
 - en: 'age: u32,'
+  id: totrans-159
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: u32,'
 - en: ) -> Box<Person> {
+  id: totrans-160
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) -> Box<Person> {
 - en: alloc_thing(
+  id: totrans-161
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: alloc_thing(
 - en: Passkey {
+  id: totrans-162
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Passkey {
 - en: '_phantom: PhantomData {},'
+  id: totrans-163
   prefs:
   - PREF_IND
   - PREF_IND
@@ -759,293 +1088,427 @@
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '_phantom: PhantomData {},'
 - en: '},'
+  id: totrans-164
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '},'
 - en: MakePersonArgs { name, age },
+  id: totrans-165
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: MakePersonArgs { name, age },
 - en: )
+  id: totrans-166
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: )
 - en: '}'
+  id: totrans-167
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-168
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Helper structure needed to make the trait
+  id: totrans-169
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 需要辅助结构来使特性
 - en: // providing the interface generic.
+  id: totrans-170
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 提供接口泛型。
 - en: pub struct MakePersonArgs {
+  id: totrans-171
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct MakePersonArgs {
 - en: 'pub name: String,'
+  id: totrans-172
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub name: String,'
 - en: 'pub age: u32,'
+  id: totrans-173
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub age: u32,'
 - en: '}'
+  id: totrans-174
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: // Implementation of the trait that exposes
+  id: totrans-175
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 实现该特性，暴露
 - en: // the method requiring a passkey.
+  id: totrans-176
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 需要 passkey 的方法。
 - en: impl Maker<Passkey, MakePersonArgs> for Person {
+  id: totrans-177
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: impl Maker<Passkey, MakePersonArgs> for Person {
 - en: fn make(
+  id: totrans-178
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn make(
 - en: '_passkey: Passkey,'
+  id: totrans-179
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '_passkey: Passkey,'
 - en: 'args: MakePersonArgs,'
+  id: totrans-180
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'args: MakePersonArgs,'
 - en: ) -> Person {
+  id: totrans-181
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) -> Person {
 - en: Person::new(args.name, args.age)
+  id: totrans-182
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Person::new(args.name, args.age)
 - en: '}'
+  id: totrans-183
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-184
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {}
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {}
 - en: '[PRE8]'
+  id: totrans-187
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: However the Passkey idiom is unlikely to be used in Rust because
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，Passkey 习语在 Rust 中可能不太可能被使用，因为
 - en: coupled types are usually defined in the same module (or a `pub (in path)` declaration
     can be used), making it unnecessary, and
+  id: totrans-189
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 配对的类型通常定义在同一个模块中（或可以使用 `pub (in path)` 声明），这使得它变得不必要，并且
 - en: it requires cooperation from the interface by which the calling function will
     use a type.
+  id: totrans-190
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 它需要接口的合作，通过该接口调用函数将使用一个类型。
 - en: The second point contrasts with the use above involving `std::make_unique` which
     is able to forward to the underlying constructor without knowing about it at the
     point of the definition of `std::make_unique`. While the example below is not
     useful (because `alloc_thing` is not a useful helper), it does demonstrate what
     types would have to be defined in order to achieve the same effect as when using
     the idiom in C++.
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二点与上面使用`std::make_unique`的情况形成对比，后者能够在`std::make_unique`定义点不知道其存在的情况下转发到底层的构造函数。虽然下面的示例并不实用（因为`alloc_thing`不是一个有用的辅助函数），但它确实展示了为了达到使用C++中惯用语的相同效果，需要定义哪些类型。
 - en: '[Friends and testing](#friends-and-testing)'
+  id: totrans-192
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[友元和测试](#friends-and-testing)'
 - en: Another common use of friend declarations is to make the internals of a class
     available for unit testing. Though this practice is often discouraged in C++,
     it is sometimes necessary in order to test other-wise private helper inner classes
     or helper methods.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一种常见的友元声明的用途是使类的内部结构对单元测试可用。尽管这种做法在C++中通常被劝阻，但在测试其他情况下私有的辅助内部类或辅助方法时，有时是必要的。
 - en: In Rust, tests are usually defined in the same module as the code being tested.
     Because the content of modules is visible to submodules, this makes it so that
     all of the content of the module is available for testing.
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Rust中，测试通常定义在正在测试的代码相同的模块中。由于模块的内容对子模块是可见的，这使得模块的所有内容都可以用于测试。
 - en: '[PRE9]'
+  id: totrans-195
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: '[PRE10]'
+  id: totrans-196
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: '#![allow(unused)] fn main() { pub struct Person {'
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { pub struct Person {'
 - en: 'pub name: String,'
+  id: totrans-198
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub name: String,'
 - en: 'age: u32,'
+  id: totrans-199
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: u32,'
 - en: '}'
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Person {
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Person {
 - en: 'pub fn new(name: String, age: u32) -> Person {'
+  id: totrans-202
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub fn new(name: String, age: u32) -> Person {'
 - en: Person { name, age }
+  id: totrans-203
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Person { name, age }
 - en: '}'
+  id: totrans-204
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: pub fn have_birthday(&mut self) {
+  id: totrans-205
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn have_birthday(&mut self) {
 - en: self.age = self.age + 1;
+  id: totrans-206
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.age = self.age + 1;
 - en: '}'
+  id: totrans-207
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '#[cfg(test)]'
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[cfg(test)]'
 - en: mod test {
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: mod test {
 - en: use super::Person;
+  id: totrans-211
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: use super::Person;
 - en: '#[test]'
+  id: totrans-212
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '#[test]'
 - en: fn test_have_birthday() {
+  id: totrans-213
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn test_have_birthday() {
 - en: let mut alice =
+  id: totrans-214
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut alice =
 - en: Person::new("alice".to_string(), 42);
+  id: totrans-215
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Person::new("alice".to_string(), 42);
 - en: assert_eq!(alice.age, 42);
+  id: totrans-216
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: assert_eq!(alice.age, 42);
 - en: alice.have_birthday();
+  id: totrans-217
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: alice.have_birthday();
 - en: assert_eq!(alice.age, 43);
+  id: totrans-218
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: assert_eq!(alice.age, 43);
 - en: '}'
+  id: totrans-219
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE11]'
+  id: totrans-222
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '[Visibility of methods on Rust traits](#visibility-of-methods-on-rust-traits)'
+  id: totrans-223
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[Rust特质方法的可见性](#visibility-of-methods-on-rust-traits)'
 - en: Because traits in Rust are intended for the definition of interfaces, the methods
     for some type that are declared by a trait are visible whenever both the trait
     and the type are visible. In other words, it is not possible to have private trait
     methods.
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为Rust中的特质旨在定义接口，所以由特质声明的某些类型的声明方法，在特质的类型都可见时是可见的。换句话说，不可能有私有的特质方法。
 - en: The default visibility for trait methods differs from Rust structs where the
     default visibility is private to the defining module.
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust中特质方法的默认可见性与Rust结构体不同，其中默认可见性是定义模块的私有。
 - en: '[Private constructors and friends](#private-constructors-and-friends)'
+  id: totrans-226
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[私有构造函数和友元](#private-constructors-and-friends)'
 - en: In C++ one can control which classes can derive from a specific class by making
     all of the constructors private and then declaring classes which may derive from
     it as friends.
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中，可以通过将所有构造函数设为私有，然后声明可能从它派生的类为友元，来控制哪些类可以从特定类派生。
 - en: In Rust, one can achieve the similar goal of controlling which types can implement
     a trait by using the [sealed trait pattern](https://predr.ag/blog/definitive-guide-to-sealed-traits-in-rust/).
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Rust中，可以通过使用[密封特质模式](https://predr.ag/blog/definitive-guide-to-sealed-traits-in-rust/)来实现控制哪些类型可以实现特质的类似目标。
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Private
     members and friends)
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Private
+    members and friends)

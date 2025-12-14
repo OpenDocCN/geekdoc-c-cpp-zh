@@ -1,528 +1,810 @@
 - en: Optional return values
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 可选返回值
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/out_params/optional_return.html](https://cel.cs.brown.edu/crp/idioms/out_params/optional_return.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/out_params/optional_return.html](https://cel.cs.brown.edu/crp/idioms/out_params/optional_return.html)
 - en: 'One idiom in C++ for optionally producing a result from a method or function
     is to use a reference parameter along with a boolean or integer return value to
     indicate whether the result was produced. This might be done for the same reasons
     as for using [out parameters for multiple return values](./multiple_return.html):'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: C++中一个用于从方法或函数中可选产生结果的习惯用法是使用一个引用参数以及布尔或整数返回值来指示是否产生了结果。这可能是出于与使用 [多返回值的输出参数](./multiple_return.html)
+    相同的原因：
 - en: compatibility with versions of C++ earlier than C++11,
+  id: totrans-3
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 与C++11之前的版本兼容，
 - en: working in a codebase that uses C-style of C++, and
+  id: totrans-4
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在使用C++风格的C++代码库中工作，并且
 - en: performance concerns.
+  id: totrans-5
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 性能问题。
 - en: The idiomatic Rust approach for optionally returning a value is to return a
     value of type [`Option`](https://doc.rust-lang.org/std/option/index.html).
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust在可选返回值方面采用的习惯用法是返回类型为 `Option` 的值。
 - en: '[PRE0]'
+  id: totrans-7
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-8
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: fn safe_divide(
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: fn safe_divide(
 - en: 'dividend: u32,'
+  id: totrans-10
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'dividend: u32,'
 - en: 'divisor: u32,'
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'divisor: u32,'
 - en: ) -> Option<u32> {
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: ) -> Option<u32> {
 - en: if divisor != 0 {
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if divisor != 0 {
 - en: Some(dividend / divisor)
+  id: totrans-14
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(dividend / divisor)
 - en: '} else {'
+  id: totrans-15
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} else {'
 - en: None
+  id: totrans-16
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: None
 - en: '}'
+  id: totrans-17
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn go(dividend: u32, divisor: u32) {'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn go(dividend: u32, divisor: u32) {'
 - en: match safe_divide(dividend, divisor) {
+  id: totrans-20
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: match safe_divide(dividend, divisor) {
 - en: Some(quotient) => {
+  id: totrans-21
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(quotient) => {
 - en: println!("{}", quotient);
+  id: totrans-22
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", quotient);
 - en: '}'
+  id: totrans-23
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: None => {
+  id: totrans-24
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: None => {
 - en: println!("Division failed!");
+  id: totrans-25
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("Division failed!");
 - en: '}'
+  id: totrans-26
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-27
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: go(10, 2);
+  id: totrans-30
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: go(10, 2);
 - en: go(10, 0);
+  id: totrans-31
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: go(10, 0);
 - en: '}'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-33
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: When there is useful information to provide in the failing case, the [`Result`
     type](https://doc.rust-lang.org/std/result/) can be used instead. The [chapter
     on error handling](../exceptions.html) describes the use of `Result`.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 当在失败情况下有提供有用信息时，可以使用 `Result` 类型代替。错误处理的[章节](../exceptions.html)描述了 `Result`
+    的使用。
 - en: '[Returning a pointer](#returning-a-pointer)'
+  id: totrans-35
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[返回指针](#returning-a-pointer)'
 - en: When the value being returned is a pointer, another common idiom in C++ is to
     use `nullptr` to represent the optional case. In the Rust translation of that
     idiom, `Option` is also used, along with a reference type, such as `&` or `Box`.
     See [the chapter on using `nullptr` as a sentinel value](../null/sentinel_values.html#nullptr)
     for more details.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 当返回的值是一个指针时，C++中另一个常见的习惯用法是使用 `nullptr` 来表示可选情况。在Rust对该习惯用法的翻译中，也使用了 `Option`，以及像
+    `&` 或 `Box` 这样的引用类型。有关更多详细信息，请参阅[关于使用 `nullptr` 作为哨兵值的章节](../null/sentinel_values.html#nullptr)。
 - en: '[Problems with the direct transliteration](#problems-with-the-direct-transliteration)'
+  id: totrans-37
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[直接转换的问题](#problems-with-the-direct-transliteration)'
 - en: It is possible to transliterate the original example that uses out parameters
     to Rust, but the resulting code is not idiomatic.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 将使用输出参数的原例转换为Rust是可能的，但生成的代码不符合习惯用法。
 - en: '[PRE3]'
+  id: totrans-39
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: // NOT IDIOIMATIC RUST
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: // 不符合Rust习惯用法
 - en: 'fn safe_divide(dividend: u32, divisor: u32, quotient: &mut u32) -> bool {'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn safe_divide(dividend: u32, divisor: u32, quotient: &mut u32) -> bool {'
 - en: if divisor != 0 {
+  id: totrans-42
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if divisor != 0 {
 - en: '*quotient = dividend / divisor;'
+  id: totrans-43
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '*quotient = dividend / divisor;'
 - en: 'true'
+  id: totrans-44
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'true'
 - en: '} else {'
+  id: totrans-45
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} else {'
 - en: 'false'
+  id: totrans-46
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'false'
 - en: '}'
+  id: totrans-47
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn go(dividend: u32, divisor: u32) {'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn go(dividend: u32, divisor: u32) {'
 - en: 'let mut quotient: u32 = 0; // initliazed to arbitrary value'
+  id: totrans-50
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let mut quotient: u32 = 0; // 初始化为任意值'
 - en: if safe_divide(dividend, divisor, &mut quotient) {
+  id: totrans-51
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if safe_divide(dividend, divisor, &mut quotient) {
 - en: println!("{}", quotient);
+  id: totrans-52
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", quotient);
 - en: '} else {'
+  id: totrans-53
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} else {'
 - en: println!("Division failed!");
+  id: totrans-54
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("Division failed!");
 - en: '}'
+  id: totrans-55
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: go(10, 2);
+  id: totrans-58
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: go(10, 2);
 - en: go(10, 0);
+  id: totrans-59
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: go(10, 0);
 - en: '}'
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE4]'
+  id: totrans-61
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: This shares the same problems as with using out-parameters for [multiple return
     values](./multiple_return.html#problems-with-the-direct-transliteration).
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 这与使用输出参数进行 [多返回值](./multiple_return.html#problems-with-the-direct-transliteration)
+    存在相同的问题。
 - en: '[Similarities with C++ since C++17](#similarities-with-c-since-c17)'
+  id: totrans-63
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[与C++自C++17以来的相似之处](#similarities-with-c-since-c17)'
 - en: C++17 and later offer `std::optional`, which can be used to express optional
     return values in a way similar to the idiomatic Rust example.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: C++17及以后的版本提供了 `std::optional`，它可以以类似于习惯用法Rust示例的方式表达可选返回值。
 - en: '[PRE5]'
+  id: totrans-65
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '[Helpful `Option` utilities](#helpful-option-utilities)'
+  id: totrans-66
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[有用的 `Option` 工具](#helpful-option-utilities)'
 - en: 'Rust provides several syntactic sugars for simplifying use of functions that
     return `Option`. If a failure should be propagated to the caller, then use the
     `?` operator:'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust为简化返回 `Option` 的函数的使用提供了几个语法糖。如果应该将失败传播给调用者，则使用 `?` 操作符：
 - en: '[PRE6]'
+  id: totrans-68
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '#![allow(unused)] fn main() { fn safe_divide(dividend: u32, divisor: u32) ->
     Option<u32> {'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { fn safe_divide(dividend: u32, divisor: u32) ->
+    Option<u32> {'
 - en: 'if divisor != 0 { Some(dividend / divisor) } else { None } }   fn go(dividend:
     u32, divisor: u32) -> Option<()> {'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 'if divisor != 0 { Some(dividend / divisor) } else { None } }   fn go(dividend:
+    u32, divisor: u32) -> Option<()> {'
 - en: let quotient = safe_divide(dividend, divisor)?;
+  id: totrans-71
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let quotient = safe_divide(dividend, divisor)?;
 - en: println!("{}", quotient);
+  id: totrans-72
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", quotient);
 - en: Some(())
+  id: totrans-73
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Some(())
 - en: '}'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE7]'
+  id: totrans-76
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: 'If `None` should not be propagated, it is sometimes clearer to use [`let-else`
     syntax](https://doc.rust-lang.org/rust-by-example/flow_control/let_else.html):'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果`None`不应该被传播，有时使用[let-else语法](https://doc.rust-lang.org/rust-by-example/flow_control/let_else.html)会更清晰。
 - en: '[PRE8]'
+  id: totrans-78
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'fn safe_divide(dividend: u32, divisor: u32) -> Option<u32> {'
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn safe_divide(dividend: u32, divisor: u32) -> Option<u32> {'
 - en: 'if divisor != 0 { Some(dividend / divisor) } else { None } }   fn go(dividend:
     u32, divisor: u32) {'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 'if divisor != 0 { Some(dividend / divisor) } else { None } }   fn go(dividend:
+    u32, divisor: u32) {'
 - en: let Some(quotient) = safe_divide(dividend, divisor) else {
+  id: totrans-81
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Some(quotient) = safe_divide(dividend, divisor) else {
 - en: println!("Division failed!");
+  id: totrans-82
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("除法失败！");
 - en: return;
+  id: totrans-83
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-84
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: println!("{}", quotient);
+  id: totrans-85
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", quotient);
 - en: '}'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: go(10, 2); go(10, 0); }
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: go(10, 2); go(10, 0); }
 - en: '[PRE9]'
+  id: totrans-89
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'If there is a default value that should be used in the `None` case, the [`Option::unwrap_or`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or),
     [`Option::unwrap_or_else`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_else),
     [`Option::unwrap_or_default`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_default),
     or [`Option::unwrap`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap)
     methods can be used:'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果在None情况下应该使用默认值，可以使用以下方法：[`Option::unwrap_or`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or),
+    [`Option::unwrap_or_else`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_else),
+    [`Option::unwrap_or_default`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_default),
+    或 [`Option::unwrap`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap)。
 - en: '[PRE10]'
+  id: totrans-91
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 'fn safe_divide(dividend: u32, divisor: u32) -> Option<u32> {'
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn safe_divide(dividend: u32, divisor: u32) -> Option<u32> {'
 - en: if divisor != 0 { Some(dividend / divisor) } else { None } }   fn expensive_computation()
     -> u32 {
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: if divisor != 0 { Some(dividend / divisor) } else { None } }   fn expensive_computation()
+    -> u32 {
 - en: // ...
+  id: totrans-94
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: 0 }
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 0 }
 - en: 'fn go(dividend: u32, divisor: u32) {'
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn go(dividend: u32, divisor: u32) {'
 - en: // If None, returns the given value.
+  id: totrans-97
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 如果是None，则返回给定的值。
 - en: let result = safe_divide(dividend, divisor).unwrap_or(0);
+  id: totrans-98
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let result = safe_divide(dividend, divisor).unwrap_or(0);
 - en: // If None, returns the result of calling the given function.
+  id: totrans-99
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 如果是None，则返回调用给定函数的结果。
 - en: let result2 = safe_divide(dividend, divisor).unwrap_or_else(expensive_computation);
+  id: totrans-100
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let result2 = safe_divide(dividend, divisor).unwrap_or_else(expensive_computation);
 - en: // If None, returns Default::default(), which is 0 for u32.
+  id: totrans-101
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 如果是None，则返回Default::default()，对于u32来说就是0。
 - en: let result3 = safe_divide(dividend, divisor).unwrap_or_default();
+  id: totrans-102
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let result3 = safe_divide(dividend, divisor).unwrap_or_default();
 - en: // If None, panics. Prefer the other methods!
+  id: totrans-103
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 如果是None，则引发恐慌。建议使用其他方法！
 - en: // let result3 = safe_divide(dividend, divisor).unwrap();
+  id: totrans-104
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // let result3 = safe_divide(dividend, divisor).unwrap();
 - en: '}'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: go(10, 2); go(10, 0); }
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: go(10, 2); go(10, 0); }
 - en: '[PRE11]'
+  id: totrans-108
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: In performance-sensitive code where you have manually checked that the result
     is guaranteed to be `Some`, [`Option::unwrap_unchecked`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked)
     can be used, but is an unsafe method.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 在性能敏感的代码中，如果你已经手动检查结果保证是`Some`，可以使用[`Option::unwrap_unchecked`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked)，但这是一个不安全的方法。
 - en: There are [additional utility methods](https://doc.rust-lang.org/std/option/#boolean-operators)
     that enable concise handling of `Option` values, which this book covers in the
     chapter on [exceptions and error handling](../exceptions.html).
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 有[额外的实用方法](https://doc.rust-lang.org/std/option/#boolean-operators)，这些方法可以简洁地处理`Option`值，本书在[异常和错误处理](../exceptions.html)章节中对此进行了介绍。
 - en: '[An alternative approach](#an-alternative-approach)'
+  id: totrans-111
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[另一种方法](#an-alternative-approach)'
 - en: An alternative approach in Rust to returning optional values is to require that
     the caller of a function prove that the value with which they call a function
     will not result in the failing case.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Rust中，返回可选值的一种替代方法是要求函数的调用者证明他们传递给函数的值不会导致失败情况。
 - en: For the above safe division example, this involves the caller guaranteeing that
     the provided divisor is non-zero. In the following example this is done with a
     dynamic check. In other contexts the evidence needed may be available statically,
     provided from callers further upstream, or used more than once. In those cases,
     this approach reduces both runtime cost and code complexity.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于上述安全除法示例，这涉及到调用者保证提供的除数不为零。在以下示例中，这是通过动态检查来完成的。在其他上下文中，所需证据可能可以静态地获得，由更高层的调用者提供，或者被多次使用。在这些情况下，这种方法可以减少运行时成本和代码复杂性。
 - en: '[PRE12]'
+  id: totrans-114
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: use std::convert::TryFrom;
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::convert::TryFrom;
 - en: use std::num::NonZero;
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::num::NonZero;
 - en: 'fn safe_divide(dividend: u32, divisor: NonZero<u32>) -> u32 {'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn safe_divide(dividend: u32, divisor: NonZero<u32>) -> u32 {'
 - en: // This is more efficient because the overflow check is skipped.
+  id: totrans-118
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 这更高效，因为跳过了溢出检查。
 - en: dividend / divisor
+  id: totrans-119
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: dividend / divisor
 - en: '}'
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn go(dividend: u32, divisor: u32) {'
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn go(dividend: u32, divisor: u32) {'
 - en: let Ok(safe_divisor) = NonZero::try_from(divisor) else {
+  id: totrans-122
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Ok(safe_divisor) = NonZero::try_from(divisor) else {
 - en: println!("Can't divide!");
+  id: totrans-123
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("不能除以！");
 - en: return;
+  id: totrans-124
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-125
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: let quotient = safe_divide(dividend, safe_divisor);
+  id: totrans-126
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let quotient = safe_divide(dividend, safe_divisor);
 - en: println!("{}", quotient);
+  id: totrans-127
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", quotient);
 - en: '}'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: go(10, 2);
+  id: totrans-130
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: go(10, 2);
 - en: go(10, 0);
+  id: totrans-131
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: go(10, 0);
 - en: '}'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE13]'
+  id: totrans-133
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Optional
     return values)
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为我们提供关于此页面的反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Optional
+    return values)

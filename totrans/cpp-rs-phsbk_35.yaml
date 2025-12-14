@@ -1,1662 +1,2528 @@
 - en: Lambdas, closures, and function objects
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Lambda、闭包和函数对象
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/closures.html](https://cel.cs.brown.edu/crp/idioms/closures.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/closures.html](https://cel.cs.brown.edu/crp/idioms/closures.html)
 - en: '[Function pointers](#function-pointers)'
+  id: totrans-2
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[函数指针](#function-pointers)'
 - en: Both C++ and Rust permit the use of functions as values. In both, the values
     can have [function pointer types](https://doc.rust-lang.org/std/primitive.fn.html).
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 和 Rust 都允许将函数用作值。在两者中，值都可以具有 [函数指针类型](https://doc.rust-lang.org/std/primitive.fn.html)。
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'fn process(n: i32) -> i32 {'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn process(n: i32) -> i32 {'
 - en: println!("{}", n);
+  id: totrans-7
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", n);
 - en: 2 * n
+  id: totrans-8
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 2 * n
 - en: '}'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let f = process;
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let f = process;
 - en: // or with type annotation
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 或使用类型注解
 - en: '// let f: fn(i32) -> i32 = process;'
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// let f: fn(i32) -> i32 = process;'
 - en: println!("{}", f(42));
+  id: totrans-14
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", f(42));
 - en: '}'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Non-capturing closures are also convertible function pointers in both C++ and
     Rust. In the following example the type could be inferred in both C++ and Rust,
     but the type is explicitly given to demonstrate that in both cases the closure
     has a function pointer type.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 非捕获闭包在 C++ 和 Rust 中也都是可转换的函数指针。在下面的示例中，类型在 C++ 和 Rust 中都可以推断出来，但类型被显式给出，以表明在两种情况下闭包都具有函数指针类型。
 - en: '[PRE3]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: fn main() {
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let f = |n: i32| {'
+  id: totrans-21
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let f = |n: i32| {'
 - en: println!("{}", n);
+  id: totrans-22
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", n);
 - en: 2 * n
+  id: totrans-23
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 2 * n
 - en: '};'
+  id: totrans-24
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // or with type annotation
+  id: totrans-25
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 或使用类型注解
 - en: '// let f: fn(i32) -> i32 = process;'
+  id: totrans-26
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// let f: fn(i32) -> i32 = process;'
 - en: println!("{}", f(42));
+  id: totrans-27
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", f(42));
 - en: '}'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE5]'
+  id: totrans-29
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Unlike in C++, in Rust functions can be defined within other functions. This
     has the same meaning as defining the functions outside of the function (i.e.,
     the function is not a capturing closure and so cannot capture variables defined
     in the outer function), but the name of the function is only available within
     the outer function.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 与 C++ 不同，在 Rust 中可以在其他函数内部定义函数。这具有与在函数外部定义函数相同的意义（即，该函数不是捕获闭包，因此不能捕获外部函数中定义的变量），但函数的名称仅在外部函数内部可用。
 - en: '[PRE6]'
+  id: totrans-31
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: fn main() {
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'fn process(n: i32) -> i32 {'
+  id: totrans-33
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn process(n: i32) -> i32 {'
 - en: println!("{}", n);
+  id: totrans-34
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", n);
 - en: 2 * n
+  id: totrans-35
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 2 * n
 - en: '}'
+  id: totrans-36
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: println!("{}", process(42));
+  id: totrans-37
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", process(42));
 - en: '}'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE7]'
+  id: totrans-39
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: '[Rust''s call operator traits](#rusts-call-operator-traits)'
+  id: totrans-40
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[Rust 的调用操作符特质](#rusts-call-operator-traits)'
 - en: In C++, any class can implement the call operator method `operator()` and be
     a function object. Closures defined by lambdas do so automatically. In Rust the
     equivalent are the call operator traits.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，任何类都可以实现调用操作符方法 `operator()` 并成为一个函数对象。由 lambda 表达式定义的闭包会自动这样做。在 Rust
+    中，等效的是调用操作符特质。
 - en: '| Trait | Method | Description |'
+  id: totrans-42
   prefs: []
   type: TYPE_TB
+  zh: '| 特质 | 方法 | 描述 |'
 - en: '| --- | --- | --- |'
+  id: totrans-43
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| [`FnOnce<Args>`](https://doc.rust-lang.org/std/ops/trait.FnOnce.html) | `fn
     call_once(self, args: Args) -> Self::Output` | Can be called at most once |'
+  id: totrans-44
   prefs: []
   type: TYPE_TB
+  zh: '| [`FnOnce<Args>`](https://doc.rust-lang.org/std/ops/trait.FnOnce.html) | `fn
+    call_once(self, args: Args) -> Self::Output` | 至多调用一次 |'
 - en: '| [`FnMut<Args>`](https://doc.rust-lang.org/std/ops/trait.FnMut.html) | `fn
     call_mut(&mut self, args: Args) -> Self::Output` | Can be called multiple times
     and may mutate captures (like the `mutable` specifier in C++) |'
+  id: totrans-45
   prefs: []
   type: TYPE_TB
+  zh: '| [`FnMut<Args>`](https://doc.rust-lang.org/std/ops/trait.FnMut.html) | `fn
+    call_mut(&mut self, args: Args) -> Self::Output` | 可多次调用且可能修改捕获的变量（类似于 C++ 中的
+    `mutable` 指令）|'
 - en: '| [`Fn<Args>`](https://doc.rust-lang.org/std/ops/trait.Fn.html) | `fn call(&self,
     args: Args) -> Self::Output` | Can be called multiple times and do not mutate
     captures |'
+  id: totrans-46
   prefs: []
   type: TYPE_TB
+  zh: '| [`Fn<Args>`](https://doc.rust-lang.org/std/ops/trait.Fn.html) | `fn call(&self,
+    args: Args) -> Self::Output` | 可多次调用且不修改捕获的变量 |'
 - en: Rust function pointers implement all three traits. Other closures implement
     the traits depending on how they use the captured variables.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 函数指针实现了所有三个特质。其他闭包根据它们如何使用捕获的变量实现相应的特质。
 - en: <details><summary>Closure implementing only `FnOnce`</summary>
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: <details><summary>仅实现 `FnOnce` 的闭包</summary>
 - en: '[PRE8]'
+  id: totrans-49
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: '[PRE9]'
+  id: totrans-50
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: fn main() {
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let f = {
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: let f = {
 - en: let x = String::from("hi");
+  id: totrans-53
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = String::from("hi");
 - en: '// f : FnOnce()'
+  id: totrans-54
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// f : FnOnce()'
 - en: move || x
+  id: totrans-55
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: move || x
 - en: '};'
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: '};'
 - en: // f() is equivalent to f.call_once()
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: // f() 等价于 f.call_once()
 - en: println!("{}", f()); // prints "hi"
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: println!("{}", f()); // 打印 "hi"
 - en: // Won't compile--call_once consumes f.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: // 无法编译--call_once 消耗了 f。
 - en: // println!("{}", f());
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: // println!("{}", f());
 - en: '}'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE10]</details>  <details><summary>Closure implementing `FnMut` and taking
     ownership of the capture</summary>'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: '[PRE10]</details>  <details><summary>实现 `FnMut` 并捕获所有权的闭包</summary>'
 - en: '[PRE11]'
+  id: totrans-63
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '[PRE12]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: fn main() {
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut f = {
+  id: totrans-66
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut f = {
 - en: let mut x = String::from("");
+  id: totrans-67
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut x = String::from("");
 - en: '// f : FnMut() -> usize'
+  id: totrans-68
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// f : FnMut() -> usize'
 - en: move || {
+  id: totrans-69
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: move || {
 - en: x.push('!');
+  id: totrans-70
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x.push('!');
 - en: x.len()
+  id: totrans-71
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x.len()
 - en: '}'
+  id: totrans-72
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '};'
+  id: totrans-73
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: println!("{}", f()); // prints "1"
+  id: totrans-74
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", f()); // 打印 "1"
 - en: println!("{}", f()); // prints "2"
+  id: totrans-75
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", f()); // 打印 "2"
 - en: '}'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE13]</details>  <details><summary>Closure implementing `FnMut` and capturing
     by mutable reference</summary>'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: '[PRE13]</details>  <details><summary>实现 `FnMut` 并通过可变引用捕获的闭包</summary>'
 - en: In this case, `x` has to be alive as long as the closure might be used, since
     the closure borrows `x`. Therefore, `x` can't be declared in a block with the
     lambda like in the previous example.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这种情况下，由于闭包会借用 `x`，因此 `x` 必须在闭包可能被使用的时间内保持有效。因此，`x` 不能像上一个示例中那样在 lambda 的代码块中声明。
 - en: '[PRE14]'
+  id: totrans-79
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: '[PRE15]'
+  id: totrans-80
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: fn main() {
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut x = String::from("");
+  id: totrans-82
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut x = String::from("");
 - en: '// g : FnMut() -> usize'
+  id: totrans-83
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// g : FnMut() -> usize'
 - en: let mut f = || {
+  id: totrans-84
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut f = || {
 - en: x.push('!');
+  id: totrans-85
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x.push('!');
 - en: x.len()
+  id: totrans-86
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x.len()
 - en: '};'
+  id: totrans-87
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: println!("{}", f()); // prints "1"
+  id: totrans-88
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", f()); // 打印 "1"
 - en: println!("{}", f()); // prints "2"
+  id: totrans-89
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", f()); // 打印 "2"
 - en: '}'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE16]</details>  <details><summary>Closure implementing `Fn`</summary>'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: '[PRE16]</details>  <details><summary>实现 `Fn` 的闭包</summary>'
 - en: Whether `x` is `mut` or not doesn't affect whether the closure implements `Fn`
     or `FnMut`. What matters is how `x` is used by the closure.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: '`x` 是否为 `mut` 不影响闭包是否实现 `Fn` 或 `FnMut`。重要的是闭包如何使用 `x`。'
 - en: '[PRE17]'
+  id: totrans-93
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: '[PRE18]'
+  id: totrans-94
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: fn main() {
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let f = {
+  id: totrans-96
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let f = {
 - en: let x = String::from("");
+  id: totrans-97
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = String::from("");
 - en: '// g : Fn() -> usize'
+  id: totrans-98
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '// g : Fn() -> usize'
 - en: move || x.len()
+  id: totrans-99
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: move || x.len()
 - en: '};'
+  id: totrans-100
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: println!("{}", f()); // prints "0"
+  id: totrans-101
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", f()); // 打印 "0"
 - en: println!("{}", f()); // prints "0"
+  id: totrans-102
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", f()); // 打印 "0"
 - en: '}'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE19]</details>'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: '[PRE19]</details>'
 - en: '[Lambdas and closures](#lambdas-and-closures)'
+  id: totrans-105
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[Lambdas and closures](#lambdas-and-closures)'
 - en: In neither C++ nor Rust can the concrete type of a capturing closure be written.
     In both languages, for local variables this means that the type must be inferred.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 和 Rust 中，捕获闭包的具体类型都不能写出来。在这两种语言中，对于局部变量，这意味着类型必须被推断。
 - en: '[PRE20]'
+  id: totrans-107
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: '[PRE21]'
+  id: totrans-108
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: fn main() {
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let greeting = "hello";
+  id: totrans-110
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let greeting = "hello";
 - en: // Can't write the type of the closure
+  id: totrans-111
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 无法写出闭包的类型
 - en: 'let say_hello_to = |who: &str| {'
+  id: totrans-112
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let say_hello_to = |who: &str| {'
 - en: format!("{} {}", greeting, who)
+  id: totrans-113
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: format!("{} {}", greeting, who)
 - en: '};'
+  id: totrans-114
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: println!("{}", say_hello_to("world"));
+  id: totrans-115
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", say_hello_to("world"));
 - en: println!("{}", say_hello_to("moon"));
+  id: totrans-116
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", say_hello_to("moon"));
 - en: '}'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE22]'
+  id: totrans-118
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: In both C++ and Rust if the closure is heap-allocated a type can be given. In
     C++ this is done using `std::function` while in Rust it again is done with the
     call operator traits.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 和 Rust 中，如果闭包是堆分配的，则可以给出类型。在 C++ 中，这是通过 `std::function` 实现的，而在 Rust 中则是通过调用操作符特性实现的。
 - en: '[PRE23]'
+  id: totrans-120
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: '[PRE24]'
+  id: totrans-121
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: fn main() {
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let greeting = "hello";
+  id: totrans-123
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let greeting = "hello";
 - en: // Can't write the type of the closure
+  id: totrans-124
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 无法写出闭包的类型
 - en: 'let say_hello_to: Box<'
+  id: totrans-125
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let say_hello_to: Box<'
 - en: dyn Fn(&str) -> String,
+  id: totrans-126
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: dyn Fn(&str) -> String,
 - en: '= Box::new(|who: &str| {'
+  id: totrans-127
   prefs:
   - PREF_IND
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: '= Box::new(|who: &str| {'
 - en: format!("{} {}", greeting, who)
+  id: totrans-128
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: format!("{} {}", greeting, who)
 - en: '});'
+  id: totrans-129
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '});'
 - en: println!("{}", say_hello_to("world"));
+  id: totrans-130
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", say_hello_to("world"));
 - en: println!("{}", say_hello_to("moon"));
+  id: totrans-131
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", say_hello_to("moon"));
 - en: '}'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE25]'
+  id: totrans-133
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: Since `std::function` can be empty the above example isn't strictly equivalent.
     However, since `std::function` is often used with the side condition that the
     value not be empty, the `Box` without an `Option` wrapper for representing the
     empty case is the more practical translation.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于 `std::function` 可以是空的，所以上面的示例并不严格等价。然而，由于 `std::function` 通常与值不为空的附加条件一起使用，所以没有
+    `Option` 包装器的 `Box` 是表示空情况更实用的翻译。
 - en: A type can also be given in terms of one of the function operator traits for
     references to closures in Rust.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，也可以用函数操作符特性之一来给出闭包引用的类型。
 - en: '[PRE26]'
+  id: totrans-136
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: fn main() {
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let greeting = "hello";
+  id: totrans-138
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let greeting = "hello";
 - en: // Can't write the type of the closure
+  id: totrans-139
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 无法写出闭包的类型
 - en: 'let say_hello_to = |who: &str| {'
+  id: totrans-140
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let say_hello_to = |who: &str| {'
 - en: format!("{} {}", greeting, who)
+  id: totrans-141
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: format!("{} {}", greeting, who)
 - en: '};'
+  id: totrans-142
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: 'let say: &dyn Fn(&str) -> String = &say_hello_to;'
+  id: totrans-143
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let say: &dyn Fn(&str) -> String = &say_hello_to;'
 - en: println!("{}", say("world"));
+  id: totrans-144
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", say("world"));
 - en: println!("{}", say("moon"));
+  id: totrans-145
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", say("moon"));
 - en: '}'
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE27]'
+  id: totrans-147
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: Additionally, in both C++ and Rust, the return type of the closure can be annotated
     as part of the lambda expression. This is useful when the return type either cannot
     be inferred or should be less specific than what would be inferred. In the following
     example this is used to return a value in terms of an interface it implements
     instead of the concrete type that would otherwise be inferred.
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，在 C++ 和 Rust 中，闭包的返回类型可以作为 lambda 表达式的一部分进行注解。当返回类型无法推断或应该比推断出的类型更具体时，这很有用。在下面的示例中，这是用来以实现接口的值返回，而不是推断出的具体类型。
 - en: '[PRE28]'
+  id: totrans-149
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: '[PRE29]'
+  id: totrans-150
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: // The common interface
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: // 常见接口
 - en: use std::fmt::Debug;
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::fmt::Debug;
 - en: // Two things that implement the interface
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: // 实现接口的两个东西
 - en: '#[derive(Debug)]'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Debug)]'
 - en: struct A;
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: struct A;
 - en: '#[derive(Debug)]'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Debug)]'
 - en: struct B;
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: struct B;
 - en: fn main() {
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: // Without the return type annotation,
+  id: totrans-159
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 没有返回类型注解，
 - en: // Box<A> would be inferred.
+  id: totrans-160
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // Box<A> 将会被推断。
 - en: 'let f = move |a: Box<A>,'
+  id: totrans-161
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let f = move |a: Box<A>,'
 - en: 'b: Box<B>|'
+  id: totrans-162
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'b: Box<B>|'
 - en: -> Box<dyn Debug> { a };
+  id: totrans-163
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: -> Box<dyn Debug> { a };
 - en: println!("{:?}", f(Box::new(A), Box::new(B)));
+  id: totrans-164
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{:?}", f(Box::new(A), Box::new(B)));
 - en: '}'
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE30]'
+  id: totrans-166
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: '[Capturing variables](#capturing-variables)'
+  id: totrans-167
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[捕获变量](#capturing-variables)'
 - en: In C++, capture specifiers are used to indicate whether a variable should be
     captured by reference, by copy, or by move. The capture specifiers can be given
     for all of the variables at once, for each variable, or given as a default along
     with specific choices for each variable.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，捕获指定符用于指示变量是否应该通过引用、复制或移动来捕获。捕获指定符可以一次为所有变量提供，为每个变量提供，或作为默认值与每个变量的特定选择一起提供。
 - en: In Rust, the variables are captured either all by reference (by default) or
     all by move (using a `move` specifier). In order to express other capture strategies,
     the references and copies need to be explicitly defined and the closure needs
     to capture those variables instead.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，变量要么全部通过引用（默认）捕获，要么全部通过移动（使用 `move` 指定符）。为了表达其他捕获策略，需要显式定义引用和副本，并且闭包需要捕获这些变量。
 - en: Expressing the pattern of explicitly making copies or taking references leverages
     the fact that in Rust blocks are expressions. In the examples that need to do
     that, notice the lack of a semicolon in the last statement of the block that is
     being assigned to the variable to hold the closure.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过显式地创建副本或获取引用的模式表达，利用了 Rust 中块是表达式的这一事实。在需要执行此操作的示例中，注意被分配给持有闭包的变量的块的最后一个语句中没有分号。
 - en: The following examples show examples of different patterns of capturing variables
     in C++ and their analogs in Rust.
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了 C++ 中不同捕获变量模式的示例及其在 Rust 中的对应。
 - en: <details><summary>Capture `x` and `y` by reference</summary>
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: <details><summary>通过引用捕获 `x` 和 `y`</summary>
 - en: '[PRE31]'
+  id: totrans-173
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE31]'
 - en: '[PRE32]'
+  id: totrans-174
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE32]'
 - en: fn main() {
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let x = String::from("hello world");
+  id: totrans-176
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = String::from("hello world");
 - en: let y = String::from("goodnight moon");
+  id: totrans-177
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let y = String::from("goodnight moon");
 - en: let f = || {
+  id: totrans-178
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let f = || {
 - en: println!("{}", x);
+  id: totrans-179
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: println!("{}", y);
+  id: totrans-180
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", y);
 - en: '};'
+  id: totrans-181
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // x and y borrowed by f, but still available
+  id: totrans-182
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // x 和 y 通过 f 借用，但仍然可用
 - en: println!("{}", x);
+  id: totrans-183
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: println!("{}", y);
+  id: totrans-184
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", y);
 - en: f();
+  id: totrans-185
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: f();
 - en: '}'
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE33]</details>  <details><summary>Capture `x` and `y` by mutable reference</summary>'
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: '[PRE33]</details>  <details><summary>通过可变引用捕获 `x` 和 `y`</summary>'
 - en: The C++ version is same as when capturing by mutable reference.
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 版本与通过可变引用捕获时相同。
 - en: '[PRE34]'
+  id: totrans-189
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE34]'
 - en: '[PRE35]'
+  id: totrans-190
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE35]'
 - en: fn main() {
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut x = String::from("hello world");
+  id: totrans-192
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut x = String::from("hello world");
 - en: let mut y = String::from("goodnight moon");
+  id: totrans-193
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut y = String::from("goodnight moon");
 - en: // f needs to be mut because it mutates
+  id: totrans-194
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // f 需要是可变的，因为它会进行修改
 - en: // its captured variables
+  id: totrans-195
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 它捕获的变量
 - en: let mut f = || {
+  id: totrans-196
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut f = || {
 - en: x.push('!');
+  id: totrans-197
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x.push('!');
 - en: y.push('!');
+  id: totrans-198
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: y.push('!');
 - en: '};'
+  id: totrans-199
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // x and y borrowed mutably by f, and so
+  id: totrans-200
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // x 和 y 通过 f 可变借用，因此
 - en: // can't be used here
+  id: totrans-201
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 不能在这里使用
 - en: // println!("{}", x);
+  id: totrans-202
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // println!("{}", x);
 - en: // println!("{}", y);
+  id: totrans-203
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", y);
 - en: f();
+  id: totrans-204
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: f();
 - en: println!("{}", x);
+  id: totrans-205
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: println!("{}", y);
+  id: totrans-206
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", y);
 - en: '}'
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE36]</details>  <details><summary>Copy `x` and `y` to capture by value</summary>'
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: '[PRE36]</details>  <details><summary>通过值复制 `x` 和 `y` 来捕获</summary>'
 - en: In C++ this requires that the lambda have the `mutable` specifier. In Rust this
     requires
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，这要求 lambda 有 `mutable` 指定符。在 Rust 中，这要求
 - en: making a copy of the values for the closure to capture,
+  id: totrans-210
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 为闭包捕获的值创建副本之前发生，
 - en: marking those copy as mutable with `mut`,
+  id: totrans-211
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 将这些副本标记为可变的 `mut`，
 - en: marking the closure itself as mutable with `mut`, and
+  id: totrans-212
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 将闭包本身标记为可变的 `mut`，并且
 - en: using the `move` specifier to move ownership of the copies into the closure.
+  id: totrans-213
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 使用 `move` 指定符将副本的所有权移动到闭包中。
 - en: Types that indicate they are [trivially copyable by implementing the `Copy`
     trait](constructors/copy_and_move_constructors.html#trivially-copyable-types)
     do not need to be explicitly cloned.
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: 表示它们可以通过实现 `Copy` 特性进行简单复制的类型（[构造函数/复制和移动构造函数](constructors/copy_and_move_constructors.html#trivially-copyable-types)）不需要显式克隆。
 - en: '[PRE37]'
+  id: totrans-215
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE37]'
 - en: '[PRE38]'
+  id: totrans-216
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE38]'
 - en: fn main() {
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let x = String::from("hello world");
+  id: totrans-218
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = String::from("hello world");
 - en: let y = String::from("goodnight moon");
+  id: totrans-219
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let y = String::from("goodnight moon");
 - en: let mut f = {
+  id: totrans-220
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut f = {
 - en: // Shadow outer variables with copies.
+  id: totrans-221
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用副本来遮蔽外部变量。
 - en: // This needs to happen outside of the
+  id: totrans-222
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 这需要在
 - en: // closure expression.
+  id: totrans-223
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 闭包表达式。
 - en: let mut x = x.clone();
+  id: totrans-224
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut x = x.clone();
 - en: let mut y = y.clone();
+  id: totrans-225
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut y = y.clone();
 - en: move || {
+  id: totrans-226
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: move || {
 - en: x.push('!');
+  id: totrans-227
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x.push('!');
 - en: y.push('!');
+  id: totrans-228
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: y.push('!');
 - en: '}'
+  id: totrans-229
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '};'
+  id: totrans-230
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // clones of x and y owned by f, originals
+  id: totrans-231
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // f 拥有 x 和 y 的副本，原始值
 - en: // still available
+  id: totrans-232
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 仍然可用
 - en: println!("{}", x);
+  id: totrans-233
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: println!("{}", y);
+  id: totrans-234
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", y);
 - en: f();
+  id: totrans-235
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: f();
 - en: // still don't have the !, since the copies
+  id: totrans-236
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 仍然没有 !，因为副本
 - en: // were modified not the originals
+  id: totrans-237
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: println!("{}", x);
+  id: totrans-238
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: println!("{}", y);
+  id: totrans-239
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", y);
 - en: '}'
+  id: totrans-240
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE39]</details>  <details><summary>Move `x` and `y` to capture by value</summary>'
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: '[PRE39]</details>  <details><summary>将 `x` 和 `y` 通过值捕获</summary>'
 - en: '[PRE40]'
+  id: totrans-242
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE40]'
 - en: '[PRE41]'
+  id: totrans-243
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE41]'
 - en: fn main() {
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let x = String::from("hello world");
+  id: totrans-245
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = String::from("hello world");
 - en: let y = String::from("goodnight moon");
+  id: totrans-246
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let y = String::from("goodnight moon");
 - en: // captures x and y by value
+  id: totrans-247
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'msg: String,'
 - en: let f = move || {
+  id: totrans-248
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: println!("{}", x);
+  id: totrans-249
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: println!("{}", y);
+  id: totrans-250
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", y);
 - en: '};'
+  id: totrans-251
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // x and y moved into f,
+  id: totrans-252
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // x 和 y 被移动到 f 中，
 - en: // original variables cannot be used
+  id: totrans-253
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 原始变量不能使用
 - en: // println!("{}", x);
+  id: totrans-254
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // println!("{}", x);
 - en: // println!("{}", y);
+  id: totrans-255
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // println!("{}", y);
 - en: f();
+  id: totrans-256
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let f = my_closure.as_fn();
 - en: '}'
+  id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE42]</details>  <details><summary>Move `x` to capture by value, capture
     `y` by reference</summary>'
+  id: totrans-258
   prefs: []
   type: TYPE_NORMAL
+  zh: '[PRE42]</details>  <details><summary>将 `x` 通过值捕获，捕获 `y` 为引用</summary>'
 - en: '[PRE43]'
+  id: totrans-259
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE43]'
 - en: '[PRE44]'
+  id: totrans-260
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE44]'
 - en: fn main() {
+  id: totrans-261
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut x = String::from("hello world");
+  id: totrans-262
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut x = String::from("hello world");
 - en: let y = String::from("goodnight moon");
+  id: totrans-263
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let y = String::from("goodnight moon");
 - en: let mut f = {
+  id: totrans-264
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut f = {
 - en: let y = &y;
+  id: totrans-265
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let y = &y;
 - en: // Actually captures both x and y by
+  id: totrans-266
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 实际上通过值捕获了 x 和 y，
 - en: // value, but y is a reference
+  id: totrans-267
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 值，但 y 是引用
 - en: move || {
+  id: totrans-268
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: move || {
 - en: x.push('!');
+  id: totrans-269
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x.push('!');
 - en: println!("{}", x);
+  id: totrans-270
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 被修改的是副本，不是原始值
 - en: println!("{}", y);
+  id: totrans-271
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", y);
 - en: '}'
+  id: totrans-272
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '};'
+  id: totrans-273
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: // x moved into f, y borrowed by f
+  id: totrans-274
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // x 被移动到 f 中，y 被f借用
 - en: // println!("{}", x);
+  id: totrans-275
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // println!("{}", x);
 - en: println!("{}", y);
+  id: totrans-276
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", y);
 - en: f();
+  id: totrans-277
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: f();
 - en: '}'
+  id: totrans-278
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE45]</details>'
+  id: totrans-279
   prefs: []
   type: TYPE_NORMAL
+  zh: '[PRE45]</details>'
 - en: '[Function objects](#function-objects)'
+  id: totrans-280
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[函数对象](#function-objects)'
 - en: Unlike in C++, in Rust only functions and closures implement the function call
     operator traits. The ability to directly implement the traits is [not yet part
     of stable Rust](https://github.com/rust-lang/rust/issues/29625).
+  id: totrans-281
   prefs: []
   type: TYPE_NORMAL
+  zh: 与 C++ 不同，在 Rust 中只有函数和闭包实现了函数调用操作符特质。直接实现这些特质的可能性 [目前还不是稳定 Rust 的一部分](https://github.com/rust-lang/rust/issues/29625)。
 - en: Instead, one can implement a [conversion function](./user-defined_conversions.html).
     The standard conversion traits `From` and `Into` cannot be implemented for this
     purpose, however, because the `impl Trait` syntax cannot be used in trait implementations.^([1](#footnote-impl-trait-impl))
     Instead a separate method must be defined.
+  id: totrans-282
   prefs: []
   type: TYPE_NORMAL
+  zh: 相反，可以实现一个 [转换函数](./user-defined_conversions.html)。然而，由于 `impl Trait` 语法不能用于特质实现，因此不能为这个目的实现标准转换特质
+    `From` 和 `Into`。因此，必须定义一个单独的方法。^([1](#footnote-impl-trait-impl)) 而不是使用 `impl Trait`
+    语法。
 - en: '[PRE46]'
+  id: totrans-283
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE46]'
 - en: '[PRE47]'
+  id: totrans-284
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE47]'
 - en: struct MyClosure {
+  id: totrans-285
   prefs: []
   type: TYPE_NORMAL
+  zh: struct MyClosure {
 - en: 'msg: String,'
+  id: totrans-286
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: f();
 - en: '}'
+  id: totrans-287
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl MyClosure {
+  id: totrans-288
   prefs: []
   type: TYPE_NORMAL
+  zh: impl MyClosure {
 - en: fn as_fn(&self) -> impl Fn() -> usize {
+  id: totrans-289
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn as_fn(&self) -> impl Fn() -> usize {
 - en: move || {
+  id: totrans-290
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: move || {
 - en: println!("{}", self.msg);
+  id: totrans-291
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", self.msg);
 - en: self.msg.len()
+  id: totrans-292
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.msg.len()
 - en: '}'
+  id: totrans-293
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-294
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", x);
 - en: '}'
+  id: totrans-295
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-296
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let my_closure = MyClosure {
+  id: totrans-297
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let my_closure = MyClosure {
 - en: 'msg: String::from("hello world"),'
+  id: totrans-298
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'msg: String::from("hello world"),'
 - en: '};'
+  id: totrans-299
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: let f = my_closure.as_fn();
+  id: totrans-300
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let f = move || {
 - en: f();
+  id: totrans-301
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: f();
 - en: '}'
+  id: totrans-302
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE48]'
+  id: totrans-303
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE48]'
 - en: In Rust editions earlier than 2024, the above example requires a precise capturing
     annotation using the [`use<'a>` syntax](https://doc.rust-lang.org/std/keyword.use.html#precise-capturing)
     to specify that the returned closure borrows from the parameters, since otherwise
     a lifetime bound is not inferred.
+  id: totrans-304
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 2024 年之前的版本中，上述示例需要使用精确捕获注解 `use<'a>` 语法（[https://doc.rust-lang.org/std/keyword.use.html#precise-capturing](https://doc.rust-lang.org/std/keyword.use.html#precise-capturing)）来指定返回的闭包从参数中借用，否则无法推断出生命周期限制。
 - en: '[Member functions as function pointers](#member-functions-as-function-pointers)'
+  id: totrans-305
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[成员函数作为函数指针](#member-functions-as-function-pointers)'
 - en: In C++, pointers to member functions can be invoked with the `.*` operator or
     can be converted to `std::function` values using `std::mem_fn`, enabling them
     to be used in the same way as other `std::function` values. When called on a derived
     class, whether the method whose address was taken or the overriding method in
     the derived class is called depends on whether the method is defined as virtual.
+  id: totrans-306
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，成员函数指针可以使用 `.*` 操作符调用，或者使用 `std::mem_fn` 转换为 `std::function` 值，从而可以像其他
+    `std::function` 值一样使用。当在派生类上调用时，调用的是取地址的方法还是派生类中重写的方法取决于该方法是否定义为虚函数。
 - en: In Rust pointers to member functions are normal function pointers. For example,
     a method on a type `T` with a `&self` parameter is a function whose first argument
     has type `&T`. When the method is named via a trait, then the first argument of
     the function has type `&dyn T` with a lifetime bound. Determining whether vtables
     are involved in the use of a pointer to a member function is determined at the
     time that the method is referenced, rather than when the method is defined.
+  id: totrans-307
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，成员函数的指针是普通函数指针。例如，具有 `&self` 参数的类型 `T` 的方法是一个其第一个参数类型为 `&T` 的函数。当方法通过特例命名时，函数的第一个参数类型为
+    `&dyn T`，并具有生命周期限制。确定是否在成员函数指针的使用中涉及 vtable 是在引用方法时确定的，而不是在定义方法时。
 - en: '[PRE49]'
+  id: totrans-308
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE49]'
 - en: '[PRE50]'
+  id: totrans-309
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE50]'
 - en: trait Interface {
+  id: totrans-310
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Interface {
 - en: fn show(&self);
+  id: totrans-311
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn show(&self);
 - en: '}'
+  id: totrans-312
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct A;
+  id: totrans-313
   prefs: []
   type: TYPE_NORMAL
+  zh: struct A;
 - en: impl Interface for A {
+  id: totrans-314
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Interface for A {
 - en: fn show(&self) {
+  id: totrans-315
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn show(&self) {
 - en: println!("A");
+  id: totrans-316
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("A");
 - en: '}'
+  id: totrans-317
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-318
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct B;
+  id: totrans-319
   prefs: []
   type: TYPE_NORMAL
+  zh: struct B;
 - en: impl Interface for B {
+  id: totrans-320
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Interface for B {
 - en: fn show(&self) {
+  id: totrans-321
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn show(&self) {
 - en: println!("B");
+  id: totrans-322
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("B");
 - en: '}'
+  id: totrans-323
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-324
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-325
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: // types could be inferred, but given to show
+  id: totrans-326
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 类型可以推断，但给出以示说明
 - en: // that they are just a function pointers
+  id: totrans-327
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 它们只是函数指针
 - en: 'let show_a: fn(&A) = A::show;'
+  id: totrans-328
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let show_a: fn(&A) = A::show;'
 - en: 'let show_b: fn(&B) = B::show;'
+  id: totrans-329
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let show_b: fn(&B) = B::show;'
 - en: 'let show_v: fn(&(dyn Interface + ''static)) ='
+  id: totrans-330
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let show_v: fn(&(dyn Interface + ''static)) ='
 - en: Interface::show;
+  id: totrans-331
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Interface::show;
 - en: show_a(&A); // prints A
+  id: totrans-332
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: show_a(&A); // 打印 A
 - en: show_b(&B); // prints B
+  id: totrans-333
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: show_b(&B); // 打印 B
 - en: show_v(&A); // prints A
+  id: totrans-334
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: show_v(&A); // 打印 A
 - en: show_v(&B); // prints B
+  id: totrans-335
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: show_v(&B); // 打印 B
 - en: '}'
+  id: totrans-336
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE51]'
+  id: totrans-337
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE51]'
 - en: '[Closures as parameters](#closures-as-parameters)'
+  id: totrans-338
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[闭包作为参数](#closures-as-parameters)'
 - en: In both C++ and Rust, unboxed closures can be accepted as parameters. Just as
     using `auto` as the type of a parameter in C++ makes the function actually a function
     template, using `impl Trait` as the type of a parameter in Rust makes the function
     generic. [The resulting generic function is checked statically, just like it would
     be if the type parameter and bound were given explicitly.](data_modeling/concepts.html#templates-vs-generic-functions)
+  id: totrans-339
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 和 Rust 中，也可以接受未装箱的闭包作为参数。就像在 C++ 中使用 `auto` 作为参数类型使函数实际上成为一个函数模板一样，在 Rust
+    中使用 `impl Trait` 作为参数类型使函数泛型。[生成的泛型函数是静态检查的，就像显式给出类型参数和边界时一样。](data_modeling/concepts.html#templates-vs-generic-functions)
 - en: '[PRE52]'
+  id: totrans-340
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE52]'
 - en: '[PRE53]'
+  id: totrans-341
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE53]'
 - en: 'fn apply_to_0(f: impl FnOnce(i32) -> i32) -> i32 {'
+  id: totrans-342
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn apply_to_0(f: impl FnOnce(i32) -> i32) -> i32 {'
 - en: f(0)
+  id: totrans-343
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: f(0)
 - en: '}'
+  id: totrans-344
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-345
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let x = 1;
+  id: totrans-346
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = 1;
 - en: 'let f = move |n: i32| x + n;'
+  id: totrans-347
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let f = move |n: i32| x + n;'
 - en: println!("{}", apply_to_0(&f));
+  id: totrans-348
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", apply_to_0(&f));
 - en: '}'
+  id: totrans-349
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE54]'
+  id: totrans-350
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE54]'
 - en: When accepting closures as type parameters in Rust, it is best practice to specify
     the type as the the least restrictive interface required for how the closure will
     be used.
+  id: totrans-351
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中接受闭包作为类型参数时，最好指定所需的最不限制接口，以确定闭包将被如何使用。
 - en: Using `FnOnce` as the bound is the least restrictive, and so should be used
     so that the function accepting a closure as a parameter is as compatible with
     as many closures as possible . `FnOnce` works with `Fn` and `FnMut` because there
     are `FnOnce` trait implementations for `&Fn` and `&FnMut`. The `FnMut` trait is
     the next most restrictive, followed by `Fn`, and then actual function pointers,
     whose types are written with a lowercase `fn`.
+  id: totrans-352
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用 `FnOnce` 作为边界是最不限制的，因此应该使用它，以便接受闭包作为参数的函数尽可能与尽可能多的闭包兼容。`FnOnce` 与 `Fn` 和
+    `FnMut` 一起工作，因为为 `&Fn` 和 `&FnMut` 提供了 `FnOnce` 特例实现。`FnMut` 特例是下一个最限制的，然后是 `Fn`，最后是实际函数指针，其类型以小写
+    `fn` 编写。
 - en: In both C++ and Rust, it is also possible to pass references or pointers to
     closures. In the following example, the closure is in dynamically allocated storage
     in both C++ and in Rust.
+  id: totrans-353
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 和 Rust 中，也可以传递闭包的引用或指针。在以下示例中，闭包在 C++ 和 Rust 中都在动态分配的存储中。
 - en: '[PRE55]'
+  id: totrans-354
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE55]'
 - en: '[PRE56]'
+  id: totrans-355
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE56]'
 - en: 'fn apply_to_0(f: Box<dyn FnOnce(i32) -> i32>) -> i32 {'
+  id: totrans-356
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn apply_to_0(f: Box<dyn FnOnce(i32) -> i32>) -> i32 {'
 - en: f(0)
+  id: totrans-357
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: f(0)
 - en: '}'
+  id: totrans-358
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-359
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let x = 1;
+  id: totrans-360
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = 1;
 - en: 'let f = Box::new(move |n: i32| x + n);'
+  id: totrans-361
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let f = Box::new(move |n: i32| x + n);'
 - en: println!("{}", apply_to_0(f));
+  id: totrans-362
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", apply_to_0(f));
 - en: '}'
+  id: totrans-363
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE57]'
+  id: totrans-364
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE57]'
 - en: '`FnOnce` can be called when in a `Box`, because the box owns the trait object,
     but not when in a reference which doesn''t. `Fn` and `FnMut` do not have the same
     restriction.'
+  id: totrans-365
   prefs: []
   type: TYPE_NORMAL
+  zh: '`FnOnce` 可以在 `Box` 中调用，因为盒子拥有特例对象的所有权，但不在引用中调用，因为引用没有所有权。`Fn` 和 `FnMut` 没有相同的限制。'
 - en: '[Returning closures](#returning-closures)'
+  id: totrans-366
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[返回闭包](#returning-closures)'
 - en: In C++, `auto` or `decltype(auto)` can be used as the return type for a function
     returning a closure. In Rust, once again the `impl Trait` syntax can be used.
     Just as how in C++ using `auto` in this way does not denote an abbreviated function
     template, it does not denote a generic function in Rust. Instead the type is inferred,
     and must satisfy the trait.
+  id: totrans-367
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中，可以使用`auto`或`decltype(auto)`作为返回闭包的函数的返回类型。在Rust中，再次使用`impl Trait`语法。就像在C++中使用`auto`这种方式并不表示简化的函数模板一样，它也不表示泛型函数。相反，类型是推断的，并且必须满足特质的约束。
 - en: '[PRE58]'
+  id: totrans-368
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE58]'
 - en: '[PRE59]'
+  id: totrans-369
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE59]'
 - en: 'fn make_const(n: i32) -> impl Fn() -> i32 {'
+  id: totrans-370
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn make_const(n: i32) -> impl Fn() -> i32 {'
 - en: move || n
+  id: totrans-371
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: move || n
 - en: '}'
+  id: totrans-372
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-373
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let f = make_const(42);
+  id: totrans-374
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let f = make_const(42);
 - en: println!("{}", f());
+  id: totrans-375
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", f());
 - en: '}'
+  id: totrans-376
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE60]'
+  id: totrans-377
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE60]'
 - en: In places in C++ where `decltype` is used to name the closure, e.g., when returning
     a closure in a template class, in Rust the `impl Trait` syntax is used. If a type
     needs to be given in a let binding, then an underscore `_` can be used to indicate
     that the part of the type that is the closure's type should be inferred.
+  id: totrans-378
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++中使用`decltype`来命名闭包的地方，例如在模板类中返回闭包时，在Rust中则使用`impl Trait`语法。如果需要在let绑定中指定类型，可以使用下划线`_`来表示类型中闭包的类型部分应该被推断。
 - en: '[PRE61]'
+  id: totrans-379
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE61]'
 - en: struct Wrapper<T>(T);
+  id: totrans-380
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Wrapper<T>(T);
 - en: fn make_closure() -> Wrapper<impl Fn(i32) -> i32>
+  id: totrans-381
   prefs: []
   type: TYPE_NORMAL
+  zh: fn make_closure() -> Wrapper<impl Fn(i32) -> i32>
 - en: '{'
+  id: totrans-382
   prefs: []
   type: TYPE_NORMAL
+  zh: '{'
 - en: let x = 1;
+  id: totrans-383
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = 1;
 - en: 'Wrapper(move |n: i32| x + n)'
+  id: totrans-384
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Wrapper(move |n: i32| x + n)'
 - en: '}'
+  id: totrans-385
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-386
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'let w: Wrapper<_> = make_closure();'
+  id: totrans-387
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let w: Wrapper<_> = make_closure();'
 - en: w.0(0);
+  id: totrans-388
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: w.0(0);
 - en: '}'
+  id: totrans-389
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE62]'
+  id: totrans-390
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE62]'
 - en: There are several other places where `decltype` works but `impl Trait` does
     not yet, such as [the output type for `Fn` traits](https://github.com/rust-lang/rust/issues/99697).
     This means that one can define closures that return closures in Rust, but cannot
     give them a type, and therefore cannot return them from functions. The following
     compiles in C++ but fails to compile in Rust for that reason.
+  id: totrans-391
   prefs: []
   type: TYPE_NORMAL
+  zh: 有几个其他地方`decltype`可以工作，但`impl Trait`还不能，例如[`Fn`特质的输出类型](https://github.com/rust-lang/rust/issues/99697)。这意味着在Rust中可以定义返回闭包的闭包，但不能为它们指定类型，因此不能从函数中返回它们。下面的代码在C++中可以编译，但在Rust中由于这个原因无法编译。
 - en: '[PRE63]'
+  id: totrans-392
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE63]'
 - en: '[PRE64]'
+  id: totrans-393
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE64]'
 - en: '[Template lambdas](#template-lambdas)'
+  id: totrans-394
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[模板lambda](#template-lambdas)'
 - en: Rust does not support generic closures. Thus, the following has no equivalent
     in Rust.
+  id: totrans-395
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust不支持泛型闭包。因此，以下在Rust中没有等效功能。
 - en: '[PRE65]'
+  id: totrans-396
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE65]'
 - en: However, if the lambda doesn't capture anything, it is possible to write the
     following equivalent in Rust, by using an inner function definition.
+  id: totrans-397
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，如果lambda没有捕获任何内容，可以通过使用内部函数定义在Rust中写出等效的代码。
 - en: '[PRE66]'
+  id: totrans-398
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE66]'
 - en: '[PRE67]'
+  id: totrans-399
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE67]'
 - en: fn main() {
+  id: totrans-400
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: 'fn id<T>(x: T) -> T {'
+  id: totrans-401
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn id<T>(x: T) -> T {'
 - en: x
+  id: totrans-402
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x
 - en: '}'
+  id: totrans-403
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: id(5);
+  id: totrans-404
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: id(5);
 - en: id(String::from("hi"));
+  id: totrans-405
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: id(String::from("hi"));
 - en: '}'
+  id: totrans-406
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE68]'
+  id: totrans-407
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE68]'
 - en: '[Partial application and `std::bind`](#partial-application-and-stdbind)'
+  id: totrans-408
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[部分应用和`std::bind`](#partial-application-and-stdbind)'
 - en: There is no equivalent to the C++ template `std::bind` in the Rust standard
     library. The idiomatic way to express partial application in Rust is to write
     out the lambda.
+  id: totrans-409
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust标准库中没有与C++模板`std::bind`等效的功能。在Rust中表达部分应用的传统方式是写出lambda表达式。
 - en: '[PRE69]'
+  id: totrans-410
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE69]'
 - en: '[PRE70]'
+  id: totrans-411
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE70]'
 - en: 'fn add(x: i32, y: i32) -> i32 {'
+  id: totrans-412
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn add(x: i32, y: i32) -> i32 {'
 - en: x + y
+  id: totrans-413
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x + y
 - en: '}'
+  id: totrans-414
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-415
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let add_ten = move |y| add(10, y);
+  id: totrans-416
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let add_ten = move |y| add(10, y);
 - en: assert_eq!(42, add_ten(32));
+  id: totrans-417
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: assert_eq!(42, add_ten(32));
 - en: '}'
+  id: totrans-418
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE71]'
+  id: totrans-419
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE71]'
 - en: The third-party crate [partial_application](https://docs.rs/partial_application/latest/partial_application/)
     provides something akin to `std::bind` using Rust macros.
+  id: totrans-420
   prefs: []
   type: TYPE_NORMAL
+  zh: 第三方crate [partial_application](https://docs.rs/partial_application/latest/partial_application/)
+    提供了类似于`std::bind`的功能，使用Rust宏实现。
 - en: '[PRE72]'
+  id: totrans-421
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE72]'
 - en: '[Returning references to captured variables](#returning-references-to-captured-variables)'
+  id: totrans-422
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[返回捕获变量的引用](#returning-references-to-captured-variables)'
 - en: 'In Rust it is not possible to have a closure return a reference to a captured
     variable. This is due to a limitation with how the `Fn` family of traits are defined:
     `Fn::Output` does not have a way to express a lifetime bound.'
+  id: totrans-423
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Rust中，闭包无法返回对捕获变量的引用。这是由于`Fn`族特质的定义限制造成的：`Fn::Output`没有表达生命周期边界的方法。
 - en: '[PRE73]'
+  id: totrans-424
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE73]'
 - en: '[PRE74]'
+  id: totrans-425
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE74]'
 - en: The workarounds to this limitation in Rust involve either heap-allocating and
     using a shared pointer `Rc`, or defining a new trait instead of using one of the
     `Fn` traits. The following example shows a trait that uses [generic associated
@@ -1664,234 +2530,355 @@
     to define a generalized `Fn` trait. In practice, however, it is usually better
     either to define a custom trait for each use case or to elide the trait entirely
     if a single struct is sufficient.
+  id: totrans-426
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中解决这种限制的方法包括：要么堆分配并使用共享指针 `Rc`，要么定义一个新的特质而不是使用 `Fn` 特质之一。以下示例展示了使用 [泛型关联类型](https://doc.rust-lang.org/reference/items/associated-items.html#r-items.associated.type.generic)
+    定义通用 `Fn` 特质的特质。然而，在实践中，通常更好的做法是为每个用例定义一个自定义特质，或者如果单个结构体就足够了，则完全省略特质。
 - en: '[PRE75]'
+  id: totrans-427
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE75]'
 - en: trait Closure<Args> {
+  id: totrans-428
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Closure<Args> {
 - en: // The lifetime parameter enables expressing
+  id: totrans-429
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 生命周期参数允许表达
 - en: // the bound.
+  id: totrans-430
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 界限。
 - en: type Output<'a>
+  id: totrans-431
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 类型 Output<'a>
 - en: where
+  id: totrans-432
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: where
 - en: 'Self: ''a;'
+  id: totrans-433
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Self: ''a;'
 - en: // The bound from self can then be
+  id: totrans-434
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 来自 self 的界限可以是
 - en: // provided to Output.
+  id: totrans-435
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 提供给 Output。
 - en: fn call<'a>(
+  id: totrans-436
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn call<'a>(
 - en: '&''a self,'
+  id: totrans-437
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '&''a self,'
 - en: 'args: Args,'
+  id: totrans-438
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'args: Args,'
 - en: ) -> Self::Output<'a>;
+  id: totrans-439
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: ) -> Self::Output<'a>;
 - en: '}'
+  id: totrans-440
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct MyClosure {
+  id: totrans-441
   prefs: []
   type: TYPE_NORMAL
+  zh: struct MyClosure {
 - en: 'msg: String,'
+  id: totrans-442
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'msg: String,'
 - en: '}'
+  id: totrans-443
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Closure<()> for MyClosure {
+  id: totrans-444
   prefs: []
   type: TYPE_NORMAL
+  zh: 实现闭包类型 `Closure<()>` for MyClosure {
 - en: type Output<'a> = &'a str;
+  id: totrans-445
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 类型 Output<'a> = &'a str;
 - en: 'fn call(&self, _: ()) -> &str {'
+  id: totrans-446
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'fn call(&self, _: ()) -> &str {'
 - en: '&self.msg'
+  id: totrans-447
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '&self.msg'
 - en: '}'
+  id: totrans-448
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-449
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-450
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let f = MyClosure {
+  id: totrans-451
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let f = MyClosure {
 - en: 'msg: String::from("hello world"),'
+  id: totrans-452
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'msg: String::from("hello world"),'
 - en: '};'
+  id: totrans-453
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: println!("{}", f.call(()));
+  id: totrans-454
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", f.call(()));
 - en: '}'
+  id: totrans-455
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE76]'
+  id: totrans-456
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE76]'
 - en: '[Closures, ownership, and `FnOnce`](#closures-ownership-and-fnonce)'
+  id: totrans-457
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[闭包、所有权和 `FnOnce`](#closures-ownership-and-fnonce)'
 - en: Closures are a part of Rust where the borrow checker is likely to cause frustration
     for a C++ programmer. This is usually not because of lifetimes, which have to
     be similarly considered in C++, but rather because C++ defaults to copy semantics
     while Rust defaults to move semantics. For example, this small adjustment to one
     of the earlier examples fails to compile.
+  id: totrans-458
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，闭包是其中借用检查可能会让 C++ 程序员感到沮丧的部分。这通常不是因为生命周期，在 C++ 中也需要类似地考虑生命周期，而是因为 C++
+    默认使用复制语义，而 Rust 默认使用移动语义。例如，对早期示例中的一次小调整无法编译。
 - en: '[PRE77]'
+  id: totrans-459
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE77]'
 - en: This fails to compile because the `+` operator takes ownership of `greeting`,
     which makes it no longer accessible for later invocations. Because of this, the
     closure only implements `FnOnce`, not `Fn`, and therefore can only be called once,
     because the call takes ownership of the closure itself.
+  id: totrans-460
   prefs: []
   type: TYPE_NORMAL
+  zh: 这无法编译，因为 `+` 运算符会获取 `greeting` 的所有权，这使得它对于后续调用不再可访问。因此，闭包只实现了 `FnOnce`，而不是 `Fn`，因此只能调用一次，因为调用会获取闭包本身的所有权。
 - en: '[PRE78]'
+  id: totrans-461
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE78]'
 - en: In many cases like this, the answer is to clone the value so that the copy owned
     by the closure can be retained for future invocations.
+  id: totrans-462
   prefs: []
   type: TYPE_NORMAL
+  zh: In many cases like this, the answer is to clone the value so that the copy owned
+    by the closure can be retained for future invocations.
 - en: '[PRE79]'
+  id: totrans-463
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE79]'
 - en: fn main() {
+  id: totrans-464
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let greeting = "hello ".to_string();
+  id: totrans-465
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let greeting = "hello ".to_string();
 - en: // Can't write the type of the closure
+  id: totrans-466
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 无法写出闭包的类型
 - en: 'let say_hello_to = move |who: &str| {'
+  id: totrans-467
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'let say_hello_to = move |who: &str| {'
 - en: greeting.clone() + who
+  id: totrans-468
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: greeting.clone() + who
 - en: '};'
+  id: totrans-469
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: println!("{}", say_hello_to("world"));
+  id: totrans-470
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", say_hello_to("world"));
 - en: println!("{}", say_hello_to("moon"));
+  id: totrans-471
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", say_hello_to("moon"));
 - en: '}'
+  id: totrans-472
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE80]'
+  id: totrans-473
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE80]'
 - en: If cloning isn't desired because it is too expensive, then the closure needs
     to be redesigned to avoid giving away ownership of its captured variables.
+  id: totrans-474
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果克隆是不希望的，因为它太昂贵，那么闭包需要重新设计以避免放弃其捕获变量的所有权。
 - en: '[Documentation best practices](#documentation-best-practices)'
+  id: totrans-475
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[文档最佳实践](#documentation-best-practices)'
 - en: C++ often recommended to explicitly list captures in a lambda expression, especially
     in situations where a closure will outlive its context. The purpose of this is
     to assist in reasoning about the lifetimes of the captures to ensure that the
     closure does not outlive any of the objects it has captured.
+  id: totrans-476
   prefs: []
   type: TYPE_NORMAL
+  zh: C++ 常常建议在 lambda 表达式中显式列出捕获项，尤其是在闭包将超出其上下文的情况。这样做是为了帮助推理捕获项的生命周期，以确保闭包不会超出它捕获的任何对象。
 - en: In Rust, the same decisions about captures with respect to lifetimes have to
     be made, but the compiler tracks them instead of having to do the reasoning manually.
     That is, in spite of the type of the closure not being expressible, it does still
     include the lifetimes of variables captured by reference, and so is checked the
     same way that any other structure would be.
+  id: totrans-477
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，关于捕获的生命周期的决策必须与 C++ 中做出相同的决策，但编译器会跟踪它们，而不是需要手动推理。也就是说，尽管闭包的类型无法表达，但它仍然包括通过引用捕获的变量的生命周期，因此会像任何其他结构一样进行检查。
 - en: This results in the best practices for documenting closures in Rust not including
     enumerating captures, even in situations where one would do so in C++.
+  id: totrans-478
   prefs: []
   type: TYPE_NORMAL
+  zh: 这导致在 Rust 中记录闭包的最佳实践不包括列举捕获，即使在 C++ 中可能会这样做的情况下。
 - en: The same is true about the destructibility of the content of the captures in
     a closure. The example involving `FnOnce` functions in [the previous section](#closures-ownership-and-fnonce)
     may be a point of frustration initially, but the behavior has the benefit of reducing
     the documentation and reasoning burdens.
+  id: totrans-479
   prefs: []
   type: TYPE_NORMAL
+  zh: 闭包中捕获内容的可破坏性也是如此。在 [上一节](#closures-ownership-and-fnonce) 中涉及 `FnOnce` 函数的例子可能最初是一个令人沮丧的点，但该行为的好处是减少了文档和推理的负担。
 - en: <link rel="stylesheet" type="text/css" href="../quiz/style.css">
+  id: totrans-480
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../quiz/style.css">
 - en: '* * *'
+  id: totrans-481
   prefs: []
   type: TYPE_NORMAL
+  zh: '* * *'
 - en: That is, one can write neither `impl From<&MyClosure> for impl Fn() -> usize
     {...}` nor `impl Into<impl Fn() -> usize> for &MyClosure {...}`. [↩](#fr-impl-trait-impl-1)
+  id: totrans-482
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 也就是说，既不能编写 `impl From<&MyClosure> for impl Fn() -> usize {...}` 也不能编写 `impl
+    Into<impl Fn() -> usize> for &MyClosure {...}`。 [↩](#fr-impl-trait-impl-1)
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Lambdas,
     closures, and function objects)'
+  id: totrans-483
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处给我们关于此页面的反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Lambdas,
+    closures, and function objects)'

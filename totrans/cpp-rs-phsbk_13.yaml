@@ -1,179 +1,268 @@
 - en: Inheritance and implementation reuse
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 继承和实现重用
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/inheritance_and_reuse.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/inheritance_and_reuse.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/inheritance_and_reuse.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/inheritance_and_reuse.html)
 - en: Rust does not have inheritance and so the primary means of reuse of implementations
     in Rust are composition, aggregation, and [generics](./templates.html).
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 没有继承，因此 Rust 中重用实现的主要方式是组合、聚合和[泛型](./templates.html)。
 - en: However, Rust traits do have support for default methods which resemble one
     simple case of using inheritance for reuse of implementations. For example, in
     the following example two virtual methods are used to support a method whose implementation
     is provided by the abstract class.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，Rust 特性确实支持默认方法，这类似于使用继承来重用实现的一个简单案例。例如，在以下示例中，使用了两个虚拟方法来支持由抽象类提供的实现方法。
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: trait Device {
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Device {
 - en: fn power_on(&mut self);
+  id: totrans-7
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn power_on(&mut self);
 - en: fn power_off(&mut self);
+  id: totrans-8
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn power_off(&mut self);
 - en: fn reset_device(&mut self) {
+  id: totrans-9
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn reset_device(&mut self) {
 - en: println!("Resetting device...");
+  id: totrans-10
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("Resetting device...");
 - en: self.power_off();
+  id: totrans-11
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.power_off();
 - en: self.power_on();
+  id: totrans-12
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.power_on();
 - en: '}'
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: struct Printer {
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Printer {
 - en: 'powered: bool,'
+  id: totrans-16
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'powered: bool,'
 - en: '}'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Printer {
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Printer {
 - en: fn new() -> Printer {
+  id: totrans-19
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn new() -> Printer {
 - en: 'Printer { powered: false }'
+  id: totrans-20
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'Printer { powered: false }'
 - en: '}'
+  id: totrans-21
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Device for Printer {
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Device for Printer {
 - en: fn power_on(&mut self) {
+  id: totrans-24
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn power_on(&mut self) {
 - en: self.powered = true;
+  id: totrans-25
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.powered = true;
 - en: println!("Printer is powered on");
+  id: totrans-26
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("Printer is powered on");
 - en: '}'
+  id: totrans-27
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn power_off(&mut self) {
+  id: totrans-28
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn power_off(&mut self) {
 - en: self.powered = false;
+  id: totrans-29
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.powered = false;
 - en: println!("Printer is powered off");
+  id: totrans-30
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("Printer is powered off");
 - en: '}'
+  id: totrans-31
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let mut p = Printer::new();
+  id: totrans-34
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut p = Printer::new();
 - en: p.reset_device();
+  id: totrans-35
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: p.reset_device();
 - en: '}'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-37
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: In practice, the `resetDevice()` method in the `Device` class might be made
     non-virtual in C++ if it is not expected that it will be overridden. In order
     to make it align with the Rust example, we have made it virtual here, since Rust
     traits can be used either for [dynamic dispatch](./abstract_classes.html) or [static
     dispatch](./concepts.html) (with [no vtable overhead in the static dispatch case](./abstract_classes.html#vtables-and-rust-trait-object-types)).
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 在实践中，如果预期不会覆盖 `resetDevice()` 方法，C++ 中的 `Device` 类的 `resetDevice()` 方法可能被设置为非虚拟。为了使其与
+    Rust 示例保持一致，我们在这里将其设置为虚拟，因为 Rust 特性既可以用于[动态分派](./abstract_classes.html)也可以用于[静态分派](./concepts.html)（在静态分派的情况下没有
+    vtable 开销）。
 - en: Rust traits differ from abstract classes in few more ways. For example, Rust
     traits cannot define data members and cannot define private or protected methods.
     This limits the effectiveness of using traits to implement the template method
     pattern.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 特性与抽象类在几个方面有所不同。例如，Rust 特性不能定义数据成员，也不能定义私有或受保护的成员方法。这限制了使用特性实现模板方法模式的有效性。
 - en: Rust traits also cannot be privately implemented. Anywhere that both a trait
     and a type that implements that trait are visible, the methods of the trait are
     visible as methods on the type.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 特性也不能私有实现。在任何既可以看到特性又可以看到实现该特性的类型的地方，特性的方法都会作为类型的方法可见。
 - en: Traits can, however, inherit from each other, including multiple inheritance.
     As in modern C++, inheritance hierarchies in Rust tend to be shallow. In situations
     with complex multiple inheritance, however, the diamond problem cannot arise in
     Rust because traits cannot override other traits implementations. Therefore, all
     paths to a common parent trait resolve to the same implementation.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 特性可以相互继承，包括多重继承。然而，在现代 C++ 中，Rust 的继承层次通常较浅。但在具有复杂多重继承的情况下，Rust 中不会出现菱形问题，因为特性不能覆盖其他特性的实现。因此，通往公共父特性所有路径都会解析到相同的实现。
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Inheritance
     and implementation reuse)
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Inheritance
+    and implementation reuse)

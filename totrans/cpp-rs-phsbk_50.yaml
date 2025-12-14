@@ -1,81 +1,126 @@
 - en: Libraries
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 库
 - en: 原文：[https://cel.cs.brown.edu/crp/etc/libraries.html](https://cel.cs.brown.edu/crp/etc/libraries.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/etc/libraries.html](https://cel.cs.brown.edu/crp/etc/libraries.html)
 - en: C++ programs tend to either use libraries that come with operating system distributions
     or that are vendored.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: C++程序倾向于使用操作系统发行版中提供的库，或者使用供应商提供的库。
 - en: Rust programs tend to rely on a central registry of Rust libraries ("crates")
     called [crates.io](https://crates.io/) (along with a central documentation repository
     created from the in-code documentation of those crates called [docs.rs](https://docs.rs/)).
     Dependencies on crates are managed using the [Cargo package manager](https://doc.rust-lang.org/cargo/index.html).
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust程序通常依赖于一个名为[crates.io](https://crates.io/)的中心Rust库注册表（称为"crates"），以及一个由这些crates的代码注释生成的中心文档仓库[docs.rs](https://docs.rs/)。crates的依赖关系通过[Cargo包管理器](https://doc.rust-lang.org/cargo/index.html)进行管理。
 - en: '[Lib.rs](https://lib.rs/) is a good resource for finding popular crates organized
     by category.'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '[Lib.rs](https://lib.rs/)是一个按类别组织流行crates的好资源。'
 - en: '[Some specific alternatives](#some-specific-alternatives)'
+  id: totrans-5
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[一些特定的替代方案](#some-specific-alternatives)'
 - en: '| C++ library | Rust alternative |'
+  id: totrans-6
   prefs: []
   type: TYPE_TB
+  zh: '| C++库 | Rust替代方案 |'
 - en: '| --- | --- |'
+  id: totrans-7
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| STL UTF-16 and UTF-32 strings | [widestring](https://docs.rs/widestring/latest/widestring/)
     |'
+  id: totrans-8
   prefs: []
   type: TYPE_TB
+  zh: '| STL UTF-16和UTF-32字符串 | [widestring](https://docs.rs/widestring/latest/widestring/)
+    |'
 - en: '| STL random | [rand](https://github.com/rust-random/rand) |'
+  id: totrans-9
   prefs: []
   type: TYPE_TB
+  zh: '| STL随机数 | [rand](https://github.com/rust-random/rand) |'
 - en: '| STL regex | [regex](https://github.com/rust-lang/regex) |'
+  id: totrans-10
   prefs: []
   type: TYPE_TB
+  zh: '| STL正则表达式 | [regex](https://github.com/rust-lang/regex) |'
 - en: '| Reflection | [bevy_reflect](https://docs.rs/bevy_reflect/latest/bevy_reflect/)
     |'
+  id: totrans-11
   prefs: []
   type: TYPE_TB
+  zh: '| 反射 | [bevy_reflect](https://docs.rs/bevy_reflect/latest/bevy_reflect/) |'
 - en: '| Boost.Test | [cargo test](https://doc.rust-lang.org/book/ch11-01-writing-tests.html)
     |'
+  id: totrans-12
   prefs: []
   type: TYPE_TB
+  zh: '| Boost.Test | [cargo test](https://doc.rust-lang.org/book/ch11-01-writing-tests.html)
+    |'
 - en: '| pybind11 | [PyO3](https://pyo3.rs/) |'
+  id: totrans-13
   prefs: []
   type: TYPE_TB
+  zh: '| pybind11 | [PyO3](https://pyo3.rs/) |'
 - en: '| OpenSSL | [rustls](https://github.com/rustls/rustls) |'
+  id: totrans-14
   prefs: []
   type: TYPE_TB
+  zh: '| OpenSSL | [rustls](https://github.com/rustls/rustls) |'
 - en: If there is a C++ library that you use where you cannot find a Rust alternative,
     please leave feedback using the link below, letting us know the name and purpose
     of the library.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您使用了一个无法找到Rust替代方案的C++库，请通过以下链接提供反馈，让我们知道库的名称和用途。
 - en: '[Supply chain management](#supply-chain-management)'
+  id: totrans-16
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[供应链管理](#supply-chain-management)'
 - en: In situations where managing the library supply chain is important, Cargo can
     be used either with [custom self-managed or organization-managed registries](https://doc.rust-lang.org/cargo/reference/registries.html)
     or with [vendored versions of dependencies fetched from crates.io](https://doc.rust-lang.org/cargo/commands/cargo-vendor.html).
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 在管理库供应链很重要的情况下，Cargo可以使用[自定义自管理或组织管理的注册表](https://doc.rust-lang.org/cargo/reference/registries.html)或使用从crates.io获取的依赖关系的供应商版本[cargo
+    vendor](https://doc.rust-lang.org/cargo/commands/cargo-vendor.html)。
 - en: Both approaches provide mechanisms for reviewing dependencies as part supply
     chain security.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两种方法都提供了作为供应链安全一部分审查依赖关系的机制。
 - en: Solutions for supply chain security that do not involve vendoring or custom
     registries are [in progress](https://github.com/rust-lang/rfcs/pull/3724).
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 不涉及供应商或自定义注册表的供应链安全解决方案正在[进行中](https://github.com/rust-lang/rfcs/pull/3724)。
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Libraries)'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Libraries)'

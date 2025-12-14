@@ -1,197 +1,299 @@
 - en: Adapter pattern
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 适配器模式
 - en: 原文：[https://cel.cs.brown.edu/crp/patterns/adapter.html](https://cel.cs.brown.edu/crp/patterns/adapter.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/patterns/adapter.html](https://cel.cs.brown.edu/crp/patterns/adapter.html)
 - en: In C++, if an existing class needs to implement a new interface, the adapter
     pattern is normally used. The pattern involves defining a wrapper class that implements
     the interface by delegating to the methods on the original class.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，如果现有的类需要实现一个新的接口，通常使用适配器模式。该模式涉及定义一个包装类，通过委派到原始类的方法来实现接口。
 - en: In Rust, the same pattern is possible and is [sometimes necessary due to the
     orphan rule](https://doc.rust-lang.org/book/ch20-02-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types).
     However, because traits can be implemented where *either* the type or the trait
     is defined, usually it is possible to just implement the trait for the type directly,
     without the need for a wrapper.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，相同的模式是可能的，并且有时由于孤儿规则（[https://doc.rust-lang.org/book/ch20-02-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types](https://doc.rust-lang.org/book/ch20-02-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types)）的需要而变得必要。然而，因为特质可以在类型或特质定义的地方实现，通常可以直接为类型实现特质，而不需要包装器。
 - en: The following example adds an interface to `std::string` in C++ and `String`
     in Rust for use with a template function defined in the library. When dynamic
     dispatch is needed, there is no change to how to implement the trait for the existing
     type in Rust.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例向 C++ 中的 `std::string` 和 Rust 中的 `String` 添加了一个接口，以便与库中定义的模板函数一起使用。当需要动态分派时，Rust
+    中实现现有类型的特质的实现方式没有变化。
 - en: '[PRE0]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: trait Doubleable {
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Doubleable {
 - en: fn twice(&self) -> Self;
+  id: totrans-8
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn twice(&self) -> Self;
 - en: '}'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Doubleable for String {
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Doubleable for String {
 - en: fn twice(&self) -> Self {
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn twice(&self) -> Self {
 - en: self.clone() + self
+  id: totrans-12
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.clone() + self
 - en: '}'
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'fn quadruple<T: Doubleable>(x: T) -> T {'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn quadruple<T: Doubleable>(x: T) -> T {'
 - en: x.twice().twice()
+  id: totrans-16
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: x.twice().twice()
 - en: '}'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let s = quadruple(String::from("a"));
+  id: totrans-19
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let s = quadruple(String::from("a"));
 - en: println!("{}", s);
+  id: totrans-20
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{}", s);
 - en: '}'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: '[Extension traits](#extension-traits)'
+  id: totrans-23
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[扩展特性](#extension-traits)'
 - en: The usual approach to adding functionality to an existing type in C++ is to
     define the additional functionality as functions.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，向现有类型添加功能通常是通过定义额外的函数来实现的。
 - en: Rust can similarly add functionality by defining freestanding functions. Rust
     also supports the ability to add methods to existing types. It does so by using
     the same mechanism as described in the previous section. By using a blanket implementation,
     methods can even be added to any type that implements some other trait. This is
     the approach used by the [`itertools` crate](https://docs.rs/itertools/latest/itertools/)
     to add additional functionality to anything that implements the `Iterator` trait.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 可以通过定义独立函数来添加功能。Rust 还支持向现有类型添加方法的能力。它是通过使用前面章节中描述的相同机制来实现的。通过使用泛型实现，甚至可以向实现了一些其他特质的任何类型添加方法。这是
+    `itertools` crate（[https://docs.rs/itertools/latest/itertools/](https://docs.rs/itertools/latest/itertools/)）添加对实现
+    `Iterator` 特质的任何类型额外功能所采用的方法。
 - en: '[PRE3]'
+  id: totrans-26
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: trait Middle {
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: trait Middle {
 - en: type Output;
+  id: totrans-28
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output;
 - en: fn middle(&mut self) -> Option<Self::Output>;
+  id: totrans-29
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn middle(&mut self) -> Option<Self::Output>;
 - en: '}'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: 'impl<T: ExactSizeIterator> Middle for T {'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 'impl<T: ExactSizeIterator> Middle for T {'
 - en: type Output = T::Item;
+  id: totrans-32
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: type Output = T::Item;
 - en: fn middle(&mut self) -> Option<Self::Output> {
+  id: totrans-33
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn middle(&mut self) -> Option<Self::Output> {
 - en: let len = self.len();
+  id: totrans-34
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let len = self.len();
 - en: if len > 0 && len % 2 == 1 {
+  id: totrans-35
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: if len > 0 && len % 2 == 1 {
 - en: self.nth(len / 2)
+  id: totrans-36
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: self.nth(len / 2)
 - en: '} else {'
+  id: totrans-37
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '} else {'
 - en: None
+  id: totrans-38
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: None
 - en: '}'
+  id: totrans-39
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: fn main() {
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: println!("{:?}", [1, 2, 3].iter().middle());
+  id: totrans-43
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{:?}", [1, 2, 3].iter().middle());
 - en: println!("{:?}", [1, 2, 3].iter().map(|n| n + 1).middle());
+  id: totrans-44
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: println!("{:?}", [1, 2, 3].iter().map(|n| n + 1).middle());
 - en: '}'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE4]'
+  id: totrans-46
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: The `map` method returns a different type than `iter`, but `middle` can be called
     on the result of either one.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '`map` 方法返回的类型与 `iter` 不同，但可以在两者的结果上调用 `middle`。'
 - en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
     to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Adapter
     pattern)
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Adapter
+    pattern)

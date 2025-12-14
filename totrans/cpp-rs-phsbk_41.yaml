@@ -1,26 +1,41 @@
 - en: Rust and C++ interoperability (FFI)
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Rust 和 C++ 互操作性（FFI）
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/ffi.html](https://cel.cs.brown.edu/crp/idioms/ffi.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/ffi.html](https://cel.cs.brown.edu/crp/idioms/ffi.html)
 - en: The Rustonomicon [contains a chapter](https://doc.rust-lang.org/nomicon/ffi.html)
     covering many of the concerns relevant to a C++ programmer that wants to call
     C (or C++ via `extern "C"` functions) from Rust or Rust from C or C++ code.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: Rustonomicon [包含一个章节](https://doc.rust-lang.org/nomicon/ffi.html)，涵盖了想要从 Rust
+    调用 C（或通过 `extern "C"` 函数调用 C++）的 C++ 程序员或从 C 或 C++ 调用 Rust 的 Rust 程序员相关的许多问题。
 - en: Many C libraries have existing crates, both with low-level bindings and with
     high-level safe Rust abstractions. For example, for the libgit2 library there
     is both a low-level [libgit2-sys crate](https://crates.io/crates/libgit2-sys)
     and a high-level [git2 crate](https://crates.io/crates/git2).
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多 C 库都存在现有的 crate，既有低级绑定，也有高级安全的 Rust 抽象。例如，对于 libgit2 库，既有低级的 [libgit2-sys
+    crate](https://crates.io/crates/libgit2-sys)，也有高级的 [git2 crate](https://crates.io/crates/git2)。
 - en: Bindings to libraries can be generated from a C header file using [`bindgen`](https://rust-lang.github.io/rust-bindgen/).
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以使用 `bindgen` 从 C 头文件生成库的绑定（[bindgen](https://rust-lang.github.io/rust-bindgen/)）。
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Rust
     and C++ interoperability (FFI))'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Rust
+    and C++ interoperability (FFI))'

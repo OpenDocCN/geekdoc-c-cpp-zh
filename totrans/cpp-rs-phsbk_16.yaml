@@ -1,30 +1,44 @@
 - en: Null (nullptr)
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 空值 (nullptr)
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/null.html](https://cel.cs.brown.edu/crp/idioms/null.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/null.html](https://cel.cs.brown.edu/crp/idioms/null.html)
 - en: This section covers idiomatic uses of `nullptr` in C++ and how to achieve the
     same results in Rust.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 本节涵盖了C++中`nullptr`的惯用用法以及如何在Rust中实现相同的结果。
 - en: Some uses of `nullptr` in C++ don't arise in the first place in Rust because
     of other language differences. For example, [moved objects don't leave anything
     behind that needs to be destroyed](./null/moved_members.html). Therefore there
     is no need to use `nullptr` as a placeholder for a moved pointer that can have
     `delete` or `free` called on it.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于其他语言差异，C++中一些`nullptr`的使用在Rust中根本不会出现。例如，[移动对象不会留下需要销毁的任何东西](./null/moved_members.html)。因此，没有必要使用`nullptr`作为可以调用`delete`或`free`的移动指针的占位符。
 - en: Other uses are replaced by `Option`, which in safe Rust requires checking for
     the empty case before accessing the contained value. This use is common enough
     that [Rust has an optimization](https://doc.rust-lang.org/std/option/index.html#representation)
     for when `Option` is used with a reference (`&` or `&mut ref`), `Box` (equivalent
     of `unique_ptr`), and `NonNull` (a non-null raw pointer).
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 其他用法被`Option`所取代，在安全的Rust中，在访问包含的值之前需要检查空值情况。这种用法足够常见，以至于Rust在`Option`与引用（`&`或`&mut
+    ref`）、`Box`（相当于`unique_ptr`）和`NonNull`（一个非空原始指针）一起使用时进行了优化。[Rust文档](https://doc.rust-lang.org/std/option/index.html#representation)。
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Null
     (nullptr))'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Null
+    (nullptr))'

@@ -1,11 +1,15 @@
 - en: Copy and move constructors
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 复制和移动构造函数
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/constructors/copy_and_move_constructors.html](https://cel.cs.brown.edu/crp/idioms/constructors/copy_and_move_constructors.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/constructors/copy_and_move_constructors.html](https://cel.cs.brown.edu/crp/idioms/constructors/copy_and_move_constructors.html)
 - en: In both C++ and Rust, one rarely has to write copy or move constructors (or
     their Rust equivalents) by hand. In C++ this is because the implicit definitions
     are good enough for most purposes, especially when using smart pointers (i.e.,
@@ -13,454 +17,682 @@
     In Rust this is because move semantics are the default, and the automatically
     derived implementations of the `Clone` and `Copy` traits are good enough for most
     purposes.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 和 Rust 中，通常很少需要手动编写复制或移动构造函数（或它们的 Rust 等价物）。在 C++ 中，这是因为隐式定义对于大多数目的来说已经足够好了，尤其是在使用智能指针（即遵循[零规则](https://en.cppreference.com/w/cpp/language/rule_of_three)）时。在
+    Rust 中，这是因为移动语义是默认的，自动推导的 `Clone` 和 `Copy` 特性的实现对于大多数目的来说已经足够好了。
 - en: For the following C++ classes, the implicitly defined copy and move constructors
     are sufficient. The equivalent in Rust uses a derive macro provided by the standard
     library to implement the corresponding traits.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于以下 C++ 类，隐式定义的复制和移动构造函数已经足够。在 Rust 中的等效实现使用标准库提供的 derive 宏来实现相应的特性。
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { use std::rc::Rc;'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { use std::rc::Rc;'
 - en: '#[derive(Clone, Copy)]'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone, Copy)]'
 - en: struct Age {
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Age {
 - en: 'years: u32,'
+  id: totrans-9
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'years: u32,'
 - en: '}'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '#[derive(Clone)]'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '#[derive(Clone)]'
 - en: struct Person {
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Person {
 - en: 'age: Age,'
+  id: totrans-13
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'age: 年龄,'
 - en: 'name: String,'
+  id: totrans-14
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'name: String,'
 - en: 'best_friend: Rc<Person>,'
+  id: totrans-15
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'best_friend: Rc<Person>,'
 - en: '}'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Note that `std::shared_ptr` and `Rc` differ slightly in terms of thread-safety.
     See the chapter on [type equivalents](../type_equivalents.html#pointers) for more
     details.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，`std::shared_ptr` 和 `Rc` 在线程安全性方面略有不同。有关更多详细信息，请参阅[类型等效](../type_equivalents.html#pointers)章节。
 - en: '[User-defined constructors](#user-defined-constructors)'
+  id: totrans-20
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[用户定义的构造函数](#user-defined-constructors)'
 - en: On the other hand, the following example requires a user-defined copy and move
     constructor because it manages a resource (a pointer acquired from a C library).
     The equivalent in Rust requires a custom implementation of the `Clone` trait.^([1](#footnote-deleter))
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一方面，以下示例需要用户定义的复制和移动构造函数，因为它管理一个资源（从 C 库中获取的指针）。在 Rust 中的等效实现需要自定义 `Clone`
+    特性的实现.^([1](#footnote-deleter))
 - en: '[PRE3]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-23
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: '#![allow(unused)] fn main() { mod example { mod widget_ffi {'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { mod example { mod widget_ffi {'
 - en: // Models an opaque type.
+  id: totrans-25
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 模拟一个不透明类型。
 - en: // See https://doc.rust-lang.org/nomicon/ffi.html#representing-opaque-structs
+  id: totrans-26
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 参考 https://doc.rust-lang.org/nomicon/ffi.html#representing-opaque-structs
 - en: '#[repr(C)]'
+  id: totrans-27
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '#[repr(C)]'
 - en: pub struct CWidget {
+  id: totrans-28
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub struct CWidget {
 - en: '_data: [u8; 0],'
+  id: totrans-29
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '_data: [u8; 0],'
 - en: '_marker: core::marker::PhantomData<('
+  id: totrans-30
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '_marker: core::marker::PhantomData<('
 - en: '*mut u8,'
+  id: totrans-31
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '*mut u8,'
 - en: core::marker::PhantomPinned,
+  id: totrans-32
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: core::marker::PhantomPinned,
 - en: )>,
+  id: totrans-33
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: )>,
 - en: '}'
+  id: totrans-34
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: extern "C" {
+  id: totrans-35
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: extern "C" {
 - en: pub fn make_widget() -> *mut CWidget;
+  id: totrans-36
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn make_widget() -> *mut CWidget;
 - en: pub fn copy_widget(
+  id: totrans-37
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: pub fn copy_widget(
 - en: 'dst: *mut CWidget,'
+  id: totrans-38
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'dst: *mut CWidget,'
 - en: 'src: *mut CWidget,'
+  id: totrans-39
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'src: *mut CWidget,'
 - en: );
+  id: totrans-40
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: );
 - en: 'pub fn free_widget(ptr: *mut CWidget);'
+  id: totrans-41
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'pub fn free_widget(ptr: *mut CWidget);'
 - en: '}'
+  id: totrans-42
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: use self::widget_ffi::*;
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: use self::widget_ffi::*;
 - en: struct Widget {
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: struct Widget {
 - en: 'widget: *mut CWidget,'
+  id: totrans-46
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'widget: *mut CWidget,'
 - en: '}'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Widget {
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Widget {
 - en: fn new() -> Self {
+  id: totrans-49
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn new() -> Self {
 - en: Widget {
+  id: totrans-50
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Widget {
 - en: 'widget: unsafe { make_widget() },'
+  id: totrans-51
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 'widget: unsafe { make_widget() },'
 - en: '}'
+  id: totrans-52
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-53
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Clone for Widget {
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Clone for Widget {
 - en: fn clone(&self) -> Self {
+  id: totrans-56
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn clone(&self) -> Self {
 - en: let widget = unsafe { make_widget() };
+  id: totrans-57
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let widget = unsafe { make_widget() };
 - en: unsafe {
+  id: totrans-58
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: unsafe {
 - en: copy_widget(widget, self.widget);
+  id: totrans-59
   prefs:
   - PREF_IND
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: copy_widget(widget, self.widget);
 - en: '}'
+  id: totrans-60
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: Widget { widget }
+  id: totrans-61
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: Widget { widget }
 - en: '}'
+  id: totrans-62
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: impl Drop for Widget {
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: impl Drop for Widget {
 - en: fn drop(&mut self) {
+  id: totrans-65
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: fn drop(&mut self) {
 - en: unsafe { free_widget(self.widget) };
+  id: totrans-66
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: unsafe { free_widget(self.widget) };
 - en: '}'
+  id: totrans-67
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '} }'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: '} }'
 - en: '[PRE5]'
+  id: totrans-70
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Just as with how in C++ it is uncommon to need user-defined implementations
     for copy and move constructors or user-defined implementations for destructors,
     in Rust it is rare to need to implement the `Clone` and `Drop` traits by hand
     for types that do not represent resources.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 就像在 C++ 中很少需要为复制和移动构造函数或析构函数编写用户定义的实现一样，在 Rust 中，对于不表示资源的类型，很少需要手动实现 `Clone`
+    和 `Drop` 特性。
 - en: There is one exception to this. If the type has type parameters, it might be
     desirable to implement `Clone` (and `Copy`) manually even if the clone should
     be done field-by-field. See the [standard library documentation of `Clone`](https://doc.rust-lang.org/std/clone/trait.Clone.html#how-can-i-implement-clone)
     and [of `Copy`](https://doc.rust-lang.org/std/marker/trait.Copy.html#how-can-i-implement-copy)
     for details.
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里有一个例外。如果类型有类型参数，即使克隆应该逐字段进行，也可能会希望手动实现 `Clone`（和 `Copy`）。有关详细信息，请参阅 [标准库中
+    `Clone` 的文档](https://doc.rust-lang.org/std/clone/trait.Clone.html#how-can-i-implement-clone)
+    和 [`Copy` 的文档](https://doc.rust-lang.org/std/marker/trait.Copy.html#how-can-i-implement-copy)。
 - en: '[Trivially copyable types](#trivially-copyable-types)'
+  id: totrans-73
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[可轻易复制的类型](#trivially-copyable-types)'
 - en: In C++, a class type is trivially copyable when it has no non-trivial copy constructors,
     move constructors, copy assignment operators, move assignment operators and it
     has a trivial destructor. Values of a trivially copyable type are able to be copied
     by copying their bytes.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C++ 中，当类类型没有任何非平凡的复制构造函数、移动构造函数、复制赋值运算符、移动赋值运算符，并且有一个平凡的析构函数时，它就是可轻易复制的。可轻易复制的类型的值可以通过复制它们的字节进行复制。
 - en: In the first C++ example above, `Age` is trivially copyable, but `Person` is
     not. This is because despite using a default copy constructor, the constructor
     is not trivial because `std::string` and `std::shared_ptr` are not trivially copyable.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上面的第一个 C++ 示例中，`Age` 是可轻易复制的，但 `Person` 不是。这是因为尽管使用了默认的复制构造函数，但由于 `std::string`
+    和 `std::shared_ptr` 不是可轻易复制的，所以构造函数不是平凡的。
 - en: Rust indicates whether types are trivially copyable with the `Copy` trait. Just
     as with trivially copyable types in C++, values of types that implement `Copy`
     in Rust can be copied by copying their bytes. Rust requires explicit calls to
     the `clone` method to make copies of values of types that do not implement `Copy`.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 使用 `Copy` 特性来指示类型是否可轻易复制。与 C++ 中的可轻易复制的类型一样，Rust 中实现 `Copy` 的类型的值可以通过复制它们的字节进行复制。Rust
+    要求显式调用 `clone` 方法来复制未实现 `Copy` 的类型的值。
 - en: In the first Rust example above, `Age` implements the `Copy` trait but `Person`
     does not. This is because neither `std::String` nor `Rc<Person>` implement `Copy`.
     They do not implement `Copy` because they own data that lives on the heap, and
     so are not trivially copyable.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上面的第一个 Rust 示例中，`Age` 实现了 `Copy` 特性，但 `Person` 没有实现。这是因为 `std::String` 和 `Rc<Person>`
+    都没有实现 `Copy`。它们没有实现 `Copy` 是因为它们拥有在堆上生存的数据，因此不是可轻易复制的。
 - en: Rust prevents implementing `Copy` for a type if any of its fields are not `Copy`,
     but does not prevent implementing `Copy` for types that should not be copied bit-for-bit
     due to their intended meaning, which is usually indicated by a user-defined `Clone`
     implementation.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 阻止为任何字段不是 `Copy` 的类型实现 `Copy`，但不会阻止为那些不应该逐位复制的类型实现 `Copy`，因为这些类型的意图通常由用户定义的
+    `Clone` 实现指示。
 - en: Rust does not permit the implementation of both `Copy` and `Drop` for the same
     type. This aligns with the C++ standard's requirement that trivially copyable
     types not implement a user-defined destructor.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 不允许为同一类型实现 `Copy` 和 `Drop`。这与 C++ 标准的要求一致，即可轻易复制的类型不应实现用户定义的析构函数。
 - en: '[Move constructors](#move-constructors)'
+  id: totrans-80
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[移动构造函数](#move-constructors)'
 - en: In Rust, all types support move semantics by default, and custom move semantics
     cannot be (and do not need to be) defined. This is because what "move" means in
     Rust is not the same as it is in C++. In Rust, moving a value means changing what
     owns the value. In particular, there is no "old" object to be destructed after
     a move, because the compiler will prevent the use of a variable whose value has
     been moved.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，所有类型默认支持移动语义，并且不能（也不需要）定义自定义的移动语义。这是因为 Rust 中的“移动”与 C++ 中的含义不同。在 Rust
+    中，移动一个值意味着改变拥有该值的所有权。特别是，在移动之后没有“旧”对象需要被销毁，因为编译器会阻止使用已经移动值的变量。
 - en: '[Assignment operators](#assignment-operators)'
+  id: totrans-82
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[赋值运算符](#assignment-operators)'
 - en: Rust does not have a copy or move assignment operator. Instead, assignment either
     moves (by transferring ownership), explicitly clones and then moves, or implicitly
     copies and then moves.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 没有复制或移动赋值运算符。相反，赋值要么通过转移所有权进行移动，要么明确克隆然后移动，或者隐式复制然后移动。
 - en: '[PRE6]'
+  id: totrans-84
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: fn main() {
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: fn main() {
 - en: let x = Box::<u32>::new(5);
+  id: totrans-86
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = Box::<u32>::new(5);
 - en: let y = x; // moves
+  id: totrans-87
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let y = x; // 移动
 - en: let z = y.clone(); // explicitly clones and then moves the clone
+  id: totrans-88
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let z = y.clone(); // 明确克隆然后移动克隆
 - en: let w = *y; // implicitly copies the content of the Box and then moves the copy
+  id: totrans-89
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let w = *y; // 隐式复制 Box 的内容然后移动复制
 - en: '}'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE7]'
+  id: totrans-91
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: For situations where something like a user-defined copy assignment could avoid
     allocations, the `Clone` trait has an additional method called `clone_from`. The
     method is automatically defined, but can be overridden when implementing the `Clone`
     trait to provide an efficient implementation. The default implementation is the
     same as calling `Clone::clone` and performing a normal assignment.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于可能通过用户定义的复制赋值来避免分配的情况，`Clone` 特征有一个额外的名为 `clone_from` 的方法。该方法自动定义，但在实现 `Clone`
+    特征时可以被覆盖，以提供更有效的实现。默认实现与调用 `Clone::clone` 并执行正常赋值相同。
 - en: The method is not used for normal assignments, but can be explicitly used in
     situations where the performance of the assignment is significant and would be
     improved by using the more efficient implementation, if one is defined. The implementation
     can be made more efficient because `clone_from` takes ownership of the object
     to which the values are being assigned, and so can do things like reuse memory
     to avoid allocations.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 该方法不用于正常赋值，但在赋值性能很重要且使用更有效的实现可以改进的情况下，可以显式使用。实现可以更高效，因为 `clone_from` 获取要分配值的对象的所有权，因此可以进行诸如重用内存以避免分配等操作。
 - en: '[PRE8]'
+  id: totrans-94
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: '#![allow(unused)] fn main() { fn go(x: &Vec<u32>) {'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { fn go(x: &Vec<u32>) {'
 - en: let mut y = vec![0; x.len()];
+  id: totrans-96
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let mut y = vec![0; x.len()];
 - en: // ...
+  id: totrans-97
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: y.clone_from(&x);
+  id: totrans-98
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: y.clone_from(&x);
 - en: // ...
+  id: totrans-99
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // ...
 - en: '}'
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE9]'
+  id: totrans-102
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: '[Performance concerns and `Copy`](#performance-concerns-and-copy)'
+  id: totrans-103
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[性能关注点和 `Copy`](#performance-concerns-and-copy)'
 - en: The decision to implement `Copy` should be based on the semantics of the type,
     not on performance. If the size of objects being copied is a concern, then one
     should instead use a reference (`&T` or `&mut T`) or put the value on the heap
     ([`Box<T>`](https://doc.rust-lang.org/std/boxed/index.html) or [`Rc<T>`](https://doc.rust-lang.org/std/rc/index.html)).
     These approaches correspond to passing by reference, or using a `std::unique_ptr`
     or `std::shared_ptr` in C++.
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 实现 `Copy` 的决定应基于类型的语义，而不是性能。如果复制对象的尺寸是一个关注点，那么应该使用引用（`&T` 或 `&mut T`）或将值放在堆上（`Box<T>`
+    或 `Rc<T>`）。这些方法对应于通过引用传递，或在 C++ 中使用 `std::unique_ptr` 或 `std::shared_ptr`。
 - en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css">
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: <link rel="stylesheet" type="text/css" href="../../quiz/style.css">
 - en: '* * *'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: '* * *'
 - en: Another common approach to the C++ version of the example is to use the `Deleter`
     template argument for `std::unique_ptr`. The version shown in the example was
     chosen to make the correspondence to Rust version clearer. [↩](#fr-deleter-1)
+  id: totrans-107
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 对于示例的 C++ 版本，另一种常见的方法是使用 `std::unique_ptr` 的 `Deleter` 模板参数。示例中显示的版本是为了使与 Rust
+    版本的对应关系更清晰而选择的。[↩](#fr-deleter-1)
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Copy
     and move constructors)'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处给我们关于此页面的反馈。](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Copy
+    and move constructors)'

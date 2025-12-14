@@ -1,87 +1,134 @@
 - en: Moved members
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 移动成员
 - en: 原文：[https://cel.cs.brown.edu/crp/idioms/null/moved_members.html](https://cel.cs.brown.edu/crp/idioms/null/moved_members.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://cel.cs.brown.edu/crp/idioms/null/moved_members.html](https://cel.cs.brown.edu/crp/idioms/null/moved_members.html)
 - en: Moving values out of variables or fields in Rust is more explicit than it is
     in C++. A value that might be moved with nothing left behind needs to be represented
     using an `Option<Box<T>>` type in Rust, while in C++ it would just be a `std::unique_ptr<T>`.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Rust 中，将值从变量或字段中移出比 C++ 中更为明确。一个可能被移出而留下空白的值在 Rust 中需要使用 `Option<Box<T>>`
+    类型来表示，而在 C++ 中则只需一个 `std::unique_ptr<T>`。
 - en: '[PRE0]'
+  id: totrans-3
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[PRE1]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '#![allow(unused)] fn main() { use std::sync::Arc;'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '#![allow(unused)] fn main() { use std::sync::Arc;'
 - en: use std::sync::Mutex;
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: use std::sync::Mutex;
 - en: 'fn read(mailbox: Arc<Mutex<Option<i32>>>) {'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 'fn read(mailbox: Arc<Mutex<Option<i32>>>) {'
 - en: let Ok(mut x) = mailbox.lock() else {
+  id: totrans-8
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let Ok(mut x) = mailbox.lock() else {
 - en: return;
+  id: totrans-9
   prefs:
   - PREF_IND
   - PREF_IND
   type: TYPE_NORMAL
+  zh: return;
 - en: '};'
+  id: totrans-10
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '};'
 - en: let x = x.take();
+  id: totrans-11
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: let x = x.take();
 - en: // use x
+  id: totrans-12
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: // 使用 x
 - en: '}'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '}'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '}'
 - en: '[PRE2]'
+  id: totrans-15
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Additionally, when taking ownership of a value from within a mutable reference,
     something has to be left in its place. This can be done using [`std::mem::swap`](https://doc.rust-lang.org/std/mem/fn.swap.html),
     and many container-like types have methods for making common ownership-swapping
     more ergonomic, like [`Option::take`](https://doc.rust-lang.org/std/option/enum.Option.html#method.take)
     as seen in the earlier example, [`Option::replace`](https://doc.rust-lang.org/std/option/enum.Option.html#method.replace)
     or [`Vec::swap`](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.swap_remove).
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，当从可变引用内部获取值的所有权时，必须在原位置留下某些内容。这可以通过使用 `std::mem::swap` 来完成，许多类似容器的类型都有使常见所有权交换更方便的方法，例如在先前的示例中看到的
+    `Option::take`（[Option::take](https://doc.rust-lang.org/std/option/enum.Option.html#method.take)），还有
+    `Option::replace` 或 `Vec::swap`（[Vec::swap](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.swap_remove)）。
 - en: '[Deleting moved objects](#deleting-moved-objects)'
+  id: totrans-17
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '[删除已移动对象](#deleting-moved-objects)'
 - en: Another common use of null pointers in modern C++ is as values for the members
     of moved objects so that the destructor can still safely be called. E.g.,
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 现代 C++ 中 null 指针的另一个常见用途是作为已移动对象的成员值，以便析构函数仍然可以安全地被调用。例如，
 - en: '[PRE3]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Rust's notion of moving objects does not involve leaving behind an object on
     which a destructor will be called, and so this use of null does not have a corresponding
     idiom. See the chapter on [copy and move constructors](../constructors/copy_and_move_constructors.html)
     for more details.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: Rust 中对移动对象的观念不涉及留下一个将在其上调用析构函数的对象，因此这种对 null 的使用没有对应的惯用语。有关更多详细信息，请参阅[复制和移动构造函数](../constructors/copy_and_move_constructors.html)章节。
 - en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Moved
     members)'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '[点击此处为此页面提供反馈](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Moved%20members)'
