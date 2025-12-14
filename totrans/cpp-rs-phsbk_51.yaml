@@ -1,0 +1,194 @@
+- en: Tests
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/etc/tests.html](https://cel.cs.brown.edu/crp/etc/tests.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: This chapter gives a small example of testing in Rust by comparison to [Boost.Test](https://github.com/boostorg/test)
+    for C++. A more thorough guide to testing in Rust is available as part of the
+    [Rust Book](https://doc.rust-lang.org/book/ch11-00-testing.html), including information
+    on [documentation testing](https://doc.rust-lang.org/stable/book/ch14-02-publishing-to-crates-io.html#documentation-comments-as-tests).
+    Details on the built-in support for testing in [rustc](https://doc.rust-lang.org/rustc/tests/index.html)
+    and [Cargo](https://doc.rust-lang.org/cargo/commands/cargo-test.html) are available
+    in their respective manuals.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Unit tests](#unit-tests)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When using C++ test frameworks such as Boost.Test, tests are defined as functions
+    which are registered with the framework. The tests are compiled against a test
+    driver provided by the framework.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, testing is handled similarly. Unlike with C++, the test registration
+    mechanism and test driver are both provided by Rust itself.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Additionally, the way that tests are organized is different. In C++, unit tests
+    are defined in separate files from the units under test. In Rust, they are typically
+    defined in the same file, usually in a `test` sub-module, with inclusion of the
+    module controlled by the `test` feature flag via the `#[cfg(test)]` annotation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The example below defines a small class and tests for that class. In C++ this
+    involves creating three separate files: a header file for the interface, the implementation
+    of the interface, and the test driver. In Rust, this is all done in a single file.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { // counter.rs'
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub struct Counter(u32);
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Counter {
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub fn new() -> Counter {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Counter(0)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn get(&self) -> u32 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.0
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn increment(&mut self) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.0 += 1;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[cfg(test)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: mod test {
+  prefs: []
+  type: TYPE_NORMAL
+- en: use super::*;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '#[test]'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn counter_initialize() {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let c = Counter::new();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: assert_eq!(0, c.get());
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '#[test]'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn counter_increment() {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let mut c = Counter::new();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: c.increment();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: assert_eq!(1, c.get());
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Defining unit tests within the module being tested has the benefit of making
+    internals of the module under test visible to the test code. This makes it possible
+    to unit test internal components without exposing them to the rest of the program,
+    as one would have to in C++ by including declarations in the header file and by
+    declaring test fixtures as `friend`s.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Running the tests in C++ involves linking against `boost_unit_test_framework`.
+    In Rust, the tests can be run with `cargo test`. If not using Cargo, the tests
+    can be compiled by passing the flag `--test` to rustc, and running the executable
+    produced.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Integration tests](#integration-tests)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Integration tests as supported by Cargo, are still defined outside of the module
+    and outside of the crate, purely in terms of the exposed API.
+  prefs: []
+  type: TYPE_NORMAL
+- en: See the [Rust Book](https://doc.rust-lang.org/book/ch11-03-test-organization.html#integration-tests)
+    for details on how to organize integration tests for Rust programs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Tests)'
+  prefs: []
+  type: TYPE_NORMAL

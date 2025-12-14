@@ -1,0 +1,292 @@
+- en: Sentinel values
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/null/sentinel_values.html](https://cel.cs.brown.edu/crp/idioms/null/sentinel_values.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Sentinel values are in-band value that indicates a special situation, such as
+    having reached the end of valid data in an iterator.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[`nullptr`](#nullptr)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Many designs in C++ borrow the convention from C of using a null pointer as
+    a sentinel value for a method that returns owned pointers. For example, a method
+    that parses a large structure may produce `nullptr` in the case of failure.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A similar situation in Rust would make use of the type `Option<Box<LargeStructure>>`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { struct LargeStructure {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'field: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // many fields ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn parse(
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'data: &[u8],'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Option<Box<LargeStructure>> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // on failure
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: None
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `Box<T>` type has the same meaning as `std::unique_ptr<T>` in terms of being
+    a uniquely owned pointer to some `T` on the heap, but unlike `std::unique_ptr`,
+    it cannot be null. Rust's `Option<T>` (which is similar to `std::optional<T>`
+    in C++) can represent optional pointers when used in conjunction with `Box<T>`,
+    as in `Optional<Box<T>>`. In [those cases (and in some other cases)](../data_modeling/template_specialization.html#niche-optimization)
+    the compiler optimizes the representation to be the same size as `Box<T>` by leveraging
+    the fact that `Box` cannot be null.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust it is also common to pay the cost for the extra byte to use a return
+    type of `Result<T, E>` (which is akin to `std::expected` in C++23) in order to
+    make the reason for the failure available at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Integer sentinels](#integer-sentinels)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When a possibly-failing function produces an integer, it is also common to use
+    an otherwise unused or unlikely integer value as a sentinel value, such as `0`
+    or `INT_MAX`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, the `Option` type is used for this purpose. In cases where the zero
+    value really is not possible to produce, as with the GCD algorithm below, the
+    type `NonZero<T>` can be used to indicate that fact. As with `Option<Box<T>>`,
+    the compiler optimizes the representation to make use of the unused value (in
+    this case `0`) to represent the `None` case to ensure that the representation
+    of `Option<NonZero<T>>` is the same as the representation of `Option<T>`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: use std::num::NonZero;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn gcd(
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'mut a: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'mut b: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Option<NonZero<i32>> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: if a == 0 || b == 0 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: return None;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: while b != 0 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let temp = b;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: b = a % b;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: a = temp;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // At this point, a is guaranteed to not be
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // zero. The `Some` case from `NonZero::new`
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // has a different meaning than the `Some`
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // returned from this function, but here it
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // happens to coincide.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: NonZero::new(a.abs())
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: assert!(gcd(5, 0) == None); assert!(gcd(0, 5) == None); assert!(gcd(5, 1) ==
+    NonZero::new(1)); assert!(gcd(1, 5) == NonZero::new(1)); assert!(gcd(2 * 2 * 3
+    * 5 * 7, 2 * 2 * 7 * 11) == NonZero::new(2 * 2 * 7)); assert!(gcd(2 * 2 * 7 *
+    11, 2 * 2 * 3 * 5 * 7) == NonZero::new(2 * 2 * 7)); }
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: As an aside, it is also possible to avoid the redundant check for zero at the
+    end, and without using unsafe Rust, by preserving the non-zeroness property throughout
+    the algorithm.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: use std::num::NonZero;
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn gcd(x: i32, mut b: i32) -> Option<NonZero<i32>> {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: if b == 0 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: return None;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // a is guaranteed to be non-zero, so we record the fact in the type of a.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let mut a = NonZero::new(x)?;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: while let Some(temp) = NonZero::new(b) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: b = a.get() % b;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: a = temp;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Some(a.abs())
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: assert!(gcd(5, 0) == None); assert!(gcd(0, 5) == None); assert!(gcd(5, 1) ==
+    NonZero::new(1)); assert!(gcd(1, 5) == NonZero::new(1)); assert!(gcd(2 * 2 * 3
+    * 5 * 7, 2 * 2 * 7 * 11) == NonZero::new(2 * 2 * 7)); assert!(gcd(2 * 2 * 7 *
+    11, 2 * 2 * 3 * 5 * 7) == NonZero::new(2 * 2 * 7)); }
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[`std::optional`](#stdoptional)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In situations where `std::optional` would be used as a sentinel value in C++,
+    `Option` can be used for the same purpose in Rust. The main difference between
+    the two is that safe Rust requires either explicitly checking whether the value
+    is `None`, while in C++ one can attempt to access the value without checking (at
+    the risk of undefined behavior).
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Sentinel
+    values)
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,334 @@
+- en: Enums
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/enums.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/enums.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++, enums are often used to model a fixed set of alternatives, especially
+    when each of those enumerators corresponds to a specific integer value, such as
+    is needed when working with hardware, system calls, or protocol implementations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, the various modes for a GPIO pin could be modeled as an enum, which
+    would restrict methods using the mode to valid values.
+  prefs: []
+  type: TYPE_NORMAL
+- en: While Rust enums are [more general](./tagged_unions.html), they can still be
+    used for this sort of modeling.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { #[repr(u8)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Clone, Copy)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum Pin {
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pin1 = 0x01,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Pin2 = 0x02,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Pin3 = 0x04,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[repr(u8)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Clone, Copy)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum Mode {
+  prefs: []
+  type: TYPE_NORMAL
+- en: Output = 0x03,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Pullup = 0x04,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Analog = 0x27,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: extern "C" {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn low_level_set_pin(pin: u8, mode: u8);'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn set_pin_mode(pin: Pin, mode: Mode) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: unsafe {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: low_level_set_pin(pin as u8, mode as u8)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `#[repr(u8)]` attribute ensures that the representation of the enum is the
+    same as a byte (like declaring the underlying type of an enum in C++). The enum
+    values can then be freely converted to the underlying type with the `as`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In C++ the standard way to convert from an integer to an enum is a static cast.
+    However, this [requires that the user check the validity of the cast themselves](https://eel.is/c++draft/expr.static.cast#9).
+    Often the conversion is done by a function that checks that the value to convert
+    is a valid enum value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust the standard way to perform the conversion is to implement the `TryFrom`
+    trait for the type and then use the `try_from` method or `try_into` method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#[repr(u8)] #[derive(Clone, Copy)] enum Pin {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pin1 = 0x01, Pin2 = 0x02, Pin3 = 0x04, }   use std::convert::TryFrom;
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct InvalidPin(u8);
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl TryFrom<u8> for Pin {
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Error = InvalidPin;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn try_from(
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'value: u8,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Result<Self, Self::Error> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match value {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 0x01 => Ok(Pin::Pin1),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 0x02 => Ok(Pin::Pin2),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 0x04 => Ok(Pin::Pin3),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pin => Err(InvalidPin(pin)),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let Ok(p) = Pin::try_from(2) else {
+  prefs: []
+  type: TYPE_NORMAL
+- en: return;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // use pin p
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: See [Exceptions and error handling](../exceptions.html) for examples of how
+    to ergonomically handle the result of `try_from`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If low-level performance is more of a concern than memory safety, `std::mem::transmute`
+    is analogous to a C++ reinterpret cast, but requires unsafe Rust because its use
+    can result in undefined behavior. Uses of `std::mem::transmute` for this purpose
+    should not be hidden behind an interface that can be called from safe Rust unless
+    the interface can actually guarantee that the call will never happen with an invalid
+    value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Enums and methods](#enums-and-methods)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ enums cannot have methods. Instead, to model an enum with methods one
+    must define a wrapper class for the enum and define the methods on that wrapper
+    class. In Rust, methods can be defined on an enum with an `impl` block, just like
+    any other type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { #[repr(u8)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Clone, Copy)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum Pin {
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pin1 = 0x01,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Pin2 = 0x02,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Pin3 = 0x04,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct LastPin;
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Pin {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn next(&self) -> Result<Self, LastPin> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match self {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Pin::Pin1 => Ok(Pin::Pin2),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Pin::Pin2 => Ok(Pin::Pin3),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Pin::Pin3 => Err(LastPin),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Enums)
+  prefs: []
+  type: TYPE_NORMAL

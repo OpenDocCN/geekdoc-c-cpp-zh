@@ -1,0 +1,98 @@
+- en: Exceptions and error handling
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/exceptions.html](https://cel.cs.brown.edu/crp/idioms/exceptions.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++ errors that are to be handled by the caller are sometimes indicated by
+    sentinel values (e.g., `std::map::find` producing an empty iterator), sometimes
+    indicated by exceptions (e.g., `std::vector::at` throwing `std::out_of_range`),
+    and sometimes indicated by setting an error bit (e.g., `std::fstream::fail`).
+    Errors that are not intended to be handled by the caller are usually indicated
+    by exceptions (e.g., `std::bad_cast`). Errors that are due to programming bugs
+    often just result in undefined behavior (e.g., `std::vector::operator[]` when
+    the index is out-of-bounds).
+  prefs: []
+  type: TYPE_NORMAL
+- en: In contrast, safe Rust has two mechanisms for indicating errors. When the error
+    is expected to be handled by the caller (because it is due to, e.g., user input),
+    the function returns a [`Result`](https://doc.rust-lang.org/std/result/index.html)
+    or [`Option`](https://doc.rust-lang.org/std/option/index.html). When the error
+    is due to a programming bug, the function panics. Undefined behavior can only
+    occur if unchecked variants of functions are used with unsafe Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Some libraries in Rust will offer two versions of an API, one which returns
+    a `Result` or `Option` type and one of which panics, so that the interpretation
+    of the error (expected exceptional case or programmer bug) can be chosen by the
+    caller.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The major differences between using `Result` or `Option` and using exceptions
+    are that
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`Result` and `Option` force explicit handling of the error case in order to
+    access the contained value. This also differs from `std::expected` in C++23.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: When propagating errors with `Result`, the types of the errors must match. There
+    are libraries for making this easier to handle.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[`Result` vs `Option`](#result-vs-option)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'The approaches demonstrated in the Rust examples in this chapter apply to both
+    `Result` and `Option`. When the type is `Option` it indicates that there is no
+    additional information to provide in the error case: `Option::None` does not contain
+    a value, but `Result::Err` does. When there is no additional information, is usually
+    because there is exactly one circumstance which can cause the error case.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: It is possible to convert between the two types.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let r: Result<i32, &''static str> ='
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: None.ok_or("my error message");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let r2: Result<i32, &''static str> ='
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: None.ok_or_else(|| "expensive error message");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let o: Option<i32> = r.ok();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Exceptions
+    and error handling)'
+  prefs: []
+  type: TYPE_NORMAL

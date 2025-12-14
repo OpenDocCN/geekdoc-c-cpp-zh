@@ -1,0 +1,1 @@
+["```rs\n#include <fstream>\n\nint main() {\n  std::ifstream file(\"/path/to/file\");\n  if (!file.is_open()) {\n    return -1;\n  }\n\n  byte buf[1024];\n  while (file.good()) {\n    file.read(buf, sizeof buf);\n    std::streamsize count = file.gcount();\n\n    // use data in buf\n  }\n\n  return 0;\n} \n```", "```rs\n\n```", "```rs\n\n```"]

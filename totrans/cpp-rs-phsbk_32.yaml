@@ -1,0 +1,912 @@
+- en: Overloading
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/overloading.html](https://cel.cs.brown.edu/crp/idioms/overloading.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: C++ supports overloading of functions, so long as the invocations of the functions
+    can be distinguished by the number or types of their arguments.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust does not support this kind of function overloading. Instead, Rust has a
+    few different mechanisms (some of which C++ also has) for achieving the effects
+    of overloading in a way that interacts better with type inference. The mechanisms
+    usually involve making the commonalities between the overloaded functions apparent
+    in the code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { fn twice(x: f64) -> f64 {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: x + x
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '// error[E0428]: the name `twice` is defined multiple times'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '// fn twice(x: i32) -> i32 {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: //     x + x
+  prefs: []
+  type: TYPE_NORMAL
+- en: // }
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: In practice, an example like the above would also likely be implemented in a
+    more structured way even in C++, using templates.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When phrased this way, the example can be translated to Rust, with the notable
+    addition of [requiring a trait bound on the type](./data_modeling/concepts.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { fn twice<T>(x: T) -> T::Output'
+  prefs: []
+  type: TYPE_NORMAL
+- en: where
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'T: std::ops::Add<T>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'T: Copy,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '{'
+  prefs: []
+  type: TYPE_NORMAL
+- en: x + x
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Overloaded methods](#overloaded-methods)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ it is possible to have methods with the same name but different signatures
+    on the same type. In Rust there can be at most one method with the same name for
+    each trait implementation and at most one inherent method with the same name for
+    a type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In cases where there are multiple methods with the same names because the method
+    is defined for multiple traits, the desired method must be distinguished at the
+    call site by specifying the trait.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: trait TraitA {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn go(&self) -> String;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: trait TraitB {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn go(&self) -> String;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct MyStruct;
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl MyStruct {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn go(&self) -> String {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '"Called inherent method".to_string()'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl TraitA for MyStruct {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn go(&self) -> String {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '"Called Trait A method".to_string()'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl TraitB for MyStruct {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn go(&self) -> String {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '"Called Trait B method".to_string()'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let my_struct = MyStruct;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Calling the inherent method
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", my_struct.go());
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Calling the method from TraitA
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", TraitA::go(&my_struct));
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Calling the method from TraitB
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", TraitB::go(&my_struct));
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: One exception to this is when the methods are all from the same generic trait
+    with with different type parameters for the implementations. In that case, if
+    the signature is sufficient to determine which implementation to use, the trait
+    does not need to be specified to resolve the method. This is common when using
+    the [`From` trait](https://doc.rust-lang.org/std/convert/trait.From.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: struct Widget;
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl From<i32> for Widget {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn from(x: i32) -> Widget {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Widget
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl From<f32> for Widget {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn from(x: f32) -> Widget {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Widget
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Calls <Widget as From<i32>>::from
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let w1 = Widget::from(5);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Calls <Widget as From<f32>>::from
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let w2 = Widget::from(1.0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Overloaded operators](#overloaded-operators)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ most operators can either be overloaded either with a free-standing function
+    or by providing a method defining the operator on a class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust provides operator via implementation of specific traits. Implementing a
+    method of the same name as required by the trait will not make a type usable with
+    the operator if the trait is not implemented.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#[derive(Clone, Copy)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Vec2 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'x: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl std::ops::Add for &Vec2 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Output = Vec2;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Note that the type of self here is &Vec2.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn add(self, other: Self) -> Vec2 {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Vec2 {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'x: self.x + other.x,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: self.y + other.y,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let a = Vec2 { x: 1.0, y: 2.0 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let b = Vec2 { x: 3.0, y: 4.0 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let c = &a + &b;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: Additionally, sometimes it is best to provide trait implementations for various
+    combinations of reference types, especially for types that implement the [`Copy
+    trait`](./constructors/copy_and_move_constructors.html), since they are likely
+    to want to be used either with or without taking a reference. For the example
+    above, that involve defining four implementations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#[derive(Clone, Copy)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Vec2 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'x: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl std::ops::Add<&Vec2> for &Vec2 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Output = Vec2;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn add(self, other: &Vec2) -> Vec2 {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Vec2 {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'x: self.x + other.x,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: self.y + other.y,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // If Vec2 weren't so small, it might be desireable to re-use space in the below
+  prefs: []
+  type: TYPE_NORMAL
+- en: // implementations, since they take ownership.
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl std::ops::Add<Vec2> for &Vec2 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Output = Vec2;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn add(self, other: Vec2) -> Vec2 {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Vec2 {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'x: self.x + other.x,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: self.y + other.y,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl std::ops::Add<&Vec2> for Vec2 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Output = Vec2;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn add(self, other: &Vec2) -> Vec2 {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Vec2 {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'x: self.x + other.x,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: self.y + other.y,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl std::ops::Add<Vec2> for Vec2 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Output = Vec2;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn add(self, other: Vec2) -> Vec2 {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Vec2 {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'x: self.x + other.x,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: self.y + other.y,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let a = Vec2 { x: 1.0, y: 2.0 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let b = Vec2 { x: 3.0, y: 4.0 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let c = a + b;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: The repetition can be addressed by defining a macro.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#[derive(Clone, Copy)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Vec2 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'x: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: macro_rules! impl_add_vec2 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: ($lhs:ty, $rhs:ty) => {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl std::ops::Add<$rhs> for $lhs {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type Output = Vec2;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn add(self, other: $rhs) -> Vec2 {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Vec2 {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'x: self.x + other.x,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: self.y + other.y,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl_add_vec2!(&Vec2, &Vec2);
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl_add_vec2!(&Vec2, Vec2);
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl_add_vec2!(Vec2, &Vec2);
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl_add_vec2!(Vec2, Vec2);
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let a = Vec2 { x: 1.0, y: 2.0 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let b = Vec2 { x: 3.0, y: 4.0 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let c = a + b;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Default arguments](#default-arguments)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Default arguments in C++ are sometimes implemented in terms of function overloading.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust does not have default arguments. Instead, arguments with `Option` type
+    can be used to provide a similar effect.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: use std::ops::Shl;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn shift(
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'x: u32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'shift_amount: Option<u32>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> u32 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let a = shift_amount.unwrap_or(2);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: x.shl(a)
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let res = shift(7, None); // shifts by 2
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Unrelated overloads](#unrelated-overloads)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The lack of completely ad hoc overloading in Rust encourages the definition
+    of traits that capture essential commonalities between types, so that functions
+    can be implemented in terms of those interfaces and used generally. However, it
+    also sometime encourages the anti-pattern of defining of traits that only capture
+    incidental commonalities (such as having methods of the same name).
+  prefs: []
+  type: TYPE_NORMAL
+- en: It is better programming practice in those cases to simply define separate functions,
+    rather than to shoehorn in a trait where no real commonality exists.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This is commonly seen in Rust in the naming conventions for constructor static
+    methods. Instead of them all being named `new` with different arguments, they
+    are [usually given names of the form `from_something`](https://rust-lang.github.io/api-guidelines/naming.html),
+    where the `something` varies based on from what the value is being constructed,
+    or a more specific name if appropriate.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { struct Vec3 {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'x: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'z: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Vec3 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn from_x(x: f64) -> Vec3 {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Vec3 { x, y: 0.0, z: 0.0 }'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn from_y(y: f64) -> Vec3 {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Vec3 { x: 0.0, y, z: 0.0 }'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn diagonal(d: f64) -> Vec3 {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Vec3 { x: d, y: d, z: d }'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: This differs from the conversion methods supported by the `From` and `Into`
+    traits, which have the additional purpose of supporting trait bounds on generic
+    functions which should take any type convertible to a specific type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Overloading)
+  prefs: []
+  type: TYPE_NORMAL

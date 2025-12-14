@@ -1,0 +1,328 @@
+- en: Concepts, interfaces, and static dispatch
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/concepts.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/concepts.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++, static dispatch over an interface is achieved by implementing a template
+    function or template method that interacts with the type using some expected interface.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The template function `twiceArea` in the example below makes use of an `area()`
+    method on the template type parameter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To achieve the same goal in Rust involves defining a trait (`Shape`) with the
+    desired method (`twice_area`) and using the trait as a bound on the type parameter
+    for the generic function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: // Interface that generic function will use
+  prefs: []
+  type: TYPE_NORMAL
+- en: trait Shape {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn area(&self) -> f64;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Triangle {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'base: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'height: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Implementation of interface for type
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Shape for Triangle {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn area(&self) -> f64 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 0.5 * self.base * self.height
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Generic function using interface
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn twice_area<T: Shape>(shape: &T) -> f64 {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.0 * shape.area()
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let triangle = Triangle {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'base: 1.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'height: 1.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", twice_area(&triangle));
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note that in the Rust example, the definition of the trait and the struct have
+    not changed from the example in the chapter on [virtual methods and dynamic dispatch](./abstract_classes.html).
+    Even so, this example does use static dispatch. This is the result of a design
+    trade-off in Rust around the representation of vtables and vptrs which is [described
+    later in that chapter](./abstract_classes.html#vtables-and-rust-trait-object-types).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The difference between Rust and C++ in the above examples arises from Rust being
+    nominally typed (types must opt in to supporting a specific interface, merely
+    having the right methods isn't enough) and C++'s template meta-programming enabling
+    a kind of structural or duck typing (types only need to have the methods actually
+    used, and there is no need to explicitly opt in to supporting an interface).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Templates vs generic functions](#templates-vs-generic-functions)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The reason why Rust is nominally typed instead of structurally typed has to
+    do with the difference between C++ templates and Rust generic functions. In particular,
+    C++ templates are only type checked after all of the template arguments are provided
+    and they are fully expanded, while Rust generic functions are type checked independently
+    of the type arguments.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Since the functions are checked before the type arguments are known, the methods
+    and functions that can be applied to values of those types also need to be known
+    before the type arguments are known.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This point in the programming language design space favors simplicity of reasoning
+    about these functions over the flexibility that comes from the template programming
+    approach. This becomes especially valuable when writing libraries that both provide
+    generic functions defined in terms of other generic functions, for which a C++
+    compiler can give many fewer static guarantees, since it would not be possible
+    to test all possible instantiations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In both C++ and Rust, however, multiple implementations are generated by the
+    compiler in order to achieve static dispatch.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[C++ constraints and concepts](#c-constraints-and-concepts)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Rust's approach to static dispatch over an interface can be partially (but only
+    partially) modeled with a strict application of [C++ concepts](https://en.cppreference.com/w/cpp/language/constraints).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The usual way to apply concepts is still structural and does not model Rust''s
+    approach: it only requires that a specific method can be called, producing a specific
+    type.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: A closer equivalent to the above Rust program in C++ is to use a combination
+    of abstract classes and concepts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: This is still not the same, however, because the concept only creates a requirement
+    on the use of the template, not on the use of values of type `T` within the template.
+    In Rust, the trait bound constrains both. So the following still compiles in C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: However, the equivalent does not compile in Rust and instead produces an error.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: These additional static checks mean that in many situations where C++ templates
+    would be useful but hard to implement correctly, Rust generics are freely used.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Required traits and ergonomics](#required-traits-and-ergonomics)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'In the above examples, the function requiring a trait was defined using a generic
+    type `T` with a separate requirement that `T` is a `Shape`, like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'These syntaxes are both common shorthands for `requires` clauses (C++) or `where`
+    clauses (Rust):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: The more verbose form is preferred when there are many type parameters or those
+    type parameters must implement many traits. An even shorter-hand available in
+    some cases is the `impl` keyword.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Generics and lifetimes](#generics-and-lifetimes)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When defining a template in C++ that makes use of a type template parameter,
+    the lifetimes of references stored within objects of that type must be tracked
+    manually by the programmer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following (contrived) C++ example compiles without error, but could be used
+    in a way that results in undefined behavior.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: Rust checks the bounds on lifetimes of references contained within type parameters.
+    [Just as with trait object types](./abstract_classes.html#trait-objects-and-lifetimes),
+    these bounds are usually inferred according to the [lifetime elision rules](https://doc.rust-lang.org/reference/lifetime-elision.html).
+    When they cannot be inferred, or they are inferred incorrectly, the bounds can
+    be declared manually.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the Rust transliteration of the above example, the lifetime bounds have to
+    be given manually because the inferred bounds are incorrect. Without explicit
+    bounds, the compiler produces an error.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: The error message becomes clearer when the inferred lifetime bounds are made
+    explicit. With the given type for `store`, the argument for `x` could be something
+    that has a lifetime that does not last as long as the lifetimes in the contents
+    in the box.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: For this specific case, the most general solution is to define a new lifetime
+    parameter to bound both `S` and `dyn Shape`. The type parameter for the reference
+    can be elided, because it will be assigned a fresh lifetime parameter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { trait Shape {}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Note the common bound
+  prefs: []
+  type: TYPE_NORMAL
+- en: // -----------------here-\
+  prefs: []
+  type: TYPE_NORMAL
+- en: // ----------------------|---------------------------and here-\
+  prefs: []
+  type: TYPE_NORMAL
+- en: //                       v                                    v
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn store<''s, S: Shape + ''s>(x: S, data: &mut Box<dyn Shape + ''s>) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*data = Box::new(x);'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Concepts,
+    interfaces, and static dispatch)
+  prefs: []
+  type: TYPE_NORMAL

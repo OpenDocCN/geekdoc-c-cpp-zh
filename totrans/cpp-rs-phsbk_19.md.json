@@ -1,0 +1,1 @@
+["```rs\n#include <cstddef>\n#include <cassert>\n\nint c_style_sum(std::size_t len, int arr[]) {\n    int sum = 0;\n    for (size_t i = 0; i < len; i++) {\n        sum += arr[i];\n    }\n    return sum;\n}\n\nint main() {\n    int sum = c_style_sum(0, nullptr);\n    assert(sum == 0);\n} \n```", "```rs\n\n```", "```rs\n\n```"]

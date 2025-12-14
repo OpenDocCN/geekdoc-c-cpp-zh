@@ -1,0 +1,30 @@
+- en: Null (nullptr)
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/null.html](https://cel.cs.brown.edu/crp/idioms/null.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: This section covers idiomatic uses of `nullptr` in C++ and how to achieve the
+    same results in Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Some uses of `nullptr` in C++ don't arise in the first place in Rust because
+    of other language differences. For example, [moved objects don't leave anything
+    behind that needs to be destroyed](./null/moved_members.html). Therefore there
+    is no need to use `nullptr` as a placeholder for a moved pointer that can have
+    `delete` or `free` called on it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Other uses are replaced by `Option`, which in safe Rust requires checking for
+    the empty case before accessing the contained value. This use is common enough
+    that [Rust has an optimization](https://doc.rust-lang.org/std/option/index.html#representation)
+    for when `Option` is used with a reference (`&` or `&mut ref`), `Box` (equivalent
+    of `unique_ptr`), and `NonNull` (a non-null raw pointer).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Null
+    (nullptr))'
+  prefs: []
+  type: TYPE_NORMAL

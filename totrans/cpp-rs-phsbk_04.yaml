@@ -1,0 +1,706 @@
+- en: Default constructors
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/constructors/default_constructors.html](https://cel.cs.brown.edu/crp/idioms/constructors/default_constructors.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: C++ has a special concept of default constructors to support several scenarios
+    in which they are implicitly called. Rust does not have the same notion of a default
+    constructor. The most similar mechanism is the [`Default` trait](https://doc.rust-lang.org/std/default/trait.Default.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { struct Person {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub const fn new() -> Self {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Self { age: 0 }'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Default for Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn default() -> Self {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Self::new()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: If a structure has a useful default value (such as would be constructed by a
+    default constructor in C++), then the type should provide [both](https://rust-lang.github.io/api-guidelines/interoperability.html?highlight=default#types-eagerly-implement-common-traits-c-common-traits)
+    a `new` method that takes no arguments and an implementation of `Default`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Because `Default` is a normal trait, the default constructor defined in the
+    example can be invoked using the usual syntax for invoking a static trait method,
+    e.g., `Default::default()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Implicit initialization of class members](#implicit-initialization-of-class-members)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++, if a member is not explicitly initialized by a constructor, then it
+    is default-initialized. When the type of the member is a class, the default-initialization
+    invokes the default constructor.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, if all of the fields of a struct implement the `Default` trait, then
+    an implementation for the structure can be provided by the compiler.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { #[derive(Default)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Default)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Student {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'person: Person,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `#[derive(Default)]` macros in Rust are equivalent to writing the following.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { struct Person {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Default for Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn default() -> Self {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Self {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'age: Default::default()'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Student {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'person: Person,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Default for Student {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn default() -> Self {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Self {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'person: Default::default()'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: Unlike C++ where the default initialization value for integers is indeterminate,
+    in Rust the default value for the primitive integer and floating point types [is
+    zero](https://doc.rust-lang.org/std/primitive.i32.html#impl-Default-for-i32).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Deriving the `Default` trait has a similar effect on code concision as eliding
+    initialization in C++. In situations where all of the types implement the `Default`
+    trait, but only some of the fields should have their default values, one can use
+    [struct update syntax](https://doc.rust-lang.org/book/ch05-01-defining-structs.html#creating-instances-from-other-instances-with-struct-update-syntax)
+    to define a constructor method without enumerating the values for all of the fields.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { #[derive(Default)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Default)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Student {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'person: Person,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'favorite_color: Option<String>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Student {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'pub fn with_favorite_color(color: String) -> Self {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Student {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'favorite_color: Some(color),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ..Default::default()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: The performance of the struct update syntax [is up to the optimizer](https://godbolt.org/#z:OYLghAFBqd5TKALEBjA9gEwKYFFMCWALugE4A0BIEAZgQDbYB2AhgLbYgDkAjF%2BTXRMiAZVQtGIHgBYBQogFUAztgAKAD24AGfgCsp5eiyahSAVyVFyKxqiIEh1ZpgDC6embZMQAJnLOAGQImbAA5TwAjbFIpAE5yAAd0JWIHJjcPL19E5NShIJDwtiiYnnibbDs0kSIWUiIMz28ea2xbeyEauqICsMjog0tuxqyWofreopKpAEprdDNSVE4uAFIfAGZVgFYAIRxSAgA3bAgAEWwaFjN6Ihmds9WtAEEEswiAaktzOw/VaKUQg%2BqwA7Lsns8PlCPixgJwPgQNn4IaDHi8UZsdvtosdThcrjc7g8IW9Pt8zL8amYcMJgWCIdCPgkAY4/iymOQGdCrkcyMRsAB9DD0MggD4AeQSHSYqw2LhqhxMstwnPRILRzwhBDYCXoHypNKIdPBL0ZpI%2BNCYHwA7sQkAKeXyiILhWQIK6YvqiIrgDMPgBaZX6to0Y1cxlQg3MI2gk2QiMJx2HZ1C9yi/XoDjutOkObhhPQgB0hfx11uIBAOAJtwg91NBdR%2BcbarOXDm9G42343i4OnI6G4ACULEbAYtlsDNnxyERtG25gBrEDbLSGbjSfhsZernt9gdcfhKECr2e9tvkOCwFAYHUMaKUag3hJ3mKkHgADhBq7otwB1Aic7kBEwR1AAntw07AawpCgeKES6JUp7TjeHDCOKTD0OBZ7kDgERmMALgSPQR68PwOBsMYwCSNhhCkIhuIkX22DqJUZjOhB/DBM6HbYfQBARKQYFuDggHetqHHkCcpARMk2AXBRJh8SYc5zDQRjAEoABqBDYNakrMBJgjCGIEicDIcjCMoaiaNh%2BgtEYynmJYhj8UekBzOgUppCR/ouB8nlEP6jAnPQspnD4/DoFJhw4G5tatO0aROEwrjuE0Uh%2BIEwR9MUAzvjkKTSiMzR%2BEkhVpJM/QxPlFRVJ0tT1MVGUJfR9XdJVuXVdYDUNGlox%2BOMPTZVMeVzGOSxme2nbdoB%2B4fE5RCoB8PCFp%2BhZaB8ED4MQZCThsPAzPwp46DMcxINgLAHNQi7bmuXAbuQu6Rdwh7HjOKlTVwEXkFu0jbOtWjSGU748NsPggz4IIAGyPbNL3vWecyXgg8AQNeWB4IQJAUFQtB3qwHCGfIJmSOZRmKCoGiAfofgOaYI4tXV3gQM4TUtFlhRVVILRlXk6R9c0BV8x10w8GMbStUwXSNQLgwS0z0tDZznXc91wyy2MPUiwMYtjQsE3cOsWx7AcuLnJcZZEtsGrmuSvz/KQgJWrG%2BawvCiLIi2KLopiJs4ic5vVlbNvvF83oUkaUa0i79ZQsyjusg7TuqvGUJJvyqYip6krSrK8piUqGwqii6re882q6l61LRmGsdMqHlo2naDosLyyYujm2ZZ2KCrBL6AZBiIIa16nEaMEabBsV8wIbGcwb0DQFZVpbtaynGBZfIW6cph6M9zyImanB69wbOvBZKE2pctuePFdrD2H7sOlhfPrE5G99x3zuQ52XQM8VLiuO6D0twbBBIWbY989zwyPCeFSF5EBozQJmZ8jAcaPmQS%2BEAb5PzfgYM6R2/5AJQTAhJYhME4IITsBJFC0Z0KYUArhfChF6DEQkuRSi1E%2By0XoicRi/BmKsXYqRSgwg2iAT4gJISGNRKHC3MIqSMkVDyQ4X3OBalYRaR0npZkPZpzkxJmZWQ5MrJU1stkOmWCGYSLih5LyQgfJ%2BQCkFbAIUwrfSitEGK2AbGM2lMlVKmRBYcxyqLIWRUNZhIqsNLm4tEptRloEuWcSpZa2iSrTW6tEkZImGk0WetxycB8J9O%2BT1%2BzcHmiOJaK01obS2ljXa79DoIxOmdC6V1/63R4g9Up%2B5XqwMRp9b6W5tjSELLEWI2x3xaA/NIEEH4QQ%2BD%2BpA56B5mlfyXDwLQq4eIbBmg/eGn9TqSQBElaQQA%3D%3D%3D).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Implicit initialization of array values](#implicit-initialization-of-array-values)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++, arrays without explicit initialization are default-initialized using
+    the default constructors.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, the value with which to initialize the array must be provided.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#[derive(Default)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // std::array::from_fn provides the index to the callback
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let people: [Person; 3] ='
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: std::array::from_fn(|_| Default::default());
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: If the type happens to be [trivially copyable](./copy_and_move_constructors.html#trivially-copyable-types),
+    then a shorthand can be used.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#[derive(Clone, Copy, Default)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let people: [Person; 3] = [Default::default(); 3];'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Container element initialization](#container-element-initialization)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++, the default constructor could be used to implicitly define collection
+    types, such as `std::vector`. Before C++11, one value would be default constructed,
+    and the elements would be copy constructed from that initial element. Since C++11,
+    all elements are default constructed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As with array initialization, the values must be explicitly specified in Rust.
+    The vector can be constructed from an array, enabling the same syntax as with
+    arrays.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#[derive(Default)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let people_arr: [Person; 3] ='
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: std::array::from_fn(|_| Default::default());
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let people: Vec<Person> = Vec::from(people_arr);'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: In Rust, the vector can also be constructed [from an iterator](https://doc.rust-lang.org/book/ch13-02-iterators.html#methods-that-produce-other-iterators).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#[derive(Default)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let people: Vec<Person> = (0..3).map(|_| Default::default()).collect();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: If the type implements the `Clone` trait, then the array can be constructed
+    using the `vec!` macro. See the chapter on [copy constructors](./copy_and_move_constructors.html)
+    for more details on `Clone`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#[derive(Clone, Default)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let people: Vec<Person> = vec![Default::default(); 3];'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Implicit initialization of local variables](#implicit-initialization-of-local-variables)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++, the default constructor is used to perform default-initialization of
+    local variables that are not explicitly initialized.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, initialization of local variables is always explicit.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#[derive(Clone, Default)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let person = Person::default();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Implicit initialization of the base class object](#implicit-initialization-of-the-base-class-object)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++, the default constructor is used to initialize the base class object
+    if no other constructor is specified.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: Since Rust does not have inheritance, there is no equivalent to this case. See
+    the chapter on [implementation reuse](../data_modeling/inheritance_and_reuse.html)
+    or the section on [traits in the Rust book](https://doc.rust-lang.org/book/ch10-02-traits.html)
+    for alternatives.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[`std::unique_ptr`](#stdunique_ptr)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: There are some additional cases where the `Default` trait is used in Rust, but
+    default constructors are not used for initialization in C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust's equivalent of smart pointers implement `Default` by delegating to the
+    `Default` implementation of the contained type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#[derive(Default)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let b: Box<Person> = Default::default();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: This differs from the treatment of `std::unique_ptr` in C++ because unlike `Box`,
+    `std::unique_ptr` is nullable, and so the default constructor for `std:unique_ptr`
+    produces a pointer that owns nothing. The equivalent type in Rust is `Option<Box<Person>>`,
+    for which the `Default` implementation produces `None`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Other uses of `Default`](#other-uses-of-default)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '[`Option::unwrap_or_default`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_default)
+    makes use of `Default`, which makes getting a default value when the `Option`
+    does not contain a value more convenient.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { fn go(x: Option<String>) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let a: String = x.unwrap_or_default();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // if x was None, then a is ""
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: In C++ `std::optional::value_or` is not equivalent, because it would always
+    construct the default, as opposed to only constructing the default when the `std::optional`
+    is `std::nullopt`. The equivalent requires using `std::optional::or_else`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Default
+    constructors)
+  prefs: []
+  type: TYPE_NORMAL

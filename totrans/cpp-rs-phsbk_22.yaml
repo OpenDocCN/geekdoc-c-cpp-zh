@@ -1,0 +1,115 @@
+- en: Anonymous namespaces and static
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/anonymous_namespaces.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/anonymous_namespaces.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Anonymous namespaces in C++ are used to avoid symbol collisions between different
+    translation units. Such collisions violate [the one definition rule](https://timsong-cpp.github.io/cppwp/n4950/basic.def.odr#14)
+    and result in undefined behavior (which at best manifests as linking errors).
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, without the use of anonymous namespaces, the following would result
+    in undefined behavior (and no linking error, due to the use of `inline` producing
+    weak symbols in the object files).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: C++ static declarations are also used to achieve the same goal by making it
+    so that a declaration has internal linkage (and so is not visible outside of the
+    translation unit).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust avoids the linkage problem by controlling linkage and visibility simultaneously,
+    with declarations always also being definitions. Instead of translation units,
+    programs are structured in terms of [modules](./headers.html), which provide both
+    namespaces and visibility controls over definitions, enabling the Rust compiler
+    to guarantee that symbol collision issues cannot happen.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following Rust program achieves the same goal as the C++ program above,
+    in terms of avoiding the collision of the two functions while making them available
+    for use within the defining files.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { // a.rs'
+  prefs: []
+  type: TYPE_NORMAL
+- en: mod a { fn common_function_name() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // b.rs
+  prefs: []
+  type: TYPE_NORMAL
+- en: mod b { fn common_function_name() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '} }'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Additionally,
+  prefs: []
+  type: TYPE_NORMAL
+- en: Unlike C++ namespaces, Rust modules (which provide namespacing as well as visibility
+    controls) can only be defined once, and this is checked by the compiler.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Each file [defines a module which has to be explicitly included in the module
+    hierarchy](https://doc.rust-lang.org/stable/book/ch07-05-separating-modules-into-different-files.html).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Modules from Rust crates (libraries) are always qualified with some root module
+    name, so they cannot conflict. If they would conflict, [the root module name must
+    be replaced with some user-chosen name](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#renaming-dependencies-in-cargotoml).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[Caveats about C interoperability](#caveats-about-c-interoperability)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When using libraries not managed by Rust, the usual problems can occur if there
+    are symbol collisions in the object files. This can arise when using C or C++
+    static or dynamic libraries. It can also arise when using Rust static or dynamic
+    libraries built for use in C or C++ programs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust provides [`#[unsafe(no_mangle)]`](https://doc.rust-lang.org/reference/abi.html#the-no_mangle-attribute)
+    to bypass name mangling in order to produce functions that can be easily referred
+    to from C or C++. This can also cause undefined behavior due to name collision.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Anonymous
+    namespaces and static)
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,313 @@
+- en: Object identity
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/object_identity.html](https://cel.cs.brown.edu/crp/idioms/object_identity.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++ the pointer to an object is sometimes used to represent its identity
+    in terms of the logic of a program.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In some cases, this is a standard optimization, such as when implementing the
+    copy assignment operator.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In other cases the pointer value is used as a logical identity to distinguish
+    between specific instances of an object that otherwise have the same properties.
+    For example, representing a labeled graph where there may be distinct nodes that
+    have the same label.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, some of these cases are not applicable, and others cases are typically
+    handled by instead by implementing a synthetic notion of identity for the values.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Overloading copy assignment and equality comparison operators](#overloading-copy-assignment-and-equality-comparison-operators)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: For example, when implementing the copy-assignment operator, one might short-circuit
+    when the copied object and the assignee are the same. Note that in this use the
+    pointer values are not stored.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This kind of optimization is unnecessary when implementing [Rust's equivalent
+    to the copy assignment operator](./constructors/copy_and_move_constructors.html#assignment-operators)
+    `Clone::clone_from`. The type of `Clone::clone_from` prevents the same object
+    from being passed as both arguments, because one of the arguments is a mutable
+    reference, which is exclusive, and so prevents the other reference argument from
+    referring to the same object.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { struct Person {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'name: String,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Clone for Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn clone(&self) -> Self {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Self { name: self.name.clone() }'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn clone_from(&mut self, source: &Self) {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // self and source cannot be the same here,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // because that would mean there are a
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // mutable and an immutable reference to
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // the same memory location. Therefore, a
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // check for assignment to self is not
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // needed, even for the purpose of
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // optimization.
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.name.clone_from(&source.name);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: In cases in C++ where most comparisons are between an object and itself (e.g.,
+    the object's primary use is to be stored in a hash set), and comparison of unequal
+    objects is expensive, comparing object identity might be used as optimization
+    for the equality comparison operator overload.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For supporting similar operations in Rust, [`std::ptr::eq`](https://doc.rust-lang.org/std/ptr/fn.eq.html)
+    can be used.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { struct Person {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'name: String,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // many other expensive-to-compare fields
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl PartialEq for Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn eq(&self, other: &Self) -> bool {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if std::ptr::eq(self, other) {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: return true;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // compare other expensive-to-compare fields
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'true'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Eq for Person {}
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Distinguishing between values in a relational structure](#distinguishing-between-values-in-a-relational-structure)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The other use is when relationships between values are represented using a data
+    structure external to the values, such as when representing a labeled graph in
+    which multiple nodes might share the same label, but have edges between different
+    sets of other nodes. This differs from the earlier case because the pointer value
+    is preserved.
+  prefs: []
+  type: TYPE_NORMAL
+- en: One real-world example of this is in the LLVM codebase, where occurrences of
+    declarations, statements, and expressions in the AST are distinguished by object
+    identity. For example, variable expressions (`class DeclRefExpr`) contain the
+    [pointer to the occurrence of the declaration to which the variable refers](https://github.com/llvm/llvm-project/blob/ddc48fefe389789f64713b5924a03fb2b7961ef3/clang/include/clang/AST/Expr.h#L1265C1-L1275C16).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Similarly, when comparing whether two variable declarations represent declarations
+    of the same variable, [a pointer to some canonical `VarDecl` is used](https://github.com/llvm/llvm-project/blob/aa33c095617400a23a2b814c4defeb12e7761639/clang/lib/AST/Stmt.cpp#L1476-L1485):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: This kind of use is often discouraged in C++ because of the risk of use-after-free
+    bugs, but might be used in performance sensitive applications where either storing
+    the memory to represent the mapping or the additional indirection to resolve an
+    entity's value from its identity is cost prohibitive.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust it is generally preferred to represent the identity of the objects with
+    synthetic identifiers. This is in part as a technique for modeling self-referential
+    data structures.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As an example, one popular Rust graph library [petgraph](https://docs.rs/petgraph/latest/petgraph/)
+    uses `u32` as its default node identity type. This incurs the cost of an extra
+    call to dereference the synthetic identifier to the label of the represented node
+    as well as the extra memory required to store the mapping from nodes to labels.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A simplified graph representation using the same synthetic identifier technique
+    would look like the following, which represents the node identities by their index
+    in the vectors that represent the labels and the edges.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { enum Color {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Red,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Blue
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Graph {
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// Maps from node id to node labels, which here are colors.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'nodes_labels: Vec<Color>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// Maps from node id to adjacent nodes ids.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'edges: Vec<Vec<usize>>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: If performance requirements make the use of synthetic identifiers unacceptable,
+    then it may be necessary to use prevent the value from being moved. The [`Pin`
+    and `PhantomPinned` structs](https://doc.rust-lang.org/std/pin/index.html) can
+    be used to achieve an effect similar to deleting the move constructor in C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Object
+    identity)
+  prefs: []
+  type: TYPE_NORMAL

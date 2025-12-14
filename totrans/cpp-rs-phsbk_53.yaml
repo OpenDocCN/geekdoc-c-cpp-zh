@@ -1,0 +1,67 @@
+- en: Build systems (e.g., CMake)
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/etc/build_systems.html](https://cel.cs.brown.edu/crp/etc/build_systems.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: One major difference between the C++ and Rust ecosystems is that C++ and C libraries
+    tend to be either provided by OS distributions or be included in the repository
+    for a project, while Rust has a central language-specific package registry called
+    [crates.io](https://crates.io/).
+  prefs: []
+  type: TYPE_NORMAL
+- en: This difference is amplified by the fact that the Rust build tool, Cargo, has
+    a build in package manager that works with crates.io, private registries, local
+    packages, and vendored sources.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Cargo is documented in detail in the [Cargo Book](https://doc.rust-lang.org/cargo/).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Packages for C and C++ system libraries](#packages-for-c-and-c-system-libraries)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Many C libraries have crates on crates.io providing both low-level bindings
+    and high-level safe Rust abstractions. For example, for the libgit2 library there
+    is both a low-level [libgit2-sys crate](https://crates.io/crates/libgit2-sys)
+    and a high-level [git2 crate](https://crates.io/crates/git2). See the [chapter
+    on the Rust FFI](../idioms/ffi.html) for more information on how to define these
+    crates.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Building C, C++, and Rust code](#building-c-c-and-rust-code)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Cargo [build scripts](https://doc.rust-lang.org/cargo/reference/build-script-examples.html)
+    can be used to build C and C++ code as part of a Rust project. The linked chapter
+    of the Cargo book includes links to resources handling the compilation of C, C++,
+    and other code, working with `pkg-config`, etc.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Testing (CTest)](#testing-ctest)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Cargo includes support for [running tests](https://doc.rust-lang.org/cargo/guide/tests.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Packaging for distribution (CPack)](#packaging-for-distribution-cpack)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Unlike CPack which is provided with CMake, Cargo does not come with tools for
+    packaging for distribution to end users. However, there are third party Cargo
+    helpers for packaging, such as [cargo-deb](https://crates.io/crates/cargo-deb)
+    for creating Debian package, [cargo-generate-rpm](https://crates.io/crates/cargo-generate-rpm)
+    for creating RPM packages, and [cargo-wix](https://crates.io/crates/cargo-wix)
+    for creating Windows installers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Build
+    systems (e.g., CMake))'
+  prefs: []
+  type: TYPE_NORMAL

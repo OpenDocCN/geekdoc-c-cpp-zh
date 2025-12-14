@@ -1,0 +1,1012 @@
+- en: Private constructors
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/private_constructors.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/private_constructors.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++ constructors for classes can be made private by declaring them private,
+    or by defining a class using `class` and using the default private visibility.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, constructors (the actual constructors, not ["constructor methods"](../constructors.html))
+    for structs are visible from wherever the type and all fields are visible. To
+    achieve similar visibility restrictions as in the C++ example, an additional private
+    field needs to be added to the struct in Rust. Because Rust supports zero-sized
+    types, the additional field can have no performance cost. The [unit type](https://doc.rust-lang.org/std/primitive.unit.html)
+    has zero size and can be used for this purpose.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: mod person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub struct Person {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub name: String,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub age: i32,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '_private: (),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl Person {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn new(
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'name: String,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Person {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Person {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: name,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: age,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '_private: (),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: use person::*;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // field `_private` of struct `person::Person`
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // is private
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // let alice = Person {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '//     name: "Alice".to_string(),'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '//     age: 42,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '//     _private: (),'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // };
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // cannot construct `person::Person` with
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // struct literal syntax due to private fields
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // let bob = Person {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '//     name: "Bob".to_string(),'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '//     age: 55,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // };
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let carol =
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Person::new("Carol".to_string(), 20);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Can match on the public fields, and then
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // use .. to ignore the remaning ones.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let Person { name, age, .. } = carol;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Enums](#enums)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Unlike C++ unions, but like `std::variant`, Rust enums do not have direct control
+    over the visibility of their variants or the fields of their variants. In the
+    following example, the `circle` variant of the `Shape` union is not public, so
+    it can only be accessed from within the definition of `Shape`, as it is by the
+    `make_circle` static method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: In Rust visibility modifiers cannot be applied to individual enum variants or
+    their fields.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: mod shape {
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub enum Shape {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Triangle { base: f64, height: f64 },'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Circle { radius: f64 },'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: use shape::*;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Variant constructor is accesssible despite not being marked pub.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let triangle = Shape::Triangle {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'base: 1.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'height: 2.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let circle = Shape::Circle { radius: 1.0 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Fields accessbile despite not being marked pub.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match circle {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Triangle { base, height } => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'println!("Triangle: {}, {}", base, height);'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Circle { radius } => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Circle {}", radius);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Instead, to control construction of and pattern matching on the enum implementation,
+    one of two approaches can be taken. The first controls construction of and access
+    to the fields, but not inspection of which variant is active.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: mod shape {
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub struct Triangle {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub base: f64,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub height: f64,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '_private: (),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct Circle {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub radius: f64,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '_private: (),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub enum Shape {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Triangle(Triangle),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Circle(Circle),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl Shape {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub fn new_triangle(base: f64, height: f64) -> Shape {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Triangle(Triangle {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: base,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: height,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '_private: (),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '})'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub fn new_circle(radius: f64) -> Shape {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Circle(Circle {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: radius,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '_private: (),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '})'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: use shape::*;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let triangle = Shape::new_triangle(1.0, 2.0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let circle = Shape::new_circle(1.0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match circle {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Triangle(Triangle { base, height, .. }) => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'println!("Triangle: {}, {}", base, height);'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Circle(Circle { radius, .. }) => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'println!("Circle: {}", radius);'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: The second places the enum in a struct with a private field, preventing both
+    construction and inspection from outside of the module.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: mod shape {
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum ShapeKind {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Triangle { base: f64, height: f64 },'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Circle { radius: f64 },'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct Shape(ShapeKind);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl Shape {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub fn new_circle(radius: f64) -> Shape {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape(ShapeKind::Circle { radius })
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub fn new_triangle(base: f64, height: f64) -> Shape {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape(ShapeKind::Triangle { base, height })
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn print(&self) {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match self.0 {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ShapeKind::Triangle { base, height } => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'println!("Triangle: {}, {}", base, height);'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ShapeKind::Circle { radius } => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'println!("Circle: {}", radius);'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: use shape::*;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let triangle = Shape::new_triangle(1.0, 2.0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let circle = Shape::new_circle(1.0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Does not compile because Shape has private fields.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // match circle {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: //   Shape(_) -> {}
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // }
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: circle.print();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: If the purpose of making the variants private is to ensure that invariants are
+    met, then it can be useful to expose the implementing enum (`ShapeKind`) but not
+    the field of the wrapping struct (`Shape`), with the invariants only being guaranteed
+    when the wrapping struct is used. In this case, it is necessary to make the field
+    private and define a getter function, since otherwise the field would be modifiable,
+    possibly violating the invariant that the wrapping struct represents.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: mod shape {
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub enum ShapeKind {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Triangle { base: f64, height: f64 },'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Circle { radius: f64 },'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // The field of Shape is private.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct Shape(ShapeKind);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl Shape {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub fn new(kind: ShapeKind) -> Option<Shape> {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ... check invariants ...
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Some(Shape(kind))
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn get_kind(&self) -> &ShapeKind {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '&self.0'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: use shape::*;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let triangle = Shape::new(ShapeKind::Triangle {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'base: 1.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'height: 2.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '});'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let Some(circle) = Shape::new(ShapeKind::Circle { radius: 1.0 }) else {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: return;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Does not compile because Shape has private fields.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // match circle {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: //   Shape(c) => {}
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // };
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match circle.get_kind() {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ShapeKind::Triangle { base, height } => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'println!("Triangle: {}, {}", base, height);'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ShapeKind::Circle { radius } => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'println!("Circle: {}", radius);'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: The situation in Rust resembles the situation in C++ when using `std::variant`,
+    for which it is not possible to make the variants themselves private. Instead
+    either the constructors for the types that form the variants can be made private
+    or the variant can be wrapped in a class with appropriate visibility controls.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Rust''s `#[non_exhaustive]` annotation](#rusts-non_exhaustive-annotation)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: If a struct or enum is intended to be public within a [crate](https://doc.rust-lang.org/book/ch07-01-packages-and-crates.html),
+    but should not be constructed outside of the crate, then the `#[non_exhaustive]`
+    attribute can be used to constrain construction. The attribute can be applied
+    to both structs and to individual enum variants with the same effect as adding
+    a private field.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, the attribute applies the constraint at the level of the crate, not
+    at the level of a module.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { #[non_exhaustive]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'pub name: String,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub age: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub enum Shape {
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[non_exhaustive]'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Triangle { base: f64, height: f64 },'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '#[non_exhaustive]'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Circle { radius: f64 },'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: The attribute is more typically used to force clients of a library to include
+    the wildcard when matching on the struct fields, making it so that adding additional
+    fields to a struct is not breaking change (i.e., that it does not [require the
+    increase of the major version component when using semantic versioning](https://doc.rust-lang.org/cargo/reference/semver.html)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Applying the `#[non_exhaustive]` attribute to the enum itself makes it as if
+    one of the variants were private, requiring a wildcard when matching on the variant
+    itself. This has the same effect in terms of versioning as when used on a struct
+    but is less advantageous. In most cases, code failing to compile when a new enum
+    variant is added is desirable, since that indicates a new case that requires handling
+    logic.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Private
+    constructors)
+  prefs: []
+  type: TYPE_NORMAL

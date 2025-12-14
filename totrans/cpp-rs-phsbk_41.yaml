@@ -1,0 +1,26 @@
+- en: Rust and C++ interoperability (FFI)
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/ffi.html](https://cel.cs.brown.edu/crp/idioms/ffi.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: The Rustonomicon [contains a chapter](https://doc.rust-lang.org/nomicon/ffi.html)
+    covering many of the concerns relevant to a C++ programmer that wants to call
+    C (or C++ via `extern "C"` functions) from Rust or Rust from C or C++ code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Many C libraries have existing crates, both with low-level bindings and with
+    high-level safe Rust abstractions. For example, for the libgit2 library there
+    is both a low-level [libgit2-sys crate](https://crates.io/crates/libgit2-sys)
+    and a high-level [git2 crate](https://crates.io/crates/git2).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Bindings to libraries can be generated from a C header file using [`bindgen`](https://rust-lang.github.io/rust-bindgen/).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Rust
+    and C++ interoperability (FFI))'
+  prefs: []
+  type: TYPE_NORMAL

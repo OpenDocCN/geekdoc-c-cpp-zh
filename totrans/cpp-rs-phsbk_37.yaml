@@ -1,0 +1,23 @@
+- en: Out parameters
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/out_params.html](https://cel.cs.brown.edu/crp/idioms/out_params.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'There are several idioms in C++ that involve the use of out parameters: passing
+    pointers or references to functions for the function to mutate to provide its
+    results.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The chapters in this section address idiomatic ways to achieve the same goals
+    that out parameters are used for in C++. Many of the Rust idioms resemble the
+    recommended alternatives to out parameters when programming against newer C++
+    standards.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Out
+    parameters)'
+  prefs: []
+  type: TYPE_NORMAL

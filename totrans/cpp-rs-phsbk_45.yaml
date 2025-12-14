@@ -1,0 +1,197 @@
+- en: Adapter pattern
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/patterns/adapter.html](https://cel.cs.brown.edu/crp/patterns/adapter.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++, if an existing class needs to implement a new interface, the adapter
+    pattern is normally used. The pattern involves defining a wrapper class that implements
+    the interface by delegating to the methods on the original class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, the same pattern is possible and is [sometimes necessary due to the
+    orphan rule](https://doc.rust-lang.org/book/ch20-02-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types).
+    However, because traits can be implemented where *either* the type or the trait
+    is defined, usually it is possible to just implement the trait for the type directly,
+    without the need for a wrapper.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following example adds an interface to `std::string` in C++ and `String`
+    in Rust for use with a template function defined in the library. When dynamic
+    dispatch is needed, there is no change to how to implement the trait for the existing
+    type in Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: trait Doubleable {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn twice(&self) -> Self;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Doubleable for String {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn twice(&self) -> Self {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.clone() + self
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn quadruple<T: Doubleable>(x: T) -> T {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: x.twice().twice()
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let s = quadruple(String::from("a"));
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", s);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Extension traits](#extension-traits)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The usual approach to adding functionality to an existing type in C++ is to
+    define the additional functionality as functions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust can similarly add functionality by defining freestanding functions. Rust
+    also supports the ability to add methods to existing types. It does so by using
+    the same mechanism as described in the previous section. By using a blanket implementation,
+    methods can even be added to any type that implements some other trait. This is
+    the approach used by the [`itertools` crate](https://docs.rs/itertools/latest/itertools/)
+    to add additional functionality to anything that implements the `Iterator` trait.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: trait Middle {
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Output;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn middle(&mut self) -> Option<Self::Output>;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'impl<T: ExactSizeIterator> Middle for T {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Output = T::Item;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn middle(&mut self) -> Option<Self::Output> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let len = self.len();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if len > 0 && len % 2 == 1 {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.nth(len / 2)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '} else {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: None
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: println!("{:?}", [1, 2, 3].iter().middle());
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{:?}", [1, 2, 3].iter().map(|n| n + 1).middle());
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `map` method returns a different type than `iter`, but `middle` can be called
+    on the result of either one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Adapter
+    pattern)
+  prefs: []
+  type: TYPE_NORMAL

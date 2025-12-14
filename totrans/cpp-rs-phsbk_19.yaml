@@ -1,0 +1,81 @@
+- en: Zero-length arrays
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/null/zero_length_arrays.html](https://cel.cs.brown.edu/crp/idioms/null/zero_length_arrays.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++ codebases that are written in a C style or that make use of C libraries,
+    null pointers may be used to represent empty arrays.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, arrays of arbitrary size are represented as [slices](https://doc.rust-lang.org/book/ch04-03-slices.html).
+    These slices can have zero length. Since [Rust vectors are convertible to slices](https://doc.rust-lang.org/std/vec/struct.Vec.html#impl-Deref-for-Vec%3CT,+A%3E),
+    defining functions that work with slices enables them to be used with vectors
+    as well.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'fn sum_slice(arr: &[i32]) -> i32 {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: let mut sum = 0;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for x in arr {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: sum += x;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: sum
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let sum = sum_slice(&[]);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: assert!(sum == 0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let sum2 = sum_slice(&vec![]);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: assert!(sum2 == 0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Zero-length
+    arrays)
+  prefs: []
+  type: TYPE_NORMAL

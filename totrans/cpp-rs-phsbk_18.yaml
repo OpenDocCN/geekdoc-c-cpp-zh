@@ -1,0 +1,87 @@
+- en: Moved members
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/null/moved_members.html](https://cel.cs.brown.edu/crp/idioms/null/moved_members.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Moving values out of variables or fields in Rust is more explicit than it is
+    in C++. A value that might be moved with nothing left behind needs to be represented
+    using an `Option<Box<T>>` type in Rust, while in C++ it would just be a `std::unique_ptr<T>`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { use std::sync::Arc;'
+  prefs: []
+  type: TYPE_NORMAL
+- en: use std::sync::Mutex;
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn read(mailbox: Arc<Mutex<Option<i32>>>) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: let Ok(mut x) = mailbox.lock() else {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: return;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let x = x.take();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // use x
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Additionally, when taking ownership of a value from within a mutable reference,
+    something has to be left in its place. This can be done using [`std::mem::swap`](https://doc.rust-lang.org/std/mem/fn.swap.html),
+    and many container-like types have methods for making common ownership-swapping
+    more ergonomic, like [`Option::take`](https://doc.rust-lang.org/std/option/enum.Option.html#method.take)
+    as seen in the earlier example, [`Option::replace`](https://doc.rust-lang.org/std/option/enum.Option.html#method.replace)
+    or [`Vec::swap`](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.swap_remove).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Deleting moved objects](#deleting-moved-objects)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Another common use of null pointers in modern C++ is as values for the members
+    of moved objects so that the destructor can still safely be called. E.g.,
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Rust's notion of moving objects does not involve leaving behind an object on
+    which a destructor will be called, and so this use of null does not have a corresponding
+    idiom. See the chapter on [copy and move constructors](../constructors/copy_and_move_constructors.html)
+    for more details.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Moved
+    members)'
+  prefs: []
+  type: TYPE_NORMAL

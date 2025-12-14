@@ -1,0 +1,67 @@
+- en: Header files
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/headers.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/headers.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: One use of header files in C++ is to expose declarations that are defined in
+    one translation units to other translation units without requiring the duplication
+    of the declarations in multiple files. By convention, declarations that are not
+    included in the header are considered to be private to the defining translation
+    unit (though, to enforce this convention other mechanisms, such as [anonymous
+    namespaces](./anonymous_namespaces.html), are required).
+  prefs: []
+  type: TYPE_NORMAL
+- en: In contrast, Rust uses neither textually-included header files nor forward declarations.
+    Instead, Rust modules control visibility and linkage simultaneously and expose
+    public definitions for use by other modules.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: In `person.rs`, the `Person` type is public but the `name` field is not. This
+    prevents both direct construction of values of the type (similar to private members
+    preventing aggregate initialization in C++) and prevents field access. The static
+    method `Person::new(String)` and method `Person::name()` are exposed to clients
+    of the module by the `pub` visibility declarations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the `client` module, the `mod` declaration defines the content of `person.rs`
+    as a submodule named `person`. The `use` declaration brings the contents of the
+    `person` module into scope.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[The essence of the difference](#the-essence-of-the-difference)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: A C++ program is a collection of translation units. Header files are required
+    to make providing forward declarations of definitions from other translation units
+    manageable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A Rust program is a tree of modules. Definitions in one module may access items
+    from other modules based on visibility declarations given in the definitions of
+    the module themselves.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Submodules and additional visibility features](#submodules-and-additional-visibility-features)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Modules and visibility declarations are more powerful than shown in the above
+    example. More details on how to use modules, `pub`, and `use` to achieve encapsulation
+    goals are described in the chapter on [private members and friends](./private_and_friends.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Header
+    files)
+  prefs: []
+  type: TYPE_NORMAL

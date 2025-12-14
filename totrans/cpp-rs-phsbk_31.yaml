@@ -1,0 +1,550 @@
+- en: User-defined conversions
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/user-defined_conversions.html](https://cel.cs.brown.edu/crp/idioms/user-defined_conversions.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++ user-defined conversions are created using [converting constructors](https://en.cppreference.com/w/cpp/language/converting_constructor)
+    or [conversion functions](https://en.cppreference.com/w/cpp/language/cast_operator).
+    Because converting constructors are opt-out (via the `explicit` specifier), implicit
+    conversions occur with regularity in C++ code. In the following example both the
+    assignments and the function calls make use of implicit conversions as provided
+    by a converting constructor.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust makes significantly less use of implicit conversions. Instead most conversions
+    are explicit. The [`std::convert`](https://doc.rust-lang.org/std/convert/index.html)
+    module provides several traits for working with user-defined conversions. In Rust,
+    the below example makes use of explicit conversions by implementing the [`From`
+    trait](https://doc.rust-lang.org/std/convert/trait.From.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: struct Widget;
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl From<i32> for Widget {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn from(_x: i32) -> Widget {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Widget
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl From<(i32, i32)> for Widget {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn from(_x: (i32, i32)) -> Widget {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Widget
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn process(w: Widget) {}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let w1: Widget = 1.into();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '// For construction this is more idiomatic:'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let w1b = Widget::from(1);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let w2: Widget = (4, 5).into();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '// For construction this is more idiomatic:'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let w2b = Widget::from((4, 5));
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: process(1.into());
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: process((4, 5).into());
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `into` method used above is provided via a [blanket implementations](https://doc.rust-lang.org/book/ch10-02-traits.html#using-trait-bounds-to-conditionally-implement-methods)
+    for the [`Into trait`](https://doc.rust-lang.org/std/convert/trait.Into.html)
+    for types that implement the `From` trait. Because of the existence of the [blanket
+    implementation](https://doc.rust-lang.org/std/convert/trait.Into.html#impl-Into%3CU%3E-for-T),
+    it is generally preferred to implement the `From` trait instead of the `Into`
+    trait, and let the `Into` trait be provided by that blanket implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Conversion functions](#conversion-functions)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: C++ conversion functions enable conversions in the other direction, from the
+    defined class to another type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To achieve the same in Rust, the `From` trait can be implemented in the other
+    direction. At least one of the source type or the target type must be defined
+    in the same crate as the trait implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: struct Point {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'x: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl From<Point> for (i32, i32) {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn from(p: Point) -> (i32, i32) {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: (p.x, p.y)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn process(x: (i32, i32)) {}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let p1 = Point { x: 1, y: 2 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let p2 = Point { x: 3, y: 4 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let xy: (i32, i32) = p1.into();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: process(p2.into());
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Conversion functions are is often used to implement the safe bool pattern in
+    C++, [which is addressed in a different way in Rust](./promotions_and_conversions.html#safe-bools).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Borrowing conversions](#borrowing-conversions)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The methods in the `From` and `Into` traits take ownership of the values to
+    be converted. When this is not desired in C++, the conversion function can just
+    take and return references.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To achieve the same in Rust the [`AsRef` trait](https://doc.rust-lang.org/std/convert/trait.AsRef.html)
+    or [`AsMut` trait](https://doc.rust-lang.org/std/convert/trait.AsMut.html) are
+    used.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'name: String,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl AsRef<str> for Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn as_ref(&self) -> &str {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '&self.name'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn process(name: &str) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: println!("{}", name);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let alice = Person {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'name: "Alice".to_string(),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: process(alice.as_ref());
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: It is common to use `AsRef` or `AsMut` as a trait bound in function definitions.
+    Using generics with an `AsRef` or `AsMut` bound allows clients to call the functions
+    with anything that can be cheaply viewed as the type that the function wants to
+    work with. Using this technique, the above definition of `process` would be defined
+    as in the following example.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'name: String, }   impl AsRef<str> for Person {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn as_ref(&self) -> &str { &self.name } }   fn process<T: AsRef<str>>(name:
+    T) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: println!("{}", name.as_ref());
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let alice = Person {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'name: "Alice".to_string(),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: process(alice);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: This technique is often used with functions that take file system paths, so
+    that literal strings can more easily be used as paths.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Fallible conversions](#fallible-conversions)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ when conversions might fail it is possible (though usually discouraged)
+    to throw an exception from the converting constructor or converting function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Error handling in Rust [does not use exceptions](./exceptions.html). Instead
+    the [`TryFrom` trait](https://doc.rust-lang.org/std/convert/trait.TryFrom.html)
+    and [`TryInto` trait](https://doc.rust-lang.org/std/convert/trait.TryInto.html)
+    are used for fallible conversions. These traits differ from `From` and `Into`
+    in that they return a `Result`, which may indicate a failing case. When a conversion
+    may fail one should implement `TryFrom` and rely on the client to call `unwrap`
+    on the result, rather than panic in a `From` implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: use std::convert::TryFrom;
+  prefs: []
+  type: TYPE_NORMAL
+- en: use std::convert::TryInto;
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct NonEmpty {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 's: String,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Clone, Copy, Debug)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct NonEmptyStringError;
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl TryFrom<String> for NonEmpty {
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Error = NonEmptyStringError;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn try_from(
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 's: String,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Result<NonEmpty, NonEmptyStringError>
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '{'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if s.is_empty() {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Err(NonEmptyStringError)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '} else {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Ok(NonEmpty { s })
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let res: Result<'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: NonEmpty,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: NonEmptyStringError,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: = "".to_string().try_into();
+  prefs:
+  - PREF_IND
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: match res {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Ok(ne) => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Converted!");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Err(err) => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Couldn't convert");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: Just like with `From` and `Into`, there is a [blanket implementation](https://doc.rust-lang.org/std/convert/trait.TryInto.html#impl-TryInto%3CU%3E-for-T)
+    for `TryInto` for everything that implements `TryFrom`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Implicit conversions](#implicit-conversions)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Rust does have one kind of user-defined implicit conversion, called [deref coercions](https://doc.rust-lang.org/std/ops/trait.Deref.html#deref-coercion),
+    provided by the [`Deref` trait](https://doc.rust-lang.org/std/ops/trait.Deref.html)
+    and [`DerefMut`trait](https://doc.rust-lang.org/std/ops/trait.DerefMut.html).
+    These coercions exist for making pointer-like types more ergonomic to use.
+  prefs: []
+  type: TYPE_NORMAL
+- en: An [example](https://doc.rust-lang.org/book/ch15-02-deref.html) of implementing
+    the traits for a custom pointer-like type is given in the Rust book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Summary](#summary)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: A summary of when to use which kind of conversion interface is given in the
+    documentation for the [`std::convert` module](https://doc.rust-lang.org/std/convert/index.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=User-defined
+    conversions)
+  prefs: []
+  type: TYPE_NORMAL

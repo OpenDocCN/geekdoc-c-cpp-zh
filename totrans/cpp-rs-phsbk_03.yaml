@@ -1,0 +1,332 @@
+- en: Constructors
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/constructors.html](https://cel.cs.brown.edu/crp/idioms/constructors.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++, constructors initialize objects. At the point when a constructor is
+    executed, storage for the object has been allocated and the constructor is only
+    performing initialization.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Rust does not have constructors in the same way as C++. In Rust, there is a
+    single fundamental way to create an object, which is to initialize all of its
+    members at once. The term "constructor" or "constructor method" in Rust refers
+    to something more like a factory: a static method associated with a type (i.e.,
+    a method that does not have a `self` parameter), which returns a value of the
+    type.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn cpu_count() -> usize {
+  prefs: []
+  type: TYPE_NORMAL
+- en: std::thread::available_parallelism().unwrap().get() }   struct ThreadPool {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'num_threads: usize'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl ThreadPool {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn new() -> Self {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Self { num_threads: cpu_count() }'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn with_threads(nt: usize) -> Self {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Self { num_threads: nt }'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let p1 = ThreadPool::new();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let p2 = ThreadPool::with_threads(4);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: In Rust, typically the primary constructor for a type is named `new`, especially
+    if it takes no arguments. (See the chapter on [default constructors](./constructors/default_constructors.html).)
+    Constructors based on some specific property of the value are usually named `with_<something>`,
+    e.g., `ThreadPool::with_threads`. See the [naming guidelines](https://rust-lang.github.io/api-guidelines/naming.html)
+    for the conventions on how to name constructor methods in Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If the fields to be initialized are visible, there is a reasonable default value,
+    and the value does not manage a resource, then it is also common to use record
+    update syntax to initialize a value based on some default value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: struct Point {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'x: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'y: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'z: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Point {
+  prefs: []
+  type: TYPE_NORMAL
+- en: const fn zero() -> Self {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Self { x: 0, y: 0, z: 0 }'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let x_unit = Point {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'x: 1,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ..Point::zero()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Despite the name, "record update syntax" does not modify a record but instead
+    creates a new value based on another one, taking ownership of it in order to do
+    so.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Storage allocation vs initialization](#storage-allocation-vs-initialization)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In Rust, the actual construction of a structure or enum value occurs where the
+    structure construction syntax (e.g., `ThreadPool { ... }`) is, after the evaluation
+    of the expressions for the fields (e.g., `cpu_count()`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: A significant implication of this difference is that storage is not allocated
+    for a struct in Rust at the point where the constructor method (such as `ThreadPool::with_threads`)
+    is called, and in fact is not allocated until after the values of the fields of
+    a struct have been computed (in terms of the semantics of the language — the optimizer
+    may still avoid the copy). Therefore there is no straightforward way in Rust to
+    translate patterns such as a class which stores a pointer to itself upon construction
+    (in Rust, this requires tools like [`Pin`](https://doc.rust-lang.org/std/pin/struct.Pin.html)
+    and [`MaybeUninit`](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Fallible constructors](#fallible-constructors)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++, the primary way constructors can indicate failure is by throwing exceptions.
+    In Rust, because constructors are normal static methods, fallible constructors
+    can instead return `Result` (akin to `std::expected`) or `Option` (akin to `std::optional`).^([1](#footnote-NonZero))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: struct ThreadPool {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'num_threads: usize,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Debug)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum ThreadPoolError {
+  prefs: []
+  type: TYPE_NORMAL
+- en: ZeroThreads,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl ThreadPool {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn with_threads(
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'nt: usize,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Result<Self, ThreadPoolError> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if nt == 0 {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Err(ThreadPoolError::ZeroThreads)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '} else {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Ok(Self { num_threads: nt })'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: match ThreadPool::with_threads(0) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Err(err) => println!("{:?}", err),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Ok(p) => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // use p here
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: See [the chapter on exceptions](./exceptions.html) for more information on how
+    C++ exceptions and exception handling translate to Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: An alternative approach here would be to use `NonZero<usize>` as the type so
+    that the error case wasn't possible in the first place. [↩](#fr-NonZero-1)
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Constructors)'
+  prefs: []
+  type: TYPE_NORMAL

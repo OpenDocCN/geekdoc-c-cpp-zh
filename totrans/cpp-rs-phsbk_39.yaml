@@ -1,0 +1,528 @@
+- en: Optional return values
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/out_params/optional_return.html](https://cel.cs.brown.edu/crp/idioms/out_params/optional_return.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'One idiom in C++ for optionally producing a result from a method or function
+    is to use a reference parameter along with a boolean or integer return value to
+    indicate whether the result was produced. This might be done for the same reasons
+    as for using [out parameters for multiple return values](./multiple_return.html):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: compatibility with versions of C++ earlier than C++11,
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: working in a codebase that uses C-style of C++, and
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: performance concerns.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The idiomatic Rust approach for optionally returning a value is to return a
+    value of type [`Option`](https://doc.rust-lang.org/std/option/index.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn safe_divide(
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'dividend: u32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'divisor: u32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Option<u32> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: if divisor != 0 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Some(dividend / divisor)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '} else {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: None
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn go(dividend: u32, divisor: u32) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: match safe_divide(dividend, divisor) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Some(quotient) => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", quotient);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: None => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Division failed!");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: go(10, 2);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: go(10, 0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: When there is useful information to provide in the failing case, the [`Result`
+    type](https://doc.rust-lang.org/std/result/) can be used instead. The [chapter
+    on error handling](../exceptions.html) describes the use of `Result`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Returning a pointer](#returning-a-pointer)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When the value being returned is a pointer, another common idiom in C++ is to
+    use `nullptr` to represent the optional case. In the Rust translation of that
+    idiom, `Option` is also used, along with a reference type, such as `&` or `Box`.
+    See [the chapter on using `nullptr` as a sentinel value](../null/sentinel_values.html#nullptr)
+    for more details.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Problems with the direct transliteration](#problems-with-the-direct-transliteration)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: It is possible to transliterate the original example that uses out parameters
+    to Rust, but the resulting code is not idiomatic.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: // NOT IDIOIMATIC RUST
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn safe_divide(dividend: u32, divisor: u32, quotient: &mut u32) -> bool {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: if divisor != 0 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '*quotient = dividend / divisor;'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'true'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '} else {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'false'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn go(dividend: u32, divisor: u32) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let mut quotient: u32 = 0; // initliazed to arbitrary value'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if safe_divide(dividend, divisor, &mut quotient) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", quotient);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '} else {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Division failed!");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: go(10, 2);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: go(10, 0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: This shares the same problems as with using out-parameters for [multiple return
+    values](./multiple_return.html#problems-with-the-direct-transliteration).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Similarities with C++ since C++17](#similarities-with-c-since-c17)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: C++17 and later offer `std::optional`, which can be used to express optional
+    return values in a way similar to the idiomatic Rust example.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Helpful `Option` utilities](#helpful-option-utilities)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Rust provides several syntactic sugars for simplifying use of functions that
+    return `Option`. If a failure should be propagated to the caller, then use the
+    `?` operator:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { fn safe_divide(dividend: u32, divisor: u32) ->
+    Option<u32> {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'if divisor != 0 { Some(dividend / divisor) } else { None } }   fn go(dividend:
+    u32, divisor: u32) -> Option<()> {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: let quotient = safe_divide(dividend, divisor)?;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", quotient);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Some(())
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If `None` should not be propagated, it is sometimes clearer to use [`let-else`
+    syntax](https://doc.rust-lang.org/rust-by-example/flow_control/let_else.html):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'fn safe_divide(dividend: u32, divisor: u32) -> Option<u32> {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'if divisor != 0 { Some(dividend / divisor) } else { None } }   fn go(dividend:
+    u32, divisor: u32) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: let Some(quotient) = safe_divide(dividend, divisor) else {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Division failed!");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: return;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", quotient);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: go(10, 2); go(10, 0); }
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If there is a default value that should be used in the `None` case, the [`Option::unwrap_or`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or),
+    [`Option::unwrap_or_else`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_else),
+    [`Option::unwrap_or_default`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_default),
+    or [`Option::unwrap`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap)
+    methods can be used:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'fn safe_divide(dividend: u32, divisor: u32) -> Option<u32> {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: if divisor != 0 { Some(dividend / divisor) } else { None } }   fn expensive_computation()
+    -> u32 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 0 }
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn go(dividend: u32, divisor: u32) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // If None, returns the given value.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let result = safe_divide(dividend, divisor).unwrap_or(0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // If None, returns the result of calling the given function.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let result2 = safe_divide(dividend, divisor).unwrap_or_else(expensive_computation);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // If None, returns Default::default(), which is 0 for u32.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let result3 = safe_divide(dividend, divisor).unwrap_or_default();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // If None, panics. Prefer the other methods!
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // let result3 = safe_divide(dividend, divisor).unwrap();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: go(10, 2); go(10, 0); }
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: In performance-sensitive code where you have manually checked that the result
+    is guaranteed to be `Some`, [`Option::unwrap_unchecked`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked)
+    can be used, but is an unsafe method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are [additional utility methods](https://doc.rust-lang.org/std/option/#boolean-operators)
+    that enable concise handling of `Option` values, which this book covers in the
+    chapter on [exceptions and error handling](../exceptions.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[An alternative approach](#an-alternative-approach)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: An alternative approach in Rust to returning optional values is to require that
+    the caller of a function prove that the value with which they call a function
+    will not result in the failing case.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For the above safe division example, this involves the caller guaranteeing that
+    the provided divisor is non-zero. In the following example this is done with a
+    dynamic check. In other contexts the evidence needed may be available statically,
+    provided from callers further upstream, or used more than once. In those cases,
+    this approach reduces both runtime cost and code complexity.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: use std::convert::TryFrom;
+  prefs: []
+  type: TYPE_NORMAL
+- en: use std::num::NonZero;
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn safe_divide(dividend: u32, divisor: NonZero<u32>) -> u32 {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // This is more efficient because the overflow check is skipped.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: dividend / divisor
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn go(dividend: u32, divisor: u32) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: let Ok(safe_divisor) = NonZero::try_from(divisor) else {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Can't divide!");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: return;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let quotient = safe_divide(dividend, safe_divisor);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", quotient);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: go(10, 2);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: go(10, 0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Optional
+    return values)
+  prefs: []
+  type: TYPE_NORMAL

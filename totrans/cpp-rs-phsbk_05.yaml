@@ -1,0 +1,466 @@
+- en: Copy and move constructors
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/constructors/copy_and_move_constructors.html](https://cel.cs.brown.edu/crp/idioms/constructors/copy_and_move_constructors.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In both C++ and Rust, one rarely has to write copy or move constructors (or
+    their Rust equivalents) by hand. In C++ this is because the implicit definitions
+    are good enough for most purposes, especially when using smart pointers (i.e.,
+    following [the rule of zero](https://en.cppreference.com/w/cpp/language/rule_of_three)).
+    In Rust this is because move semantics are the default, and the automatically
+    derived implementations of the `Clone` and `Copy` traits are good enough for most
+    purposes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For the following C++ classes, the implicitly defined copy and move constructors
+    are sufficient. The equivalent in Rust uses a derive macro provided by the standard
+    library to implement the corresponding traits.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { use std::rc::Rc;'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Clone, Copy)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Age {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'years: u32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Clone)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'age: Age,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'name: String,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'best_friend: Rc<Person>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note that `std::shared_ptr` and `Rc` differ slightly in terms of thread-safety.
+    See the chapter on [type equivalents](../type_equivalents.html#pointers) for more
+    details.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[User-defined constructors](#user-defined-constructors)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: On the other hand, the following example requires a user-defined copy and move
+    constructor because it manages a resource (a pointer acquired from a C library).
+    The equivalent in Rust requires a custom implementation of the `Clone` trait.^([1](#footnote-deleter))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { mod example { mod widget_ffi {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Models an opaque type.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // See https://doc.rust-lang.org/nomicon/ffi.html#representing-opaque-structs
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '#[repr(C)]'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct CWidget {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '_data: [u8; 0],'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '_marker: core::marker::PhantomData<('
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '*mut u8,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: core::marker::PhantomPinned,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: )>,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: extern "C" {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn make_widget() -> *mut CWidget;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn copy_widget(
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'dst: *mut CWidget,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'src: *mut CWidget,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: );
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub fn free_widget(ptr: *mut CWidget);'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: use self::widget_ffi::*;
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Widget {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'widget: *mut CWidget,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Widget {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn new() -> Self {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Widget {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'widget: unsafe { make_widget() },'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Clone for Widget {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn clone(&self) -> Self {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let widget = unsafe { make_widget() };
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: unsafe {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: copy_widget(widget, self.widget);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Widget { widget }
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Drop for Widget {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn drop(&mut self) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: unsafe { free_widget(self.widget) };
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '} }'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Just as with how in C++ it is uncommon to need user-defined implementations
+    for copy and move constructors or user-defined implementations for destructors,
+    in Rust it is rare to need to implement the `Clone` and `Drop` traits by hand
+    for types that do not represent resources.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There is one exception to this. If the type has type parameters, it might be
+    desirable to implement `Clone` (and `Copy`) manually even if the clone should
+    be done field-by-field. See the [standard library documentation of `Clone`](https://doc.rust-lang.org/std/clone/trait.Clone.html#how-can-i-implement-clone)
+    and [of `Copy`](https://doc.rust-lang.org/std/marker/trait.Copy.html#how-can-i-implement-copy)
+    for details.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Trivially copyable types](#trivially-copyable-types)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++, a class type is trivially copyable when it has no non-trivial copy constructors,
+    move constructors, copy assignment operators, move assignment operators and it
+    has a trivial destructor. Values of a trivially copyable type are able to be copied
+    by copying their bytes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the first C++ example above, `Age` is trivially copyable, but `Person` is
+    not. This is because despite using a default copy constructor, the constructor
+    is not trivial because `std::string` and `std::shared_ptr` are not trivially copyable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust indicates whether types are trivially copyable with the `Copy` trait. Just
+    as with trivially copyable types in C++, values of types that implement `Copy`
+    in Rust can be copied by copying their bytes. Rust requires explicit calls to
+    the `clone` method to make copies of values of types that do not implement `Copy`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the first Rust example above, `Age` implements the `Copy` trait but `Person`
+    does not. This is because neither `std::String` nor `Rc<Person>` implement `Copy`.
+    They do not implement `Copy` because they own data that lives on the heap, and
+    so are not trivially copyable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust prevents implementing `Copy` for a type if any of its fields are not `Copy`,
+    but does not prevent implementing `Copy` for types that should not be copied bit-for-bit
+    due to their intended meaning, which is usually indicated by a user-defined `Clone`
+    implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust does not permit the implementation of both `Copy` and `Drop` for the same
+    type. This aligns with the C++ standard's requirement that trivially copyable
+    types not implement a user-defined destructor.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Move constructors](#move-constructors)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In Rust, all types support move semantics by default, and custom move semantics
+    cannot be (and do not need to be) defined. This is because what "move" means in
+    Rust is not the same as it is in C++. In Rust, moving a value means changing what
+    owns the value. In particular, there is no "old" object to be destructed after
+    a move, because the compiler will prevent the use of a variable whose value has
+    been moved.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Assignment operators](#assignment-operators)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Rust does not have a copy or move assignment operator. Instead, assignment either
+    moves (by transferring ownership), explicitly clones and then moves, or implicitly
+    copies and then moves.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let x = Box::<u32>::new(5);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let y = x; // moves
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let z = y.clone(); // explicitly clones and then moves the clone
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let w = *y; // implicitly copies the content of the Box and then moves the copy
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: For situations where something like a user-defined copy assignment could avoid
+    allocations, the `Clone` trait has an additional method called `clone_from`. The
+    method is automatically defined, but can be overridden when implementing the `Clone`
+    trait to provide an efficient implementation. The default implementation is the
+    same as calling `Clone::clone` and performing a normal assignment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The method is not used for normal assignments, but can be explicitly used in
+    situations where the performance of the assignment is significant and would be
+    improved by using the more efficient implementation, if one is defined. The implementation
+    can be made more efficient because `clone_from` takes ownership of the object
+    to which the values are being assigned, and so can do things like reuse memory
+    to avoid allocations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { fn go(x: &Vec<u32>) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: let mut y = vec![0; x.len()];
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: y.clone_from(&x);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Performance concerns and `Copy`](#performance-concerns-and-copy)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The decision to implement `Copy` should be based on the semantics of the type,
+    not on performance. If the size of objects being copied is a concern, then one
+    should instead use a reference (`&T` or `&mut T`) or put the value on the heap
+    ([`Box<T>`](https://doc.rust-lang.org/std/boxed/index.html) or [`Rc<T>`](https://doc.rust-lang.org/std/rc/index.html)).
+    These approaches correspond to passing by reference, or using a `std::unique_ptr`
+    or `std::shared_ptr` in C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css">
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another common approach to the C++ version of the example is to use the `Deleter`
+    template argument for `std::unique_ptr`. The version shown in the example was
+    chosen to make the correspondence to Rust version clearer. [↩](#fr-deleter-1)
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Copy
+    and move constructors)'
+  prefs: []
+  type: TYPE_NORMAL

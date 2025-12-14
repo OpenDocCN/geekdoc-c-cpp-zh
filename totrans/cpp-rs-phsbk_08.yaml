@@ -1,0 +1,80 @@
+- en: Data modeling
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling.html](https://cel.cs.brown.edu/crp/idioms/data_modeling.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++ the mechanisms available for data modeling are classes, enums, and unions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust, on the other hand, uses records ([structs](https://doc.rust-lang.org/book/ch05-00-structs.html))
+    and algebraic data types ([enums](https://doc.rust-lang.org/book/ch06-00-enums.html)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Although Rust supports one major piece of object oriented design, polymorphism
+    using interfaces, Rust also has language features for modeling things using algebraic
+    data types (which in simple cases are like a much more ergonomic `std::variant`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: This section gives examples of common constructions used when programming in
+    C++ and how to achieve the same effects using Rust's features.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Fixed operations, varying data](#fixed-operations-varying-data)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In situations where one needs to model a fixed set of operations that clients
+    will use, but the data that implements those operations are not fixed ahead of
+    time, the approach in C++ and the approach in Rust are the same. In both cases
+    interfaces that define the required operations are defined. Concrete types, possibly
+    defined by the client, implement those interfaces.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This way of modeling data can make use of either [dynamic](./data_modeling/abstract_classes.html)
+    or [static dispatch](./data_modeling/concepts.html), each of which is covered
+    in its own section.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Fixed data, varying operations](#fixed-data-varying-operations)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In situations where there is a fixed set of data but the operations that the
+    data must support vary, there are a few approaches in C++. Which approaches are
+    available to use depend on the version of the standard in use.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In older versions of the standard, one might use manually defined tagged unions.
+    In newer versions, `std::variant` is available to improve the safety and ergonomics
+    of tagged unions. [Both of these approaches map to the same approach in Rust](./data_modeling/tagged_unions.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Additionally, despite it not being strictly necessary to model a fixed set of
+    variants, the visitor pattern is sometimes used for this situation, especially
+    when using versions of the C++ standard before the introduction of `std::variant`.
+    In most of these cases the idiomatic Rust solution is the same as what one would
+    do when converting a C++ solution that uses [tagged unions](./data_modeling/tagged_unions.html).
+    The chapter on the [visitor pattern](../patterns/visitor.html) describes when
+    to use a Rust version of the visitor pattern or when to use Rust's enums (which
+    are closer to `std::variant` than to C++ enums) to model the data.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Varying data and operations](#varying-data-and-operations)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When both data and operations may be extended by a client, the required solutions
+    are more complex. In C++, the approach usually involves some kind of extension
+    to the [visitor pattern](../patterns/visitor.html) along with dynamic casting.
+    Because Rust does not support the kind of RTTI necessary for a dynamic cast operator,
+    different approaches need to be used. Some of those approaches are discussed in
+    the [chapter on the visitor pattern](../patterns/visitor.html#expression-problem).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Data
+    modeling)'
+  prefs: []
+  type: TYPE_NORMAL

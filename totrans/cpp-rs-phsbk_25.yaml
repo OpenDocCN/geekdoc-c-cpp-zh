@@ -1,0 +1,239 @@
+- en: Setter and getter methods
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/setters_and_getters.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/setters_and_getters.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Setters and getters work similarly in C++ and Rust, but are used less frequently
+    in Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It would not be unusual to see the following representation of a two-dimensional
+    vector in C++, which hides its implementation and provides setters and getters
+    to access the fields. This choice would typically be made in case a representation
+    change (such as using polar instead of rectangular coordinates) needed to be made
+    later without breaking clients.
+  prefs: []
+  type: TYPE_NORMAL
+- en: On the other hand, in Rust such a type would almost always be defined with public
+    fields.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { pub struct Vec2 {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // public fields instead of getters
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub x: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub y: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Vec2 {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // ... vector operations ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: One major reason for the difference is a limitation of the borrow checker. With
+    a getter function the entire structure is borrowed, preventing mutable use of
+    other fields of the structure.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following program will not compile because `get_name()` borrows all of `alice`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Some additional reasons for the difference in approach are:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Ergonomics: Public members make it possible to use pattern matching.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Transparency of performance: A change in representation would dramatically
+    change the costs involved with the getters. Exposing the representation makes
+    the cost change visible.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Control over mutability: Static lifetime checking of mutable references removes
+    concerns of unintended mutation of the value through Rust''s equivalent of observation
+    pointers.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[Types with invariants and newtypes](#types-with-invariants-and-newtypes)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When types need to preserve invariants but the benefits of exposing fields are
+    desired, a newtype pattern can be used. A wrapping "newtype" struct that represents
+    the data with an invariant is defined and access to the fields of the underlying
+    struct is provided by via a non-`mut` reference.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { pub struct Vec2 {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'pub x: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub y: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// Represents a 2-vector that has magnitude 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub struct Normalized(Vec2); // note the private field
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn sqrt_approx_zero(x: f64) -> bool {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: x < 0.001
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Normalized {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'pub fn from_vec2(v: Vec2) -> Option<Self> {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if sqrt_approx_zero(v.x * v.x + v.y * v.x - 1.0) {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Some(Self(v))
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '} else {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: None
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // The getter provides a reference to the underlying Vec2 value
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // without permitting mutation.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn get(&self) -> &Vec2 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '&self.0'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Borrowing from indexed structures](#borrowing-from-indexed-structures)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: A significant limitation that arises from the way that getter methods interact
+    with the borrow checker is that it isn't possible to mutably borrow multiple elements
+    from an indexed structure like a vector using a methods like `Vec::get_mut`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The built-in indexed types have several methods for creating split views onto
+    a structure. These can be used to create helper functions that match the requirements
+    of a specific application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Rustonomicon has [examples of implementing this pattern](https://doc.rust-lang.org/nomicon/borrow-splitting.html),
+    using both safe and unsafe Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Setter methods](#setter-methods)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Setter methods also borrow the entire value, which causes the same problems
+    as getters that return mutable references. As with getter methods, setter methods
+    are mainly used when needed to preserve invariants.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Setter
+    and getter methods)
+  prefs: []
+  type: TYPE_NORMAL

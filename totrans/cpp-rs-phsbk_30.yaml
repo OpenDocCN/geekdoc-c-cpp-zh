@@ -1,0 +1,698 @@
+- en: Type promotions and conversions
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/promotions_and_conversions.html](https://cel.cs.brown.edu/crp/idioms/promotions_and_conversions.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: '[lvalue to rvalue](#lvalue-to-rvalue)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ lvalues are automatically converted to rvalues when needed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust the equivalent of lvalues are "place expressions" (expressions that
+    represent memory locations) and the equivalent of rvalues are "value expressions".
+    Place expressions are automatically converted to value expressions when needed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Local variables are place expressions,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let mut x = 0;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // and therefore may be assigned to.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: x = 42;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // x is converted to a value expression when
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // needed.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let y = x + 1;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Array to pointer](#array-to-pointer)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++, arrays are automatically converted to pointers as required.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The equivalent to this in Rust is the automatic conversion of vector and array
+    references to slice references.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'fn third(ts: &[char]) -> Option<&char> {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ts.get(2)
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let vec: Vec<char> = vec![''a'', ''b'', ''c''];'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let arr: [char; 3] = [''a'', ''b'', ''c''];'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: third(&vec);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: third(&arr);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Because slice references can be easily used in a memory-safe way, it is generally
+    recommended in Rust to define functions in terms of slice references instead of
+    in terms of references to vectors or arrays, unless vector-specific or array-specific
+    functionality is needed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Unlike in C++ where the conversion from arrays to pointers is built into the
+    language, this is actually a general mechanism provided by the [`Deref` trait](https://doc.rust-lang.org/std/ops/trait.Deref.html),
+    which provides one kind of [user-defined conversion](./user-defined_conversions.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Function to pointer](#function-to-pointer)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ functions and static member functions are automatically converted to
+    function pointers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust performs the same conversion. In addition to functions and members that
+    do not take `self` as an argument, constructors (proper constructors) also have
+    function type and can be converted to function pointers. Non-capturing closures
+    do not have function type, but can also be converted to function pointers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'fn twice(x: i32) -> i32 {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: x * x
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct MyPair(i32, i32);
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl MyPair {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn new() -> MyPair {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: MyPair(0, 0)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // convert a function to a function pointer
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let twicePtr: fn(i32) -> i32 = twice;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let res = twicePtr(5);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // convert a constructor to a function pointer
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let ctorPtr: fn(i32, i32) -> MyPair = MyPair;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let pair = ctorPtr(10, 20);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // convert a static method to a function
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // pointer
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let methodPtr: fn() -> MyPair = MyPair::new;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let pair2 = methodPtr();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // convert a non-capturing closure to a
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // function pointer
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let closure: fn(i32) -> i32 = |x: i32| x * 5;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let closureRes = closure(2);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Numeric promotion and numeric conversion](#numeric-promotion-and-numeric-conversion)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ there are several kinds of implicit conversions that occur between numeric
+    types. The most commonly encountered are numeric promotions, which convert numeric
+    types to larger types.
+  prefs: []
+  type: TYPE_NORMAL
+- en: These lossless conversions are not implicit in Rust. Instead, they must be performed
+    explicitly using the `Into::into()` method. These conversions are provided by
+    implementations of the [`From`](https://doc.rust-lang.org/std/convert/trait.From.html)
+    and [`Into`](https://doc.rust-lang.org/std/convert/trait.Into.html) traits. The
+    list of conversions provided by the Rust standard library is [listed on the documentation
+    page](https://doc.rust-lang.org/std/convert/trait.From.html#implementors) for
+    the trait.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let x: i32 = 42;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let y: i64 = x.into();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let a: f32 = 1.0;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let b: f64 = a.into();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: There are several implicit conversions that occur in C++ that are not lossless.
+    For example, integers can be implicitly converted to unsigned integers in C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, these conversions are also required to be explicit and are provided
+    by the [`TryFrom`](https://doc.rust-lang.org/std/convert/trait.TryFrom.html) and
+    [`TryInto`](https://doc.rust-lang.org/std/convert/trait.TryInto.html) traits which
+    require handling the cases where the value does not map to the other type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: use std::convert::TryInto;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let x: i32 = 42;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let y: u32 = match x.try_into() {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Ok(x) => x,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Err(err) => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: panic!("Can't convert! {:?}", err);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: Some conversions that occur in C++ are supported by neither `From` nor `TryFrom`
+    because there is not a clear choice of conversion or because they are not value-preserving.
+    For example, in C++ `int32_t` can implicitly be converted to `float` despite `float`
+    not being able to represent all 32 bit integers precisely, but in Rust there is
+    no `TryFrom<i32>` implementation for `f32`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust the only way to convert from an `i32` to an `f32` is with the [`as`
+    operator](https://doc.rust-lang.org/stable/reference/expressions/operator-expr.html#r-expr.as.coercions).
+    The operator can actually be used to convert between other primitive types as
+    well and does not panic or produce undefined behavior, but may not convert in
+    the desired way (e.g., it may use a different rounding mode than desired or it
+    may truncate rather than saturate as desired).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let x: i32 = 42;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let a: f32 = x as f32;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[`isize` and `usize`](#isize-and-usize)'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In the Rust standard library the `isize` and `usize` types are used for values
+    intended to used be indices (much like `size_t` in C++). However, their use for
+    other purposes is usually discouraged in favor of using explicitly sized types
+    such as `u32`. This results a situation where values of type `u32` have to be
+    converted to `usize` for use in indexing, but `Into<usize>` is not implemented
+    for `u32`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In these cases, best practice is to use `TryInto`, and if further error handling
+    of the failure cause is not desired, to call `unwrap`, creating a panic at the
+    point of conversion.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This is preferred because it prevents the possibility of moving forward with
+    an incorrect value. E.g., consider converting a `u64` to a `usize` that has a
+    32-bit representation with `as`, which truncates the result. A value that is one
+    greater than the `u32::MAX` will truncate to `0`, which would probably result
+    in successfully retrieving the wrong value from a data structure, thus masking
+    a bug and producing unexpected behavior.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Enums](#enums)'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In C++ enums can be implicitly converted to integer types.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust the conversion requires the use of the `as` operator, and providing
+    `From` and `TryFrom` implementations to move back and forth between the enum and
+    its representation type is recommended. Examples and additional details are given
+    in the [chapter on enums](./data_modeling/enums.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Qualification conversion](#qualification-conversion)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ qualification conversions enable the use of const (or volatile) values
+    where the const (or volatile) qualifier is not expected.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust the equivalent enables the use of `mut` variables and `mut` references
+    to be used where non-`mut` variables or references are expected.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'fn display(msg: &str) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: println!("{}", msg);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let mut s: String = "hello world".to_string();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let message: &mut str = s.as_mut();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: display(message);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Integer literals](#integer-literals)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ integer literals with no suffix indicating type have the smallest type
+    in which they can fit from `int`, `long int`, or `long long int`. When the literal
+    is then assigned to a variable of a different type, an implicit conversion is
+    performed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, integer literals have their type inferred depending on context. When
+    there is insufficient information to infer a type either `i32` is assumed or may
+    require some type annotation to be given.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: '// error: literal out of range for `u32`'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '// let x: u32 = 4294967296;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // assumes i32
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let y = 1;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // fails to compile because it is inferred as i32
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // print!("{}", 4294967296);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // These work, though.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", 4294967296u64);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let z: u64 = 4294967296;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", z);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Safe bools](#safe-bools)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The safe bool idiom exists to make it possible to use types as conditions. Since
+    C++11 this idiom is straightforward to implement.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust instead of converting the value to a boolean, the normal idiom matches
+    on the value instead. Depending on the situation, the mechanism used for matching
+    might be `match`, `if let`, or `let else`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: enum Wire {
+  prefs: []
+  type: TYPE_NORMAL
+- en: Ready(u32),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: NotReady,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let wire = Wire::NotReady;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // match
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match wire {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Wire::Ready(v) => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // use value v
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Wire::NotReady => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // do something else
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // if let
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if let Wire::Ready(v) = wire {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // use value v
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // let else
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let Wire::Ready(v) = wire else {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // do something that doesn't continue,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // like early return
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: return;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[User-defined conversions](#user-defined-conversions)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: User-defined conversions are covered in a [separate chapter](./user-defined_conversions.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Type
+    promotions and conversions)
+  prefs: []
+  type: TYPE_NORMAL

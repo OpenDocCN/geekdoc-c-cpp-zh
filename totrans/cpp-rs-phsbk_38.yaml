@@ -1,0 +1,155 @@
+- en: Multiple return values
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/out_params/multiple_return.html](https://cel.cs.brown.edu/crp/idioms/out_params/multiple_return.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: One idiom for returning multiple values from a function or method in C++ is
+    to pass in references to which the values can be assigned.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There are several reasons why this idiom might be used:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: compatibility with versions of C++ earlier than C++11,
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: working in a codebase that uses C-style of C++, or
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: performance concerns.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The idiomatic translation of this program into Rust makes use of either [tuples](https://doc.rust-lang.org/std/primitive.tuple.html)
+    or a named structure for the return type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn get_point() -> (i32, i32) {
+  prefs: []
+  type: TYPE_NORMAL
+- en: (5, 6)
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let (x, y) = get_point();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Rust has a dedicated tuple syntax and supports pattern matching with `let` bindings
+    in part to support use cases like this one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Problems with the direct transliteration](#problems-with-the-direct-transliteration)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: It is possible to transliterate the original example that uses out parameters
+    to Rust, but Rust requires the initialization of the variables before they can
+    be passed to a function. The resulting program is not idiomatic Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: // NOT IDIOMATIC RUST
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn get_point(x: &mut i32, y: &mut i32) {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*x = 5;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '*y = 6;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let mut x = 0; // initialized to arbitrary values
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let mut y = 0;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: get_point(&mut x, &mut y);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: This approach requires assigning arbitrary initial values to the variables and
+    making the variables mutable, both of which make it harder for the compiler to
+    help with avoiding programming errors.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Additionally, the Rust compiler is tuned for optimizing the idiomatic version
+    of the program, and produces a significantly faster binary for that version.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In situations where the performance of memory allocation is a concern (such
+    as when it is necessary to reuse entire buffers in memory), the trade-offs may
+    be different. That situation is discussed in the chapter on [pre-allocated buffers](./pre-allocated_buffers.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Similarities with idiomatic C++ since C++11](#similarities-with-idiomatic-c-since-c11)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++11 and later, `std::pair` and `std::tuple` are available for returning
+    multiple values instead of assigning to reference parameters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: This more closely aligns with the normal Rust idiom for returning multiple values.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Multiple
+    return values)
+  prefs: []
+  type: TYPE_NORMAL

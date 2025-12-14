@@ -1,0 +1,1051 @@
+- en: Private members and friends
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/encapsulation/private_and_friends.html](https://cel.cs.brown.edu/crp/idioms/encapsulation/private_and_friends.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: '[Private members](#private-members)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ the unit of encapsulation is the class. Access specifiers (`private`,
+    `protected`, and `public`) that control access to members are enforced at the
+    class boundary.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust the module is the unit of encapsulation. Item visibility (Rust's analog
+    to access specifiers) controls access to items at the module boundary.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: mod person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub struct Person {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub name: String,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // this field is private
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl Person {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Because age is private, a public
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // constructor method is needed to create
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // values outside of the person module.
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn new(
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'name: String,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'age: i32,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Person {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Person { name, age }
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Free functions in the same module can
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // access private fields because the unit of
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // encapsulation is the module, not the
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // struct.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn example() {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let alice =
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Person::new("Alice".to_string(), 42);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", alice.name);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // The private field is visible here,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // within the module.
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", alice.age);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: use person::Person;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let alice =
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Person::new("Alice".to_string(), 42);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", alice.name);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // compilation error
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // println!("{}", alice.age);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: In the Rust example, the [constructor for `Person` is private](./private_constructors.html)
+    because one of the fields is private.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Friends](#friends)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Because encapsulation is at the module level in Rust, associated methods for
+    types can access internals of other types defined in the same module. This subsumes
+    most uses of the C++ `friend` declaration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, defining a binary tree in C++ requires that the class representing
+    the nodes of the tree declare the main binary tree class as a friend in order
+    for it to access internal methods while keeping them private from other uses.
+    This would be required even if the `TreeNode` class were defined as an inner class
+    of `BinaryTree`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, however, both types can be defined in the same module, and so have
+    access to each other's private fields and methods. The module as a whole provides
+    a collection of types, methods, and functions that together define a encapsulated
+    concept.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: mod binary_tree {
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub struct BinaryTree {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // This field is not visible outside of
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // the module.
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'root: Option<Box<TreeNode>>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl BinaryTree {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn new() -> BinaryTree {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'BinaryTree { root: None }'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub fn insert(&mut self, value: i32) {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: insert(&mut self.root, value);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // This struct and all its fields are not
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // visible outside of the module.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: struct TreeNode {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'value: i32,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'left: Option<Box<TreeNode>>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'right: Option<Box<TreeNode>>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl TreeNode {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn new(value: i32) -> TreeNode {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: TreeNode {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: value,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'left: None,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'right: None,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn insert(&mut self, value: i32) {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if value < self.value {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: insert(&mut self.left, value);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '} else {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: insert(&mut self.right, value);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // This free function is not visible outside
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // of the module.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn insert(
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'node: &mut Option<Box<TreeNode>>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'value: i32,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match node {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: None => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '*node = Some(Box::new('
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: TreeNode::new(value),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ));
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Some(ref mut left) => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: left.insert(value);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // This brings the (public) type into scope.
+  prefs: []
+  type: TYPE_NORMAL
+- en: use binary_tree::BinaryTree;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let mut b = BinaryTree::new();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: b.insert(42);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Passkey idiom](#passkey-idiom)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In the previous C++ example, the `TreeNode` constructor has to be public in
+    order to be used with `make_unique`. Fortunately, the constructor is still inaccessible
+    outside of the containing class, but it is not always the case that such helper
+    classes can be inner classes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To make the constructor effectively private when it is not possible, one might
+    need to use a programming pattern like [the passkey idiom](https://chromium.googlesource.com/chromium/src/+/HEAD/docs/patterns/passkey.md).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The passkey idiom is also sometimes used to provide finer-grained control over
+    access to members than is possible with friend declarations. In either case, the
+    effect is achieved by modeling a capability-like system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, it is possible to express the same idiom in order to achieve the same
+    effect.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: pub trait Maker<K, B> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn make(passkey: K, args: B) -> Self;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Generic helper that we want to be able to call
+  prefs: []
+  type: TYPE_NORMAL
+- en: // an otherwise private function or method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn alloc_thing<K, B, T: Maker<K, B>>('
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'passkey: K,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'args: B,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Box<T> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: Box::new(Maker::<K, B>::make(passkey, args))
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: mod person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: use super::*;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: use std::marker::PhantomData;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct Person {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub name: String,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'age: u32,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // A zero-sized type to act as the passkey.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct Passkey {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // This field is zero-sized. It is also
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // private, which prevents construction
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // of Passkey outside of the person
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // module.
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '_phantom: PhantomData<()>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl Person {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Private method that will be exposed
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // with a passkey wrapper.
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn new(name: String, age: u32) -> Person {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Person { name, age }
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Method that uses external helper that
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // requires access to another
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // otherwise-private method.
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn alloc(
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'name: String,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'age: u32,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Box<Person> {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: alloc_thing(
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Passkey {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '_phantom: PhantomData {},'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '},'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: MakePersonArgs { name, age },
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: )
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Helper structure needed to make the trait
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // providing the interface generic.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct MakePersonArgs {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub name: String,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub age: u32,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Implementation of the trait that exposes
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // the method requiring a passkey.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl Maker<Passkey, MakePersonArgs> for Person {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn make(
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '_passkey: Passkey,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'args: MakePersonArgs,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Person {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Person::new(args.name, args.age)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {}
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: However the Passkey idiom is unlikely to be used in Rust because
+  prefs: []
+  type: TYPE_NORMAL
+- en: coupled types are usually defined in the same module (or a `pub (in path)` declaration
+    can be used), making it unnecessary, and
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: it requires cooperation from the interface by which the calling function will
+    use a type.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The second point contrasts with the use above involving `std::make_unique` which
+    is able to forward to the underlying constructor without knowing about it at the
+    point of the definition of `std::make_unique`. While the example below is not
+    useful (because `alloc_thing` is not a useful helper), it does demonstrate what
+    types would have to be defined in order to achieve the same effect as when using
+    the idiom in C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Friends and testing](#friends-and-testing)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Another common use of friend declarations is to make the internals of a class
+    available for unit testing. Though this practice is often discouraged in C++,
+    it is sometimes necessary in order to test other-wise private helper inner classes
+    or helper methods.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, tests are usually defined in the same module as the code being tested.
+    Because the content of modules is visible to submodules, this makes it so that
+    all of the content of the module is available for testing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { pub struct Person {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'pub name: String,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'age: u32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Person {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'pub fn new(name: String, age: u32) -> Person {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Person { name, age }
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn have_birthday(&mut self) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.age = self.age + 1;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[cfg(test)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: mod test {
+  prefs: []
+  type: TYPE_NORMAL
+- en: use super::Person;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '#[test]'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn test_have_birthday() {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let mut alice =
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Person::new("alice".to_string(), 42);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: assert_eq!(alice.age, 42);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: alice.have_birthday();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: assert_eq!(alice.age, 43);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Visibility of methods on Rust traits](#visibility-of-methods-on-rust-traits)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Because traits in Rust are intended for the definition of interfaces, the methods
+    for some type that are declared by a trait are visible whenever both the trait
+    and the type are visible. In other words, it is not possible to have private trait
+    methods.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The default visibility for trait methods differs from Rust structs where the
+    default visibility is private to the defining module.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Private constructors and friends](#private-constructors-and-friends)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ one can control which classes can derive from a specific class by making
+    all of the constructors private and then declaring classes which may derive from
+    it as friends.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, one can achieve the similar goal of controlling which types can implement
+    a trait by using the [sealed trait pattern](https://predr.ag/blog/definitive-guide-to-sealed-traits-in-rust/).
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Private
+    members and friends)
+  prefs: []
+  type: TYPE_NORMAL

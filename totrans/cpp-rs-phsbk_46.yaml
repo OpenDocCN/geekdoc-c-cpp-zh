@@ -1,0 +1,1354 @@
+- en: Visitor pattern and double dispatch
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/patterns/visitor.html](https://cel.cs.brown.edu/crp/patterns/visitor.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++ the visitor pattern is typically used to enable adding behaviors to a
+    type without modifying the class definitions. In Rust, the same goal is conventionally
+    accomplished by using Rust enums, which resemble C++ [tagged unions](../idioms/data_modeling/tagged_unions.html).
+    While the chapter on tagged unions compares using Rust enums with C++ `std::variant`,
+    this chapter [compares using the visitor pattern in C++ with using Rust enums](#use-a-rust-enum-instead).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Since the visitor pattern and double dispatch may be useful for other purposes
+    as well, a [Rust visitor pattern version of the example](#visitors) is also given.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Extensions of the visitor pattern are sometimes used in C++ to make it possible
+    to extend both data and behavior without modifying the original definitions (i.e.,
+    to solve [the expression problem](https://cs.brown.edu/~sk/Publications/Papers/Published/kff-synth-fp-oo/)).
+    Other approaches, enabled by Rust's traits and generics, are [more likely to be
+    used in Rust](#varying-data-and-behavior).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Use a Rust enum instead](#use-a-rust-enum-instead)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: For the first case, where the variants are fixed but behaviors are not, the
+    idiomatic approach in Rust is to implement the data structure as an enum instead
+    of as many structs with a common interface. This is similar to using `std::variant`
+    in C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: use std::collections::HashMap;
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define expressions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: //
+  prefs: []
+  type: TYPE_NORMAL
+- en: // This covers the first 3 sections of the
+  prefs: []
+  type: TYPE_NORMAL
+- en: // C++ version.
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum Exp {
+  prefs: []
+  type: TYPE_NORMAL
+- en: Var(String),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Lit(i32),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Plus {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'lhs: Box<Exp>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'rhs: Box<Exp>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '},'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Let {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'var: String,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'exp: Box<Exp>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'body: Box<Exp>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '},'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Exception for representing expression
+  prefs: []
+  type: TYPE_NORMAL
+- en: // evaluation errors
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Debug)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum EvalError<'a> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: UnknownVar(&'a str),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define type for evaluation environment
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Env<'a> = HashMap<&'a str, i32>;
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define evaluator
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn eval<'a>(
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'env: &Env<''a>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'e: &''a Exp,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ) -> Result<i32, EvalError<'a>> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: match e {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Exp::Var(x) => env
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .get(x.as_str())
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .cloned()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .ok_or(EvalError::UnknownVar(x)),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Exp::Lit(n) => Ok(*n),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Exp::Plus { lhs, rhs } => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let lv = eval(env, lhs)?;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let rv = eval(env, rhs)?;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Ok(lv + rv)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Exp::Let { var, exp, body } => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let val = eval(env, exp)?;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let mut env = env.clone();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: env.insert(var, val);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: eval(&env, body)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: use Exp::*;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Construct an expression
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let e = Let {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'var: "x".to_string(),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'exp: Box::new(Lit(3)),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'body: Box::new(Plus {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'lhs: Box::new(Var("x".to_string())),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'rhs: Box::new(Lit(2)),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Run the evaluator
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let res = eval(&HashMap::new(), &e);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Print the output
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{:?}", res);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Visitors](#visitors)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: If the visitor pattern is still needed for some reason, it can be implemented
+    similarly to how it is in C++. This can make direct ports of programs that use
+    the visitor pattern more feasible. However, the enum-based implementation should
+    still be preferred.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following example shows how to implement the same program as in the previous
+    example, but using a visitor in Rust. The C++ program is identical to the previous
+    one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The example also demonstrates using double dispatch with trait objects in Rust.
+    The expressions are represented as `dyn Exp` trait objects which accept a `dyn
+    Visitor` trait object, and then call on the visitor the method specific to the
+    type of expression.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: // This is NOT an idiomatic translation. The
+  prefs: []
+  type: TYPE_NORMAL
+- en: // previous example using Rust enums is.
+  prefs: []
+  type: TYPE_NORMAL
+- en: use std::collections::HashMap;
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define types that the visitor can visit
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Lit(i32);
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Plus {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'lhs: Box<dyn Exp>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'rhs: Box<dyn Exp>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Var(String);
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Let {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'name: String,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'exp: Box<dyn Exp>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'body: Box<dyn Exp>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define trait for expressions
+  prefs: []
+  type: TYPE_NORMAL
+- en: trait Exp {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Much like C++ can't have virtual template
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // methods, Rust can't have trait objects
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // where the traits have generic methods.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: //
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Therefore the visitor either has to be
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // mutable to collect the results or the
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // accept method has to be specialized to a
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // specific return type.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>);'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define trait for the visitor
+  prefs: []
+  type: TYPE_NORMAL
+- en: trait Visitor<'a> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn visit_lit(&mut self, e: &''a Lit);'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn visit_plus(&mut self, e: &''a Plus);'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn visit_var(&mut self, e: &''a Var);'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn visit_let(&mut self, e: &''a Let);'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Implement accept behavior for each expression variant
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Exp for Lit {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn accept<''a>(&''a self, v: &mut (dyn Visitor<''a>)) {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: v.visit_lit(self);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Exp for Plus {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>) {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: v.visit_plus(self);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Exp for Var {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>) {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: v.visit_var(self);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Exp for Let {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn accept<''a>(&''a self, v: &mut dyn Visitor<''a>) {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: v.visit_let(self);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define Visitor for evaluating expressions
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Error for representing expression evaluation
+  prefs: []
+  type: TYPE_NORMAL
+- en: // errors.
+  prefs: []
+  type: TYPE_NORMAL
+- en: //
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Has a lifetime parameter beacause it borrows
+  prefs: []
+  type: TYPE_NORMAL
+- en: // the name from the expression.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Debug)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum EvalError<'a> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: UnknownVar(&'a str),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define type for evaluation environment
+  prefs: []
+  type: TYPE_NORMAL
+- en: //
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Has a lifetime parameter because it borrows
+  prefs: []
+  type: TYPE_NORMAL
+- en: // the names from the expression.
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Env<'a> = HashMap<&'a str, i32>;
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define the evaluator
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct EvalVisitor<'a> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Return value. Results propagate up the stack.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'env: Env<''a>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Evaluation environment. Changes propagate
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // down the stack
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'value: Result<i32, EvalError<''a>>,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define behavior for each case of the
+  prefs: []
+  type: TYPE_NORMAL
+- en: // expression.
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl<'a> Visitor<'a> for EvalVisitor<'a> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn visit_lit(&mut self, e: &''a Lit) {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.value = Ok(e.0);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn visit_plus(&mut self, e: &''a Plus) {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: e.lhs.accept(self);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let Ok(lv) = self.value else {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: return;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: e.rhs.accept(self);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let Ok(rv) = self.value else {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: return;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.value = Ok(lv + rv);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn visit_var(&mut self, e: &''a Var) {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.value = self
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .env
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .get(e.0.as_str())
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .ok_or(EvalError::UnknownVar(&e.0))
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .copied();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn visit_let(&mut self, e: &''a Let) {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: e.exp.accept(self);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let Ok(val) = self.value else {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: return;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let orig_env = self.env.clone();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.env.insert(e.name.as_ref(), val);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: e.body.accept(self);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.env = orig_env;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Construct an expression
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let x = Plus {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'lhs: Box::new(Let {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'name: "x".to_string(),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'exp: Box::new(Lit(3)),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'body: Box::new(Var("x".to_string())),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'rhs: Box::new(Lit(2)),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Construct the evaluator
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let mut visitor = EvalVisitor {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'value: Ok(0),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'env: HashMap::new(),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Run the evaluator
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: x.accept(&mut visitor);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Print the output
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{:?}", visitor.value);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Varying data and behavior](#varying-data-and-behavior)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++, extensions to the visitor pattern are sometimes used to handle situations
+    where both data and behavior and vary. However, those solutions also make use
+    of dynamic casting. In Rust, that requires opting into [RTTI](./../idioms/rtti.html)
+    by making `Any` a supertrait of the trait for the visitors, so they can be downcast.
+    While this extension to the visitor pattern is possible to implement, the ergonomics
+    of the approach make other approaches more common in Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: One of the alternative approaches, adopted from functional programming and leveraging
+    the design of traits and generics in Rust, is called ["data types à la carte"](https://www.cambridge.org/core/services/aop-cambridge-core/content/view/14416CB20C4637164EA9F77097909409/S0956796808006758a.pdf/data-types-a-la-carte.pdf).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following example shows a variation on the earlier examples using this pattern
+    to make it so that two parts of the expression type can be defined separately
+    and given evaluators separately. This approach can lead to performance problems
+    (in large part due to the indirection through nested structures) or increases
+    in compilation time, so its necessity should be carefully evaluated before it
+    is used.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: use std::collections::HashMap;
+  prefs: []
+  type: TYPE_NORMAL
+- en: // A type for combining separately-defined
+  prefs: []
+  type: TYPE_NORMAL
+- en: // expressions. Defining individual expressions
+  prefs: []
+  type: TYPE_NORMAL
+- en: // completely separately and then using an
+  prefs: []
+  type: TYPE_NORMAL
+- en: // application-specific sum type instead of nesting
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Sum can improve performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum Sum<L, R> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: Inl(L),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Inr(R),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define arithmetic expressions
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum ArithExp<E> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: Lit(i32),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Plus { lhs: E, rhs: E },'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define let bindings and variables
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum LetExp<E> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: Var(String),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Let { name: String, exp: E, body: E },'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Combine the expressions
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Sig<E> = Sum<ArithExp<E>, LetExp<E>>;
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define the fixed-point for recursive
+  prefs: []
+  type: TYPE_NORMAL
+- en: // expressions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Exp(Sig<Box<Exp>>);
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Define an evaluator
+  prefs: []
+  type: TYPE_NORMAL
+- en: // The evaluation environment
+  prefs: []
+  type: TYPE_NORMAL
+- en: type Env<'a> = HashMap<&'a str, i32>;
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Evaluation errors
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Debug)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum EvalError<'a> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: UndefinedVar(&'a str),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // A trait for expressions that can
+  prefs: []
+  type: TYPE_NORMAL
+- en: // be evaluated.
+  prefs: []
+  type: TYPE_NORMAL
+- en: trait Eval {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>>;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Implement the evaluator trait for
+  prefs: []
+  type: TYPE_NORMAL
+- en: // the administrative types
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'impl<L: Eval, R: Eval> Eval for Sum<L, R> {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match self {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Sum::Inl(left) => left.eval(env),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Sum::Inr(right) => right.eval(env),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'impl<E: Eval> Eval for Box<E> {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.as_ref().eval(env)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Implement the trait for the desired variants.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'impl<E: Eval> Eval for ArithExp<E> {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match self {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ArithExp::Lit(n) => Ok(*n),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ArithExp::Plus { lhs, rhs } => Ok(lhs.eval(env)? + rhs.eval(env)?),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'impl<E: Eval> Eval for LetExp<E> {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match self {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: LetExp::Var(x) => env
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .get(x.as_str())
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .copied()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .ok_or(EvalError::UndefinedVar(x)),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: LetExp::Let { name, exp, body } => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let arg = exp.eval(env)?;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let mut env = env.clone();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: env.insert(name, arg);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: body.eval(&env)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Since the trait is implemented for everything
+  prefs: []
+  type: TYPE_NORMAL
+- en: // inside of Exp, it can be implemented for Exp.
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Eval for Exp {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn eval<''a>(&''a self, env: &Env<''a>) -> Result<i32, EvalError<''a>> {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.0.eval(env)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // helpers for constructing expressions
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn lit(n: i32) -> Exp {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Exp(Sum::Inl(ArithExp::Lit(n)))
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn plus(lhs: Exp, rhs: Exp) -> Exp {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Exp(Sum::Inl(ArithExp::Plus {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'lhs: Box::new(lhs),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'rhs: Box::new(rhs),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}))'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn var(x: &str) -> Exp {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Exp(Sum::Inr(LetExp::Var(x.to_string())))
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn elet(name: &str, val: Exp, body: Exp) -> Exp {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Exp(Sum::Inr(LetExp::Let {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'name: name.to_string(),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'exp: Box::new(val),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'body: Box::new(body),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}))'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let e = elet("x", lit(3), plus(var("x"), lit(2)));
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{:?}", e.eval(&HashMap::new()));
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: One thing worth noting about the above implementation is that no dynamic dispatch
+    was required.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Visitor
+    pattern and double dispatch)
+  prefs: []
+  type: TYPE_NORMAL

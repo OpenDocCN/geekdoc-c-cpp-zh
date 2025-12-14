@@ -1,0 +1,171 @@
+- en: Pre-allocated buffers
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/out_params/pre-allocated_buffers.html](https://cel.cs.brown.edu/crp/idioms/out_params/pre-allocated_buffers.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'There are situations where large quantities of data need to be returned from
+    a function that will be called repeatedly, so that incurring the copies involved
+    in returning by value or repeated heap allocations would be cost prohibitive.
+    Some of these situations include:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: performing file or network IO,
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: communicating with graphics hardware,
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: communicating with hardware on embedded systems, or
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: implementing cryptography algorithms.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: In these situations, C++ programs tend to pre-allocate buffers that are reused
+    for all calls. This also usually enables allocating the buffer on the stack, rather
+    than having to use dynamic storage.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following example pre-allocates a buffer and reads a large file into it
+    within a loop.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: use std::fs::File;
+  prefs: []
+  type: TYPE_NORMAL
+- en: use std::io::{BufReader, Read};
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() -> Result<(), std::io::Error> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let mut f = BufReader::new(File::open(
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '"/path/to/file",'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: )?);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let mut buf = [0u8; 1024];
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: loop {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let count = f.read(&mut buf)?;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if count == 0 {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: break;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // use data in buf
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Ok(())
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The major difference between the C++ program and the Rust program is that in
+    the Rust program the buffer must be initialized before it can be used. In most
+    cases, this one-time initialization cost is not significant. When it is, unsafe
+    Rust is required to avoid the initialization.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The technique for avoiding initialization makes use of [`std::mem::MaybeUninit`](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html).
+    [Examples of safe usage of `MaybeUninit`](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html#examples)
+    are given in the API documentation for the type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The IO API in stable Rust does not include support for `MaybeUninit`. Instead,
+    there is a [new safe API being developed](#upcoming-changes-and-borrowedbuf) that
+    will enable avoiding initialization without requiring unsafe Rust in code that
+    uses the API.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If the callee might need to grow the provided buffer and dynamic allocation
+    is allowed, then a `&mut Vec<T>` can be used instead of `&mut [T]`. This is similar
+    to providing a `std::vector<T>&` in C++. To avoid unnecessary reallocation, the
+    vector can be created using `Vec::<T>::with_capacity(n)`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[A note on reading files](#a-note-on-reading-files)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: While the examples here use IO to demonstrate re-using pre-allocated buffers,
+    there are higher-level interfaces available for reading from `File`s, both from
+    the [`Read`](https://doc.rust-lang.org/std/io/trait.Read.html) and [`BufRead`](https://doc.rust-lang.org/std/io/trait.BufRead.html)
+    traits, and from convenience functions in [`std::io`](https://doc.rust-lang.org/std/io/index.html#functions-1)
+    and in [`std::fs`](https://doc.rust-lang.org/std/fs/index.html#functions-1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The techniques described here are useful, however, in other situations where
+    a reusable buffer is required, such as when interacting with hardware APIs, when
+    using existing C or C++ libraries, or when implementing algorithms that produce
+    larges amount of data in chunks, such as cryptography algorithms.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Upcoming changes and `BorrowedBuf`](#upcoming-changes-and-borrowedbuf)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The Rust community is refining approaches to working with uninitialized buffers.
+    On the nightly branch of Rust, one can use [`BorrowedBuf`](https://doc.rust-lang.org/std/io/struct.BorrowedBuf.html)
+    to achieve the same results as when using slices of `MaybeUninit`, but without
+    having to write any unsafe code. The IO APIs for avoiding unnecessary initialization
+    use `BorrowedBuf` instead of slices of `MaybeUninit`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Pre-allocated
+    buffers)
+  prefs: []
+  type: TYPE_NORMAL

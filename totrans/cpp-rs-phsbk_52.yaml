@@ -1,0 +1,248 @@
+- en: Documentation (e.g., Doxygen)
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/etc/documentation.html](https://cel.cs.brown.edu/crp/etc/documentation.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: While C++ has several documentation tools, such as Doxygen and Sphinx, Rust
+    has a single documentation tool, [Rustdoc](https://doc.rust-lang.org/rustdoc/index.html).
+    Rustdoc is supported by [`docs.rs`](https://docs.rs/), cargo, [rust-analyzer](https://rust-analyzer.github.io/),
+    and is the tool used for documenting [the standard library](https://doc.rust-lang.org/std/vec/struct.Vec.html#blanket-implementations).
+    Rustdoc is installed by default with the Rust toolchain for most distributions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The features and options available for Rustdoc are documented in the [Rustdoc
+    Book](https://doc.rust-lang.org/rustdoc/). The book also documents [best practices
+    for documenting Rust code](https://doc.rust-lang.org/rustdoc/how-to-write-documentation.html),
+    which differ slightly from the recommended practices for documenting C++ code
+    using Doxygen.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Cargo integration is documented at in the Cargo book under the [`cargo doc`](https://doc.rust-lang.org/cargo/commands/cargo-doc.html)
+    and [`cargo rustdoc`](https://doc.rust-lang.org/cargo/commands/cargo-rustdoc.html)
+    commands, as well as in the [doctests section](https://doc.rust-lang.org/cargo/commands/cargo-test.html#documentation-tests)
+    of the `cargo test` command.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This chapter compares some aspects of Rustdoc with Doxygen in order to help
+    with understanding what to expect when using Rustdoc when coming from Doxygen
+    or similar C++ documentation tools.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Output formats](#output-formats)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Unlike Doxygen which can also produce PDF and man page output, Rustdoc only
+    produces HTML output. The produced documentation does include client-side searching,
+    which includes the ability to search by type signature.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The [rust-analyzer](https://rust-analyzer.github.io/) language server supports
+    Rustdoc comments, and makes them available to editors with language server protocol
+    support on hover, even for Rustdoc comments in the current project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Rustdoc comment syntax](#rustdoc-comment-syntax)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Unlike Doxygen, which has several supported comment syntaxes for C++, Rustup
+    supports a single comment syntax. Comments beginning with `//!` document the top-level
+    module or crate. Comments beginning with `///` document the following item.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { //! A description of this module or crate.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: //!
+  prefs: []
+  type: TYPE_NORMAL
+- en: //! A longer description, with examples, etc.
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// A description of this type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ///
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// A longer description, with examples, etc.
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct MyClass {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Special forms](#special-forms)'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The content of the comment up until the first blank line is treated similarly
+    to the `@brief` form in Doxygen.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Aside from that, Rustdoc does not have special forms for documenting various
+    parts of an item, such as the parameters of a function. Instead, [Markdown syntax
+    can be used](https://doc.rust-lang.org/rustdoc/how-to-write-documentation.html#markdown)
+    to format the documentation, which is otherwise given in prose.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There are several common conventions used for structuring documentation comments.
+    The most common convention is to include sections (defined using Markdown header
+    syntax) for whichever of the following are necessary for the item being documented:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: panics (for functions that panic, e.g., on [`Vec::split_at`](https://doc.rust-lang.org/std/vec/struct.Vec.html#panics-32)),
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: safety (for unsafe functions, e.g., on [`Vec::split_at_unchecked`](https://doc.rust-lang.org/std/primitive.slice.html#safety-10)),
+    and
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: examples (e.g., on [`Vec::split_at`](https://doc.rust-lang.org/std/vec/struct.Vec.html#examples-105)).
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The following comment compares documentation for a C++ function using Doxygen
+    to documentation for a Rust function using Rustdoc.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { /// Computes the factorial.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ///
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// Computes the factorial in a stack-safe way.
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// The factorial is defined as...
+  prefs: []
+  type: TYPE_NORMAL
+- en: ///
+  prefs: []
+  type: TYPE_NORMAL
+- en: '/// # Examples'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ///
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// [PRE5]
+  prefs: []
+  type: TYPE_NORMAL
+- en: ///
+  prefs: []
+  type: TYPE_NORMAL
+- en: '/// # Panics'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ///
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// Requires that `n >= 0`, otherwise panics.
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// For the non-panicking version see
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// [`factorial_checked`].
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn factorial(n: i32) -> i32 {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: todo!() }
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Automatic documentation](#automatic-documentation)'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Many of the things that can be derived from the code are automatically included
+    by Rustdoc. A major one is that trait implementations (e.g., on [`Vec`](https://doc.rust-lang.org/std/vec/struct.Vec.html#trait-implementations)),
+    including blanket implementations (e.g., on [`Vec`](https://doc.rust-lang.org/std/vec/struct.Vec.html#blanket-implementations)),
+    for a type do not have to be documented manually because implementations that
+    are visible in the crate are automatically discovered and included by Rustdoc.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Additional features](#additional-features)'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Some valuable Rustdoc features may not be expected by someone coming from using
+    Doxygen. Because those features provide significant benefit, they are pointed
+    out here.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Doctest support via Rustdoc and `cargo test`](#doctest-support-via-rustdoc-and-cargo-test)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: One specific benefit of including examples when documenting Rust programs using
+    Rustdoc is that [the examples can be included in the test suite when running `cargo
+    test`](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The handling of examples as tests in Rustdoc includes logic for handling partial
+    programs, so that even [the code example in the earlier comparison](#special-forms-comparison)
+    can serve as a test.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Local documentation for project and installed libraries](#local-documentation-for-project-and-installed-libraries)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Local documentation for both the working project and dependent libraries can
+    be viewed in-browser using `cargo doc --open`. Private items for the project can
+    be included in the documentation by using `cargo doc --open --document-private-items`.
+    Because Rustdoc comments are also used by the [rust-analyzer](https://rust-analyzer.github.io/)
+    language server to provide documentation on hover in compatible editors, it is
+    often worth it to document private items using Rustdoc comments.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Documentation
+    (e.g., Doxygen))[](../etc/tests.html "Previous chapter")*[](../etc/build_systems.html
+    "Next chapter")***[](../etc/tests.html "Previous chapter")*[](../etc/build_systems.html
+    "Next chapter")***'
+  prefs: []
+  type: TYPE_NORMAL

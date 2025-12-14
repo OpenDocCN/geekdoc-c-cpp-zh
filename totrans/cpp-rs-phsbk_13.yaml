@@ -1,0 +1,179 @@
+- en: Inheritance and implementation reuse
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/inheritance_and_reuse.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/inheritance_and_reuse.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Rust does not have inheritance and so the primary means of reuse of implementations
+    in Rust are composition, aggregation, and [generics](./templates.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, Rust traits do have support for default methods which resemble one
+    simple case of using inheritance for reuse of implementations. For example, in
+    the following example two virtual methods are used to support a method whose implementation
+    is provided by the abstract class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: trait Device {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn power_on(&mut self);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn power_off(&mut self);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn reset_device(&mut self) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Resetting device...");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.power_off();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.power_on();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Printer {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'powered: bool,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Printer {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn new() -> Printer {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Printer { powered: false }'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Device for Printer {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn power_on(&mut self) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.powered = true;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Printer is powered on");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn power_off(&mut self) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.powered = false;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Printer is powered off");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let mut p = Printer::new();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: p.reset_device();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: In practice, the `resetDevice()` method in the `Device` class might be made
+    non-virtual in C++ if it is not expected that it will be overridden. In order
+    to make it align with the Rust example, we have made it virtual here, since Rust
+    traits can be used either for [dynamic dispatch](./abstract_classes.html) or [static
+    dispatch](./concepts.html) (with [no vtable overhead in the static dispatch case](./abstract_classes.html#vtables-and-rust-trait-object-types)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust traits differ from abstract classes in few more ways. For example, Rust
+    traits cannot define data members and cannot define private or protected methods.
+    This limits the effectiveness of using traits to implement the template method
+    pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust traits also cannot be privately implemented. Anywhere that both a trait
+    and a type that implements that trait are visible, the methods of the trait are
+    visible as methods on the type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Traits can, however, inherit from each other, including multiple inheritance.
+    As in modern C++, inheritance hierarchies in Rust tend to be shallow. In situations
+    with complex multiple inheritance, however, the diamond problem cannot arise in
+    Rust because traits cannot override other traits implementations. Therefore, all
+    paths to a common parent trait resolve to the same implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Inheritance
+    and implementation reuse)
+  prefs: []
+  type: TYPE_NORMAL

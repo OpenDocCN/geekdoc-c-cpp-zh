@@ -1,0 +1,148 @@
+- en: Template specialization
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/template_specialization.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/template_specialization.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Template specialization in C++ makes it possible for a template entity to have
+    different implementations for different parameters. Most STL implementations make
+    use of this to, for example, provide a [space-efficient representation of `std::vector<bool>`](https://en.cppreference.com/w/cpp/container/vector_bool).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Because of the possibility of template specialization, when a C++ function operates
+    on values of a template class like `std::vector`, the function is essentially
+    defined in terms of the interface provided by the template class, rather than
+    for a specific implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To accomplish the same thing in Rust requires defining the function in terms
+    of a trait for the interface against which it operates. This enables clients to
+    select their choice of representation for data by using any concrete type that
+    implements the interface.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This is more practical to do in Rust than in C++, because generics not being
+    a general metaprogramming facility means that [generic entities can be type checked
+    locally](./templates.html#a-note-on-type-checking-and-type-errors), making them
+    easier to define. It is more common to do in Rust than in C++ because Rust does
+    not have [implementation inheritance](./inheritance_and_reuse.html), so there
+    is a sharper line between interface and implementation than there is in C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following example shows how a Rust function can be implemented so that different
+    concrete representations can be selected by a client. For a compact bit vector
+    representation, the example uses the [`BitVec`](https://docs.rs/bitvec/latest/bitvec/vec/struct.BitVec.html)
+    type from the [bitvec crate](https://docs.rs/bitvec/latest/bitvec/). `BitVec`
+    is intended intended to provide an API similar to `Vec<bool>` or `std::vector<bool>`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Trade-offs between generics and templates](#trade-offs-between-generics-and-templates)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Because generic functions can only interact with generic values in ways defined
+    by the trait bounds, it is easier to test generic implementations. In particular,
+    code testing a generic implementation only has to consider the possible behaviors
+    of the given trait.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For a comparison, consider the following programs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { fn max<''a, T: Ord>(x: &''a T, y: &''a T) ->
+    &''a T {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: if x > y {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: x
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '} else {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: y
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: In the Rust program, *parametricity* means that (assuming safe Rust) from the
+    type alone one can tell that if the function returns, it must return exactly one
+    of `x` or `y`. This is because the trait bound `Ord` doesn't give any way to construct
+    new values of type `T`, and the use of references doesn't give any way for the
+    function to store one of `x` or `y` from an earlier call to return in a later
+    call.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the C++ program, a call to `max` with `int` as the template parameter will
+    give a distinctly different result than with any other parameter because of the
+    template specialization enabling the behavior of the function to vary based on
+    the type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The trade-off is that in Rust specialized implementations are harder to use
+    because they must have different names, but that they are easier to write because
+    it is easier to write generic code while being confident about its correctness.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Niche optimization](#niche-optimization)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: There are several cases where the Rust compiler will perform optimizations to
+    achieve more efficient representations. Those situations are all ones where the
+    efficiency gains do not otherwise change the observable behavior of the code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[The most common case is with the `Option` type](https://doc.rust-lang.org/std/option/index.html#representation).
+    When `Option` is used with a type where the compiler can tell that there are unused
+    values, one of those unused values will be used to represent the `None` case,
+    so that `Option<T>` will not require an extra word of memory to indicate the discriminant
+    of the enum.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This optimization is applied to reference types (`&` and `&mut`), since references
+    cannot be null. It is also applied to `NonNull<T>`, which represents a non-null
+    pointer to a value of type `T`, and to `NonZeroU8` and other non-zero integral
+    types. The optimization for the reference case is what makes `Option<&T>` and
+    `Option<&mut T>` safer equivalents to using non-owning observation pointers in
+    C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Template
+    specialization)
+  prefs: []
+  type: TYPE_NORMAL

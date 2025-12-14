@@ -1,0 +1,1668 @@
+- en: Iterators and ranges
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/iterators.html](https://cel.cs.brown.edu/crp/idioms/iterators.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Rust iterators resemble C++ [ranges](https://en.cppreference.com/w/cpp/ranges.html)
+    in that they represent iterable sequence and can be manipulated similarly to using
+    range views. Since C++ ranges are defined using iterators and ranges were only
+    introduced in C++20, this chapter compares Rust iterators with both C++ iterators
+    and with C++ ranges.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Rust iterators are forward iterators, not [bidirectional or random access](#bidirectional-and-random-access-iterators).
+    The definition of the `Iterator` trait reflects this: all of its methods are based
+    on a `next` method which returns either an `Option::Some` containing the next
+    item in the iteration or `Option::None`.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A Rust iterator also does not represent an index into a structure the way that
+    a C++ iterator does when used with functions from the C++ STL algorithms library,
+    such as `std::sort`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Whether Rust iterators are input iterators or input/output iterators depends
+    on whether the iterated items are owned values (input), references (input), or
+    mutable references (input/output). The type of the iterated values typically reflects
+    whether the structure being iterated over is an owned value, reference, or mutable
+    reference. Rust iterators cannot be output iterators only because the iterated
+    values must always be initialized.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In a sense, Rust's iterators are much more like C++23 generators (except that
+    Rust [does not yet support coroutines](https://github.com/rust-lang/rust/issues/43122)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Iterators, ranges, and `for` loops](#iterators-ranges-and-for-loops)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++, anything that has `begin()` and `end()` methods to return iterators
+    (i.e., anything that models the C++20 `range` concept) can be used with a for
+    loop. In Rust, anything that implements the [`IntoIterator`](https://doc.rust-lang.org/std/iter/trait.IntoIterator.html)
+    trait can be used with a for loop. This includes iterators themselves, which implement
+    the trait via a [blanket implementation](https://doc.rust-lang.org/std/iter/trait.IntoIterator.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let mut v = vec![1, 2, 3];
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // prints 1, 2, 3
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for x in &mut v {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", x);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '*x = *x + 1;'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // prints 2, 3, 4
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for x in &v {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", x);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: In both C++ and Rust, iterators can be used for reading, writing, or both. In
+    Rust, the use of an iterator for writing depends on the type of the elements returned.
+    In the case of `Vec<i32>` above, the `IntoIterator` trait implemented for `&mut
+    Vec<i32>` produces an iterator over mutable references `&mut i32`, which enables
+    modifying the values in the vector.^([1](#footnote-mut-iterator-safety))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Ranges and views](#ranges-and-views)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Just as the [C++ ranges library](https://en.cppreference.com/w/cpp/ranges.html)
+    provides many utility functions for defining pipelines to transform ranges, the
+    Rust standard library defines many [iterator methods](https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.filter)
+    transforming Rust iterators, including turning them back into collections like
+    vectors.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let v = (1..)
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .filter(|i| i % 2 == 1)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .map(|i| i + 3)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .take(10)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .collect::<Vec<i32>>();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // use v...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: The Rust `collect` iterator method can convert the iterator into anything that
+    implements `FromIterator`. If the type of `v` can be inferred from its later use,
+    the type does not need to be specified in the call to `collect`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In both C++ and in Rust, the view or iterator could be used directly as the
+    value to loop over, without first converting to something like a vector. Similarly,
+    in both languages the construction of the values is done lazily.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: for x in (1..)
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .filter(|i| i % 2 == 1)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .map(|i| i + 3)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .take(10)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '{'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", x);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: Additional useful methods on iterators are provided by the third-party [itertools
+    crate](https://docs.rs/itertools/latest/itertools/) via [extension traits](../patterns/adapter.html#extension-traits).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[`IntoIterator` and ownership](#intoiterator-and-ownership)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The [`IntoIterator` trait](https://doc.rust-lang.org/std/iter/trait.IntoIterator.html)
+    can be implemented for a type `T` itself, a reference `&T`, or a mutable reference
+    `&mut T`. The possible types of the iterated items depend on what type the trait
+    is implemented for. If it is implemented for `&mut T`, for example, typically
+    the items will be mutable references to items still owned by the original structure.
+    If the type is `T`, then the items will be the owned items that were in the original
+    structure.^([2](#footnote-owned-items-references))
+  prefs: []
+  type: TYPE_NORMAL
+- en: Since the behavior depends on the type of the structure used in the for loop,
+    which may be inferred and therefore not visible, this can lead to surprising compilation
+    errors. In particular, iterating over a vector `v` instead of a reference to the
+    vector `&v` will consume the original vector, making it inaccessible.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Iterating over a structure in C++ is most similar to calling `into_iter` on
+    a mutable reference in Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let mut v = vec![
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: String::from("a"),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: String::from("b"),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: String::from("c"),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '];'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for x in &v {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '// x: &String'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", x);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // since v was borrowed, not moved, it is still accessiable here.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{:?}", v);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for x in &mut v {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '// x: &mut String'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: x.push('!');
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // since v was borrowed, not moved, it is still accessiable here.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // however, the content of v has been modified
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{:?}", v);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for x in v {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '// x: String'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // drops x at the end of each iteration
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // v is no longer accessible, so this wouldn't compile
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // println!("{:?}", v);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: Most iterable types will also provide methods specifically for accessing the
+    reference or mutable reference iterators. Conventionally, these are called `iter`
+    and `iter_mut`. They are useful in situations where the iteration is not being
+    immediately used with a for loop, but instead is used with other iterator methods,
+    because of the relative precedence of the reference operator and of method invocation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Identifying ranges for algorithms to operate on](#identifying-ranges-for-algorithms-to-operate-on)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: C++ uses iterators to identify regions of structures on which functions from
+    the STL algorithms library should operate. Rust iterators do not serve that purpose.
+    Instead, there are two common alternatives.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The first is that operations which operate strictly on forward iterators just
+    operate directly on the iterator. Identifying specific parts of an iterator for
+    this purpose can be done using the [iterator methods](https://doc.rust-lang.org/std/iter/trait.Iterator.html#provided-methods),
+    such as [`take`](https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.take)
+    or [`filter`](https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.filter).
+    Alternatively, for some types [slices can be taken by indexing with a range](https://doc.rust-lang.org/book/ch04-03-slices.html)
+    before converting to an iterator.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let v: Vec<i32> = (1..10).collect();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let b = v
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .iter()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .skip(2)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .take(5)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .any(|n| n % 2 == 0);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // or
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let b2 = v[3..7].iter().any(|n| n % 2 == 0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ...
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: The second is that some of the algorithms operate on slices. For example, the
+    [sort method](https://doc.rust-lang.org/std/primitive.slice.html#method.sort)
+    in the Rust standard library operates on slices. This is similar to if in C++,
+    a function were to operate on a `std::span` instead of on an iterator. Many of
+    the methods available on `Vec<T>` are actually defined on `&[T]` and are made
+    available on `Vec<T>` via [deref coercion](https://doc.rust-lang.org/book/ch15-02-deref.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let mut v: Vec<i32> = (1..10).rev().collect();'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{:?}", v);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: v.sort();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{:?}", v);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Iterator invalidation](#iterator-invalidation)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++, operations sometimes only invalidate some iterators on a value, such
+    as the `erase` method on `std::vector` only invaliding iterators to the erased
+    element and those after it, but not the ones before it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, the fact that iterators borrow the whole iterated value means that
+    no operations modifying the value itself (such as erasing values from a vector)
+    can be performed while iterating. Thus, there are no iterator invalidation rules
+    to keep in mind while using Rust iterators.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'However, this also means that there are things that can be done with iterators
+    in C++ that cannot be done with iterators in Rust, such as removing elements from
+    a vector while iterating over it. Instead in Rust there are two possible approaches:
+    use indices or use helper methods.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using indices instead of iterators comes with the same challenges as it does
+    in C++, with the exception that the program will panic instead of performing undefined
+    behavior if an index is out of bounds in safe Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using the helper methods resembles the recommendations commonly given for writing
+    against newer C++ standards. For example, to remove all elements of a particular
+    value in Rust, one would use the [`Vec::retain`](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.retain)
+    method, which is like `remove_if` or `erase_if` on `std::vector`, but with a negative
+    predicate.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let mut v = vec![1, 2, 3];
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: v.retain(|i| *i != 2);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for x in &v {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", x);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: When using iterators, one would use the methods described in the section on
+    [ranges and views](#ranges-and-views).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Implementing Rust iterators](#implementing-rust-iterators)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: This extended example defines a binary tree and preorder const iterator over
+    the tree. The module structure is included in this example because defining private
+    items will be an important part of later patterns used to simplify the implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { mod tree {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// Binary tree with values at every node.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// Not necessarily balanced.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct Tree<V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub value: V,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub left: Option<Box<Tree<V>>>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub right: Option<Box<Tree<V>>>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: Much like how in C++ an iterator and a const iterator are distinct things, in
+    Rust there are different iterators for owned values, references, and mutable references.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, for tree type `Tree<V>` would likely provide the following methods
+    to support preorder iteration. For the methods that provide iteration over references,
+    the references are borrowed from the original structure, and so the lifetime parameter
+    `'a` relates the reference to the item to `self`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '|  | method | item type |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| reference | `fn preorder<''a>(&''a self) -> IterPreorder<''a, V>` | `&''a
+    V` |'
+  prefs: []
+  type: TYPE_TB
+- en: '| mutable reference | `fn preorder_mut<''a>(&''a mut self) -> IterMutPreorder<''a,
+    V>` | `&''a mut V` |'
+  prefs: []
+  type: TYPE_TB
+- en: '| owned | `fn into_preorder(self) -> IntoIterPreorder<V>` | `V` |'
+  prefs: []
+  type: TYPE_TB
+- en: Just like with C++ iterators, the essential complexity of defining the iterator
+    amounts to determining how to capture the suspended state of traversing the structure.
+    In this case the suspended state consists of a stack of the rest of the trees
+    to iterate.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The implementations diverge in the interface provided. C++ requires several
+    types and methods to be defined in order for the type to model a forward iterator.
+    Rust requires only the definition of the element type that will be iterated and
+    a `next` method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { mod tree {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '/// Binary tree with values at every node. /// Not necessarily balanced. pub
+    struct Tree<V> { pub value: V, pub left: Option<Box<Tree<V>>>, pub right: Option<Box<Tree<V>>>,
+    }      pub struct IterPreorder<''a, V>(Vec<&''a Tree<V>>);'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl<'a, V> Iterator for IterPreorder<'a, V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type Item = &'a V;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // This is like a combination of
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // operator++ and operator*
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn next(&mut self) -> Option<&'a V> {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let Tree { value, left, right } = self.0.pop()?;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if let Some(right) = right {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.0.push(right.as_ref());
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if let Some(left) = left {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.0.push(left.as_ref());
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Some(value)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: The remaining step is to make the original type iterable. In C++, this involves
+    defining `begin` and `end` methods. In Rust, this involves either implementing
+    a method that explicitly produces the iterator, or implementing the `IntoIterator`
+    trait.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When there are multiple possible iterations for a type and none of them are
+    canonical, it is idiomatic to omit the `IntoIterator` trait implementation. Omitting
+    the implementation requires users to intentionally choose the kind of iteration
+    to use. The trait is implemented below to provide an example, but an unsorted
+    binary tree is a case where it would be typical to omit the trait implementation,
+    to force a user to pick between pre-, post-, and in-order iteration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Because the implemented iterator is one for references, the trait actually is
+    implemented for references to trees `&Tree<V>`, rather than `Tree<V>` directly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: mod tree {
+  prefs: []
+  type: TYPE_NORMAL
+- en: '/// Binary tree with values at every node. /// Not necessarily balanced. pub
+    struct Tree<V> { pub value: V, pub left: Option<Box<Tree<V>>>, pub right: Option<Box<Tree<V>>>,
+    }   pub struct IterPreorder<''a, V>(Vec<&''a Tree<V>>);   impl<''a, V> Iterator
+    for IterPreorder<''a, V> { type Item = &''a V; fn next(&mut self) -> Option<&''a
+    V> { match self.0.pop() { None => None, Some(t) => { let Tree { value, left, right
+    } = t; if let Some(right) = right { self.0.push(right.as_ref()); } if let Some(left)
+    = left { self.0.push(left.as_ref()); } Some(value) } } } }      impl<V> Tree<V>
+    {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: pub fn preorder(&self) -> IterPreorder<V> {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: IterPreorder(vec![self])
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl<'a, V> IntoIterator for &'a Tree<V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type Item = &'a V;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type IntoIter = IterPreorder<'a, V>;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn into_iter(self) -> Self::IntoIter {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.preorder()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: use tree::*;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let t = Tree {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'value: 1,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'left: Some(Box::new(Tree {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'value: 2,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'left: None,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'right: None,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '})),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'right: Some(Box::new(Tree {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'value: 3,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'left: Some(Box::new(Tree {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'value: 4,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'left: None,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'right: None,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '})),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'right: None,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '})),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for n in t.preorder() {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", n);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for n in &t {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", n);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: Implementing the iterators for mutable references and owned values can be done
+    similarly. With all three, there are three `IntoIterator` implementations, one
+    for `&Tree<V>`, one for `&mut Tree<V>`, and one for `Tree<V>`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Reducing code duplication](#reducing-code-duplication)'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: As with implementing iterators and const iterators in C++, implementing iterators
+    for owned values, references, and mutable references can result in significant
+    code duplication in Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: One pattern for addressing this involves defining a private trait that captures
+    the decomposing of the type and then implementing the `Iterator` trait via a blanket
+    implementation in terms of that trait. Wrapper structs can then be used to expose
+    the iteration behavior without exposing the helper trait.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following example implements this pattern for the `Tree<V>` type above as
+    an alternative to the simpler, but more duplicative, approach above.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: mod tree {
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// Binary tree with values at every node.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// Not necessarily balanced.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct Tree<V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub value: V,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub left: Option<Box<Tree<V>>>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'pub right: Option<Box<Tree<V>>>,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl<V> Tree<V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ... static methods for constructing trees ...
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '/// Constructs a new node with two /// subtrees. pub fn node(value: V, left:
+    Tree<V>, right: Tree<V>) -> Tree<V> { Tree { value, left: Some(Box::new(left)),
+    right: Some(Box::new(right)), } }   /// Constructs a new node with a left ///
+    subtree. pub fn left(value: V, left: Tree<V>) -> Tree<V> { Tree { value, left:
+    Some(Box::new(left)), right: None, } }   /// Constructs a new node with a right
+    /// subtree. pub fn right(value: V, right: Tree<V>) -> Tree<V> { Tree { value,
+    left: None, right: Some(Box::new(right)), } }   /// Constructs a new leaf node.
+    pub fn leaf(value: V) -> Self { Tree { value, left: None, right: None, } }    }'
+  prefs: []
+  type: TYPE_NORMAL
+- en: /// Internal trait for abstracting over access
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// to the tree components.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ///
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// This reduces code duplication when
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// implementing behavior that is essentially
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// the same for Tree<V>, &Tree<V>,
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// and &mut Tree<V>.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'trait Treeish: Sized {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type Output;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn get(self) -> (Option<Self>, Self::Output, Option<Self>);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl<V> Treeish for Tree<V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type Output = V;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn get(self) -> (Option<Self>, Self::Output, Option<Self>) {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let Tree { value, left, right } = self;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: (left.map(|x| *x), value, right.map(|x| *x))
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl<'a, V> Treeish for &'a Tree<V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type Output = &'a V;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn get(self) -> (Option<Self>, Self::Output, Option<Self>) {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let Tree { value, left, right } = self;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: (left.as_deref(), value, right.as_deref())
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl<'a, V> Treeish for &'a mut Tree<V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type Output = &'a mut V;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn get(self) -> (Option<Self>, Self::Output, Option<Self>) {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let Tree { value, left, right } = self;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: (left.as_deref_mut(), value, right.as_deref_mut())
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// Internal struct for implementing Iterator
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// in terms of Treeish.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: struct Preorder<T>(Vec<T>);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl<T> Iterator for Preorder<T>
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: where
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'T: Treeish,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '{'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type Item = T::Output;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn next(&mut self) -> Option<Self::Item> {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let next = self.0.pop();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match next {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: None => None,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Some(t) => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // the helper trait is used here
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let (left, value, right) = t.get();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if let Some(right) = right {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.0.push(right);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: if let Some(left) = left {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.0.push(left);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Some(value)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Wrappers for exposing the iterator. The wrappers are necessary
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // in order to keep Treeish private. Treeish::Output would
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // otherwise be exposed and thus require Treeish to be public.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// Preorder iterator
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct IntoIterPreorder<V>(Preorder<Tree<V>>);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// Preorder iterator
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct IterPreorder<'a, V>(Preorder<&'a Tree<V>>);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: /// Preorder iterator
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub struct IterMutPreorder<'a, V>(Preorder<&'a mut Tree<V>>);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Delegate to the wrapped implementation.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl<V> Iterator for IntoIterPreorder<V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type Item = V;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn next(&mut self) -> Option<Self::Item> {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.0.next()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl<'a, V> Iterator for IterPreorder<'a, V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type Item = &'a V;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn next(&mut self) -> Option<Self::Item> {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.0.next()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl<'a, V> Iterator for IterMutPreorder<'a, V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: type Item = &'a mut V;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn next(&mut self) -> Option<Self::Item> {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.0.next()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: impl<V> Tree<V> {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn preorder(self) -> IntoIterPreorder<V> {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: IntoIterPreorder(Preorder(vec![self]))
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn preorder_ref(&self) -> IterPreorder<V> {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: IterPreorder(Preorder(vec![self]))
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: pub fn preorder_ref_mut(&mut self) -> IterMutPreorder<V> {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: IterMutPreorder(Preorder(vec![self]))
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: use tree::*;
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let mut t = Tree::node(
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 0,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Tree::left(1, Tree::leaf(2)),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Tree::node(3, Tree::leaf(4), Tree::right(5, Tree::leaf(6))),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: );
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for x in t.preorder_ref_mut() {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '*x += 10;'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for x in t.preorder_ref() {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", x);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Bidirectional and random access iterators](#bidirectional-and-random-access-iterators)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The Rust standard library does not include support for bidirectional or random
+    access iterators. For most of the use cases supported by those iterators, working
+    with numeric indices suffices.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The standard library does have support for [double-ended iterators](https://doc.rust-lang.org/std/iter/trait.DoubleEndedIterator.html),
+    which allow consuming items from the back of the iterator. However, each item
+    can still only be consumed once: when the front and back meet in the middle, iteration
+    is over.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../quiz/style.css">
+  prefs: []
+  type: TYPE_NORMAL
+- en: '* * *'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The safety of the mutable references is given by the fact that the references
+    borrow from the vector, don't overlap, and are never produced by the iterator
+    more than once. [↩](#fr-mut-iterator-safety-1)
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The owned items might themselves be references, however. E.g., calling `into_iter`
+    on a `Vec<&str>` will not result in iterating over `String` values even though
+    the vector itself is consumed. [↩](#fr-owned-items-references-1)
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Iterators
+    and ranges)'
+  prefs: []
+  type: TYPE_NORMAL

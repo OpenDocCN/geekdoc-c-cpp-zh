@@ -1,0 +1,81 @@
+- en: Libraries
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/etc/libraries.html](https://cel.cs.brown.edu/crp/etc/libraries.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: C++ programs tend to either use libraries that come with operating system distributions
+    or that are vendored.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust programs tend to rely on a central registry of Rust libraries ("crates")
+    called [crates.io](https://crates.io/) (along with a central documentation repository
+    created from the in-code documentation of those crates called [docs.rs](https://docs.rs/)).
+    Dependencies on crates are managed using the [Cargo package manager](https://doc.rust-lang.org/cargo/index.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Lib.rs](https://lib.rs/) is a good resource for finding popular crates organized
+    by category.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Some specific alternatives](#some-specific-alternatives)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '| C++ library | Rust alternative |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| STL UTF-16 and UTF-32 strings | [widestring](https://docs.rs/widestring/latest/widestring/)
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| STL random | [rand](https://github.com/rust-random/rand) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| STL regex | [regex](https://github.com/rust-lang/regex) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Reflection | [bevy_reflect](https://docs.rs/bevy_reflect/latest/bevy_reflect/)
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Boost.Test | [cargo test](https://doc.rust-lang.org/book/ch11-01-writing-tests.html)
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| pybind11 | [PyO3](https://pyo3.rs/) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| OpenSSL | [rustls](https://github.com/rustls/rustls) |'
+  prefs: []
+  type: TYPE_TB
+- en: If there is a C++ library that you use where you cannot find a Rust alternative,
+    please leave feedback using the link below, letting us know the name and purpose
+    of the library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Supply chain management](#supply-chain-management)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In situations where managing the library supply chain is important, Cargo can
+    be used either with [custom self-managed or organization-managed registries](https://doc.rust-lang.org/cargo/reference/registries.html)
+    or with [vendored versions of dependencies fetched from crates.io](https://doc.rust-lang.org/cargo/commands/cargo-vendor.html).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Both approaches provide mechanisms for reviewing dependencies as part supply
+    chain security.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Solutions for supply chain security that do not involve vendoring or custom
+    registries are [in progress](https://github.com/rust-lang/rfcs/pull/3724).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Click here to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Libraries)'
+  prefs: []
+  type: TYPE_NORMAL

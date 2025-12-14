@@ -1,0 +1,387 @@
+- en: Curiously recurring template pattern (CRTP)
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/patterns/crtp.html](https://cel.cs.brown.edu/crp/patterns/crtp.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: The C++ [curiously recurring template pattern](https://en.cppreference.com/w/cpp/language/crtp)
+    is used to make the concrete type of the derived class available in the definition
+    of methods defined in the base class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Sharing implementations with static polymorphism](#sharing-implementations-with-static-polymorphism)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The basic use of the CRTP is for reducing redundancy in implementations that
+    make use of static polymorphism. In this use case, the `this` pointer is cast
+    to the type provided by the template parameter so that methods from the derived
+    class can be called. This enables methods implemented in the base class to call
+    methods in the derived class without having to declare them virtual, avoiding
+    the cost of dynamic dispatch.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the following example, `Triangle` and `Square` have a common implementation
+    of `twiceArea` without the need for dynamic dispatch. This use case is addressed
+    in Rust using default trait methods.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: trait Shape {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn area(&self) -> f64;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: fn twice_area(&self) -> f64 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 2.0 * self.area()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Triangle {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'base: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'height: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Shape for Triangle {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn area(&self) -> f64 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 0.5 * self.base * self.height
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Square {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'side: f64,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Shape for Square {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn area(&self) -> f64 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: self.side * self.side
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let triangle = Triangle {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'base: 2.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'height: 1.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let square = Square { side: 2.0 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", triangle.twice_area());
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", square.twice_area());
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The reason why nothing additional needs to be done for the default method to
+    invoke area statically in Rust is that calls to methods on `self` are always resolved
+    statically in Rust. This is possible because [Rust does not have inheritance between
+    concrete types](../idioms/data_modeling/inheritance_and_reuse.html). Despite being
+    defined in the trait, the default method is actually implemented as part of the
+    implementing struct.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Method chaining](#method-chaining)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Another common use for the CRTP is for implementing method chaining when an
+    implementation of a method to be chained is provided by a base class.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In C++ the template parameter is used to ensure that the type returned from
+    the shared function is that of the derived class, so that further methods defined
+    in the derived class can be called on it. The template parameter is also used
+    to call a method on the derived type without declaring the method as virtual.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust the template parameter is not required because the `Self` type is available
+    in traits to refer to the type of the implementing struct.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: '// No generic type is required: Self already'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // refers to implementing type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: trait Combinable {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn combine_with(&self, other: &Self) -> Self;'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // concat has a default implementation in
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // terms of Self.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn concat(&self, others: &[Self]) -> Self'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: where
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Self: Clone,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '{'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let mut acc = self.clone();
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for v in others {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: acc = acc.combine_with(v);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: acc
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '#[derive(Clone)]'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Sum(i32);
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Sum {
+  prefs: []
+  type: TYPE_NORMAL
+- en: // Sum includes an additional method that can be
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // chained.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'fn mult(&self, n: i32) -> Self {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Self(self.0 * n)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Combinable for Sum {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn combine_with(&self, other: &Self) -> Self {'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Self(self.0 + other.0)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let s = Sum(0);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let v = vec![Sum(1), Sum(2), Sum(3), Sum(4)];
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let x = s
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .concat(&v)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Even though concat is part of the
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // trait, it returns a value of the
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // implementing type, making it possible
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // to chain methods specific to that type.
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .mult(2)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .combine_with(&Sum(5));
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", x.0)
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Again, the reason why `Self` can refer to the implementing type is that [Rust
+    does not have inheritance between concrete types](../idioms/data_modeling/inheritance_and_reuse.html).
+    This contrasts with C++ where a value may be used at any number of types which
+    are concrete, and so it would not be clear which type something like `Self` should
+    refer to.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Curiously
+    recurring template pattern (CRTP))
+  prefs: []
+  type: TYPE_NORMAL

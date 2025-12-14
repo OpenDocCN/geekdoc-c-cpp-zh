@@ -1,0 +1,639 @@
+- en: Tagged unions and std::variant
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/data_modeling/tagged_unions.html](https://cel.cs.brown.edu/crp/idioms/data_modeling/tagged_unions.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: '[C-style tagged unions](#c-style-tagged-unions)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Because unions cannot be used for type punning in C++, they are usually used
+    with a tag to discriminate between which variant of the union is active.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust's equivalent to union types are always tagged. They are a generalization
+    of Rust enums, where additional data may be associated with the enum variants.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { enum Shape {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Rectangle { width: f64, height: f64 },'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'Triangle { base: f64, height: f64 },'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Shape {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn area(&self) -> f64 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match self {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Rectangle {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: width,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: height,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '} => width * height,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Triangle { base, height } => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 0.5 * base * height
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: When matching on an enum, Rust requires that all variants of the enum be handled.
+    In situations where `default` would be used with a C++ `switch` on the tag, a
+    wildcard can be used in the Rust `match`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { enum Shape {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 },
+    }   impl Shape {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn print_shape(&self) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match self {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Rectangle { .. } => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Rectangle");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: _ => {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("Some other shape");
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Rust does not support C++-style fallthrough where some behavior can be done
+    before falling through to the next case. However, in Rust one can match on multiple
+    enum variants simultaneously, so long as the simultaneous match patterns bind
+    the same names with the same types.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '#![allow(unused)] fn main() { enum Shape {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 },
+    }   impl Shape {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn bounding_area(&self) -> f64 {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: match self {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Rectangle { height, width }
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '| Shape::Triangle {'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: height,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'base: width,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '} => width * height,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Accessing the value without checking the discriminant](#accessing-the-value-without-checking-the-discriminant)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Unlike with C-style unions, Rust always requires matching on the discriminant
+    before accessing the values. If the variant is already known, e.g., due to an
+    earlier check, then the code can usually be refactored to encode the knowledge
+    in the type so that the second check (and corresponding error handling) can be
+    omitted.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A C++ program like the following requires more restructuring of the types to
+    achieve the same goal in Rust.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The corresponding Rust program requires defining separate types for each variant
+    of the `Shape` enum so that the fact that all of the value are of a given type
+    can be expressed in the type system by having an array of `Triangle` instead of
+    an array of `Shape`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: // Define a separate struct for each variant.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'struct Rectangle { width: f64, height: f64 }'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'struct  Triangle { base: f64, height: f64 }'
+  prefs: []
+  type: TYPE_NORMAL
+- en: enum Shape {
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rectangle(Rectangle),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Triangle(Triangle),
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn get_shapes() -> Vec<Shape> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: vec![
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Triangle(Triangle {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'base: 1.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'height: 1.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Triangle(Triangle {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'base: 1.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'height: 1.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Rectangle(Rectangle {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'width: 1.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'height: 1.0,'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: ']'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let shapes = get_shapes();
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // This iterator only iterates over triangles
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // and demonstrates that by iterating over
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // the Triangle type instead of the Shape type.
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let triangles = shapes
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .iter()
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Keep only the triangles
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: .filter_map(|shape| match shape {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: Shape::Triangle(t) => Some(t),
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: _ => None,
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '});'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let mut total_base = 0.0;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for triangle in triangles {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // Because the iterator produces Triangles
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // instead of Shapes, base can be accessed
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // directly.
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: total_base += triangle.base;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: This kind of use is common enough in Rust that the variants are often designed
+    to have their own types from the start.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This approach is also possible in C++. It is more commonly used along with `std::variant`
+    in C++17 or later.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[`std::variant` (since C++17)](#stdvariant-since-c17)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When programming in C++ standards since C++17, `std::variant` can be used to
+    represent a tagged union in a way that has more in common with Rust enums.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: Because Rust doesn't depend on templates for this language feature, error messages
+    when a variant is missed or when a new variant is added are easier to read, which
+    removes one of the barriers to using tagged unions more frequently. Compare the
+    errors in C++ (using gcc) and Rust when the `Triangle` case is omitted.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The following two programs have the same error: each fails to handle a case
+    of `Shape`.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: However, the error messages differ significantly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Using unsafe Rust to avoid checking the discriminant](#using-unsafe-rust-to-avoid-checking-the-discriminant)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In situations where rewriting code to use the [above approach](#accessing-the-value-without-checking-the-discriminant)
+    is not possible, one can check the discriminant anyway and then use the [`unreachable!`
+    macro](https://doc.rust-lang.org/std/macro.unreachable.html) to avoid handling
+    the impossible case. However, that still involves actually checking the discriminant.
+    If the cost of checking the discriminant must be avoided, then the [unsafe function
+    `unreachable_unchecked`](https://doc.rust-lang.org/std/hint/fn.unreachable_unchecked.html)
+    can be used to both avoid handling the case and to indicate to the compiler that
+    the optimizer should assume that the case cannot be reached, so the discriminant
+    check can be optimized away.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Much like how in the C++ example accessing an inactive variant is undefined
+    behavior, reaching `unreachable_unchecked` is also undefined behavior. As with
+    any `unsafe`-based performance optimizations, you always should measure the performance
+    impact of safety checks first, and only reach for unsafe code if absolutely necessary.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: enum Shape {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 },
+    }   impl Shape {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn area(&self) -> f64 { match self { Shape::Rectangle { width, height, } =>
+    width * height, Shape::Triangle { base, height } => { 0.5 * base * height } }
+    } }   fn get_triangles() -> Vec<Shape> {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'vec![ Shape::Triangle { base: 1.0, height: 1.0, }, Shape::Triangle { base:
+    1.0, height: 1.0, }, ] }   use std::hint::unreachable_unchecked;'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let mut total_base = 0.0;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: for triangle in get_triangles() {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let Shape::Triangle { base, .. } = triangle else {
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '// SAFETY: get_triangles is guaranteed to produce triangles, so'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // other cases aren't reachable.
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: unsafe { unreachable_unchecked() }
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: total_base += base;
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: <link rel="stylesheet" type="text/css" href="../../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Tagged
+    unions and std::variant)
+  prefs: []
+  type: TYPE_NORMAL

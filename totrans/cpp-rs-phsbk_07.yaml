@@ -1,0 +1,308 @@
+- en: Destructors and resource cleanup
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://cel.cs.brown.edu/crp/idioms/destructors.html](https://cel.cs.brown.edu/crp/idioms/destructors.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In C++, a destructor for a class `T` is defined by providing a special member
+    function `~T()`. To achieve the equivalent in Rust, the [`Drop` trait](https://doc.rust-lang.org/std/ops/trait.Drop.html)
+    is implemented for a type.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For an example, see [the chapter on copy and move constructors](./constructors/copy_and_move_constructors.html#user-defined-constructors).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`Drop` implementations play the same role as destructors in C++ for types that
+    manage resources. That is, they enable cleanup of resources owned by the value
+    at the end of the value''s lifetime.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust the `Drop::drop` method of a value is called automatically by a destructor
+    when the variable that owns the value goes out of scope. Unlike in C++, the drop
+    method cannot be called manually. Instead the automatic "drop glue" implicitly
+    calls the destructors of fields.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Lifetimes, destructors, and destruction order](#lifetimes-destructors-and-destruction-order)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: C++ destructors are called in reverse order of construction when variables go
+    out of scope, or for dynamically allocated objects, when they are deleted. This
+    includes destructors of moved-from objects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, the drop order for items going out of scope is similar to that of C++
+    (reverse order of declaration). If additional specific details about the drop
+    order are needed (e.g., for writing unsafe code), the full rules for the drop
+    order are described in [the language reference](https://doc.rust-lang.org/reference/destructors.html).
+    However, moving an object in Rust does not leave a moved-from object on which
+    a destructor will be called.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: struct A {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'id: i32,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Drop for A {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn drop(&mut self) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", self.id)
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'fn accept(x: A) -> i32 {'
+  prefs: []
+  type: TYPE_NORMAL
+- en: return x.id;
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '// Prints:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: // 2
+  prefs: []
+  type: TYPE_NORMAL
+- en: // 3
+  prefs: []
+  type: TYPE_NORMAL
+- en: // 1
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'let x = A { id: 1 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let y = A { id: 2 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: accept(y);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'let z = A { id: 3 };'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: In Rust, after ownership of `y` is moved into the function `accept`, there is
+    no additional object remaining, and so there is no additional `Drop::drop` call
+    (which in the C++ example prints `0`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Rust's drop methods do run when leaving scope due to a panic, though not if
+    the panic occurs in a destructor that was called in response to an initial panic.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The drop order of fields in Rust is essentially the reverse of that of non-static
+    class members in C++. Again, the specific details of what happens in a Rust destructor
+    are given in [the language reference](https://doc.rust-lang.org/reference/destructors.html#r-destructors.operation).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: struct Part(&'static str);
+  prefs: []
+  type: TYPE_NORMAL
+- en: impl Drop for Part {
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn drop(&mut self) {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: println!("{}", self.0);
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: struct Widget {
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'part1: Part,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'part2: Part,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'part3: Part,'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let w = Widget {
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'part1: Part("1"),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'part2: Part("2"),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: 'part3: Part("3"),'
+  prefs:
+  - PREF_IND
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '};'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '// Prints:'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // 1
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // 2
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // 3
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[Early cleanup and explicitly destroying values](#early-cleanup-and-explicitly-destroying-values)'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In C++ you can explicitly destroy an object. This is mainly useful for situations
+    where placement new has been used to allocate the object at a specific memory
+    location, and so the destructor will not be implicitly called.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, once the destructor has been explicitly called, [it may not be called
+    again, even implicitly](https://eel.is/c++draft/class.dtor#note-8). Thus the destructor
+    can't be used for early cleanup. Instead, either the class must be designed with
+    a separate cleanup method that releases the resources but leaves the object in
+    a state where the destructor can be called or the function using the object must
+    be structured so that the variable goes out of scope at the desired time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Rust, values can be dropped early for early cleanup by using [`std::mem::drop`](https://doc.rust-lang.org/std/mem/fn.drop.html).
+    This works because ([for non-`Copy` types](./constructors/copy_and_move_constructors.html#trivially-copyable-types))
+    ownership of the object is actually transferred to `std::mem::drop` function,
+    and so `Drop::drop` is called at the end of `std::mem::drop` when the lifetime
+    of the parameter ends.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus, `std::mem::drop` can be used for early cleanup of resources without having
+    to restructure a function to force variables out of scope early.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, the following allocates a large vector on the heap, but explicitly
+    drops it before allocating a second large vector on the heap, reducing the overall
+    memory usage.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: fn main() {
+  prefs: []
+  type: TYPE_NORMAL
+- en: let v = vec![0u32; 100000];
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ... use v
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: std::mem::drop(v);
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // can no longer use v here
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: let v2 = vec![0u32; 100000];
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: // ... use v2
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '}'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: <link rel="stylesheet" type="text/css" href="../quiz/style.css"> [Click here
+    to leave us feedback about this page.](https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&entry.1450251950=Destructors
+    and resource cleanup)
+  prefs: []
+  type: TYPE_NORMAL
