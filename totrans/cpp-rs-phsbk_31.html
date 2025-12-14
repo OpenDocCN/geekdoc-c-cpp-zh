@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>User-defined conversions</title>
+<link href="../Styles/Style.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<h1>User-defined conversions</h1>
+<blockquote>原文：<a href="https://cel.cs.brown.edu/crp/idioms/user-defined_conversions.html">https://cel.cs.brown.edu/crp/idioms/user-defined_conversions.html</a></blockquote>
+                        
+<p>In C++ user-defined conversions are created using <a href="https://en.cppreference.com/w/cpp/language/converting_constructor">converting
+constructors</a>
+or <a href="https://en.cppreference.com/w/cpp/language/cast_operator">conversion
+functions</a>. Because
+converting constructors are opt-out (via the <code>explicit</code> specifier), implicit
+conversions occur with regularity in C++ code. In the following example both the
+assignments and the function calls make use of implicit conversions as provided
+by a converting constructor.</p>
+<p>Rust makes significantly less use of implicit conversions. Instead most
+conversions are explicit. The
+<a href="https://doc.rust-lang.org/std/convert/index.html"><code>std::convert</code></a> module
+provides several traits for working with user-defined conversions. In Rust, the
+below example makes use of explicit conversions by implementing the <a href="https://doc.rust-lang.org/std/convert/trait.From.html"><code>From</code>
+trait</a>.</p>
+<div class="comparison">
+<pre><code class="language-cpp">struct Widget {
+  Widget(int) {}
+  Widget(int, int) {}
+};
+
+void process(Widget w) {}
+
+int main() {
+  Widget w1 = 1;
+  Widget w2 = {4, 5};
+  process(1);
+  process({4, 5});
+
+  return 0;
+}
+</code></pre>
+<pre><pre class="playground"><code class="language-rust">struct Widget;
+
+impl From&lt;i32&gt; for Widget {
+    fn from(_x: i32) -&gt; Widget {
+        Widget
+    }
+}
+
+impl From&lt;(i32, i32)&gt; for Widget {
+    fn from(_x: (i32, i32)) -&gt; Widget {
+        Widget
+    }
+}
+
+fn process(w: Widget) {}
+
+fn main() {
+    let w1: Widget = 1.into();
+    // For construction this is more idiomatic:
+    let w1b = Widget::from(1);
+
+    let w2: Widget = (4, 5).into();
+    // For construction this is more idiomatic:
+    let w2b = Widget::from((4, 5));
+
+    process(1.into());
+    process((4, 5).into());
+}</code></pre></pre>
+</div>
+<p>The <code>into</code> method used above is provided via a <a href="https://doc.rust-lang.org/book/ch10-02-traits.html#using-trait-bounds-to-conditionally-implement-methods">blanket
+implementations</a>
+for the <a href="https://doc.rust-lang.org/std/convert/trait.Into.html"><code>Into trait</code></a>
+for types that implement the <code>From</code> trait. Because of the existence of the
+<a href="https://doc.rust-lang.org/std/convert/trait.Into.html#impl-Into%3CU%3E-for-T">blanket
+implementation</a>,
+it is generally preferred to implement the <code>From</code> trait instead of the <code>Into</code>
+trait, and let the <code>Into</code> trait be provided by that blanket implementation.</p>
+<h2 id="conversion-functions"><a class="header" href="#conversion-functions">Conversion functions</a></h2>
+<p>C++ conversion functions enable conversions in the other direction, from the
+defined class to another type.</p>
+<p>To achieve the same in Rust, the <code>From</code> trait can be implemented in the other
+direction. At least one of the source type or the target type must be defined in
+the same crate as the trait implementation.</p>
+<div class="comparison">
+<pre><code class="language-cpp">#include &lt;utility&gt;
+
+struct Point {
+  int x;
+  int y;
+
+  operator std::pair&lt;int, int&gt;() const {
+    return std::pair(x, y);
+  }
+};
+
+void process(std::pair&lt;int, int&gt;) {}
+
+int main() {
+  Point p1{1, 2};
+  Point p2{3, 4};
+
+  std::pair&lt;int, int&gt; xy = p1;
+  process(p2);
+
+  return 0;
+}
+</code></pre>
+<pre><pre class="playground"><code class="language-rust">struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl From&lt;Point&gt; for (i32, i32) {
+    fn from(p: Point) -&gt; (i32, i32) {
+        (p.x, p.y)
+    }
+}
+
+fn process(x: (i32, i32)) {}
+
+fn main() {
+    let p1 = Point { x: 1, y: 2 };
+    let p2 = Point { x: 3, y: 4 };
+
+    let xy: (i32, i32) = p1.into();
+    process(p2.into());
+}</code></pre></pre>
+</div>
+<p>Conversion functions are is often used to implement the safe bool pattern in
+C++, <a href="./promotions_and_conversions.html#safe-bools">which is addressed in a different way in
+Rust</a>.</p>
+<h2 id="borrowing-conversions"><a class="header" href="#borrowing-conversions">Borrowing conversions</a></h2>
+<p>The methods in the <code>From</code> and <code>Into</code> traits take ownership of the values to be
+converted. When this is not desired in C++, the conversion function can just
+take and return references.</p>
+<p>To achieve the same in Rust the <a href="https://doc.rust-lang.org/std/convert/trait.AsRef.html"><code>AsRef</code>
+trait</a> or <a href="https://doc.rust-lang.org/std/convert/trait.AsMut.html"><code>AsMut</code>
+trait</a> are used.</p>
+<div class="comparison">
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Person {
+  std::string name;
+
+  operator std::string &amp;() {
+    return this-&gt;name;
+  }
+};
+
+void process(const std::string &amp;name) {
+  std::cout &lt;&lt; name &lt;&lt; std::endl;
+}
+
+int main() {
+  Person alice{"Alice"};
+
+  process(alice);
+
+  return 0;
+}
+</code></pre>
+<pre><pre class="playground"><code class="language-rust">struct Person {
+    name: String,
+}
+
+impl AsRef&lt;str&gt; for Person {
+    fn as_ref(&amp;self) -&gt; &amp;str {
+        &amp;self.name
+    }
+}
+
+fn process(name: &amp;str) {
+    println!("{}", name);
+}
+
+fn main() {
+    let alice = Person {
+        name: "Alice".to_string(),
+    };
+
+    process(alice.as_ref());
+}</code></pre></pre>
+</div>
+<p>It is common to use <code>AsRef</code> or <code>AsMut</code> as a trait bound in function definitions.
+Using generics with an <code>AsRef</code> or <code>AsMut</code> bound allows clients to call the
+functions with anything that can be cheaply viewed as the type that the function
+wants to work with. Using this technique, the above definition of <code>process</code>
+would be defined as in the following example.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">struct Person {
+</span><span class="boring">    name: String,
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl AsRef&lt;str&gt; for Person {
+</span><span class="boring">    fn as_ref(&amp;self) -&gt; &amp;str {
+</span><span class="boring">        &amp;self.name
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span>fn process&lt;T: AsRef&lt;str&gt;&gt;(name: T) {
+    println!("{}", name.as_ref());
+}
+
+fn main() {
+    let alice = Person {
+        name: "Alice".to_string(),
+    };
+
+    process(alice);
+}</code></pre></pre>
+<p>This technique is often used with functions that take file system paths, so that
+literal strings can more easily be used as paths.</p>
+<h2 id="fallible-conversions"><a class="header" href="#fallible-conversions">Fallible conversions</a></h2>
+<p>In C++ when conversions might fail it is possible (though usually discouraged)
+to throw an exception from the converting constructor or converting function.</p>
+<p>Error handling in Rust <a href="./exceptions.html">does not use exceptions</a>. Instead
+the <a href="https://doc.rust-lang.org/std/convert/trait.TryFrom.html"><code>TryFrom</code> trait</a>
+and <a href="https://doc.rust-lang.org/std/convert/trait.TryInto.html"><code>TryInto</code> trait</a>
+are used for fallible conversions. These traits differ from <code>From</code> and <code>Into</code> in
+that they return a <code>Result</code>, which may indicate a failing case. When a
+conversion may fail one should implement <code>TryFrom</code> and rely on the client to
+call <code>unwrap</code> on the result, rather than panic in a <code>From</code> implementation.</p>
+<div class="comparison">
+<pre><code class="language-cpp">#include &lt;stdexcept&gt;
+#include &lt;string&gt;
+
+class NonEmpty {
+  std::string s;
+
+public:
+  NonEmpty(std::string s) : s(s) {
+    if (this-&gt;s.empty()) {
+      throw std::domain_error("empty string");
+    }
+  }
+};
+
+int main() {
+  std::string s("");
+  NonEmpty x = s; // throws
+
+  return 0;
+}
+</code></pre>
+<pre><pre class="playground"><code class="language-rust">use std::convert::TryFrom;
+use std::convert::TryInto;
+
+struct NonEmpty {
+    s: String,
+}
+
+#[derive(Clone, Copy, Debug)]
+struct NonEmptyStringError;
+
+impl TryFrom&lt;String&gt; for NonEmpty {
+    type Error = NonEmptyStringError;
+
+    fn try_from(
+        s: String,
+    ) -&gt; Result&lt;NonEmpty, NonEmptyStringError&gt;
+    {
+        if s.is_empty() {
+            Err(NonEmptyStringError)
+        } else {
+            Ok(NonEmpty { s })
+        }
+    }
+}
+
+fn main() {
+    let res: Result&lt;
+        NonEmpty,
+        NonEmptyStringError,
+    &gt; = "".to_string().try_into();
+    match res {
+        Ok(ne) =&gt; {
+            println!("Converted!");
+        }
+        Err(err) =&gt; {
+            println!("Couldn't convert");
+        }
+    }
+}</code></pre></pre>
+</div>
+<p>Just like with <code>From</code> and <code>Into</code>, there is a <a href="https://doc.rust-lang.org/std/convert/trait.TryInto.html#impl-TryInto%3CU%3E-for-T">blanket
+implementation</a>
+for <code>TryInto</code> for everything that implements <code>TryFrom</code>.</p>
+<h2 id="implicit-conversions"><a class="header" href="#implicit-conversions">Implicit conversions</a></h2>
+<p>Rust does have one kind of user-defined implicit conversion, called <a href="https://doc.rust-lang.org/std/ops/trait.Deref.html#deref-coercion">deref
+coercions</a>,
+provided by the <a href="https://doc.rust-lang.org/std/ops/trait.Deref.html"><code>Deref</code>
+trait</a> and
+<a href="https://doc.rust-lang.org/std/ops/trait.DerefMut.html"><code>DerefMut</code>trait</a>. These
+coercions exist for making pointer-like types more ergonomic to use.</p>
+<p>An <a href="https://doc.rust-lang.org/book/ch15-02-deref.html">example</a> of implementing
+the traits for a custom pointer-like type is given in the Rust book.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<p>A summary of when to use which kind of conversion interface is given in the
+documentation for the <a href="https://doc.rust-lang.org/std/convert/index.html"><code>std::convert</code>
+module</a>.</p>
+<div class="quiz-placeholder" data-quiz-name="&quot;user-defined_conversions&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;There is a blanket implementation for `TryInto` for every type that implements\n`TryFrom`, so it is better to implement `TryFrom` and rely on the blanket\nimplementation for `TryInto`.\n&quot;,&quot;id&quot;:&quot;d6790d33-5130-47ba-ba96-c6718978131f&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:&quot;```rust\nuse std::convert::TryFrom;\n\npub struct NotNaN {\n    value: f64,\n}\n\nimpl NotNaN {\n    pub fn value(&amp;self) -&gt; f64 {\n        self.value\n    }\n}\n\n#[derive(Clone, Copy, Debug)]\npub struct IsNaN;\n\nimpl TryFrom&lt;f64&gt; for NotNaN {\n    type Error = IsNaN;\n    fn try_from(\n        x: f64,\n    ) -&gt; Result&lt;Self, Self::Error&gt; {\n        if x.is_nan() {\n            Err(IsNaN)\n        } else {\n            Ok(Self { value: x })\n        }\n    }\n}\n```\n&quot;},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;```rust\npub struct NotNaN {\n    value: f64,\n}\n\nimpl NotNaN {\n    pub fn value(&amp;self) -&gt; f64 {\n        self.value\n    }\n}\n\nimpl From&lt;f64&gt; for NotNaN {\n    fn from(x: f64) -&gt; Self {\n        if x.is_nan() {\n            panic!(\&quot;Is NaN!\&quot;);\n        }\n        Self { value: x }\n    }\n}\n```\n&quot;,&quot;```rust\nuse std::convert::TryInto;\n\npub struct NotNaN {\n    value: f64,\n}\n\nimpl NotNaN {\n    pub fn value(&amp;self) -&gt; f64 {\n        self.value\n    }\n}\n\n#[derive(Clone, Copy, Debug)]\npub struct IsNaN;\n\nimpl TryInto&lt;NotNaN&gt; for f64 {\n    type Error = IsNaN;\n\n    fn try_into(\n        self,\n    ) -&gt; Result&lt;NotNaN, Self::Error&gt; {\n        if self.is_nan() {\n            Err(IsNaN)\n        } else {\n            Ok(NotNaN { value: self })\n        }\n    }\n}\n```\n&quot;],&quot;prompt&quot;:&quot;Which Rust program is the most idiomatic translation of the following C++\nprogram?\n\n```cpp\n#include &lt;cmath&gt;\n#include &lt;stdexcept&gt;\n\nclass NotNaN {\n  double value;\n\npublic:\n  NotNaN(double x) : value(x) {\n    if (std::isnan(value)) {\n      throw std::domain_error(\&quot;NaN\&quot;);\n    }\n  }\n\n  double getValue() {\n    return value;\n  }\n};\n```\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-initial-text="&quot;Check your understanding&quot;"/>
+<link rel="stylesheet" type="text/css" href="../quiz/style.css"/>
+
+                        <a class="feedback-link" href="https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&amp;entry.1450251950=User-defined conversions">Click here to leave us feedback about this page.</a>
+                        
+</body>
+</html>

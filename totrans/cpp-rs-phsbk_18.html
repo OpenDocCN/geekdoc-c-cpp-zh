@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Moved members</title>
+<link href="../Styles/Style.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<h1>Moved members</h1>
+<blockquote>原文：<a href="https://cel.cs.brown.edu/crp/idioms/null/moved_members.html">https://cel.cs.brown.edu/crp/idioms/null/moved_members.html</a></blockquote>
+                        
+<p>Moving values out of variables or fields in Rust is more explicit than it is in
+C++. A value that might be moved with nothing left behind needs to be
+represented using an <code>Option&lt;Box&lt;T&gt;&gt;</code> type in Rust, while in C++ it would just
+be a <code>std::unique_ptr&lt;T&gt;</code>.</p>
+<div class="comparison">
+<pre><code class="language-c++">#include &lt;memory&gt;
+
+void readMailbox(std::unique_ptr&lt;int&gt; &amp;mailbox,
+                 std::mutex mailboxMutex) {
+  std::lock_guard&lt;std::mutex&gt; guard(mailboxMutex);
+
+  if (!mailbox) {
+    return;
+  }
+  int x = *mailbox;
+  mailbox = nullptr;
+  // use x
+}
+</code></pre>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::sync::Arc;
+use std::sync::Mutex;
+
+fn read(mailbox: Arc&lt;Mutex&lt;Option&lt;i32&gt;&gt;&gt;) {
+    let Ok(mut x) = mailbox.lock() else {
+        return;
+    };
+    let x = x.take();
+    // use x
+}
+<span class="boring">}</span></code></pre></pre>
+</div>
+<p>Additionally, when taking ownership of a value from within a mutable reference,
+something has to be left in its place. This can be done using
+<a href="https://doc.rust-lang.org/std/mem/fn.swap.html"><code>std::mem::swap</code></a>, and many
+container-like types have methods for making common ownership-swapping more
+ergonomic, like
+<a href="https://doc.rust-lang.org/std/option/enum.Option.html#method.take"><code>Option::take</code></a>
+as seen in the earlier example,
+<a href="https://doc.rust-lang.org/std/option/enum.Option.html#method.replace"><code>Option::replace</code></a>
+or
+<a href="https://doc.rust-lang.org/std/vec/struct.Vec.html#method.swap_remove"><code>Vec::swap</code></a>.</p>
+<h2 id="deleting-moved-objects"><a class="header" href="#deleting-moved-objects">Deleting moved objects</a></h2>
+<p>Another common use of null pointers in modern C++ is as values for the members
+of moved objects so that the destructor can still safely be called. E.g.,</p>
+<pre><code class="language-cpp"><span class="boring">#include &lt;cstdlib&gt;
+</span><span class="boring">#include &lt;cstring&gt;
+</span><span class="boring">
+</span>// widget.h
+struct widget_t;
+widget_t *alloc_widget();
+void free_widget(widget_t*);
+void copy_widget(widget_t* dst, widget_t* src);
+
+// widget.cc
+class Widget {
+    widget_t* widget;
+public:
+<span class="boring">    Widget() : widget(alloc_widget()) {}
+</span><span class="boring">
+</span><span class="boring">    Widget(const Widget &amp;other) : widget(alloc_widget()) {
+</span><span class="boring">        copy_widget(widget, other.widget);
+</span><span class="boring">    }
+</span><span class="boring">
+</span>    Widget(Widget &amp;&amp;other) : widget(other.widget) {
+        other.widget = nullptr;
+    }
+
+    ~Widget() {
+        free_widget(widget);
+    }
+};
+</code></pre>
+<p>Rust's notion of moving objects does not involve leaving behind an object on
+which a destructor will be called, and so this use of null does not have a
+corresponding idiom. See the chapter on <a href="../constructors/copy_and_move_constructors.html">copy and move
+constructors</a> for more
+details.</p>
+
+
+                        <a class="feedback-link" href="https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&amp;entry.1450251950=Moved members">Click here to leave us feedback about this page.</a>
+                        
+</body>
+</html>

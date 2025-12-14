@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Adapter pattern</title>
+<link href="../Styles/Style.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<h1>Adapter pattern</h1>
+<blockquote>原文：<a href="https://cel.cs.brown.edu/crp/patterns/adapter.html">https://cel.cs.brown.edu/crp/patterns/adapter.html</a></blockquote>
+                        
+<p>In C++, if an existing class needs to implement a new interface, the adapter
+pattern is normally used. The pattern involves defining a wrapper class that
+implements the interface by delegating to the methods on the original class.</p>
+<p>In Rust, the same pattern is possible and is <a href="https://doc.rust-lang.org/book/ch20-02-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types">sometimes necessary due to the
+orphan
+rule</a>.
+However, because traits can be implemented where <em>either</em> the type or the trait
+is defined, usually it is possible to just implement the trait for the type
+directly, without the need for a wrapper.</p>
+<p>The following example adds an interface to <code>std::string</code> in C++ and <code>String</code> in
+Rust for use with a template function defined in the library. When dynamic
+dispatch is needed, there is no change to how to implement the trait for the
+existing type in Rust.</p>
+<div class="comparison">
+<pre><code class="language-cpp">#include &lt;concepts&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+template &lt;typename T&gt;
+concept doubleable = requires(const T t) {
+  { t.twice() } -&gt; std::same_as&lt;T&gt;;
+};
+
+template &lt;doubleable T&gt;
+T quadruple(const T &amp;x) {
+  return x.twice().twice();
+}
+
+struct DoubleableString {
+  std::string str;
+
+  DoubleableString twice() const {
+    return DoubleableString{this-&gt;str +
+                            this-&gt;str};
+  }
+};
+
+int main() {
+  auto s = quadruple(
+      DoubleableString{std::string("a")});
+  std::cout &lt;&lt; s.str &lt;&lt; std::endl;
+}
+</code></pre>
+<pre><pre class="playground"><code class="language-rust">trait Doubleable {
+    fn twice(&amp;self) -&gt; Self;
+}
+
+impl Doubleable for String {
+    fn twice(&amp;self) -&gt; Self {
+        self.clone() + self
+    }
+}
+
+fn quadruple&lt;T: Doubleable&gt;(x: T) -&gt; T {
+    x.twice().twice()
+}
+
+fn main() {
+    let s = quadruple(String::from("a"));
+    println!("{}", s);
+}</code></pre></pre>
+</div>
+<h2 id="extension-traits"><a class="header" href="#extension-traits">Extension traits</a></h2>
+<p>The usual approach to adding functionality to an existing type in C++ is to
+define the additional functionality as functions.</p>
+<p>Rust can similarly add functionality by defining freestanding functions. Rust
+also supports the ability to add methods to existing types. It does so by using
+the same mechanism as described in the previous section. By using a blanket
+implementation, methods can even be added to any type that implements some other
+trait. This is the approach used by the <a href="https://docs.rs/itertools/latest/itertools/"><code>itertools</code>
+crate</a> to add additional
+functionality to anything that implements the <code>Iterator</code> trait.</p>
+<pre><pre class="playground"><code class="language-rust">trait Middle {
+    type Output;
+    fn middle(&amp;mut self) -&gt; Option&lt;Self::Output&gt;;
+}
+
+impl&lt;T: ExactSizeIterator&gt; Middle for T {
+    type Output = T::Item;
+
+    fn middle(&amp;mut self) -&gt; Option&lt;Self::Output&gt; {
+        let len = self.len();
+        if len &gt; 0 &amp;&amp; len % 2 == 1 {
+            self.nth(len / 2)
+        } else {
+            None
+        }
+    }
+}
+
+fn main() {
+    println!("{:?}", [1, 2, 3].iter().middle());
+    println!("{:?}", [1, 2, 3].iter().map(|n| n + 1).middle());
+}</code></pre></pre>
+<p>The <code>map</code> method returns a different type than <code>iter</code>, but <code>middle</code> can be
+called on the result of either one.</p>
+<div class="quiz-placeholder" data-quiz-name="&quot;adapter&quot;" data-quiz-questions="{&quot;questions&quot;:[{&quot;context&quot;:&quot;The apdapter pattern is needed when the orphan rule prevents implementing a\ntrait for a type.\n\nThe [orphan\nrule](https://doc.rust-lang.org/reference/items/implementations.html#orphan-rules)\nsays that a at least one of the trait or a type in the trait implementation\nneeds to be defined in the current crate. When at least one of `Shape` or\n`Circle` is defined in the current crate, the orphan rule does not prevent the\nimplementation.\n&quot;,&quot;id&quot;:&quot;b6394504-9fdb-49c8-88c0-046c42f74287&quot;,&quot;type&quot;:&quot;MultipleChoice&quot;,&quot;answer&quot;:{&quot;answer&quot;:[&quot;`Circle` and `Shape` are both defined in `crate_a`.\n&quot;,&quot;`Circle` is defined in `crate_a`, and `Shape` is defined in `crate_b`.\n&quot;]},&quot;prompt&quot;:{&quot;distractors&quot;:[&quot;`Circle` and `Shape` are both defined in the current crate.\n&quot;,&quot;`Circle` is defined in the current crate, and and `Shape` is defined in `crate_a`.\n&quot;,&quot;`Shape` is defined in the current crate, and and `Circle` is defined in `crate_a`.\n&quot;],&quot;prompt&quot;:&quot;Consider a situation where you are working with a type `Circle` and a trait\n`Shape`. The type and trait are each defined in one of:\n\n- the current crate,\n- a dependency crate `crate_a` of the current crate, or\n- a depedency `crate_b` of the current crate.\n\nFor which situations is the adapter pattern necessary in Rust?\n&quot;}}]}" data-quiz-fullscreen="true" data-quiz-initial-text="&quot;Check your understanding&quot;"/>
+<link rel="stylesheet" type="text/css" href="../quiz/style.css"/>
+
+                        <a class="feedback-link" href="https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&amp;entry.1450251950=Adapter pattern">Click here to leave us feedback about this page.</a>
+                        
+</body>
+</html>

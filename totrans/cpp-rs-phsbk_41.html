@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Rust and C++ interoperability (FFI)</title>
+<link href="../Styles/Style.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<h1>Rust and C++ interoperability (FFI)</h1>
+<blockquote>原文：<a href="https://cel.cs.brown.edu/crp/idioms/ffi.html">https://cel.cs.brown.edu/crp/idioms/ffi.html</a></blockquote>
+                        
+<p>The Rustonomicon <a href="https://doc.rust-lang.org/nomicon/ffi.html">contains a
+chapter</a> covering many of the
+concerns relevant to a C++ programmer that wants to call C (or C++ via <code>extern "C"</code> functions) from Rust or Rust from C or C++ code.</p>
+<p>Many C libraries have existing crates, both with low-level bindings and with
+high-level safe Rust abstractions. For example, for the libgit2 library there is
+both a low-level <a href="https://crates.io/crates/libgit2-sys">libgit2-sys crate</a> and a
+high-level <a href="https://crates.io/crates/git2">git2 crate</a>.</p>
+<p>Bindings to libraries can be generated from a C header file using
+<a href="https://rust-lang.github.io/rust-bindgen/"><code>bindgen</code></a>.</p>
+
+
+                        <a class="feedback-link" href="https://docs.google.com/forms/d/e/1FAIpQLScoygeNlygODY2owQ-HvU8VGx3hi50aic7ZlKCyhJ0VktjiCg/viewform?usp=pp_url&amp;entry.1450251950=Rust and C++ interoperability (FFI)">Click here to leave us feedback about this page.</a>
+                        
+</body>
+</html>
