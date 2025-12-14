@@ -6,6 +6,7 @@
 +   [C 语言编程透视](docs/c-prog-toushi/README.md)
 +   [C++ Concurrency In Action](docs/cpp-concur-act/README.md)
 +   [C++ FAQ Lite](docs/cpp-faq-lite/README.md)
++   [C++到 Rust 短语手册](docs/cpp-rs-phsbk/README.md)
 +   [C++11 FAQ 中文版](docs/cpp11-faq/README.md)
 +   [FLTK 中文手册](docs/fltk-man/README.md)
 +   [libuv 中文教程](docs/libuv-tut/README.md)
