@@ -34,8 +34,6 @@ struct Person {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { use std::rc::Rc;
 
 #[derive(Clone, Copy)]
@@ -59,8 +57,6 @@ struct Person {
 }
 
 }
-
-```rs
 
 ```
 
@@ -102,8 +98,6 @@ public:
 ```
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { mod example { mod widget_ffi {
 
@@ -197,8 +191,6 @@ impl Drop for Widget {
 
 } }
 
-```rs
-
 ```
 
 就像在 C++ 中很少需要为复制和移动构造函数或析构函数编写用户定义的实现一样，在 Rust 中，对于不表示资源的类型，很少需要手动实现 `Clone` 和 `Drop` 特性。
@@ -229,8 +221,6 @@ Rust 没有复制或移动赋值运算符。相反，赋值要么通过转移所
 
 ```rs
 
-```
-
 fn main() {
 
     let x = Box::<u32>::new(5);
@@ -243,8 +233,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 对于可能通过用户定义的复制赋值来避免分配的情况，`Clone` 特征有一个额外的名为 `clone_from` 的方法。该方法自动定义，但在实现 `Clone` 特征时可以被覆盖，以提供更有效的实现。默认实现与调用 `Clone::clone` 并执行正常赋值相同。
@@ -252,8 +240,6 @@ fn main() {
 该方法不用于正常赋值，但在赋值性能很重要且使用更有效的实现可以改进的情况下，可以显式使用。实现可以更高效，因为 `clone_from` 获取要分配值的对象的所有权，因此可以进行诸如重用内存以避免分配等操作。
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { fn go(x: &Vec<u32>) {
 
@@ -268,8 +254,6 @@ fn main() {
 }
 
 }
-
-```rs
 
 ```
 

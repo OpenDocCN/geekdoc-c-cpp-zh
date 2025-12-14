@@ -44,8 +44,6 @@ int main() {
 
 ```rs
 
-```
-
 mod person {
 
     pub struct Person {
@@ -122,8 +120,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 在 Rust 的示例中，`Person` 的构造函数是私有的因为其中一个字段是私有的。
@@ -193,8 +189,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 mod binary_tree {
 
@@ -318,8 +312,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ## Passkey 习语
@@ -360,8 +352,6 @@ public:
 ```
 
 ```rs
-
-```
 
 pub trait Maker<K, B> {
 
@@ -493,8 +483,6 @@ mod person {
 
 fn main() {}
 
-```rs
-
 ```
 
 然而，Passkey 习语在 Rust 中可能不太可能被使用，因为
@@ -555,8 +543,6 @@ BOOST_AUTO_TEST_CASE(have_birthday_test) {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { pub struct Person {
 
     pub name: String,
@@ -606,8 +592,6 @@ mod test {
 }
 
 }
-
-```rs
 
 ```
 

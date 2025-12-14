@@ -24,8 +24,6 @@ Widget make(signed char x, double y, long z) {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { struct Widget {
 
     x: i8,
@@ -47,8 +45,6 @@ impl Widget {
 }
 
 }
-
-```rs
 
 ```
 
@@ -92,8 +88,6 @@ std::array<int, 10> make() {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { #[unsafe(no_mangle)]
 
 fn new() -> [i32; 10] {
@@ -111,8 +105,6 @@ fn new() -> [i32; 10] {
 }
 
 }
-
-```rs
 
 ```
 

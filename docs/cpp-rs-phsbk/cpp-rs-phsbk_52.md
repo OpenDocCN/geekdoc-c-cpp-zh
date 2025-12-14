@@ -40,8 +40,6 @@ struct MyClass {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { //! 对此模块或 crate 的描述。
 
 //!
@@ -61,8 +59,6 @@ struct MyClass {
 }
 
 }
-
-```rs
 
 ```
 
@@ -110,8 +106,6 @@ int factorial(int n);
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { /// 计算阶乘。
 
 ///
@@ -150,8 +144,6 @@ fn factorial(n: i32) -> i32 {
 todo!() }
 
 }
-
-```rs
 
 ```
 

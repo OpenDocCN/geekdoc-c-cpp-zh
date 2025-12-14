@@ -39,8 +39,6 @@ int main() {
 
 ```rs
 
-```
-
 use std::fs::File;
 
 use std::io::{BufReader, Read};
@@ -72,8 +70,6 @@ fn main() -> Result<(), std::io::Error> {
     Ok(())
 
 }
-
-```rs
 
 ```
 

@@ -22,8 +22,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     // 局部变量是位置表达式，
@@ -41,8 +39,6 @@ fn main() {
     let y = x + 1;
 
 }
-
-```rs
 
 ```
 
@@ -66,8 +62,6 @@ int main() {
 
 ```rs
 
-```
-
 fn third(ts: &[char]) -> Option<&char> {
 
     ts.get(2)
@@ -85,8 +79,6 @@ fn main() {
     third(&arr);
 
 }
-
-```rs
 
 ```
 
@@ -142,8 +134,6 @@ int main() {
 
 ```rs
 
-```
-
 fn twice(x: i32) -> i32 {
 
     x * x
@@ -194,8 +184,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ## 数值提升和数值转换
@@ -216,8 +204,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let x: i32 = 42;
@@ -229,8 +215,6 @@ fn main() {
     let b: f64 = a.into();
 
 }
-
-```rs
 
 ```
 
@@ -249,8 +233,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 use std::convert::TryInto;
 
@@ -272,8 +254,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 在 C++ 中，一些转换既不支持 `From` 也不支持 `TryFrom`，因为不存在明确的转换选择，或者因为它们不是值保持的。例如，在 C++ 中，`int32_t` 可以隐式转换为 `float`，尽管 `float` 无法精确表示所有 32 位整数，但在 Rust 中没有为 `f32` 实现 `TryFrom<i32>`。
@@ -291,8 +271,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let x: i32 = 42;
@@ -300,8 +278,6 @@ fn main() {
     let a: f32 = x as f32;
 
 }
-
-```rs
 
 ```
 
@@ -344,8 +320,6 @@ int main() {
 
 ```rs
 
-```
-
 fn display(msg: &str) {
 
     println!("{}", msg);
@@ -361,8 +335,6 @@ fn main() {
     display(message);
 
 }
-
-```rs
 
 ```
 
@@ -397,8 +369,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     // 错误：字面量超出`u32`的范围
@@ -422,8 +392,6 @@ fn main() {
     println!("{}", z);
 
 }
-
-```rs
 
 ```
 
@@ -454,8 +422,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 enum Wire {
 
@@ -510,8 +476,6 @@ fn main() {
     };
 
 }
-
-```rs
 
 ```
 

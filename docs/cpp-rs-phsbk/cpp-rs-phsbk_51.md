@@ -61,8 +61,6 @@ BOOST_AUTO_TEST_CASE(test_counter_increment) {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { // counter.rs
 
 pub struct Counter(u32);
@@ -120,8 +118,6 @@ mod test {
 }
 
 }
-
-```rs
 
 ```
 

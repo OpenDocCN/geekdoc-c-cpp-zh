@@ -36,8 +36,6 @@ struct Person
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { struct Person {
 
     name: String,
@@ -76,8 +74,6 @@ struct Person
 
 }
 
-```rs
-
 ```
 
 在 C++ 中，大多数比较都是在对象与其自身之间进行的（例如，对象的主要用途是存储在哈希集中），并且比较不等价对象是昂贵的，因此可能会使用对象身份比较作为相等比较运算符重载的优化。
@@ -104,8 +100,6 @@ bool operator==(const Person& lhs, const Person& rhs) {
 ```
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { struct Person {
 
@@ -136,8 +130,6 @@ bool operator==(const Person& lhs, const Person& rhs) {
 实现对 `Person` 的 `Eq` trait {}
 
 }
-
-```rs
 
 ```
 
@@ -174,8 +166,6 @@ bool CapturedStmt::capturesVariable(const VarDecl *Var) const {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { enum Color {
 
     Red,
@@ -197,8 +187,6 @@ struct Graph {
 }
 
 }
-
-```rs
 
 ```
 

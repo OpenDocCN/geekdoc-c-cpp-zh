@@ -20,8 +20,6 @@ int twice(int x) {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { fn twice(x: f64) -> f64 {
 
     x + x
@@ -38,8 +36,6 @@ int twice(int x) {
 
 }
 
-```rs
-
 ```
 
 实际上，即使是在 C++中，上述示例也可能会以更结构化的方式实现，甚至使用模板。
@@ -54,8 +50,6 @@ T twice(T x) {
 ```
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { fn twice<T>(x: T) -> T::Output
 
@@ -73,8 +67,6 @@ where
 
 }
 
-```rs
-
 ```
 
 ## 重载方法
@@ -84,8 +76,6 @@ where
 当存在多个具有相同名称的方法，因为方法为多个特性定义时，必须在调用位置通过指定特性来区分所需的方法。
 
 ```rs
-
-```
 
 trait TraitA {
 
@@ -149,15 +139,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 这种情况的一个例外是，当方法都来自同一个泛型特性，并且实现有不同的类型参数时。在这种情况下，如果签名足以确定要使用哪个实现，则不需要指定特性来解析方法。这在使用[`From`特性](https://doc.rust-lang.org/std/convert/trait.From.html)时很常见。
 
 ```rs
-
-```
 
 struct Widget;
 
@@ -193,8 +179,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ## 重载运算符
@@ -221,8 +205,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 #[derive(Clone, Copy)]
 
@@ -264,15 +246,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 此外，有时最好为各种引用类型的组合提供特质实现，特别是对于实现 `Copy 特质` 的类型，因为它们可能希望使用或不需要引用。对于上面的例子，需要定义四个实现。
 
 ```rs
-
-```
 
 #[derive(Clone, Copy)]
 
@@ -370,15 +348,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 通过定义宏可以解决重复问题。
 
 ```rs
-
-```
 
 #[derive(Clone, Copy)]
 
@@ -434,8 +408,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ## 默认参数
@@ -461,8 +433,6 @@ int main() {
 
 ```rs
 
-```
-
 use std::ops::Shl;
 
 fn shift(
@@ -485,8 +455,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ## 无关的重载
@@ -498,8 +466,6 @@ Rust 中完全的临时重载缺乏鼓励了定义特质，这些特质捕捉了
 这在 Rust 中常见于构造器静态方法的命名约定。它们不是都命名为 `new` 并带有不同的参数，而是通常被赋予形式为 `from_something` 的名称（[通常是这样的命名方式](https://rust-lang.github.io/api-guidelines/naming.html)），其中 `something` 根据构造的值而变化，或者如果适当，则使用更具体的名称。
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { struct Vec3 {
 
@@ -534,8 +500,6 @@ impl Vec3 {
 }
 
 }
-
-```rs
 
 ```
 

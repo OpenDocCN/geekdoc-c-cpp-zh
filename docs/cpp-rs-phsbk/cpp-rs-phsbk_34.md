@@ -38,8 +38,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let mut v = vec![1, 2, 3];
@@ -63,8 +61,6 @@ fn main() {
     }
 
 }
-
-```rs
 
 ```
 
@@ -96,8 +92,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let v = (1..)
@@ -113,8 +107,6 @@ fn main() {
     // use v...
 
 }
-
-```rs
 
 ```
 
@@ -142,8 +134,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     for x in (1..)
@@ -162,8 +152,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 通过第三方 [itertools crate](https://docs.rs/itertools/latest/itertools/) 提供的迭代器附加有用方法，这些方法通过 扩展特质 实现。
@@ -177,8 +165,6 @@ fn main() {
 在 C++ 中遍历结构体与在 Rust 中对可变引用调用 `into_iter` 最相似。
 
 ```rs
-
-```
 
 fn main() {
 
@@ -232,8 +218,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 大多数可迭代类型也会提供专门用于访问引用或可变引用迭代器的方法。传统上，这些方法被称为 `iter` 和 `iter_mut`。在迭代不是立即与 for 循环一起使用，而是与其他迭代器方法一起使用的情况下，它们非常有用，因为引用操作符和方法调用的相对优先级。
@@ -260,8 +244,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let v: Vec<i32> = (1..10).collect();
@@ -283,8 +265,6 @@ fn main() {
     // ...
 
 }
-
-```rs
 
 ```
 
@@ -314,8 +294,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let mut v: Vec<i32> = (1..10).rev().collect();
@@ -327,8 +305,6 @@ fn main() {
     println!("{:?}", v);
 
 }
-
-```rs
 
 ```
 
@@ -366,8 +342,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let mut v = vec![1, 2, 3];
@@ -381,8 +355,6 @@ fn main() {
     }
 
 }
-
-```rs
 
 ```
 
@@ -406,8 +378,6 @@ public:
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { mod tree {
 
     /// 每个节点都有值的二叉树。
@@ -427,8 +397,6 @@ public:
 }
 
 }
-
-```rs
 
 ```
 
@@ -508,8 +476,6 @@ public:
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { mod tree {
 
 /// 每个节点都有值的二叉树。 /// 不一定是平衡的。 pub struct Tree<V> { pub value: V, pub left: Option<Box<Tree<V>>>, pub right: Option<Box<Tree<V>>>, }      pub struct IterPreorder<'a, V>(Vec<&'a Tree<V>>);
@@ -547,8 +513,6 @@ public:
 }
 
 }
-
-```rs
 
 ```
 
@@ -590,8 +554,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 mod tree {
 
@@ -673,8 +635,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 对于可变引用和所有权的迭代器实现可以类似地进行。对于这三种情况，都有三个 `IntoIterator` 实现，一个用于 `&Tree<V>`，一个用于 `&mut Tree<V>`，一个用于 `Tree<V>`。
@@ -688,8 +648,6 @@ fn main() {
 以下示例实现了上述`Tree<V>`类型的模式，作为上述更简单但更冗余方法的替代方案。
 
 ```rs
-
-```
 
 mod tree {
 
@@ -936,8 +894,6 @@ fn main() {
     }
 
 }
-
-```rs
 
 ```
 

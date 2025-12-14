@@ -18,8 +18,6 @@ double divide(double dividend, double divisor) {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { fn divide(
 
     dividend: f64,
@@ -39,8 +37,6 @@ double divide(double dividend, double divisor) {
 }
 
 }
-
-```rs
 
 ```
 
@@ -74,8 +70,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 fn produce_42() -> i32 {
 
@@ -129,8 +123,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ## 处理错误
@@ -159,8 +151,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let mut v = Vec::<i32>::new();
@@ -185,8 +175,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 因为只处理 Rust 枚举的一个变体非常常见，所以 `if let` 语法支持这种用法。该语法既清楚地表明只有一个案例很重要，又减少了缩进级别。
@@ -196,8 +184,6 @@ fn main() {
 注意，使用 `Result` 时，`if let` 不允许访问错误值。
 
 ```rs
-
-```
 
 fn main() {
 
@@ -217,8 +203,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 当错误处理涉及某种控制流操作，如 `break` 或 `return` 时，`let else` 语法甚至更简洁。
@@ -226,8 +210,6 @@ fn main() {
 与正常的 `let` 语句类似，`let else` 语句只能在期望语句的地方使用。`let else` 语句还意味着否则的情况不是正常情况，并且不会发生进一步的（正常）处理。
 
 ```rs
-
-```
 
 fn main() {
 
@@ -247,8 +229,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 `Result` 和 `Option` 也有一些用于处理错误的辅助方法。这些方法类似于 C++ 中 `std::expected` 的方法。
@@ -265,8 +245,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let res: Result<i32, String> = Ok(42);
@@ -274,8 +252,6 @@ fn main() {
     let x = res.map(|n| n * 2);
 
 }
-
-```rs
 
 ```
 
@@ -286,8 +262,6 @@ fn main() {
 在上述示例中，成功的结果是从向量中借用的。通常需要将结果克隆或复制到拥有副本中，并且希望在不需要匹配和重建值的情况下这样做。`Result` 和 `Option` 有助于这些目的的辅助方法。
 
 ```rs
-
-```
 
 fn main() {
 
@@ -308,8 +282,6 @@ fn main() {
     let r: Option<String> = w.get(0).cloned();
 
 }
-
-```rs
 
 ```
 
@@ -332,8 +304,6 @@ int accessValue(std::vector<std::size_t> indices,
 ```
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { fn access_value(
 
@@ -359,15 +329,11 @@ int accessValue(std::vector<std::size_t> indices,
 
 }
 
-```rs
-
 ```
 
 上述 Rust 示例等价于以下示例，它没有使用 `?` 操作符。使用 `?` 的版本更符合习惯用法。
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { fn access_value(
 
@@ -395,15 +361,11 @@ int accessValue(std::vector<std::size_t> indices,
 
 }
 
-```rs
-
 ```
 
 以下示例也是等效的。它不是惯用的（在这里使用 `?` 更易读），但它确实演示了一个辅助方法。`Option::and_then` 与 C++23 中的 `std::optional::and_then` 类似([`std::optional::and_then` in C++23](https://en.cppreference.com/w/cpp/utility/optional/and_then)).
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { fn access_value(
 
@@ -428,8 +390,6 @@ int accessValue(std::vector<std::size_t> indices,
 }
 
 }
-
-```rs
 
 ```
 
@@ -457,8 +417,6 @@ fn main() -> Result<(), &'static str> {
 
 ```rs
 
-```
-
 #[derive(Debug)]
 
 struct InterestingError {
@@ -481,8 +439,6 @@ fn main() -> Result<(), InterestingError> {
 
 }
 
-```rs
-
 ```
 
 运行此程序将输出 `Error: InterestingError { message: "oops", other_interesting_value: 9001 }` 并带有退出代码 `1`。
@@ -495,8 +451,6 @@ fn main() -> Result<(), InterestingError> {
 
 ```rs
 
-```
-
 fn main() {
 
     let mut buffer = String::with_capacity(1024);
@@ -506,8 +460,6 @@ fn main() {
     // 使用缓冲区
 
 }
-
-```rs
 
 ```
 
@@ -564,8 +516,6 @@ void process() {
 ```
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { use std::error::Error;
 
@@ -698,8 +648,6 @@ fn process() -> Result<(), ErrorAOrB> {
 }
 
 }
-
-```rs
 
 ```
 

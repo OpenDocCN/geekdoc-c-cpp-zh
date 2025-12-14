@@ -41,8 +41,6 @@ public:
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { pub struct DirectedGraph<Label> {
 
     adjacencies: Vec<Vec<usize>>,
@@ -117,8 +115,6 @@ impl<Label> DirectedGraph<Label> {
 
 }
 
-```rs
-
 ```
 
 在上述示例中演示的使用案例中，使用 C++模板定义类和使用 Rust 泛型定义结构体之间的实际差异很少。当在 C++中使用接受`typename`或`class`参数的模板时，可以在 Rust 中相应地使用类型参数。
@@ -152,8 +148,6 @@ class DirectedGraph {
 ```
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { pub struct DirectedGraph<Label> {
 
@@ -203,8 +197,6 @@ pub fn new() -> Self { DirectedGraph { adjacencies: Vec::new(), node_labels: Vec
 
 }
 
-```rs
-
 ```
 
 这些实现之间的主要区别在于，在 C++ 版本中，`>` 操作符或 `operator>` 方法在不知道是否为该类型定义的情况下用于值。在 Rust 版本中，有一个约束要求 `Label` 类型实现 `Ord` 特性。（有关 Rust 特性和它们如何与 C++ 概念相关的更多详细信息，请参阅概念、接口和静态分发章节。）
@@ -216,8 +208,6 @@ pub fn new() -> Self { DirectedGraph { adjacencies: Vec::new(), node_labels: Vec
 作为旁注，`smallest_node` 的更惯用实现利用了 Rust 的迭代器。这种实现风格可能需要程序员适应，尤其是那些更习惯于早期示例中使用的实现风格的程序员。
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { pub struct DirectedGraph<Label> {
 
@@ -248,8 +238,6 @@ pub fn new() -> Self { DirectedGraph { adjacencies: Vec::new(), node_labels: Vec
 }
 
 }
-
-```rs
 
 ```
 
@@ -289,8 +277,6 @@ makeSequentialArray(int start) {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { fn make_sequential_array<const N: usize>(
 
     start: i32,
@@ -302,8 +288,6 @@ makeSequentialArray(int start) {
 }
 
 }
-
-```rs
 
 ```
 

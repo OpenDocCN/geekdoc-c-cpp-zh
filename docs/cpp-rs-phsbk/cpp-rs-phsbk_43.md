@@ -66,8 +66,6 @@ int main() {
 
 ```rs
 
-```
-
 #[derive(Default)]
 
 struct LargeWidget {
@@ -97,8 +95,6 @@ fn main() {
     do_work(&mut scratch);
 
 }
-
-```rs
 
 ```
 
@@ -131,8 +127,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     const SIZE: usize = 8_000_000;
@@ -155,15 +149,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 在另一方面，直接将数组定义为 `[42; SIZE]` 会导致值首先在栈上构造，这会在运行时产生错误。
 
 ```rs
-
-```
 
 fn main() {
 
@@ -177,8 +167,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ```rs
@@ -190,8 +178,6 @@ Aborted (core dumped)
 虽然直接在堆上构造值无法强制执行，但可以通过使用不安全的 Rust 来逐步构造值，从而避免栈溢出。这种技术依赖于 `MaybeUninit` 和 `addr_of_mut!`。
 
 ```rs
-
-```
 
 fn main() {
 
@@ -221,15 +207,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 根据需要，这种特定用法可以被泛化。
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { fn init_with<T, const SIZE: usize>(
 
@@ -259,15 +241,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 注意，处理堆上的大数组时，更符合习惯的方式是将它表示为 boxed slice 或 vector，而不是 boxed array。在这种情况下，使用迭代器定义值可以避免在栈上构造它，并且不需要使用 unsafe Rust。
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { fn init_with<T, const SIZE: usize>(
 
@@ -280,8 +258,6 @@ fn main() {
 }
 
 }
-
-```rs
 
 ```
 

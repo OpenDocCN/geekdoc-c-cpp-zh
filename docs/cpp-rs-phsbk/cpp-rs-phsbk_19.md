@@ -26,8 +26,6 @@ int main() {
 
 ```rs
 
-```
-
 fn sum_slice(arr: &[i32]) -> i32 {
 
     let mut sum = 0;
@@ -53,8 +51,6 @@ fn main() {
     assert!(sum2 == 0);
 
 }
-
-```rs
 
 ```
 

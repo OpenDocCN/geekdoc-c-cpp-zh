@@ -70,8 +70,6 @@ int main() {
 
 ```rs
 
-```
-
 // 定义一个接口
 
 trait Shape {
@@ -166,8 +164,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 Rust 的实现与 C++ 的实现略有不同的地方有几个。
@@ -195,8 +191,6 @@ C++ 和 Rust 都需要某种形式的间接引用来对接口执行动态分发�
 以下示例展示了由于未实现 `Sized`，特性对象类型可以在某些地方使用，而在其他地方则不能。在 Rust 中被禁止使用的情况在 C++ 中也会被禁止，因为 `Shape` 是一个抽象类。
 
 ```rs
-
-```
 
 trait Shape {
 
@@ -244,8 +238,6 @@ fn area(&self) -> f64 { 0.5 * self.base * self.height } }   fn main() {
 
 fn print_area(shape: &dyn Shape) {}
 
-```rs
-
 ```
 
 The decision to include the vtable in the reference instead of in the value is one part of what makes it reasonable to use traits both for polymorphism via dynamic dispatch and for polymorphism via static dispatch, where one would use concepts in C++.
@@ -263,8 +255,6 @@ Rust checks the bounds on the lifetimes of references that the trait objects may
 Usually the elision rules pick the correct lifetime bound. Sometimes, the rules result in surprising error messages from the compiler. In those situations or when the compiler cannot determine which lifetime bound to assign, the bound may be given manually. The following example shows explicitly what the inferred lifetimes are for a structure storing a trait object and for the `print_area` function.
 
 ```rs
-
-```
 
 trait Shape {
 
@@ -331,8 +321,6 @@ fn main() {
     print_area(&scaled_triangle);
 
 }
-
-```rs
 
 ```
 

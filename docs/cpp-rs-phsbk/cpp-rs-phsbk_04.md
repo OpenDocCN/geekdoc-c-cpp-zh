@@ -16,8 +16,6 @@ public:
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { struct Person {
 
 age: i32,
@@ -46,8 +44,6 @@ impl Default for Person {
 
 }
 
-```rs
-
 ```
 
 如果一个结构体有一个有用的默认值（例如，在 C++ 中由默认构造函数构建的值），则类型应提供[两者](https://rust-lang.github.io/api-guidelines/interoperability.html?highlight=default#types-eagerly-implement-common-traits-c-common-traits)——一个不带参数的 `new` 方法和一个 `Default` 的实现。
@@ -75,8 +71,6 @@ class Student {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { #[derive(Default)]
 
 struct Person {
@@ -95,15 +89,11 @@ struct Student {
 
 }
 
-```rs
-
 ```
 
 Rust 中的 `#[derive(Default)]` 宏与以下代码等价。
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { struct Person {
 
@@ -147,8 +137,6 @@ impl Default for Student {
 
 }
 
-```rs
-
 ```
 
 与 C++ 不同，在 C++ 中整数的默认初始化值是不确定的，而在 Rust 中，原始整数和浮点类型的默认值[是零](https://doc.rust-lang.org/std/primitive.i32.html#impl-Default-for-i32)。
@@ -156,8 +144,6 @@ impl Default for Student {
 继承 `Default` 特性对代码简洁性的影响与 C++ 中省略初始化类似。在所有类型都实现了 `Default` 特性，但只有一些字段应该有默认值的情况下，可以使用 [结构体更新语法](https://doc.rust-lang.org/book/ch05-01-defining-structs.html#creating-instances-from-other-instances-with-struct-update-syntax) 来定义一个构造方法，而不必枚举所有字段的值。
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { #[derive(Default)]
 
@@ -195,8 +181,6 @@ impl Student {
 
 }
 
-```rs
-
 ```
 
 结构体更新语法的性能[取决于优化器](https://godbolt.org/#z:OYLghAFBqd5TKALEBjA9gEwKYFFMCWALugE4A0BIEAZgQDbYB2AhgLbYgDkAjF%2BTXRMiAZVQtGIHgBYBQogFUAztgAKAD24AGfgCsp5eiyahSAVyVFyKxqiIEh1ZpgDC6embZMQAJnLOAGQImbAA5TwAjbFIpAE5yAAd0JWIHJjcPL19E5NShIJDwtiiYnnibbDs0kSIWUiIMz28ea2xbeyEauqICsMjog0tuxqyWofreopKpAEprdDNSVE4uAFIfAGZVgFYAIRxSAgA3bAgAEWwaFjN6Ihmds9WtAEEEswiAaktzOw/VaKUQg%2BqwA7Lsns8PlCPixgJwPgQNn4IaDHi8UZsdvtosdThcrjc7g8IW9Pt8zL8amYcMJgWCIdCPgkAY4/iymOQGdCrkcyMRsAB9DD0MggD4AeQSHSYqw2LhqhxMstwnPRILRzwhBDYCXoHypNKIdPBL0ZpI%2BNCYHwA7sQkAKeXyiILhWQIK6YvqiIrgDMPgBaZX6to0Y1cxlQg3MI2gk2QiMJx2HZ1C9yi/XoDjutOkObhhPQgB0hfx11uIBAOAJtwg91NBdR%2BcbarOXDm9G42343i4OnI6G4ACULEbAYtlsDNnxyERtG25gBrEDbLSGbjSfhsZernt9gdcfhKECr2e9tvkOCwFAYHUMaKUag3hJ3mKkHgADhBq7otwB1Aic7kBEwR1AAntw07AawpCgeKES6JUp7TjeHDCOKTD0OBZ7kDgERmMALgSPQR68PwOBsMYwCSNhhCkIhuIkX22DqJUZjOhB/DBM6HbYfQBARKQYFuDggHetqHHkCcpARMk2AXBRJh8SYc5zDQRjAEoABqBDYNakrMBJgjCGIEicDIcjCMoaiaNh%2BgtEYynmJYhj8UekBzOgUppCR/ouB8nlEP6jAnPQspnD4/DoFJhw4G5tatO0aROEwrjuE0Uh%2BIEwR9MUAzvjkKTSiMzR%2BEkhVpJM/QxPlFRVJ0tT1MVGUJfR9XdJVuXVdYDUNGlox%2BOMPTZVMeVzGOSxme2nbdoB%2B4fE5RCoB8PCFp%2BhZaB8ED4MQZCThsPAzPwp46DMcxINgLAHNQi7bmuXAbuQu6Rdwh7HjOKlTVwEXkFu0jbOtWjSGU748NsPggz4IIAGyPbNL3vWecyXgg8AQNeWB4IQJAUFQtB3qwHCGfIJmSOZRmKCoGiAfofgOaYI4tXV3gQM4TUtFlhRVVILRlXk6R9c0BV8x10w8GMbStUwXSNQLgwS0z0tDZznXc91wyy2MPUiwMYtjQsE3cOsWx7AcuLnJcZZEtsGrmuSvz/KQgJWrG%2BawvCiLIi2KLopiJs4ic5vVlbNvvF83oUkaUa0i79ZQsyjusg7TuqvGUJJvyqYip6krSrK8piUqGwqii6re882q6l61LRmGsdMqHlo2naDosLyyYujm2ZZ2KCrBL6AZBiIIa16nEaMEabBsV8wIbGcwb0DQFZVpbtaynGBZfIW6cph6M9zyImanB69wbOvBZKE2pctuePFdrD2H7sOlhfPrE5G99x3zuQ52XQM8VLiuO6D0twbBBIWbY989zwyPCeFSF5EBozQJmZ8jAcaPmQS%2BEAb5PzfgYM6R2/5AJQTAhJYhME4IITsBJFC0Z0KYUArhfChF6DEQkuRSi1E%2By0XoicRi/BmKsXYqRSgwg2iAT4gJISGNRKHC3MIqSMkVDyQ4X3OBalYRaR0npZkPZpzkxJmZWQ5MrJU1stkOmWCGYSLih5LyQgfJ%2BQCkFbAIUwrfSitEGK2AbGM2lMlVKmRBYcxyqLIWRUNZhIqsNLm4tEptRloEuWcSpZa2iSrTW6tEkZImGk0WetxycB8J9O%2BT1%2BzcHmiOJaK01obS2ljXa79DoIxOmdC6V1/63R4g9Up%2B5XqwMRp9b6W5tjSELLEWI2x3xaA/NIEEH4QQ%2BD%2BpA56B5mlfyXDwLQq4eIbBmg/eGn9TqSQBElaQQA%3D%3D%3D).
@@ -223,8 +207,6 @@ int main() {
 
 ```rs
 
-```
-
 #[derive(Default)]
 
 struct Person {
@@ -245,15 +227,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 如果类型恰好是可以简单复制的，则可以使用简写。
 
 ```rs
-
-```
 
 #[derive(Clone, Copy, Default)]
 
@@ -270,8 +248,6 @@ fn main() {
     // ...
 
 }
-
-```rs
 
 ```
 
@@ -299,8 +275,6 @@ int main() {
 
 ```rs
 
-```
-
 #[derive(Default)]
 
 struct Person {
@@ -321,15 +295,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 在 Rust 中，向量也可以从[迭代器](https://doc.rust-lang.org/book/ch13-02-iterators.html#methods-that-produce-other-iterators)中构建。
 
 ```rs
-
-```
 
 #[derive(Default)]
 
@@ -347,15 +317,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 如果类型实现了 `Clone` 特性，则可以使用 `vec!` 宏来构造数组。有关 `Clone` 的更多详细信息，请参阅复制构造函数章节。
 
 ```rs
-
-```
 
 #[derive(Clone, Default)]
 
@@ -372,8 +338,6 @@ fn main() {
     // ...
 
 }
-
-```rs
 
 ```
 
@@ -399,8 +363,6 @@ int main() {
 
 ```rs
 
-```
-
 #[derive(Clone, Default)]
 
 struct Person {
@@ -416,8 +378,6 @@ fn main() {
     // ...
 
 }
-
-```rs
 
 ```
 
@@ -450,8 +410,6 @@ Rust 的智能指针通过委托给包含类型的 `Default` 实现来实现 `De
 
 ```rs
 
-```
-
 #[derive(Default)]
 
 struct Person {
@@ -467,8 +425,6 @@ fn main() {
     // ...
 
 }
-
-```rs
 
 ```
 
@@ -495,8 +451,6 @@ void go(std::optional<std::string> x) {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { fn go(x: Option<String>) {
 
     let a: String = x.unwrap_or_default();
@@ -508,8 +462,6 @@ void go(std::optional<std::string> x) {
 }
 
 }
-
-```rs
 
 ```
 

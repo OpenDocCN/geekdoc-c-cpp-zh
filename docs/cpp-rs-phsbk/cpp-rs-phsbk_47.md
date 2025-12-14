@@ -56,8 +56,6 @@ int main() {
 
 ```rs
 
-```
-
 trait Shape {
 
     fn area(&self) -> f64;
@@ -121,8 +119,6 @@ fn main() {
     println!("{}", square.twice_area());
 
 }
-
-```rs
 
 ```
 
@@ -192,8 +188,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 // 不需要泛型类型：Self 已经
 
@@ -282,8 +276,6 @@ fn main() {
     println!("{}", x.0)
 
 }
-
-```rs
 
 ```
 

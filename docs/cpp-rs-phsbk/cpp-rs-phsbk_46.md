@@ -168,8 +168,6 @@ int main() {
 
 ```rs
 
-```
-
 // 构造一个表达式
 
 var: String,
@@ -301,8 +299,6 @@ fn main() {
     match e {
 
 fn eval<'a>(
-
-```rs
 
 ```
 
@@ -469,8 +465,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 // 这**不是**一个惯用的翻译。这是
 
@@ -738,8 +732,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ## Varying data and behavior
@@ -751,8 +743,6 @@ One of the alternative approaches, adopted from functional programming and lever
 The following example shows a variation on the earlier examples using this pattern to make it so that two parts of the expression type can be defined separately and given evaluators separately. This approach can lead to performance problems (in large part due to the indirection through nested structures) or increases in compilation time, so its necessity should be carefully evaluated before it is used.
 
 ```rs
-
-```
 
 use std::collections::HashMap;
 
@@ -971,8 +961,6 @@ fn main() {
     println!("{:?}", e.eval(&HashMap::new()));
 
 }
-
-```rs
 
 ```
 

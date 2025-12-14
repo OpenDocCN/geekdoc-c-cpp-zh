@@ -44,8 +44,6 @@ int main() {
 
 ```rs
 
-```
-
 fn safe_divide(
 
     dividend: u32,
@@ -94,8 +92,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 当在失败情况下有提供有用信息时，可以使用 `Result` 类型代替。错误处理的章节描述了 `Result` 的使用。
@@ -109,8 +105,6 @@ fn main() {
 将使用输出参数的原例转换为 Rust 是可能的，但生成的代码不符合习惯用法。
 
 ```rs
-
-```
 
 // 不符合 Rust 习惯用法
 
@@ -154,8 +148,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 这与使用输出参数进行 多返回值 存在相同的问题。
@@ -197,8 +189,6 @@ Rust 为简化返回 `Option` 的函数的使用提供了几个语法糖。如�
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { fn safe_divide(dividend: u32, divisor: u32) -> Option<u32> {
 
 if divisor != 0 { Some(dividend / divisor) } else { None } }   fn go(dividend: u32, divisor: u32) -> Option<()> {
@@ -213,15 +203,11 @@ if divisor != 0 { Some(dividend / divisor) } else { None } }   fn go(dividend: u
 
 }
 
-```rs
-
 ```
 
 如果`None`不应该被传播，有时使用[let-else 语法](https://doc.rust-lang.org/rust-by-example/flow_control/let_else.html)会更清晰。
 
 ```rs
-
-```
 
 fn safe_divide(dividend: u32, divisor: u32) -> Option<u32> {
 
@@ -243,15 +229,11 @@ fn main() {
 
 go(10, 2); go(10, 0); }
 
-```rs
-
 ```
 
 如果在 None 情况下应该使用默认值，可以使用以下方法：[`Option::unwrap_or`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or), [`Option::unwrap_or_else`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_else), [`Option::unwrap_or_default`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_default), 或 [`Option::unwrap`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap)。
 
 ```rs
-
-```
 
 fn safe_divide(dividend: u32, divisor: u32) -> Option<u32> {
 
@@ -285,8 +267,6 @@ fn main() {
 
 go(10, 2); go(10, 0); }
 
-```rs
-
 ```
 
 在性能敏感的代码中，如果你已经手动检查结果保证是`Some`，可以使用[`Option::unwrap_unchecked`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked)，但这是一个不安全的方法。
@@ -300,8 +280,6 @@ go(10, 2); go(10, 0); }
 对于上述安全除法示例，这涉及到调用者保证提供的除数不为零。在以下示例中，这是通过动态检查来完成的。在其他上下文中，所需证据可能可以静态地获得，由更高层的调用者提供，或者被多次使用。在这些情况下，这种方法可以减少运行时成本和代码复杂性。
 
 ```rs
-
-```
 
 use std::convert::TryFrom;
 
@@ -338,8 +316,6 @@ fn main() {
     go(10, 0);
 
 }
-
-```rs
 
 ```
 

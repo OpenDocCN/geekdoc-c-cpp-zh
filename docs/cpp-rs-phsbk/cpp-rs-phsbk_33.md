@@ -31,8 +31,6 @@ int main() {
 
 ```rs
 
-```
-
 use std::any::Any;
 
 fn print_if_string(x: &dyn Any) {
@@ -54,8 +52,6 @@ fn main() {
     print_if_string(&5);
 
 }
-
-```rs
 
 ```
 
@@ -96,8 +92,6 @@ void handle_event(Event *e) {
 ```
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { enum Event {
 
@@ -155,8 +149,6 @@ fn handle_event(e: Event) {
 
 }
 
-```rs
-
 ```
 
 即使库的客户端需要能够定义自定义事件，通常也可以使用事件枚举。这是[winit crate](https://docs.rs/winit/latest/winit/event/enum.Event.html)所采取的方法，它实现了跨平台的窗口和事件循环管理。
@@ -189,8 +181,6 @@ void handle_event(Event *e) {
 ```
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { enum Event<T> {
 
@@ -243,8 +233,6 @@ Event::ClickEvent { x, y } => { // ... } Event::ResizeEvent { old_height, old_wi
 }
 
 }
-
-```rs
 
 ```
 

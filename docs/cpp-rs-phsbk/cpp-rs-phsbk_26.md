@@ -22,8 +22,6 @@ Rust 中的一些库将提供 API 的两个版本，一个返回`Result`或`Opti
 
 ```rs
 
-```
-
 fn main() {
 
     let r: Result<i32, &'static str> =
@@ -37,8 +35,6 @@ fn main() {
     let o: Option<i32> = r.ok();
 
 }
-
-```rs
 
 ```
 

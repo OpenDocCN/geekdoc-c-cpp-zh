@@ -29,8 +29,6 @@ parse(char *data, size_t len) {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { struct LargeStructure {
 
     field: i32,
@@ -54,8 +52,6 @@ fn parse(
 }
 
 }
-
-```rs
 
 ```
 
@@ -88,8 +84,6 @@ int gcd(int a, int b) {
 ```
 
 ```rs
-
-```
 
 use std::num::NonZero;
 
@@ -135,15 +129,11 @@ fn main() {
 
 assert!(gcd(5, 0) == None); assert!(gcd(0, 5) == None); assert!(gcd(5, 1) == NonZero::new(1)); assert!(gcd(1, 5) == NonZero::new(1)); assert!(gcd(2 * 2 * 3 * 5 * 7, 2 * 2 * 7 * 11) == NonZero::new(2 * 2 * 7)); assert!(gcd(2 * 2 * 7 * 11, 2 * 2 * 3 * 5 * 7) == NonZero::new(2 * 2 * 7)); }
 
-```rs
-
 ```
 
 作为旁注，也可以通过在整个算法中保留非零属性来避免在末尾进行冗余的零检查，并且无需使用不安全的 Rust。
 
 ```rs
-
-```
 
 use std::num::NonZero;
 
@@ -174,8 +164,6 @@ fn gcd(x: i32, mut b: i32) -> Option<NonZero<i32>> {
 fn main() {
 
 assert!(gcd(5, 0) == None); assert!(gcd(0, 5) == None); assert!(gcd(5, 1) == NonZero::new(1)); assert!(gcd(1, 5) == NonZero::new(1)); assert!(gcd(2 * 2 * 3 * 5 * 7, 2 * 2 * 7 * 11) == NonZero::new(2 * 2 * 7)); assert!(gcd(2 * 2 * 7 * 11, 2 * 2 * 3 * 5 * 7) == NonZero::new(2 * 2 * 7)); }
-
-```rs
 
 ```
 

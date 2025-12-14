@@ -41,8 +41,6 @@ struct Shape {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { enum Shape {
 
     Rectangle { width: f64, height: f64 },
@@ -79,8 +77,6 @@ impl Shape {
 
 }
 
-```rs
-
 ```
 
 当匹配枚举时，Rust 要求处理枚举的所有变体。在 C++ 标签 `switch` 上使用 `default` 的情况下，Rust 的 `match` 中可以使用通配符。
@@ -104,8 +100,6 @@ impl Shape {
 ```
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { enum Shape {
 
@@ -135,15 +129,11 @@ Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 }, }   
 
 }
 
-```rs
-
 ```
 
 Rust 不支持 C++ 风格的 fallthrough，其中可以在转到下一个情况之前执行某些行为。然而，在 Rust 中，只要同时匹配的枚举变体绑定相同的名称和类型，就可以同时匹配多个枚举变体。
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { enum Shape {
 
@@ -170,8 +160,6 @@ Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 }, }   
 }
 
 }
-
-```rs
 
 ```
 
@@ -240,8 +228,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 // 为每个变体定义一个单独的结构体。
 
@@ -328,8 +314,6 @@ fn main() {
     }
 
 }
-
-```rs
 
 ```
 
@@ -503,8 +487,6 @@ help: ensure that all possible cases are being handled by adding a match arm wit
 
 ```rs
 
-```
-
 enum Shape {
 
 Rectangle { width: f64, height: f64 }, Triangle { base: f64, height: f64 }, }   impl Shape {
@@ -534,8 +516,6 @@ fn main() {
     }
 
 }
-
-```rs
 
 ```
 

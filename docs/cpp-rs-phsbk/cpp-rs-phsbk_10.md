@@ -41,8 +41,6 @@ int main() {
 
 ```rs
 
-```
-
 // 泛型函数将使用的接口
 
 trait Shape {
@@ -92,8 +90,6 @@ fn main() {
     println!("{}", twice_area(&triangle));
 
 }
-
-```rs
 
 ```
 
@@ -345,8 +341,6 @@ fn main() {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { trait Shape {} 
 
 // 注意共同的边界
@@ -364,8 +358,6 @@ fn store<'s, S: Shape + 's>(x: S, data: &mut Box<dyn Shape + 's>) {
 }
 
 }
-
-```rs
 
 ```
 

@@ -46,8 +46,6 @@ int main() {
 
 ```rs
 
-```
-
 trait Device {
 
     fn power_on(&mut self);
@@ -109,8 +107,6 @@ fn main() {
     p.reset_device();
 
 }
-
-```rs
 
 ```
 

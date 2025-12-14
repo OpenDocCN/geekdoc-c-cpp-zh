@@ -19,8 +19,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let v = vec![1,2,3];
@@ -31,8 +29,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ## 将 `Result` 或 `Option` 转换为 `panic!`
@@ -40,8 +36,6 @@ fn main() {
 从 `Result` 或 `Option` 转换为恐慌比反过来更容易。因此，许多 Rust 库被编写为返回 `Result` 或 `Option`，并允许调用者通过使用 `unwrap` 或 `expect` 来提取值，如果没有值则引发恐慌，以确定 `None` 结果是否表示错误。
 
 ```rs
-
-```
 
 /// 如果数字不能被均匀除尽，则返回 `None`。
 
@@ -81,8 +75,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 当设计 API 时，如果只提供基于 `Result`（或基于 `Option`）或引发恐慌的接口之一，通常最好提供基于 `Result` 的接口。这样，调用者可以选择省略前置条件检查并处理错误，或者因为前置条件应该得到满足而引发恐慌。
@@ -116,8 +108,6 @@ public:
 ```
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { use std::convert::TryFrom;
 
@@ -173,8 +163,6 @@ impl<T: Copy> Widget<T> {
 
 }
 
-```rs
-
 ```
 
 Rust 的 `debug_assert!` 宏更像 C++ 中的 `assert!`，因为它可以通过编译配置选项关闭，因此对于编码在开发和测试期间应该检查但生产中检查成本过高的逻辑不变性非常有用。
@@ -201,8 +189,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     const {
@@ -212,8 +198,6 @@ fn main() {
     }
 
 }
-
-```rs
 
 ```
 
@@ -235,8 +219,6 @@ int &first(std::array<int, n> arr) {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { fn first<const N: usize>(arr: [i32; N]) -> i32 {
 
     const {
@@ -257,8 +239,6 @@ int &first(std::array<int, n> arr) {
 
 }
 
-```rs
-
 ```
 
 在 C++ 中，`static_assert` 也可以在命名空间作用域中使用。在 Rust 中实现等效功能需要定义一个未命名的常量。
@@ -272,15 +252,11 @@ int main() {}
 
 ```rs
 
-```
-
 const _: () = assert!(true, "顶级断言为真");
 
 const _: () = assert!(false, "顶级断言为假");
 
 fn main() {}
-
-```rs
 
 ```
 

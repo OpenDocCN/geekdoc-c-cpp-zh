@@ -24,8 +24,6 @@ public:
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { pub struct Vec2 {
 
     // 使用公共字段而不是获取器
@@ -43,8 +41,6 @@ impl Vec2 {
 }
 
 }
-
-```rs
 
 ```
 
@@ -104,8 +100,6 @@ error: aborting due to 1 previous error
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { pub struct Vec2 {
 
     pub x: f64,
@@ -153,8 +147,6 @@ impl Normalized {
 }
 
 }
-
-```rs
 
 ```
 

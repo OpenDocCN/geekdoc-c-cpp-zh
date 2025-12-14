@@ -26,8 +26,6 @@ int main() {
 
 ```rs
 
-```
-
 struct Widget;
 
 impl From<i32> for Widget {
@@ -72,8 +70,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 上面的 `into` 方法是通过为实现了 `From` trait 的类型提供的 [泛型实现](https://doc.rust-lang.org/book/ch10-02-traits.html#using-trait-bounds-to-conditionally-implement-methods) 来提供的。由于存在 [泛型实现](https://doc.rust-lang.org/std/convert/trait.Into.html#impl-Into%3CU%3E-for-T)，通常更倾向于实现 `From` trait 而不是 `Into` trait，并让 `Into` trait 由该泛型实现提供。
@@ -111,8 +107,6 @@ int main() {
 
 ```rs
 
-```
-
 struct Point {
 
     x: i32,
@@ -144,8 +138,6 @@ fn main() {
     process(p2.into());
 
 }
-
-```rs
 
 ```
 
@@ -184,8 +176,6 @@ int main() {
 
 ```rs
 
-```
-
 struct Person {
 
     name: String,
@@ -220,15 +210,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 在函数定义中，通常使用 `AsRef` 或 `AsMut` 作为特性界限。使用带有 `AsRef` 或 `AsMut` 界限的泛型允许客户端使用任何可以廉价地视为函数想要与之一起工作的类型的任何内容来调用函数。使用这种技术，上述 `process` 的定义可以像以下示例中那样定义。
 
 ```rs
-
-```
 
 struct Person {
 
@@ -251,8 +237,6 @@ fn main() {
     process(alice);
 
 }
-
-```rs
 
 ```
 
@@ -288,8 +272,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 use std::convert::TryFrom;
 
@@ -358,8 +340,6 @@ fn main() {
     }
 
 }
-
-```rs
 
 ```
 

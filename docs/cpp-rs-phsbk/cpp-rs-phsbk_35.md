@@ -25,8 +25,6 @@ int main() {
 
 ```rs
 
-```
-
 fn process(n: i32) -> i32 {
 
     println!("{}", n);
@@ -47,8 +45,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 非捕获闭包在 C++ 和 Rust 中也都是可转换的函数指针。在下面的示例中，类型在 C++ 和 Rust 中都可以推断出来，但类型被显式给出，以表明在两种情况下闭包都具有函数指针类型。
@@ -68,8 +64,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let f = |n: i32| {
@@ -88,15 +82,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 与 C++ 不同，在 Rust 中可以在其他函数内部定义函数。这具有与在函数外部定义函数相同的意义（即，该函数不是捕获闭包，因此不能捕获外部函数中定义的变量），但函数的名称仅在外部函数内部可用。
 
 ```rs
-
-```
 
 fn main() {
 
@@ -111,8 +101,6 @@ fn main() {
     println!("{}", process(42));
 
 }
-
-```rs
 
 ```
 
@@ -149,8 +137,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
 let f = {
@@ -173,8 +159,6 @@ println!("{}", f()); // 打印 "hi"
 
 }
 
-```rs
-
 ```</details>  <details><summary>实现 `FnMut` 并捕获所有权的闭包</summary>
 
 ```rs
@@ -193,8 +177,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 fn main() {
 
@@ -220,8 +202,6 @@ fn main() {
 
 }
 
-```rs
-
 ```</details>  <details><summary>实现 `FnMut` 并通过可变引用捕获的闭包</summary>
 
 在这种情况下，由于闭包会借用 `x`，因此 `x` 必须在闭包可能被使用的时间内保持有效。因此，`x` 不能像上一个示例中那样在 lambda 的代码块中声明。
@@ -244,8 +224,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let mut x = String::from("");
@@ -266,8 +244,6 @@ fn main() {
 
 }
 
-```rs
-
 ```</details>  <details><summary>实现 `Fn` 的闭包</summary>
 
 `x` 是否为 `mut` 不影响闭包是否实现 `Fn` 或 `FnMut`。重要的是闭包如何使用 `x`。
@@ -287,8 +263,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let f = {
@@ -306,8 +280,6 @@ fn main() {
     println!("{}", f()); // 打印 "0"
 
 }
-
-```rs
 
 ```</details>
 
@@ -339,8 +311,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let greeting = "hello";
@@ -358,8 +328,6 @@ fn main() {
     println!("{}", say_hello_to("moon"));
 
 }
-
-```rs
 
 ```
 
@@ -391,8 +359,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let greeting = "hello";
@@ -415,8 +381,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 由于 `std::function` 可以是空的，所以上面的示例并不严格等价。然而，由于 `std::function` 通常与值不为空的附加条件一起使用，所以没有 `Option` 包装器的 `Box` 是表示空情况更实用的翻译。
@@ -424,8 +388,6 @@ fn main() {
 在 Rust 中，也可以用函数操作符特性之一来给出闭包引用的类型。
 
 ```rs
-
-```
 
 fn main() {
 
@@ -446,8 +408,6 @@ fn main() {
     println!("{}", say("moon"));
 
 }
-
-```rs
 
 ```
 
@@ -501,8 +461,6 @@ int main() {
 
 ```rs
 
-```
-
 // 常见接口
 
 use std::fmt::Debug;
@@ -532,8 +490,6 @@ fn main() {
     println!("{:?}", f(Box::new(A), Box::new(B)));
 
 }
-
-```rs
 
 ```
 
@@ -572,8 +528,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     let x = String::from("hello world");
@@ -597,8 +551,6 @@ fn main() {
     f();
 
 }
-
-```rs
 
 ```</details>  <details><summary>通过可变引用捕获 `x` 和 `y`</summary>
 
@@ -630,8 +582,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 fn main() {
 
@@ -666,8 +616,6 @@ fn main() {
     println!("{}", y);
 
 }
-
-```rs
 
 ```</details>  <details><summary>通过值复制 `x` 和 `y` 来捕获</summary>
 
@@ -711,8 +659,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 fn main() {
 
@@ -762,8 +708,6 @@ fn main() {
 
 }
 
-```rs
-
 ```</details>  <details><summary>将 `x` 和 `y` 通过值捕获</summary>
 
 ```rs
@@ -790,8 +734,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 fn main() {
 
@@ -821,8 +763,6 @@ fn main() {
 
 }
 
-```rs
-
 ```</details>  <details><summary>将 `x` 通过值捕获，捕获 `y` 为引用</summary>
 
 ```rs
@@ -848,8 +788,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 fn main() {
 
@@ -887,8 +825,6 @@ fn main() {
 
 }
 
-```rs
-
 ```</details>
 
 ## 函数对象
@@ -918,8 +854,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 struct MyClosure {
 
@@ -956,8 +890,6 @@ fn main() {
     f();
 
 }
-
-```rs
 
 ```
 
@@ -1016,8 +948,6 @@ int main() {
 
 ```rs
 
-```
-
 trait Interface {
 
     fn show(&self);
@@ -1072,8 +1002,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ## 闭包作为参数
@@ -1096,8 +1024,6 @@ int main() {
 
 ```rs
 
-```
-
 fn apply_to_0(f: impl FnOnce(i32) -> i32) -> i32 {
 
     f(0)
@@ -1113,8 +1039,6 @@ fn main() {
     println!("{}", apply_to_0(&f));
 
 }
-
-```rs
 
 ```
 
@@ -1143,8 +1067,6 @@ int main() {
 
 ```rs
 
-```
-
 fn apply_to_0(f: Box<dyn FnOnce(i32) -> i32>) -> i32 {
 
     f(0)
@@ -1160,8 +1082,6 @@ fn main() {
     println!("{}", apply_to_0(f));
 
 }
-
-```rs
 
 ```
 
@@ -1186,8 +1106,6 @@ int main() {
 
 ```rs
 
-```
-
 fn make_const(n: i32) -> impl Fn() -> i32 {
 
     move || n
@@ -1202,15 +1120,11 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 在 C++中使用`decltype`来命名闭包的地方，例如在模板类中返回闭包时，在 Rust 中则使用`impl Trait`语法。如果需要在 let 绑定中指定类型，可以使用下划线`_`来表示类型中闭包的类型部分应该被推断。
 
 ```rs
-
-```
 
 struct Wrapper<T>(T);
 
@@ -1231,8 +1145,6 @@ fn main() {
     w.0(0);
 
 }
-
-```rs
 
 ```
 
@@ -1288,8 +1200,6 @@ int main() {
 
 ```rs
 
-```
-
 fn main() {
 
     fn id<T>(x: T) -> T {
@@ -1303,8 +1213,6 @@ fn main() {
     id(String::from("hi"));
 
 }
-
-```rs
 
 ```
 
@@ -1330,8 +1238,6 @@ int main() {
 
 ```rs
 
-```
-
 fn add(x: i32, y: i32) -> i32 {
 
     x + y
@@ -1345,8 +1251,6 @@ fn main() {
     assert_eq!(42, add_ten(32));
 
 }
-
-```rs
 
 ```
 
@@ -1396,8 +1300,6 @@ fn main() {
 在 Rust 中解决这种限制的方法包括：要么堆分配并使用共享指针 `Rc`，要么定义一个新的特质而不是使用 `Fn` 特质之一。以下示例展示了使用 [泛型关联类型](https://doc.rust-lang.org/reference/items/associated-items.html#r-items.associated.type.generic) 定义通用 `Fn` 特质的特质。然而，在实践中，通常更好的做法是为每个用例定义一个自定义特质，或者如果单个结构体就足够了，则完全省略特质。
 
 ```rs
-
-```
 
 trait Closure<Args> {
 
@@ -1455,8 +1357,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ## 闭包、所有权和 `FnOnce`
@@ -1504,8 +1404,6 @@ In many cases like this, the answer is to clone the value so that the copy owned
 
 ```rs
 
-```
-
 fn main() {
 
     let greeting = "hello ".to_string();
@@ -1523,8 +1421,6 @@ fn main() {
     println!("{}", say_hello_to("moon"));
 
 }
-
-```rs
 
 ```
 

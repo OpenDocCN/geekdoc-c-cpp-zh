@@ -30,8 +30,6 @@ Rust 通过同时控制链接和可见性来避免链接问题，声明总是也
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { // a.rs
 
 mod a { fn common_function_name() {
@@ -51,8 +49,6 @@ mod b { fn common_function_name() {
 }
 
 } }
-
-```rs
 
 ```
 

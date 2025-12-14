@@ -24,8 +24,6 @@ int main() {
 
 ```rs
 
-```
-
 fn cpu_count() -> usize {
 
 std::thread::available_parallelism().unwrap().get() }   struct ThreadPool {
@@ -58,8 +56,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 在 Rust 中，通常一个类型的首选构造函数被命名为 `new`，尤其是当它不接受任何参数时。（参见关于默认构造函数的章节。）基于值的某些特定属性的构造函数通常命名为 `with_<something>`，例如，`ThreadPool::with_threads`。请参阅[Rust 命名指南](https://rust-lang.github.io/api-guidelines/naming.html)，了解 Rust 中构造函数方法的命名约定。
@@ -67,8 +63,6 @@ fn main() {
 如果要初始化的字段是可见的，有合理的默认值，并且该值不管理资源，那么使用记录更新语法根据某些默认值初始化值也是常见的。
 
 ```rs
-
-```
 
 struct Point {
 
@@ -101,8 +95,6 @@ fn main() {
     };
 
 }
-
-```rs
 
 ```
 
@@ -145,8 +137,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 struct ThreadPool {
 
@@ -199,8 +189,6 @@ fn main() {
     }
 
 }
-
-```rs
 
 ```
 

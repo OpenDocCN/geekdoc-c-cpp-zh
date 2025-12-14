@@ -85,8 +85,6 @@ int max(const int &x, const int &y) {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { fn max<'a, T: Ord>(x: &'a T, y: &'a T) -> &'a T {
 
     if x > y {
@@ -102,8 +100,6 @@ int max(const int &x, const int &y) {
 }
 
 }
-
-```rs
 
 ```
 

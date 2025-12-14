@@ -41,8 +41,6 @@ int main() {
 
 ```rs
 
-```
-
 trait Doubleable {
 
     fn twice(&self) -> Self;
@@ -73,8 +71,6 @@ fn main() {
 
 }
 
-```rs
-
 ```
 
 ## 扩展特性
@@ -84,8 +80,6 @@ fn main() {
 Rust 可以通过定义独立函数来添加功能。Rust 还支持向现有类型添加方法的能力。它是通过使用前面章节中描述的相同机制来实现的。通过使用泛型实现，甚至可以向实现了一些其他特质的任何类型添加方法。这是 `itertools` crate（[`docs.rs/itertools/latest/itertools/`](https://docs.rs/itertools/latest/itertools/)）添加对实现 `Iterator` 特质的任何类型额外功能所采用的方法。
 
 ```rs
-
-```
 
 trait Middle {
 
@@ -124,8 +118,6 @@ fn main() {
     println!("{:?}", [1, 2, 3].iter().map(|n| n + 1).middle());
 
 }
-
-```rs
 
 ```
 

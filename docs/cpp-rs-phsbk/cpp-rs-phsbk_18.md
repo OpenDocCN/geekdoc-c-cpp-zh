@@ -22,8 +22,6 @@ void readMailbox(std::unique_ptr<int> &mailbox,
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { use std::sync::Arc;
 
 use std::sync::Mutex;
@@ -43,8 +41,6 @@ fn read(mailbox: Arc<Mutex<Option<i32>>>) {
 }
 
 }
-
-```rs
 
 ```
 

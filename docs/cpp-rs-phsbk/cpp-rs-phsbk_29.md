@@ -98,8 +98,6 @@ void process() {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { fn process() {
 
     println!("Does something but returns nothing.");
@@ -108,15 +106,11 @@ void process() {
 
 }
 
-```rs
-
 ```
 
 由于单位类型只有一个值（也写作 `()`），该类型的值不提供任何信息。这也意味着返回值可以省略，就像上面的示例一样。以下示例使单位类型的用法明确。
 
 ```rs
-
-```
 
 #![allow(unused)] fn main() { fn process() -> () {
 
@@ -128,15 +122,11 @@ void process() {
 
 }
 
-```rs
-
 ```
 
 单位类型和单位值的语法类似于空元组的语法。本质上，类型就是这样。以下示例展示了某些等效类型，尽管没有特殊的语法或语言集成。
 
 ```rs
-
-```
 
 struct Pair<T1, T2>(T1, T2); // 与 (T1, T2) 相同
 
@@ -161,8 +151,6 @@ fn main() {
     // let unit = Unit();
 
 }
-
-```rs
 
 ```
 
@@ -239,8 +227,6 @@ int main() {
 
 ```rs
 
-```
-
 use std::iter::IntoIterator;
 
 fn go<'a>(iter: impl IntoIterator<Item = &'a mut i32>) {
@@ -260,8 +246,6 @@ fn main() {
     go(&mut v);
 
 }
-
-```rs
 
 ```
 

@@ -33,8 +33,6 @@ void set_pin_mode(Pin pin, Mode mode) {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { #[repr(u8)]
 
 #[derive(Clone, Copy)]
@@ -83,8 +81,6 @@ fn set_pin_mode(pin: Pin, mode: Mode) {
 
 }
 
-```rs
-
 ```
 
 `#[repr(u8)]` 属性确保枚举的表示与字节相同（就像在 C++ 中声明枚举的底层类型一样）。然后可以使用 `as` 将枚举值自由转换为底层类型。
@@ -122,8 +118,6 @@ int main() {
 ```
 
 ```rs
-
-```
 
 #[repr(u8)] #[derive(Clone, Copy)] enum Pin {
 
@@ -168,8 +162,6 @@ let Ok(p) = Pin::try_from(2) else {
 // use pin p
 
 }
-
-```rs
 
 ```
 
@@ -222,8 +214,6 @@ struct Pin {
 
 ```rs
 
-```
-
 #![allow(unused)] fn main() { #[repr(u8)]
 
 #[derive(Clone, Copy)]
@@ -259,8 +249,6 @@ impl Pin {
 }
 
 }
-
-```rs
 
 ```
 
