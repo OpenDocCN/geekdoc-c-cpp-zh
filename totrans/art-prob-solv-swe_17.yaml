@@ -1,19 +1,29 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 软件工程中的问题解决艺术_如何让MySQL更佳
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part5.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part5.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part5.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part5.html)
 - en: Part 5 Conclusion
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第五部分结论
 - en: This Part provides the concluding summary, outlines future directions for MySQL
     improvements, and wraps up the book.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 本部分提供了总结，概述了MySQL改进的未来方向，并结束了本书。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter12.html)'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一章](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter12.html)'

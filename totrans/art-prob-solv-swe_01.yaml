@@ -1,304 +1,439 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 软件工程中的问题解决艺术_如何让MySQL更佳
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Preface.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Preface.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Preface.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Preface.html)
 - en: Preface
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 前言
 - en: Who This Book Is For?
+  id: totrans-3
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 本书面向谁？
 - en: When software professionals encounter complex problems, they often face contradictions
     and struggle to find solutions. To overcome these challenges, it’s crucial to
     view tough problems as opportunities for significant rewards. Embracing difficult
     challenges can lead to valuable insights and breakthroughs.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 当软件专业人士遇到复杂问题时，他们常常面临矛盾，并努力寻找解决方案。为了克服这些挑战，将难题视为重大回报的机会至关重要。接受困难挑战可以带来宝贵的见解和突破。
 - en: With 20 years of problem-solving experience, most challenging problems in server-side
     software can be solved through systematic logical analysis. Despite its global
     prominence, MySQL faces a variety of problems. The journey in addressing these
     MySQL problems has enriched understanding and led to the development of unique
     insights, which inspired the writing of this book.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 拥有20年的问题解决经验，大多数服务器端软件中的难题都可以通过系统性的逻辑分析来解决。尽管MySQL在全球范围内享有盛誉，但它也面临着各种问题。解决这些MySQL问题的旅程丰富了理解，并导致了独特见解的发展，这些见解激发了本书的写作。
 - en: This book uses MySQL challenges as case studies to explore problem analysis
     and resolution strategies. Readers will gain a deeper appreciation for logical
     reasoning, data structures, algorithms, and more through practical examples and
     insightful discussions.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书使用MySQL挑战作为案例研究，探讨问题分析和解决策略。读者将通过实际示例和深入讨论，对逻辑推理、数据结构、算法等方面有更深的理解。
 - en: 'This book covers the following topics:'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书涵盖了以下主题：
 - en: '**Logical Reasoning for MySQL**: Techniques for analyzing complex MySQL problems
     using logical reasoning.'
+  id: totrans-8
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**MySQL的逻辑推理**：使用逻辑推理分析复杂MySQL问题的技术。'
 - en: '**Computer Science Fundamentals**: Fundamentals of computer science relevant
     to MySQL.'
+  id: totrans-9
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**计算机科学基础**：与MySQL相关的计算机科学基础。'
 - en: '**MySQL Internals**: An introduction to the basics of MySQL core components.'
+  id: totrans-10
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**MySQL内部机制**：MySQL核心组件基础介绍。'
 - en: '**Performance Testing**: Methods for scientifically testing MySQL performance.'
+  id: totrans-11
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**性能测试**：科学测试MySQL性能的方法。'
 - en: '**MySQL 8.0 Improvements**: Key improvements in MySQL 8.0 compared to MySQL
     5.7.'
+  id: totrans-12
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**MySQL 8.0的改进**：与MySQL 5.7相比，MySQL 8.0的关键改进。'
 - en: '**MySQL Improvements**: Further optimizations in a standalone MySQL instance.'
+  id: totrans-13
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**MySQL改进**：独立MySQL实例的进一步优化。'
 - en: '**Group Replication Advancements**: Notable enhancements in MySQL Group Replication.'
+  id: totrans-14
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**组复制进展**：MySQL组复制中的显著增强。'
 - en: '**Secondary Replay improvements**: Optimizations in MySQL’s secondary replay.'
+  id: totrans-15
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**二级重放改进**：MySQL二级重放的优化。'
 - en: '**Performance Optimization Techniques**: Strategies for optimizing MySQL applications.'
+  id: totrans-16
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**性能优化技术**：优化MySQL应用程序的策略。'
 - en: '**Focus of the Book:**'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '**本书的重点**：'
 - en: Building on the goal of enhancing MySQL scalability, this book explores various
     optimization strategies to increase throughput, reduce response times, and ensure
     that MySQL secondaries closely match the performance of the primary server, thereby
     achieving high availability failover with very little delay in most scenarios.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 建立在增强MySQL可伸缩性的目标之上，本书探讨了各种优化策略，以提高吞吐量，减少响应时间，并确保MySQL从服务器与主服务器的性能紧密匹配，从而在大多数情况下实现高可用性故障转移，并尽可能减少延迟。
 - en: '**Target Audience:**'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: '**目标受众**：'
 - en: '**Quality-Focused Developers**: Individuals committed to high-quality software
     development.'
+  id: totrans-20
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**质量导向的开发者**：致力于高质量软件开发的个人。'
 - en: '**Problem Solvers**: Those interested in tackling complex software problems.'
+  id: totrans-21
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**问题解决者**：对解决复杂软件问题感兴趣的人。'
 - en: '**MySQL Enthusiasts**: Readers looking to understand MySQL from the ground
     up.'
+  id: totrans-22
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**MySQL爱好者**：希望从基础开始理解MySQL的读者。'
 - en: '**Testing Practitioners**: Users keen on mastering effective testing techniques.'
+  id: totrans-23
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**测试实践者**：热衷于掌握有效测试技术的用户。'
 - en: '**Software Architects**: Those designing large-scale software systems.'
+  id: totrans-24
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**软件架构师**：设计大规模软件系统的那些人。'
 - en: '**Performance Engineers**: Engineers struggling with performance optimization.'
+  id: totrans-25
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**性能工程师**：在性能优化方面遇到困难的工程师。'
 - en: '**Computer Science Students**: Learners aiming to strengthen their foundational
     knowledge.'
+  id: totrans-26
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**计算机科学学生**：旨在加强基础知识的学习者。'
 - en: '**MySQL Researchers**: Researchers conducting studies based on MySQL.'
+  id: totrans-27
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**MySQL 研究人员**：基于 MySQL 进行研究的学者。'
 - en: Outline of This Book
+  id: totrans-28
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 本书概述
 - en: Part 1 focuses entirely on MySQL-related problems. Chapter 1 explores how users
     approach and solve challenging MySQL problems. Chapter 2 focuses on mysterious
     problems in MySQL 8.0.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一部分完全专注于与 MySQL 相关的问题。第一章探讨了用户如何接近和解决具有挑战性的 MySQL 问题。第二章专注于 MySQL 8.0 中的神秘问题。
 - en: Part 2 primarily covers the fundamental knowledge related to problem-solving.
     Chapter 3 emphasizes the importance of logical reasoning skills in addressing
     MySQL challenges effectively. Chapter 4 provides practical computer fundamentals
     essential for understanding MySQL problems. Chapter 5 introduces MySQL kernel
     basics, laying the groundwork for subsequent problem-solving discussions. Chapter
     6 covers scientific methods for testing MySQL.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二部分主要涵盖与问题解决相关的基础知识。第三章强调了在有效解决 MySQL 挑战中逻辑推理技能的重要性。第四章提供了理解 MySQL 问题所必需的实用计算机基础知识。第五章介绍了
+    MySQL 内核基础，为后续的问题解决讨论奠定了基础。第六章涵盖了测试 MySQL 的科学方法。
 - en: Part 3 primarily focuses on the analysis and improvement of specific problems.
     Chapter 7 highlights notable optimizations in MySQL 8.0\. Chapter 8 examines improvements
     for solving problems specific to MySQL 8.0\. Chapter 9 discusses enhancements
     in MySQL Group Replication, while Chapter 10 focuses on improvements in MySQL
     secondary replay. Together, these chapters not only boost MySQL performance but
     also lay the foundation for achieving a high availability cluster.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 第三部分主要关注特定问题的分析和改进。第七章突出了 MySQL 8.0 中的显著优化。第八章检查了针对 MySQL 8.0 特定问题的改进。第九章讨论了
+    MySQL 组复制的增强功能，而第十章专注于 MySQL 从库重放中的改进。这些章节不仅提高了 MySQL 性能，还为构建高可用性集群奠定了基础。
 - en: Part 4 primarily analyzes performance improvements from the perspective of MySQL
     users. Chapter 11 presents techniques to improve MySQL 8.0 application performance
     without code changes.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 第四部分主要从 MySQL 用户的角度分析性能改进。第十一章介绍了在不更改代码的情况下提高 MySQL 8.0 应用性能的技术。
 - en: Part 5 is the concluding summary. Chapter 12 outlines future directions for
     MySQL improvements and concludes the book.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 第五部分是总结。第十二章概述了 MySQL 改进的未来方向，并结束了本书。
 - en: References and Further Reading
+  id: totrans-34
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 参考资料和进一步阅读
 - en: This book focuses on analyzing and solving MySQL problems, so a certain level
     of computer science background is recommended. To support understanding and maintain
     continuity, key terminology is included in the “Glossary” section of the appendix.
     For those lacking a foundation in MySQL, please refer to the related content in
     the appendix or consult [dedicated MySQL books](https://github.com/enhancedformysql/tech-explorer-hub)
     [69].
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书专注于分析和解决 MySQL 问题，因此建议具备一定程度的计算机科学背景。为了支持理解和保持连贯性，关键术语包含在附录的“术语表”部分。对于缺乏 MySQL
+    基础知识的读者，请参阅附录中的相关内容或咨询[专门的 MySQL 书籍](https://github.com/enhancedformysql/tech-explorer-hub)
+    [69]。
 - en: Special Terminology Explanation
+  id: totrans-36
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 特殊术语解释
 - en: '**Balanced Replay Speed**'
+  id: totrans-37
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**平衡重放速度**'
 - en: For MySQL secondary replay, this defines balanced replay speed where the MySQL
     secondary matches the primary under normal circumstances. When the speed is at
     or below the balanced replay speed, there is no significant lag in transaction
     replay progress on the secondary. However, if the speed exceeds this threshold,
     the secondary begins to lag behind the primary in transaction replay progress.
+  id: totrans-38
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 对于 MySQL 从库重放，这定义了平衡重放速度，即 MySQL 从库在正常情况下与主库匹配。当速度达到或低于平衡重放速度时，从库在事务重放进度上没有显著滞后。然而，如果速度超过此阈值，从库在事务重放进度上开始落后于主库。
 - en: '**Dual One**'
+  id: totrans-39
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**双重一**'
 - en: 'Specifically refers to two major configurations in MySQL: *sync_binlog=1* and
     *innodb_flush_log_at_trx_commit=1*.'
+  id: totrans-40
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 专门指代 MySQL 中的两种主要配置：*sync_binlog=1* 和 *innodb_flush_log_at_trx_commit=1*。
 - en: '**MySQL Secondary Replay**'
+  id: totrans-41
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**MySQL 从库重放**'
 - en: This term represents the common replay process for asynchronous replication,
     semisynchronous replication, and Group Replication. In this book, ‘MySQL primary’
     is consistently used to represent the MySQL source, and ‘MySQL secondary’ to represent
     the MySQL replica.
+  id: totrans-42
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 该术语表示异步复制、半同步复制和组复制的常见重放过程。在这本书中，“MySQL 主库”始终用来表示 MySQL 源库，“MySQL 从库”用来表示 MySQL
+    副本库。
 - en: Deployment Supplementary Explanation
+  id: totrans-43
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 部署补充说明
 - en: 'When deploying MySQL for testing, it is preferable to match the test environment
     as closely as possible to the production environment, unless certain configurations
     significantly interfere with performance analysis. Below are specific declarations
     related to MySQL deployment during the testing process:'
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 在部署MySQL进行测试时，最好尽可能地将测试环境与生产环境相匹配，除非某些配置会显著干扰性能分析。以下是测试过程中与MySQL部署相关的具体声明：
 - en: The mainstream servers in use all have a 4-way NUMA architecture.
+  id: totrans-45
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 当前使用的服务器主流都采用4路NUMA架构。
 - en: Servers are generally x86 architecture.
+  id: totrans-46
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 服务器通常采用x86架构。
 - en: NVMe SSD hardware disks are used, and the I/O latency is very low.
+  id: totrans-47
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 使用NVMe SSD硬件磁盘，I/O延迟非常低。
 - en: All tests were conducted on high-performance servers and only represent results
     for high-performance server configurations.
+  id: totrans-48
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 所有测试都是在高性能服务器上进行的，仅代表高性能服务器配置的结果。
 - en: All tests are conducted on the Linux operating system.
+  id: totrans-49
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 所有测试都是在Linux操作系统上进行的。
 - en: MySQL standalone tests typically use version 8.0.27, while MySQL cluster tests
     generally use version 8.0.32.
+  id: totrans-50
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: MySQL独立测试通常使用版本8.0.27，而MySQL集群测试通常使用版本8.0.32。
 - en: Improvements to MySQL are referred to as improved MySQL or modified MySQL.
+  id: totrans-51
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: MySQL的改进被称为改进的MySQL或修改的MySQL。
 - en: The transaction isolation level in TPC-C tests is *Read Committed*.
+  id: totrans-52
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: TPC-C测试中的事务隔离级别设置为*Read Committed*。
 - en: The storage engine used for transactions is InnoDB.
+  id: totrans-53
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 用于事务的存储引擎是InnoDB。
 - en: Unless otherwise stated, the default mode during MySQL Group Replication testing
     is single-primary mode.
+  id: totrans-54
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 除非另有说明，MySQL组复制测试中的默认模式是单主模式。
 - en: The *binlog_format* parameter is set to row-based format.
+  id: totrans-55
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*binlog_format*参数设置为基于行的格式。'
 - en: MySQL, whether primary or secondary, uses GTID (Global Transaction Identifier).
+  id: totrans-56
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: MySQL，无论是主节点还是从节点，都使用GTID（全局事务标识符）。
 - en: Cluster settings include *replica_preserve_commit_order=on*.
+  id: totrans-57
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 集群设置包括*replica_preserve_commit_order=on*。
 - en: Most tests are based on BenchmarkSQL TPC-C.
+  id: totrans-58
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 大多数测试基于BenchmarkSQL TPC-C。
 - en: Unless stated otherwise, TPC-C tests are generally based on partitioned large
     tables.
+  id: totrans-59
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 除非另有说明，否则TPC-C测试通常基于分区的大表。
 - en: Due to the extensive number of tests, the related software, hardware, and configurations
     are detailed in the Appendix.
+  id: totrans-60
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 由于测试数量众多，相关的软件、硬件和配置在附录中详细说明。
 - en: How to Contact Us
+  id: totrans-61
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 如何联系我们
 - en: 'For configurations, patches, and additional information related to this book,
     please visit our webpage: [https://github.com/enhancedformysql/](https://github.com/enhancedformysql/).'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于本书的配置、补丁和相关信息，请访问我们的网页：[https://github.com/enhancedformysql/](https://github.com/enhancedformysql/)。
 - en: Email [wangbin579@gmail.com](mailto:wangbin579@gmail.com) to comment or ask
     technical questions about this book.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过电子邮件[wangbin579@gmail.com](mailto:wangbin579@gmail.com)评论或询问有关本书的技术问题。
 - en: Acknowledgments
+  id: totrans-64
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 致谢
 - en: This book meticulously organizes a wealth of ideas and knowledge contributed
     by numerous individuals, encompassing insights from both academic research and
     industrial practice. In computing, there is a natural inclination towards the
@@ -306,18 +441,26 @@
     book references dozens of articles, blog posts, documentation, and other resources,
     making it an invaluable learning resource for me. I am profoundly grateful to
     the authors for their generous contributions of knowledge.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书精心组织了众多个人贡献的丰富思想和知识，包括学术研究和工业实践中的见解。在计算机领域，自然倾向于最新的创新，但我们的历史基础提供了宝贵的教训。本书引用了数十篇文章、博客文章、文档和其他资源，使其成为我宝贵的学习资源。我非常感谢作者们慷慨的知识贡献。
 - en: Several individuals have been crucial in the writing of this book by reviewing
     drafts and offering feedback. I am especially grateful for the contributions of
     Hongshen Wang, Jinrong Ye, Riyao Gao, and Haitao Gao. Naturally, I take full responsibility
     for any remaining errors or contentious opinions in this book.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 几位个人在本书的撰写中发挥了关键作用，通过审阅草案和提供反馈。我特别感谢王红森、叶金荣、高瑞瑶和高海涛的贡献。当然，我对本书中任何剩余的错误或争议性观点承担全部责任。
 - en: Finally, my deepest gratitude to my family, whose unwavering support has been
     indispensable throughout this nearly six-month writing journey. You are the best.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，我要向我的家人表示最深切的感激，他们坚定不移的支持是我在这近六个月写作旅程中不可或缺的。你们是最好的。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part1.html)'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一页](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part1.html)'

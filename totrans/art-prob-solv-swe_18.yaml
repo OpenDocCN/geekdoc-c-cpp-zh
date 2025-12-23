@@ -1,214 +1,311 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 《软件工程中的问题解决艺术：如何优化MySQL》
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter12.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter12.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter12.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter12.html)
 - en: 'Chapter 12: Future Directions'
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第12章：未来方向
 - en: A solid foundation is essential for advancing MySQL towards more complex objectives.
     Once scalability and high availability are resolved, the focus could shift to
     the following development areas.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个坚实的基础对于推动MySQL向更复杂的目标发展至关重要。一旦可扩展性和高可用性得到解决，重点可以转移到以下开发领域。
 - en: 12.1 Improvements to Hypergraph Algorithms
+  id: totrans-4
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.1 超图算法的改进
 - en: The goal is to make hypergraph algorithms practical and enhance their performance,
     with a focus on exploring parallel approaches.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 目标是使超图算法实用并提高其性能，重点关注探索并行方法。
 - en: 12.2 Practical Implementation of Paxos Log Persistence Functionality
+  id: totrans-6
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.2 Paxos日志持久性功能的实用实现
 - en: Currently, Paxos log persistence has been demonstrated to be feasible. Efforts
     can be made to implement crash recovery based on Paxos logs, thereby making Paxos
     log persistence truly practical.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 目前，Paxos日志持久性已被证明是可行的。可以努力实现基于Paxos日志的崩溃恢复，从而使Paxos日志持久性真正实用。
 - en: 12.3 Addressing Concurrent View Change Challenges
+  id: totrans-8
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.3 解决并发视图变更挑战
 - en: Currently, Group Replication faces challenging concurrent view change problems.
     Although these issues occur infrequently, efforts can be made to solve them completely.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 目前，组复制面临着具有挑战性的并发视图变更问题。尽管这些问题发生频率不高，但可以努力完全解决这些问题。
 - en: 12.4 Further Improving Scalability
+  id: totrans-10
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.4 进一步提高可扩展性
 - en: 'MySQL scalability can be further improved in the following areas:'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL的可扩展性可以在以下方面进一步改进：
 - en: Eliminating additional latch bottlenecks, particularly in non-partitioned environments.
+  id: totrans-12
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 消除额外的闩锁瓶颈，尤其是在非分区环境中。
 - en: Improving the stability of long-term performance testing.
+  id: totrans-13
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 提高长期性能测试的稳定性。
 - en: Improving MySQL’s NUMA-awareness in mainstream NUMA environments.
+  id: totrans-14
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 提高MySQL在主流NUMA环境中的NUMA意识。
 - en: Addressing Performance Schema’s adverse impact on NUMA environments during MySQL
     secondary replay processes.
+  id: totrans-15
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 解决性能模式对MySQL二级重放过程中NUMA环境的负面影响。
 - en: 12.5 Further Improving SQL Performance Under Low Concurrency
+  id: totrans-16
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.5 在低并发下进一步提高SQL性能
 - en: MySQL 8.0’s performance under low concurrency is significantly worse compared
     to 5.7, which needs to be corrected to avoid affecting users upgrading to 8.0.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 8.0在低并发下的性能比5.7差得多，这需要纠正以避免影响升级到8.0的用户。
 - en: 12.6 Further Enhancing Performance of Analytical SQL Queries
+  id: totrans-18
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.6 进一步提升分析SQL查询的性能
 - en: Currently, MySQL processes individual SQL queries using a single-threaded mode,
     which can result in excessively long processing times for some statistical queries
     and significantly impact user experience. Future improvements will focus on implementing
     multi-threaded processing for statistical SQL queries to reduce processing times
     and enhance performance.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 目前，MySQL使用单线程模式处理单个SQL查询，这可能导致某些统计查询的处理时间过长，从而严重影响用户体验。未来的改进将专注于实现统计SQL查询的多线程处理，以减少处理时间并提高性能。
 - en: 12.7 Improving Binlog File Compression Efficiency and Operational Stability
+  id: totrans-20
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.7 提高二进制日志文件压缩效率和操作稳定性
 - en: Reducing user storage costs is a key focus. Optimizing MySQL binlog compression
     rates and operational stability presents significant potential for improvement,
     which could lead to substantial benefits.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 降低用户存储成本是一个关键焦点。优化MySQL的二进制日志压缩率和操作稳定性具有显著的改进潜力，这可能导致巨大的好处。
 - en: 12.8 Advancing MySQL’s Management of Large Transactions on the Primary Server
+  id: totrans-22
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.8 在主服务器上推进MySQL对大型事务的管理
 - en: In mainstream NUMA environments, MySQL’s primary server efficiency in handling
     large transactions is suboptimal. This area has significant optimization potential
     and could become one of the key points for future improvements.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 在主流NUMA环境中，MySQL在处理大型事务时的主服务器效率不佳。这个领域具有显著的优化潜力，可能成为未来改进的关键点之一。
 - en: 12.9 Further Exploring Better Memory Allocation Tools
+  id: totrans-24
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.9 进一步探索更好的内存分配工具
 - en: Currently, jemalloc 4.5 is the best-found memory allocation tool, but it has
     high memory consumption and instability on ARM architecture. A key future focus
     could be developing a more efficient and stable memory allocation tool.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 目前，jemalloc 4.5 是找到的最佳内存分配工具，但在ARM架构上内存消耗高且不稳定。未来的一个关键焦点可能是开发更高效、更稳定的内存分配工具。
 - en: 12.10 Integrating a High-Performance File System
+  id: totrans-26
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.10 集成高性能文件系统
 - en: Enhancing MySQL with a better file system, especially improving the performance
     of MySQL secondary replay.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过更好的文件系统增强MySQL，特别是提高MySQL从库重放的性能。
 - en: 12.11 Introducing AI into MySQL Systems
+  id: totrans-28
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.11 将人工智能引入MySQL系统
 - en: Integrating AI with MySQL for automated knob tuning and learning-based database
     monitoring could be another key focus for the future.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 将人工智能与MySQL集成以实现自动调谐旋钮和学习型数据库监控可能是未来的另一个关键焦点。
 - en: 12.11.1 Knob Tuning
+  id: totrans-30
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 12.11.1 调谐旋钮
 - en: 'Integrating AI for parameter optimization can significantly reduce DBA workload.
     Key parameters suitable for AI-driven optimization include:'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过参数优化集成人工智能可以显著减少DBA的工作量。适合人工智能驱动的优化的关键参数包括：
 - en: Buffer pool size
+  id: totrans-32
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 缓冲池大小
 - en: Spin delay settings
+  id: totrans-33
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 自旋延迟设置
 - en: Dynamic transaction throttling limits based on environment
+  id: totrans-34
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 基于环境的动态事务节流限制
 - en: Dynamic XCom cache size adjustment
+  id: totrans-35
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 动态XCom缓存大小调整
 - en: MySQL secondary worker max queue size
+  id: totrans-36
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: MySQL从库的最大队列大小
 - en: The number of Paxos pipelining instances and the size of batching
+  id: totrans-37
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: Paxos流水线实例的数量和批处理的大小
 - en: Automatic parameter adjustments under heavy load to improve processing capability
+  id: totrans-38
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在高负载下自动调整参数以提高处理能力
 - en: 12.11.2 Learning-based Database Monitoring
+  id: totrans-39
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 12.11.2 基于学习的数据库监控
 - en: AI could optimize database monitoring by determining the optimal times and methods
     for tracking various database metrics.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 人工智能可以通过确定跟踪各种数据库指标的最佳时间和方法来优化数据库监控。
 - en: 12.12 Summary
+  id: totrans-41
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 12.12 总结
 - en: Programming demands strong logical reasoning skills, crucial for problem-solving,
     algorithm design, debugging, code comprehension, performance optimization, and
     testing. It helps in analyzing problems, creating solutions, correcting errors,
     and ensuring software reliability. Developing logical reasoning is essential for
     programmers to think systematically and build efficient, reliable software [56].
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 编程需要强大的逻辑推理技能，这对于问题解决、算法设计、调试、代码理解、性能优化和测试至关重要。它有助于分析问题、创建解决方案、纠正错误并确保软件可靠性。培养逻辑推理能力对于程序员来说，有助于系统性地思考并构建高效、可靠的软件
+    [56]。
 - en: MySQL development often focuses primarily on simple tests using testing tools,
     which can miss opportunities to discover many problems. Testing MySQL itself is
     a monumental task, and relying solely on testing tools is insufficient to expose
     all problems. Optimization differs across projects and environments, and using
     real online traffic makes it more targeted and effective. Thus, MySQL optimization
     based on live traffic is highly valuable.
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL开发通常主要关注使用测试工具进行的简单测试，这可能会错过发现许多问题的机会。测试MySQL本身是一项艰巨的任务，仅依靠测试工具是不够的，无法暴露所有问题。优化在不同项目和环境中有所不同，使用真实在线流量使其更具针对性和有效性。因此，基于实时流量的MySQL优化非常有价值。
 - en: MySQL performance optimization heavily relies on mitigating scalability problems.
     Enhanced versions of MySQL have addressed most scalability problems, establishing
     a solid foundation for further optimizations. Profile-guided optimization (PGO)
     is crucial for MySQL, and as scalability problems improve, its importance will
     continue to grow. Utilizing better memory allocation tools can significantly improve
     the performance of both the MySQL primary and secondary replay.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL性能优化严重依赖于缓解可伸缩性问题。MySQL的增强版本解决了大多数可伸缩性问题，为进一步的优化奠定了坚实的基础。性能引导优化（PGO）对MySQL至关重要，随着可伸缩性问题的改善，其重要性将继续增长。利用更好的内存分配工具可以显著提高MySQL主从库重放的性能。
 - en: We firmly believe that high availability solutions based on Paxos log persistence
     will be the future trend. Our extensive experience in the long-term transformation
     of Group Replication has laid a solid foundation for achieving true high availability.
     The speed of MySQL secondary replay determines the quality of MySQL’s high availability.
     Achieving replay speeds in the range of millions of tpmC is possible but requires
     persistent effort.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们坚信，基于Paxos日志持久性的高可用性解决方案将是未来的趋势。我们在长期转型Group Replication方面的丰富经验为真正实现高可用性奠定了坚实的基础。MySQL从库重放的速度决定了MySQL高可用性的质量。在数百万tpmC范围内实现重放速度是可能的，但需要持续的努力。
 - en: Although MySQL optimization is a long and winding process, we are confident
     that MySQL will continue to improve over time.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管MySQL优化是一个漫长而曲折的过程，但我们相信MySQL将会随着时间的推移而持续改进。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/References.html)'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一页](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/References.html)'

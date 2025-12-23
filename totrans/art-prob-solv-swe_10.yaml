@@ -1,23 +1,33 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 《软件工程中的问题解决艺术：如何优化MySQL》
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part3.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part3.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part3.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part3.html)
 - en: Part3 Analyzing and Addressing MySQL Problems
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第三部分 分析和解决MySQL问题
 - en: This part focuses on analyzing and addressing specific problems. Chapter 7 highlights
     notable optimizations in MySQL 8.0, while Chapter 8 examines improvements for
     solving problems specific to MySQL 8.0\. Chapter 9 discusses enhancements in MySQL
     Group Replication, and Chapter 10 covers improvements in MySQL secondary replay.
     Together, these chapters enhance MySQL performance and lay the groundwork for
     achieving a high-availability cluster.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 本部分专注于分析和解决特定问题。第七章突出了MySQL 8.0中的显著优化，而第八章探讨了针对MySQL 8.0特定问题的改进。第九章讨论了MySQL组复制的增强功能，第十章涵盖了MySQL二级重放的改进。这些章节共同提升了MySQL的性能，并为实现高可用性集群奠定了基础。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter7.html)'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一节](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter7.html)'

@@ -1,23 +1,33 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 软件工程中的问题解决艺术_如何让MySQL变得更好
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part2.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part2.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part2.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part2.html)
 - en: Part2 Basics
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Part2 基础
 - en: This part primarily covers the fundamental knowledge related to problem-solving.
     Chapter 3 emphasizes the importance of logical reasoning skills in addressing
     MySQL challenges effectively. Chapter 4 provides practical computer fundamentals
     essential for understanding MySQL problems. Chapter 5 introduces MySQL kernel
     basics, laying the groundwork for subsequent problem-solving discussions. Chapter
     6 covers scientific methods for testing MySQL.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 本部分主要涵盖与问题解决相关的基础知识。第三章强调在有效解决MySQL挑战时逻辑推理技能的重要性。第四章提供了理解MySQL问题所必需的实用计算机基础知识。第五章介绍了MySQL内核基础，为后续的问题解决讨论奠定了基础。第六章涵盖了测试MySQL的科学方法。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter3.html)'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一章](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter3.html)'

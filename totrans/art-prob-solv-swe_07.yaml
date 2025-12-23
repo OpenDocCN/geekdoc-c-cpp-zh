@@ -1,59 +1,94 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4.html)
 - en: 'Chapter 4: Fundamentals of Computer Science'
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第四章：计算机科学基础
 - en: To effectively address MySQL’s myriad problems, a solid foundation in computer
     science is indispensable. MySQL not only encapsulates a wealth of computer science
     principles but also presents learners with diverse challenges, offering valuable
     practical experience. This chapter centers on essential computer science fundamentals
     necessary for solving MySQL problems. The emphasis is on applying this foundational
     knowledge in practical scenarios, rather than theoretical teaching.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了有效地解决 MySQL 的众多问题，坚实的计算机科学基础是必不可少的。MySQL 不仅封装了丰富的计算机科学原理，还为学习者提供了各种挑战，提供了宝贵的实践经验。本章重点介绍了解决
+    MySQL 问题所需的计算机科学基础知识。重点是应用这些基础知识于实际场景，而不是理论教学。
 - en: '[4.1 System Architecture](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_1.html)'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.1 系统架构](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_1.html)'
 - en: '[4.2 Data Structure](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_2.html)'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.2 数据结构](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_2.html)'
 - en: '[4.3 Algorithm](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_3.html)'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.3 算法](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_3.html)'
 - en: '[4.4 Operating system](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_4.html)'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.4 操作系统](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_4.html)'
 - en: '[4.5 Compiler Theory](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_5.html)'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.5 编译原理](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_5.html)'
 - en: '[4.6 Queueing Theory](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_6.html)'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.6 排队论](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_6.html)'
 - en: '[4.7 Computer Networking](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_7.html)'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.7 计算机网络](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_7.html)'
 - en: '[4.8 Performance Optimization](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_8.html)'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.8 性能优化](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_8.html)'
 - en: '[4.9 Distributed Theory](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_9.html)'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.9 分布式理论](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_9.html)'
 - en: '[4.10 Database Fundamentals](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_10.html)'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.10 数据库基础](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_10.html)'
 - en: '[4.11 Software Architecture Design](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_11.html)'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.11 软件架构设计](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_11.html)'
 - en: '[4.12 Software Testing](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_12.html)'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '[4.12 软件测试](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_12.html)'
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_1.html)'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一页](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4_1.html)'

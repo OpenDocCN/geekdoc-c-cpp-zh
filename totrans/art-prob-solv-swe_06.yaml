@@ -1,64 +1,88 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 《软件工程中的问题解决艺术_如何让MySQL更佳》
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter3.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter3.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter3.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter3.html)
 - en: 'Chapter 3: How to Solve Software Problems Effectively'
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第三章：如何有效解决软件问题
 - en: When encountering challenging problems, software professionals often rely on
     experience to find solutions. However, especially with the numerous MySQL problems
     discussed in this book, it is challenging to identify the root cause of problems
     based solely on experience. Therefore, scientific methods are needed to analyze
     and solve these problems.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 当遇到具有挑战性的问题时，软件专业人士通常会依赖经验来寻找解决方案。然而，尤其是这本书中讨论的众多MySQL问题，仅凭经验很难确定问题的根本原因。因此，需要科学的方法来分析和解决这些问题。
 - en: 'This chapter discusses how to analyze and solve problems from two different
     levels: strategy and tactics [1].'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章讨论了如何从两个不同层面分析解决问题：策略和战术 [1]。
 - en: 3.1 Analysis Strategies
+  id: totrans-5
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3.1 分析策略
 - en: There are many analysis strategies, including psychological strategies, simplification
     strategies, pattern-finding strategies, strategies to increase reproducibility,
     and strategies to find key evidence.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 存在许多分析策略，包括心理策略、简化策略、模式发现策略、提高可重现性的策略和寻找关键证据的策略。
 - en: 3.1.1 Psychological Strategies
+  id: totrans-7
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.1.1 心理策略
 - en: Many people often feel overwhelmed by problems, especially when they seem mysterious
     or difficult to solve. When they encounter such challenges, their first instinct
     is to seek help from others if they cannot solve them on their own. However, relying
     solely on others can hinder the opportunity to develop and strengthen one’s own
     logical thinking skills through problem-solving.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多人经常感到问题压倒性，尤其是当它们看似神秘或难以解决时。当他们遇到这样的挑战时，他们首先的本能是如果自己无法解决，就寻求他人的帮助。然而，仅仅依赖他人可能会阻碍通过问题解决来发展和加强自己的逻辑思维能力的机会。
 - en: When faced with difficulties, particularly those that seem complex, it is crucial
     to approach them with confidence. These challenges can serve as opportunities
     to unlock one’s potential and enhance problem-solving abilities. MySQL, as a complex
     database software, presents numerous such challenges.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 面对困难，尤其是那些看似复杂的问题，以自信的态度去应对是至关重要的。这些挑战可以作为挖掘个人潜力并提高问题解决能力的机遇。MySQL作为一款复杂的数据库软件，提供了许多这样的挑战。
 - en: Firstly, encountering these challenges leads to a deeper understanding of MySQL
     over time. Secondly, they offer invaluable opportunities to tackle complex problems,
     thereby improving developers’ problem-solving capabilities. Lastly, the historical
     problems associated with MySQL are invaluable; without them, books like this one
     would not exist. Each challenge contributes to expanding our knowledge base and
     refining our approach to solving MySQL-related problems.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，随着时间的推移，遇到这些挑战会导致对MySQL的更深入理解。其次，它们提供了宝贵的解决复杂问题的机会，从而提高开发者的问题解决能力。最后，与MySQL相关的历史问题非常有价值；没有它们，像这样的书籍就不会存在。每个挑战都有助于扩展我们的知识库并完善我们解决MySQL相关问题的方法。
 - en: 3.1.2 Simplification Strategies
+  id: totrans-11
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.1.2 简化策略
 - en: When a problem occurs and reproducing the original conditions is very complex,
     it’s essential to simplify the reproduction environment step by step. This approach
     allows you to check if the problem still occurs. If it does, you continue simplifying
@@ -67,12 +91,16 @@
     with a MySQL cluster, begin by checking if the problem occurs on a single MySQL
     instance. If it does, there’s no need to set up the entire cluster; you can troubleshoot
     using the single instance.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 当问题发生且重现原始条件非常复杂时，逐步简化重现环境是至关重要的。这种方法允许你检查问题是否仍然存在。如果存在，你继续简化直到问题不再显现。这种策略显著简化了问题分析难度。例如，当处理MySQL集群的问题时，首先检查问题是否出现在单个MySQL实例上。如果出现，就没有必要设置整个集群；你可以使用单个实例进行故障排除。
 - en: 3.1.3 Pattern-finding Strategies
+  id: totrans-13
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.1.3 模式发现策略
 - en: When a problem recurs, it often reveals underlying characteristics, facilitating
     the statistical aggregation of patterns and regularities associated with it. This
     data supports problem reproduction and inference-making. For instance, after PGO,
@@ -81,19 +109,25 @@
     at lower levels. This insight lays the groundwork for addressing subsequent problems
     and reinforces confidence in PGO’s potential to improve throughput in high concurrency
     scenarios.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 当问题复发时，它通常会揭示潜在的特征，从而促进与问题相关的模式和规律性的统计聚合。这些数据支持问题的重现和推理。例如，在PGO之后，而不是增加，峰值性能反而下降。在各个并发级别进行测试时，在高并发下出现了显著的下降，而在较低级别观察到改进。这一洞察为解决后续问题奠定了基础，并增强了在高度并发场景下PGO提高吞吐量的潜力的信心。
 - en: 3.1.4 Strategies to Increase Reproducibility
+  id: totrans-15
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.1.4 提高可重现性的策略
 - en: Many problems are environment-specific, often manifesting sporadically, especially
     under high concurrency. The challenge lies in addressing these infrequent occurrences,
     which may happen just once every few months. Increasing the frequency of problem
     reproduction—from every few months to every few hours or minutes—significantly
     simplifies their resolution.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多问题是环境特定的，通常在并发度高时偶尔出现。挑战在于解决这些不经常发生的情况，这些情况可能每几个月才发生一次。将问题重现的频率从每几个月一次提高到每几个小时或几分钟，可以显著简化它们的解决。
 - en: How can this be achieved? Capturing patterns in problem occurrence is crucial.
     For example, when addressing simultaneous failures in Group Replication that sporadically
     freeze views, analyzing statistical patterns reveals critical insights. These
@@ -102,63 +136,91 @@
     problem reproduction. Once these critical factors are understood, the likelihood
     of reproducing problems increases significantly, laying a solid foundation for
     effective problem resolution.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 如何实现这一点？捕捉问题发生中的模式至关重要。例如，在处理组复制中同时发生的、偶尔冻结视图的故障时，分析统计模式可以揭示关键见解。这些问题通常围绕特定的阈值聚集。将底层通信超时设置调整到与网络中断持续时间一致，可以更频繁地重现问题。一旦理解了这些关键因素，重现问题的可能性显著增加，为有效解决问题奠定了坚实的基础。
 - en: Therefore, the ability to reproduce problems often proves crucial in solving
     challenging problems. Improving the reproducibility by capturing the characteristics
     of problem recurrence is key to expediting problem resolution.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，能够重现问题通常在解决难题时至关重要。通过捕捉问题复发的特征来提高可重现性是加速问题解决的关键。
 - en: 3.1.5 Strategies to Find Key Evidence
+  id: totrans-19
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.1.5 寻找关键证据的策略
 - en: Sometimes, revealing the characteristics of a problem directly is challenging;
     it necessitates creating conditions that fully manifest the problem. Let’s revisit
     the figure below, using PGO as an example.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 有时，直接揭示问题的特征是具有挑战性的；它需要创造条件，以充分展现问题。让我们回顾下面的图，以PGO为例。
 - en: '![image-20240829082635337](../Images/424d8968fcfb9fc62a48f3c7040e0d40.png)'
+  id: totrans-21
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829082635337](../Images/424d8968fcfb9fc62a48f3c7040e0d40.png)'
 - en: Figure 3-1\. Performance comparison tests before and after using PGO in MySQL
     8.0.27.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 图3-1. 在MySQL 8.0.27下使用PGO前后的性能比较测试。
 - en: PGO (Profile-Guided Optimization) is effective in improving throughput under
     low concurrency. However, there is a strong belief that interference from other
     factors in high concurrency scenarios limits PGO’s ability to achieve its intended
     effectiveness.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: PGO（基于配置文件优化）在低并发情况下有效提高吞吐量。然而，人们普遍认为，在高并发场景中，其他因素的干扰限制了PGO实现预期效果的能力。
 - en: 'Based on the above analysis, binding the MySQL instance to NUMA node 0 allowed
     us to explore whether PGO can achieve its performance potential in an SMP environment.
     For specific comparative test results, please refer to the following figure:'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于上述分析，将MySQL实例绑定到NUMA节点0使我们能够探索PGO是否能够在SMP环境中实现其性能潜力。对于具体的比较测试结果，请参阅以下图：
 - en: '![image-20240829082659498](../Images/88c64ba253046b12fa59e14ed1dd14f6.png)'
+  id: totrans-25
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829082659498](../Images/88c64ba253046b12fa59e14ed1dd14f6.png)'
 - en: Figure 3-2\. Performance comparison tests before and after using PGO in MySQL
     8.0.27 under SMP.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 图3-2. 在MySQL 8.0.27下使用PGO前后的性能比较测试。
 - en: From the figure, binding to a single NUMA node demonstrates that PGO significantly
     improves performance across all concurrency scenarios shown. This finding underscores
     PGO’s ability to boost MySQL throughput, establishing a strong basis for improving
     performance in NUMA environments.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，绑定到单个 NUMA 节点表明 PGO 显著提高了所有显示的并发场景的性能。这一发现强调了 PGO 提高 MySQL 吞吐量的能力，为在
+    NUMA 环境中提高性能奠定了坚实的基础。
 - en: Regarding the sharp decline in TPC-C throughput discussed in section 2.4, users
     encountered this problem during regression testing after upgrading to MySQL 8.0.29\.
     Notably, this performance drop was absent in MySQL 8.0.25\. User feedback on this
     discrepancy is pivotal, greatly facilitating the resolution process.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于 2.4 节中讨论的 TPC-C 吞吐量急剧下降，用户在升级到 MySQL 8.0.29 后的回归测试中遇到了这个问题。值得注意的是，在 MySQL
+    8.0.25 中没有出现这种性能下降。用户对这种差异的反馈对于解决过程至关重要，极大地促进了问题的解决。
 - en: 3.2 Logical Thinking
+  id: totrans-29
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3.2 逻辑思维
 - en: At the core of programming lies problem-solving. Logical reasoning empowers
     programmers to break down complex problems into manageable components and devise
     practical solutions by analyzing requirements, understanding relationships between
@@ -170,104 +232,146 @@
     analysis, solution design, error correction, and performance optimization in programming.
     It utilizes deductive, inductive, abductive reasoning, and reductio ad absurdum
     to gather key evidence, identify contradictions, and ensure software reliability.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 编程的核心是解决问题。逻辑推理使程序员能够将复杂问题分解成可管理的组件，通过分析需求、理解元素之间的关系以及逻辑和高效地规划，来制定实际可行的解决方案。这种结构化方法使程序员能够进行批判性思考并创造性地创新[56]。逻辑推理在计算机工程中对于创建合理的推断至关重要。在工作场所中，逻辑思维的增强通过改进决策和减少错误来提高生产力。基于顺序思维，逻辑是所有系统分析、解决方案设计、错误纠正和性能优化的基础。它利用演绎、归纳、类比推理和归谬法来收集关键证据、识别矛盾并确保软件可靠性。
 - en: 3.2.1 Deductive Reasoning
+  id: totrans-31
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.2.1 演绎推理
 - en: 'Deductive reasoning involves deriving conclusions from premises, often structured
     as syllogisms. A syllogism typically comprises a major premise, a minor premise,
     and a conclusion. For instance:'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 演绎推理涉及从前提中得出结论，通常结构为三段论。三段论通常包括一个主要前提、一个小前提和一个结论。例如：
 - en: 'Major premise: All cluster databases cannot simultaneously meet the three requirements
     of CAP (consistency, availability, and partition tolerance).'
+  id: totrans-33
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 主要前提：所有集群数据库都无法同时满足 CAP（一致性、可用性和分区容错性）的三个要求。
 - en: 'Minor premise: Group Replication is a type of cluster database.'
+  id: totrans-34
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 小前提：Group Replication 是一种集群数据库。
 - en: 'Conclusion: Therefore, Group Replication also cannot meet the three requirements
     of CAP.'
+  id: totrans-35
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 结论：因此，Group Replication 也不能满足 CAP 的三个要求。
 - en: Given Group Replication’s inability to meet these requirements, it should be
     chosen based on user-specific needs rather than attempting to satisfy all criteria.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于 Group Replication 无法满足这些要求，它应根据用户特定的需求来选择，而不是试图满足所有标准。
 - en: 'Here’s another example:'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里还有一个例子：
 - en: 'Major premise: Asynchronous network systems struggle to differentiate between
     slow response and system outage.'
+  id: totrans-38
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 主要前提：异步网络系统难以区分缓慢响应和系统故障。
 - en: 'Minor premise: TCP communication relies on asynchronous networks.'
+  id: totrans-39
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 小前提：TCP 通信依赖于异步网络。
 - en: 'Conclusion: Thus, TCP communication systems also encounter challenges in distinguishing
     between slow response and actual system failure.'
+  id: totrans-40
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 结论：因此，TCP 通信系统在区分缓慢响应和实际系统故障方面也遇到了挑战。
 - en: Due to these challenges, TCP design must incorporate specific features such
     as robust timeout mechanisms and support for idempotency.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于这些挑战，TCP 设计必须包含特定的功能，例如强大的超时机制和对幂等性的支持。
 - en: 3.2.2 Inductive Reasoning
+  id: totrans-42
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.2.2 归纳推理
 - en: 'Inductive reasoning extrapolates from specific instances to general conclusions.
     For instance:'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 归纳推理从具体实例推断出一般结论。例如：
 - en: On x86 NUMA platforms, native MySQL 8.0.32 shows poor scalability under the
     Read Committed isolation level.
+  id: totrans-44
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在 x86 NUMA 平台上，原生 MySQL 8.0.32 在 Read Committed 隔离级别下表现出较差的可伸缩性。
 - en: On ARM NUMA platforms, native MySQL 8.0.32 similarly demonstrates poor scalability
     under the Read Committed isolation level.
+  id: totrans-45
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在ARM NUMA平台上，原生MySQL 8.0.32在Read Committed隔离级别下同样表现出较差的可扩展性。
 - en: Therefore, on various NUMA platforms, native MySQL 8.0.32 consistently exhibits
     poor scalability under the Read Committed isolation level. Inductive reasoning
     is crucial for problem analysis and holds practical significance across diverse
     applications.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，在各种NUMA平台上，原生MySQL 8.0.32在Read Committed隔离级别下始终表现出较差的可扩展性。归纳推理在问题分析中至关重要，并在各种应用中具有实际意义。
 - en: 3.2.3 Abductive Reasoning
+  id: totrans-47
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.2.3 归纳推理
 - en: Abductive reasoning, also known as backward reasoning, involves deriving the
     best explanation from observed facts. It is a widely employed method in solving
     programming problems, especially when symptoms are evident but the underlying
     cause is unclear. For example, after optimizing MySQL with PGO (Profile-Guided
     Optimization), if throughput peaks decrease rather than increase, abductive reasoning
     may reveal that poor MySQL handling in NUMA environments is causing this outcome.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 归纳推理，也称为逆向推理，涉及从观察到的事实中推导出最佳解释。它是解决编程问题中广泛使用的方法，尤其是在症状明显但根本原因不明确时。例如，在用PGO（配置文件引导优化）优化MySQL后，如果吞吐量峰值下降而不是上升，归纳推理可能揭示出在NUMA环境中MySQL处理不当是导致这种结果的原因。
 - en: 3.2.4 Reductio ad Absurdum
+  id: totrans-49
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.2.4 反证法
 - en: “Reductio ad absurdum” is a method of disproving a proposition by demonstrating
     that its logical conclusion leads to an absurd or contradictory outcome. This
     approach aims to show that a statement or hypothesis must be false because accepting
     it would result in an illogical or unacceptable result. It is a common method
     used to refute arguments, characterized by the strategy of “*retreating to advance*”,
     where introducing absurdity exposes flaws in reasoning.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: “Reductio ad absurdum”是一种通过证明其逻辑结论导致荒谬或矛盾的结果来反驳命题的方法。这种方法旨在表明，一个陈述或假设必须是错误的，因为接受它会导致不逻辑或不可接受的结果。这是一种常见的反驳论点的方法，其策略是“*退而求进*”，通过引入荒谬来暴露推理中的缺陷。
 - en: For example, Group Replication often reports network unreachable errors. To
     verify the reliability of these error messages, consider them accurate. However,
     deploying Group Replication in a controlled localhost environment, where external
@@ -275,35 +379,49 @@
     Yet, during the normal TPC-C data loading process, frequent network unreachable
     errors persist. This inconsistency indicates that the error messages cannot be
     relied upon.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，组复制经常报告网络不可达错误。为了验证这些错误信息的可靠性，应将其视为准确。然而，在不需要外部网络访问的受控localhost环境中部署组复制，不应导致相同的网络错误。然而，在正常的TPC-C数据加载过程中，频繁的网络不可达错误仍然存在。这种不一致性表明，不能依赖错误信息。
 - en: 3.2.5 Utilizing Various Methods Comprehensively
+  id: totrans-52
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.2.5 全面利用各种方法
 - en: The challenges in software problem-solving differ significantly from those in
     mathematical problems, often influenced by human misjudgments and numerous external
     factors, leading to frequent errors in judgment. The theoretical foundation in
     this area is relatively underdeveloped, heightening the complexity of problem-solving.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 软件问题解决中的挑战与数学问题中的挑战显著不同，通常受人类误判和众多外部因素的影响，导致频繁的判断错误。该领域的理论基础相对不发达，增加了问题解决的复杂性。
 - en: Utilizing logical thinking methods is crucial for solving complex programming
     problems. These methods often necessitate synthesizing diverse approaches to address
     challenges, occasionally incorporating probability information.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 利用逻辑思维方法是解决复杂编程问题的关键。这些方法通常需要综合多种方法来应对挑战，有时还会结合概率信息。
 - en: 3.3 Tactics for Solving Problems
+  id: totrans-55
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3.3 解决问题的策略
 - en: Strategies themselves rarely directly solve problems; more powerful methods
     are needed to solve them.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 策略本身很少直接解决问题；需要更强大的方法来解决它们。
 - en: 3.3.1 Balancing Different Options
+  id: totrans-57
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.3.1 平衡不同选项
 - en: 'Once the root cause of the problem is identified, there are often multiple
     options to choose from, requiring a careful balance of their pros and cons. For
     example, when addressing the poor compatibility of InnoDB with NUMA, there are
@@ -315,49 +433,72 @@
     which was a prudent decision. As for scalability problems under high concurrency,
     implementing transaction throttling mechanisms can improve performance comparable
     to latch-free solutions.'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦确定了问题的根本原因，通常有多种选择可供选择，需要仔细权衡它们的利弊。例如，在解决InnoDB与NUMA兼容性差的问题时，有两种解决方案：第一种是无锁修改，这种方法复杂、易出错且维护成本高；第二种是提高访问关键锁资源的速度，这是一个更简单的解决方案，但不是最终的解决方案，因为它在极高并发下仍然存在问题。鉴于在修改过程中需要与MySQL官方版本保持兼容性的需求，选择了第二种方案，这是一个谨慎的决定。至于在高并发下的可扩展性问题，实现事务节流机制可以提高与无锁解决方案相当的性能。
 - en: 3.3.2 Decompose the Problem
+  id: totrans-59
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.3.2 分解问题
 - en: Complex problems often bring multiple associated problems that can significantly
     interfere with analysis and judgment. To effectively solve such problems, it’s
     crucial to eliminate these disturbances, simplify the problem, and minimize the
     risk of misjudgment. For instance, when optimizing the Paxos algorithm in Group
     Replication, addressing other performance problems beforehand is essential to
     accurately gauge the impact of Paxos algorithm optimization.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 复杂问题通常会带来多个相关的问题，这些问题的存在可能会严重影响分析和判断。为了有效地解决这类问题，消除这些干扰、简化问题并最小化误判的风险至关重要。例如，在优化Group
+    Replication中的Paxos算法时，事先解决其他性能问题是准确评估Paxos算法优化影响的关键。
 - en: 'Once all disturbances are eliminated, if the core problem remains overly complex,
     decomposing it further becomes necessary. An example of redo log optimization
     is shown in the figure below:'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦所有干扰都被消除，如果核心问题仍然过于复杂，进一步分解它就变得必要了。下面图示展示了重做日志优化的一个例子：
 - en: '![](../Images/55494ad835ef85da7c96ba7a54419912.png)'
+  id: totrans-62
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/55494ad835ef85da7c96ba7a54419912.png)'
 - en: Figure 3-3\. Description of the official worklog for redo log optimization.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 图3-3\. 重做日志优化官方工作日志的描述。
 - en: 'To address the scalability problems of redo log, developers have subdivided
     this problem into the following sub-problems:'
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决重做日志的可扩展性问题，开发者已经将这个问题细分为以下子问题：
 - en: '![](../Images/dbf161ee92fcb84b37550763ee075e40.png)'
+  id: totrans-65
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/dbf161ee92fcb84b37550763ee075e40.png)'
 - en: Figure 3-4\. Requirements of the official worklog for redo log optimization.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 图3-4\. 重做日志优化官方工作日志的要求。
 - en: This involves latch-free concurrent writing to the log buffer, dedicated threads
     for handling write and flush processes, and so on.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 这涉及到对日志缓冲区的无锁并发写入，为处理写入和刷新过程而专设的线程，等等。
 - en: 3.3.3 Finding Solutions Through Exploration
+  id: totrans-68
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.3.3 通过探索寻找解决方案
 - en: When confronted with unfamiliar problems or when overwhelmed by excessive details,
     it is essential to explore while simultaneously seeking solutions. This approach
     is particularly effective for resolving complex issues. For instance, during our
@@ -365,45 +506,61 @@
     optimization, with many details yet to be considered. At this stage, we needed
     to test and refine our solutions through the challenges encountered, ultimately
     achieving our optimization goals step by step.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 面对不熟悉的问题或被过多的细节所淹没时，同时探索和寻求解决方案是至关重要的。这种方法对于解决复杂问题特别有效。例如，在我们对Paxos算法进行优化时，最初我们只有对优化的基本概念，还有许多细节尚未考虑。在这个阶段，我们需要通过遇到的挑战来测试和改进我们的解决方案，最终逐步实现我们的优化目标。
 - en: 3.3.4 Seeking Theoretical Support
+  id: totrans-70
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.3.4 寻求理论支持
 - en: In the process of enhancing Group Replication, rooted in State Machine Replication
     (SMR) theory, it’s crucial to begin by acquiring a substantial amount of theoretical
     knowledge through thorough paper reviews. This approach fosters a deeper understanding
     and maintains clarity throughout the enhancement process, ensuring a comprehensive
     grasp of the concepts and preventing deviation from the intended path.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 在增强群复制（Group Replication）的过程中，基于状态机复制（State Machine Replication, SMR）理论，首先通过彻底的论文审查获取大量的理论知识至关重要。这种方法有助于加深理解，并在整个增强过程中保持清晰，确保全面掌握概念，防止偏离既定路径。
 - en: 'The book “Designing Data-Intensive Applications” discusses theory very well,
     specifically as follows [28]:'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 书籍《设计数据密集型应用》很好地讨论了理论，具体如下 [28]：
 - en: '*Although the theoretical papers and proofs are not always easy to understand,
     and sometimes make unrealistic assumptions, they are incredibly valuable for informing
     practical work in this field: they help us reason about what can and cannot be
     done, and help us find the counterintuitive ways in which distributed systems
     are often flawed. If you have the time, the references are well worth exploring.*'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: '*尽管理论论文和证明不一定容易理解，有时会做出不切实际的假设，但它们对于指导该领域的实际工作具有极大的价值：它们帮助我们思考什么可以做，什么不可以做，并帮助我们找到分布式系统常常存在的反直觉缺陷。如果你有时间，这些参考文献非常值得探索。*'
 - en: It is worth mentioning that this book includes a large amount of scholarly material
     as the basis for deductive reasoning and theoretical support.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得一提的是，这本书包含了大量的学术材料，作为演绎推理和理论支持的基础。
 - en: 3.3.5 Logic-based Testing
+  id: totrans-75
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.3.5 基于逻辑的测试
 - en: To assess the performance improvement potential of a new feature, rigorous iterative
     testing and validation across various perspectives and environments are essential.
     Reliable conclusions ensure predictable outcomes in subsequent tests. Any deviations
     observed during validation must be thoroughly investigated to identify potential
     interfering factors.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了评估新特性的性能改进潜力，从各种角度和环境中进行严格的迭代测试和验证是必不可少的。可靠的结论确保后续测试的可预测结果。在验证过程中观察到的任何偏差都必须彻底调查，以确定潜在的干扰因素。
 - en: For instance, consider the thread pool mechanism’s impact on performance, particularly
     under high-concurrency testing conditions. Previous validations on MySQL 5.7 demonstrated
     significant throughput improvements with the thread pool. However, subsequent
@@ -411,11 +568,16 @@
     Chapter 2.3 indicate a negative scalability impact of the Percona thread pool.
     MySQL’s official technical blog reports a decline in the thread pool’s effectiveness
     over time [31].
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，考虑线程池机制对性能的影响，尤其是在高并发测试条件下。在MySQL 5.7上的先前验证表明，线程池带来了显著的吞吐量提升。然而，MySQL 8.0的后续修改揭示了不同的情景。第2.3章中的案例研究表明，Percona线程池对可扩展性产生了负面影响。MySQL的官方技术博客报告称，线程池的有效性随时间下降
+    [31]。
 - en: '![image-thread-pool](../Images/d20a4e80f22d9fb9f654bca7a97203db.png)'
+  id: totrans-78
   prefs: []
   type: TYPE_IMG
+  zh: '![image-thread-pool](../Images/d20a4e80f22d9fb9f654bca7a97203db.png)'
 - en: When conducting performance comparison tests, it’s crucial to eliminate human
     errors such as changes in the environment or configurations. To mitigate this
     problem, repeating the initial test and comparing its results with those of the
@@ -423,93 +585,128 @@
     it suggests that the intermediate tests are relatively reliable. For example,
     incorporating an additional test, depicted in the following figure, to compare
     its performance variance from the initial test.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 在进行性能比较测试时，消除人为错误，如环境或配置的变化至关重要。为了减轻这个问题，重复初始测试并将其结果与第一次测试的结果进行比较，可以帮助识别显著的变化。如果没有明显差异，这表明中间测试相对可靠。例如，通过以下图中所示的增加一个测试，来比较其与初始测试的性能差异。
 - en: '![image-20240829082837729](../Images/571b561a0795de1430cbb15cfa601c9d.png)'
+  id: totrans-80
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829082837729](../Images/571b561a0795de1430cbb15cfa601c9d.png)'
 - en: Figure 3-5\. Additional test for comparing performance variance from the initial
     test.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 图3-5. 对比初始测试性能差异的附加测试。
 - en: Repeating the initial test can significantly mitigate problems of testing uncertainty
     and environmental contamination. However, this alone is not sufficient; it’s also
     necessary to explain any abnormal results from each test. If an explanation cannot
     be provided and the problem is reproducible, it often presents a new opportunity
     for optimization.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 重复初始测试可以显著减轻测试不确定性和环境污染的问题。然而，这还不足以解决问题；还必须解释每个测试中的任何异常结果。如果无法提供解释且问题可重现，这通常为优化提供了新的机会。
 - en: For instance, during TPC-C testing, an anomaly in throughput was observed, which
     was later found to be due to omitting the use of jemalloc. It was discovered that
     performance was actually better without jemalloc. Extensive testing uncovered
     that MySQL’s jemalloc 3.6 did not deliver optimal performance, prompting exploration
     into alternative jemalloc versions. These tests underscored the significant influence
     of memory allocation tools on overall performance.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，在TPC-C测试期间，观察到吞吐量异常，后来发现是由于省略了jemalloc的使用。发现实际上没有jemalloc性能更好。广泛的测试发现MySQL的jemalloc
+    3.6没有提供最佳性能，这促使人们探索替代的jemalloc版本。这些测试强调了内存分配工具对整体性能的显著影响。
 - en: 3.4 Principles of Logical Reasoning
+  id: totrans-84
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3.4 逻辑推理的原则
 - en: 'Here are principles of logical reasoning [15], which can provide some assistance
     in how to conduct logical inference:'
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是逻辑推理的原则 [15]，它可以在如何进行逻辑推理方面提供一些帮助：
 - en: '[PRE0]'
+  id: totrans-86
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '3.5 Logical Reasoning: Key to Solving Complex Problems'
+  id: totrans-87
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3.5 逻辑推理：解决复杂问题的关键
 - en: Many complex software problems arise from confusion in information and logic.
     To resolve these, it’s crucial to clarify the logical relationships through precise
     data and systematic reasoning to trace the root cause. Harnessing this logical
     approach can significantly enhance a programmer’s problem-solving skills.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多复杂的软件问题源于信息和逻辑的混淆。为了解决这些问题，通过精确的数据和系统推理来阐明逻辑关系，以追踪根本原因至关重要。利用这种逻辑方法可以显著提高程序员的解决问题的能力。
 - en: While data structures and algorithms are central to programming, solving programmatic
     problems goes beyond merely being familiar or proficient in them. It requires
     logical reasoning skills. Therefore, the content of this chapter forms the foundation
     for subsequent topics.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然数据结构和算法是编程的核心，但解决编程问题不仅仅需要熟悉或精通它们。它需要逻辑推理技能。因此，本章的内容构成了后续主题的基础。
 - en: 3.6 The Difference Between Solving Difficult Problems and Doing Exercises
+  id: totrans-90
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3.6 解决难题与做练习的区别
 - en: During exercises, essential information is typically provided, allowing students
     to apply textbook knowledge and logical reasoning to find solutions. This process
     helps develop problem-solving skills. However, upon entering the workforce and
     facing real programming challenges, individuals often feel unprepared. Schools
     rarely teach how to handle complex problems in programs like MySQL, leaving beginners
     bewildered and unsure where to start or how to find necessary information.
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 在练习中，通常提供必要的信息，使学生能够应用教科书知识和逻辑推理来找到解决方案。这个过程有助于培养解决问题的能力。然而，进入职场并面对真实的编程挑战时，个人往往感到准备不足。学校很少教授如何处理像MySQL这样的程序中的复杂问题，这使得初学者感到困惑，不知道从哪里开始或如何找到必要的信息。
 - en: Complex problems can make programmers feel as if they are encountering supernatural
     phenomena, especially when the information they obtain is conflicting or misleading.
     In practice, solving challenging programming problems is markedly different from
     solving exercise problems. Even skilled teams may spend months sifting through
     distracting information to identify the root cause, which can lead to increasing
     frustration.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 复杂的问题可能会让程序员感觉像是遇到了超自然现象，尤其是在他们获得的信息相互冲突或误导时。在实践中，解决具有挑战性的编程问题与解决练习问题明显不同。即使是技术娴熟的团队，也可能花费数月时间筛选干扰信息以确定根本原因，这可能导致不断增加的挫败感。
 - en: 'The main similarity between solving exercises and addressing real-world problems
     is logical reasoning. The difference lies in information accessibility: exercises
     provide essential details upfront, while real-world problems require reasoning
     to uncover crucial, often obscured information. This process involves distinguishing
     truth from falsehood, filtering out distractions, and identifying genuinely relevant
     conditions for effective problem-solving.'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 解决练习和解决现实问题之间的主要相似之处在于逻辑推理。区别在于信息的可访问性：练习在开始时提供必要的信息，而现实问题需要推理来揭示关键、通常被掩盖的信息。这个过程涉及区分真伪，过滤掉干扰，并确定对有效问题解决真正相关的条件。
 - en: In many cases, the difficulty of obtaining critical problem-solving information
     far surpasses the challenge of solving the problem itself.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 在许多情况下，获取关键问题解决信息的难度远超过解决问题本身的挑战。
 - en: 3.7 Common Problem-Solving Frameworks
+  id: totrans-95
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3.7 常见问题解决框架
 - en: In the software industry, when faced with problems, the initial instinct is
     often to check if others have encountered similar problems. However, during the
     problem-solving process, individuals frequently rely on personal experience to
@@ -518,8 +715,10 @@
     only temporarily alleviate the problem without addressing its root cause. Both
     questioners and solvers often prioritize quick fixes, potentially neglecting the
     crucial role of logical reasoning.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 在软件行业，面对问题时，最初的直觉通常是检查其他人是否遇到过类似的问题。然而，在问题解决过程中，个人经常依赖个人经验来提出解决方案，有时没有坚实的基础。怀疑可能指向网络故障或配置问题，促使采取各种行动，这些行动可能只是暂时缓解问题，而没有解决其根本原因。提问者和解决问题的人通常优先考虑快速修复，可能会忽视逻辑推理的关键作用。
 - en: 'Consider a real-life scenario: a DBA conducting MySQL performance tests uncovers
     unstable and low throughput. They provide details on CPU, memory, and configurations,
     noting thread-level IO with significant dirty page activity but omitting specific
@@ -527,38 +726,54 @@
     DBA-conducted tests. Suggestions regarding spin delay configuration are similarly
     disproven. Such speculative approaches prove inefficient, failing to uncover underlying
     problems.'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一个现实场景：一位数据库管理员（DBA）在进行MySQL性能测试时发现不稳定和低吞吐量。他们提供了CPU、内存和配置的详细信息，指出线程级别的I/O存在显著的脏页活动，但省略了具体的I/O设备信息。通过DBA进行的测试排除了网络问题的猜测。关于自旋延迟配置的建议也被同样驳斥。这种推测性的方法证明是低效的，未能揭示根本问题。
 - en: Professional problem-solving necessitates logical deduction based on observed
     phenomena to systematically narrow down the problem’s scope. This involves analyzing
     usage patterns across varying levels of concurrency, attempting to replicate problems
     on different machine types, and reviewing past software versions for similar problems.
     These insights contribute to precise logical reasoning.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 专业的问题解决需要基于观察现象的逻辑推理，系统地缩小问题范围。这包括分析不同并发级别下的使用模式，尝试在不同类型的机器上复制问题，并回顾过去的软件版本以寻找类似问题。这些见解有助于精确的逻辑推理。
 - en: Returning to the DBA’s case study, binding NUMA nodes on a high-spec machine
     adjusted CPU and memory resources to match user hardware specifications, while
     maintaining a high-spec disk. Tests subsequently demonstrated significantly improved
     and stable throughput. Ultimately, the critical problem was pinpointed to disparities
     in IO devices. This method effectively identifies root causes instead of relying
     solely on experiential or speculative methods.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 回到DBA的案例研究，在高性能机器上绑定NUMA节点，调整CPU和内存资源以匹配用户硬件规格，同时保持高性能的磁盘。随后的测试显示显著提高和稳定的吞吐量。最终，关键问题被定位到I/O设备的不匹配。这种方法有效地识别了根本原因，而不是仅仅依赖于经验或推测性方法。
 - en: Effective software problem-solving relies on logical reasoning. Below is a figure
     illustrating a common problem-solving framework.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 有效的软件问题解决依赖于逻辑推理。下面是一个展示常见问题解决框架的图示。
 - en: '![](../Images/fce4a3973c015ff3d5467ed147737322.png)'
+  id: totrans-101
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/fce4a3973c015ff3d5467ed147737322.png)'
 - en: Figure 3-6\. A general framework for solving program problems.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 图3-6。解决程序问题的通用框架。
 - en: The figure integrates logical reasoning and information retrieval. Maintaining
     logical thinking ensures each step’s reliability. Without it, one risks falling
     into traps that hinder effective software problem-solving.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 该图整合了逻辑推理和信息检索。保持逻辑思维确保每一步的可靠性。没有它，一个人可能会陷入阻碍有效软件问题解决的陷阱。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4.html)'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一节](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter4.html)'

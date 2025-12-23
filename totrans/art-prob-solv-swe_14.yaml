@@ -1,316 +1,458 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 《软件工程中的问题解决艺术——如何让MySQL更优秀》
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter10.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter10.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: '[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter10.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter10.html)'
 - en: 'Chapter 10: Major Improvements for MySQL Secondary Replay'
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第10章：MySQL二级重放的重大改进
 - en: 10.1 The Mechanism of MySQL Secondary Replay
+  id: totrans-3
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 10.1 MySQL二级重放机制
 - en: MySQL supports primary/secondary replication, typically using log shipping.
     A replicated MySQL instance consists of a primary and one or more secondaries.
     Transactions are first executed on the primary. The primary generates logs recording
     the operations performed by these transactions and ships the log entries to the
     secondaries. Secondaries replay the log entries in serial order to reach the same
     state as the primary [16].
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL支持主/从复制，通常使用日志传输。一个复制的MySQL实例由一个主实例和一个或多个从实例组成。事务首先在主实例上执行。主实例生成记录这些事务操作的日志，并将日志条目传输到从实例。从实例按顺序重放日志条目，以达到与主实例相同的状态
+    [16]。
 - en: It should be noted that the MySQL secondary replay mechanism discussed above
     refers to replaying transactions in the order they were committed. Transactions
     that do not conflict with each other before committing can be executed in parallel.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 应该注意的是，上述讨论的MySQL二级重放机制是指按事务提交的顺序重放事务。在提交之前不冲突的事务可以并行执行。
 - en: Whether using asynchronous replication, semisynchronous replication, or Group
     Replication, they all follow the same replay process. MySQL secondary replay must
     ensure correct replay, support consistent reads, and be fast for high availability.
     Therefore, the ability of MySQL secondary instances to replay transactions with
     high quality is crucial for the cluster’s performance.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 不论是使用异步复制、半同步复制还是组复制，它们都遵循相同的重放过程。MySQL二级重放必须确保正确重放，支持一致性读取，并且对于高可用性要快速。因此，MySQL从实例以高质量重放事务的能力对于集群的性能至关重要。
 - en: 10.1.1 Ensuring Replay Correctness
+  id: totrans-7
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.1.1 确保重放正确性
 - en: To ensure correct replay, it is necessary to establish dependencies between
     transactions. If there are conflicts between two transactions, the replay order
     must be determined—specifically, which transaction should be replayed first and
     which should follow. These dependencies are based on the transaction order in
     the binlog or relay log files.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了确保正确重放，有必要在事务之间建立依赖关系。如果有两个事务之间存在冲突，必须确定重放顺序——具体来说，哪个事务应该首先重放，哪个应该随后。这些依赖关系基于binlog或中继日志文件中的事务顺序。
 - en: Once the dependencies are established, ensuring the idempotence of replay is
     crucial. This property is essential, especially in scenarios like crash recovery,
     to guarantee that transactions can be replayed correctly and consistently without
     unintended side effects.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦建立了依赖关系，确保重放幂等性至关重要。这种属性在诸如崩溃恢复等场景中尤为重要，以确保事务可以正确且一致地重放，而不产生意外的副作用。
 - en: 'To ensure idempotence in GTID-based MySQL secondary replay, see the specific
     code below:'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了确保基于GTID的MySQL二级重放的幂等性，请参阅以下具体代码：
 - en: '[PRE0]'
+  id: totrans-11
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: 'Specific details of the *is_already_logged_transaction* function are explained
     below:'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面将解释 *is_already_logged_transaction* 函数的详细信息：
 - en: '[PRE1]'
+  id: totrans-13
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Essentially, it checks if the GTID transaction has already been executed and
     skips it if it has.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上，它检查GTID事务是否已经被执行，如果是，则跳过它。
 - en: Besides establishing the replay relationship between different transactions
     and maintaining idempotence, MySQL transaction replay also needs to support a
     retry process. In extreme cases, replay can sometimes cause deadlocks due to conflicting
     lock strategies. When this happens, the transaction that was killed needs to be
     replayed again, involving the execution of the retry process.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了在不同事务之间建立重放关系并保持幂等性之外，MySQL事务重放还需要支持重试过程。在极端情况下，由于冲突的锁定策略，重放有时会导致死锁。当这种情况发生时，需要重新重放被杀掉的事务，这涉及到重试过程的执行。
 - en: 10.1.2 Supporting Consistent Reads
+  id: totrans-16
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.1.2 支持一致性读取
 - en: 'To ensure consistency when reading from a MySQL secondary, consider the following:'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了确保从MySQL二级读取的一致性，请考虑以下因素：
 - en: '**Optimize Replay Speed**: Accelerate transaction replay on the MySQL secondary
     to reduce the lag behind the primary.'
+  id: totrans-18
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**优化回放速度**：加速MySQL二级的事务回放以减少与主级的延迟。'
 - en: '**Preserve Commit Order**: To maintain causality, MySQL secondary commits transactions
     in the order they are written to the relay log. This is controlled by setting
     the parameter *replica_preserve_commit_order=on*.'
+  id: totrans-19
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**保留提交顺序**：为了保持因果关系，MySQL二级按照它们写入中继日志的顺序提交事务。这通过设置参数*replica_preserve_commit_order=on*来控制。'
 - en: '**Read Your Writes Consistency**: To meet the ‘read your writes’ consistency
     requirement, check if the GTID of the most recently replayed transaction has reached
     the specified GTID value. If not, wait until it does. This ensures that reads
     reflect the most recent writes.'
+  id: totrans-20
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**读取写入一致性**：为了满足“读取你的写入”一致性要求，检查最近重放的事务的GTID是否已达到指定的GTID值。如果没有，等待直到它达到。这确保了读取反映了最近的写入。'
 - en: 10.1.3 Efficiency of MySQL Secondary Replay
+  id: totrans-21
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.1.3 MySQL二级回放的效率
 - en: The execution process for MySQL secondary replay differs from that of the primary.
     While secondary replay focuses on executing transaction events and commit operations
     (primarily dealing with write operations), the primary handles both read and write
     operations for transaction SQL.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL二级回放的执行过程与主库不同。虽然二级回放侧重于执行事务事件和提交操作（主要处理写操作），但主库处理事务SQL的读写操作。
 - en: The figure below compares CPU consumption between MySQL primary and secondary
     during a standard TPC-C test.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图比较了在标准TPC-C测试期间MySQL主库和二级的CPU消耗。
 - en: '![image-20240829112229366](../Images/181b932334ef709bdfd47b577eccab4d.png)'
+  id: totrans-24
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829112229366](../Images/181b932334ef709bdfd47b577eccab4d.png)'
 - en: Figure 10-1\. Secondary CPU consumption significantly lower than primary.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 图10-1\. 二级CPU消耗显著低于主级。
 - en: 'Based on the figure, the following conclusions can be drawn:'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据图示，可以得出以下结论：
 - en: '**CPU Consumption Comparison**:'
+  id: totrans-27
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**CPU消耗比较**：'
 - en: 'MySQL secondary replay consistently consumes significantly less CPU compared
     to MySQL primary, regardless of concurrency levels. This is due to:'
+  id: totrans-28
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: MySQL二级回放与MySQL主库相比，无论并发级别如何，都持续消耗显著更少的CPU。这归因于：
 - en: MySQL secondary replay involves only write operations, avoiding read operations.
+  id: totrans-29
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: MySQL的二级重放仅涉及写操作，避免读操作。
 - en: Event-based replay generally improves execution efficiency.
+  id: totrans-30
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 基于事件的回放通常可以提高执行效率。
 - en: '**Concurrency Impact**:'
+  id: totrans-31
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**并发影响**：'
 - en: The CPU consumption difference between the primary and secondary is smaller
     at low concurrency but becomes more pronounced at high concurrency.
+  id: totrans-32
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 在低并发情况下，主从CPU消耗差异较小，但在高并发情况下变得更为明显。
 - en: The above statistics are based on standard TPC-C test results and do not include
     large transactions. The following figure compares time consumption during the
     TPC-C data loading process.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 上述统计数据基于标准的TPC-C测试结果，不包括大事务。以下图表比较了TPC-C数据加载过程中的时间消耗。
 - en: '![image-20240829112250200](../Images/96c75e596d3dff7b3d8c2f86074a3fd7.png)'
+  id: totrans-34
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829112250200](../Images/96c75e596d3dff7b3d8c2f86074a3fd7.png)'
 - en: Figure 10-2\. Secondary CPU usage is much lower than primary when processing
     large transactions.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 图10-2\. 处理大事务时，二级CPU使用率远低于主级。
 - en: From the figure, it is evident that CPU consumption on the MySQL primary is
     significantly higher than on the MySQL secondary. This indicates that for data
     loading, including processing large transactions, the MySQL secondary shows very
     high execution efficiency. In contrast, there may be further optimization opportunities
     for handling large transactions on the MySQL primary.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，MySQL主库的CPU消耗显著高于MySQL二级。这表明，对于数据加载，包括处理大事务，MySQL二级表现出非常高的执行效率。相比之下，MySQL主库处理大事务可能还有进一步的优化空间。
 - en: 'Next, let’s examine the time required for the MySQL primary to load TPC-C data
     for 1000 warehouses. Specific statistical results are shown in the following figure:'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，让我们检查MySQL主库加载1000个仓库TPC-C数据所需的时间。具体的统计结果如下图所示：
 - en: '![image-20240829112326190](../Images/590042086acf3a31ba1df3a2b32beb1d.png)'
+  id: totrans-38
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829112326190](../Images/590042086acf3a31ba1df3a2b32beb1d.png)'
 - en: Figure 10-3\. Binding MySQL primary to a single NUMA node improves BenchmarkSQL
     data loading speed.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 图10-3\. 将MySQL主库绑定到单个NUMA节点可以提高BenchmarkSQL数据加载速度。
 - en: From the figure, it can be inferred that there is considerable potential for
     improving NUMA compatibility in handling large transactions on the MySQL primary.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以推断，在MySQL主库处理大事务方面，提高NUMA兼容性有很大的潜力。
 - en: 'Based on the series of comparative tests, the following conclusions can be
     drawn:'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于一系列比较测试，可以得出以下结论：
 - en: The efficiency of MySQL secondary replay significantly surpasses that of MySQL
     primary in handling user transactions.
+  id: totrans-42
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: MySQL 二级重放的效率显著高于 MySQL 主库在处理用户事务方面的效率。
 - en: MySQL primary shows NUMA compatibility problems when handling large transactions.
+  id: totrans-43
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: MySQL 主库在处理大型事务时显示 NUMA 兼容性问题。
 - en: 10.1.4 The Theoretical Maximum Replay Speed of MySQL Secondary
+  id: totrans-44
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.1.4 MySQL 二级重放的理论最大重放速度
 - en: 'The paper “Scalable Replay-Based Replication For Fast Databases” describes
     the replay barrier [18]:'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 论文“Scalable Replay-Based Replication For Fast Databases”描述了重放屏障 [18]：
 - en: A big challenge is that the secondary ensures consistency with the primary by
     replaying the database log in serial order. This replay is hard to perform concurrently,
     and so the secondary performance may not scale with the primary performance.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个大挑战是，二级通过按顺序重放数据库日志来确保与主库的一致性。这种重放难以并行执行，因此二级性能可能不会随着主库性能而扩展。
 - en: 'The transaction replay process on a MySQL secondary consists of two main stages:'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 二级的事务重放过程包括两个主要阶段：
 - en: '**Replay of Transaction Events:** This involves executing the transaction events
     received from the primary.'
+  id: totrans-48
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**事务事件重放：** 这涉及到执行从主库接收到的交易事件。'
 - en: '**Commit:** This stage completes the transaction by committing the changes.'
+  id: totrans-49
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**提交：** 此阶段通过提交更改来完成交易。'
 - en: Please refer to the figure below for more details.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 请参考下图的更多详细信息。
 - en: '![](../Images/d21ffc9f32cb40f46e45d7695467e5ca.png)'
+  id: totrans-51
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/d21ffc9f32cb40f46e45d7695467e5ca.png)'
 - en: Figure 10-4\. The transaction replay process on a MySQL secondary.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-4\. MySQL 二级上的事务重放过程。
 - en: 'To ensure read consistency, it is crucial that commit operations on MySQL secondaries
     are executed sequentially. Specifically:'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了确保读一致性，MySQL 二级上的提交操作必须按顺序执行至关重要。具体来说：
 - en: '**Parallel Replay:** Concurrent transactions can be replayed in parallel if
     they do not conflict with each other.'
+  id: totrans-54
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**并行重放：** 如果事务之间没有冲突，可以并行重放并发事务。'
 - en: '**Sequential Commit:** During the commit phase, transactions must be committed
     in the order they were originally executed.'
+  id: totrans-55
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**顺序提交：** 在提交阶段，事务必须按照它们最初执行的顺序进行提交。'
 - en: In terms of performance, the queue model for MySQL secondary replay can be simplified
     as shown in the figure below.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 在性能方面，MySQL 二级重放的队列模型可以简化如下图所示。
 - en: '![](../Images/e48edecf9d32a009bd51a0f73c503d15.png)'
+  id: totrans-57
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/e48edecf9d32a009bd51a0f73c503d15.png)'
 - en: Figure 10-5\. The queue model for MySQL secondary replay.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-5\. MySQL 二级重放的队列模型。
 - en: In MySQL secondary replay, multi-queue stages—such as for relay log flushing,
     transaction event replay (including reading, parsing, and queueing events), and
     commit operations—restrict the theoretical maximum replay speed. These serialized
     processes create inherent limits on how quickly the replay can proceed.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 MySQL 二级重放中，多队列阶段——例如，用于中继日志刷新、事务事件重放（包括读取、解析和排队事件）以及提交操作——限制了理论上的最大重放速度。这些序列化过程在重放可以进行的速度上创建了固有的限制。
 - en: 10.2 Root Cause Analysis of Slow MySQL Replay
+  id: totrans-60
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 10.2 慢速 MySQL 重放的根本原因分析
 - en: 10.2.1 The queue model for MySQL Secondary Replay
+  id: totrans-61
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.2.1 MySQL 二级重放的队列模型
 - en: 'Here further refines the queue model for MySQL secondary replay, as follows:'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 在此进一步细化 MySQL 二级重放的队列模型，如下所示：
 - en: '![](../Images/4c115b0739bcb6a7b209eb580d904410.png)'
+  id: totrans-63
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/4c115b0739bcb6a7b209eb580d904410.png)'
 - en: Figure 10-6\. More detailed queue model for MySQL secondary replay.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-6\. MySQL 二级重放的更详细队列模型。
 - en: MySQL secondary replay employs a staged model where different processing stages
     are interconnected via queues. This model is used consistently across asynchronous
     replication, semisynchronous replication, and Group Replication.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 二级重放采用一个分阶段模型，其中不同的处理阶段通过队列相互连接。此模型在异步复制、半同步复制和组复制中一致使用。
 - en: Initially, the MySQL secondary writes received transaction events to the relay
     log. The SQL thread then reads these events from the relay log and distributes
     them to respective worker queues.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 初始时，MySQL 二级将接收到的交易事件写入中继日志。然后 SQL 线程从中继日志读取这些事件并将它们分配到各自的工人队列中。
 - en: Why are these processes of writing and reading relay log events necessary instead
     of being skipped? If the MySQL secondary cannot keep up with replaying events,
     the imbalance in the queue causes the queue size to grow larger. Using relay log
     events on disk leverages files as a queue, avoiding problems like Out-Of-Memory
     (OOM) that could occur with an in-memory queue.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 为什么这些写入和读取中继日志事件的流程是必要的，而不是跳过它们？如果 MySQL 从节点无法跟上重放事件，队列中的不平衡会导致队列大小增大。在磁盘上使用中继日志事件利用文件作为队列，避免了内存队列可能出现的内存不足（OOM）等问题。
 - en: The speed of the SQL thread needs to be flexible; if it’s too slow, events cannot
     be replayed in time, and if it’s too fast, unreplayed transactions may accumulate
     in the worker queues, increasing memory usage overhead. Therefore, flow control
     may be necessary when needed.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: SQL 线程的速度需要灵活；如果太慢，事件无法及时重放，如果太快，未重放的事务可能会在工作队列中积累，增加内存使用开销。因此，在需要时可能需要进行流量控制。
 - en: Within the worker queues, MySQL imposes limits on queue sizes, which are not
     conducive to replaying large transactions efficiently. With modern servers having
     larger memory capacities, limiting the worker queue size to 16,384 is often insufficient
     to meet replay demands. To keep up with the pace of the MySQL primary, increasing
     the worker queue size is essential; otherwise, queues can fill up quickly, causing
     the SQL thread to wait unnecessarily.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 在工作队列中，MySQL 对队列大小施加限制，这不利于高效地重放大型事务。随着现代服务器内存容量的增加，将工作队列大小限制为 16,384 常常不足以满足重放需求。为了跟上
+    MySQL 主节点的速度，增加工作队列大小是必要的；否则，队列可能会迅速填满，导致 SQL 线程不必要的等待。
 - en: 'In terms of commit operations during MySQL secondary replay, committing according
     to the order of entry into the relay log lays the foundation for consistent read
     operations. This fundamentally distinguishes MySQL secondary replay from the execution
@@ -320,12 +462,18 @@
     In contrast, MySQL secondary replay only needs to replay based on transaction
     events, resulting in lower CPU overhead, but it is subject to the constraints
     imposed by the queue model described above.'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 MySQL 从节点重放期间的提交操作方面，根据进入中继日志的顺序进行提交为一致读操作奠定了基础。这从根本上将 MySQL 从节点重放与在 MySQL
+    主节点上执行用户 SQL 区分开来：主服务器需要解析 SQL、生成执行计划，并处理一系列读写操作，这会产生显著的 CPU 开销，但不受上述队列模型的约束。相比之下，MySQL
+    从节点重放只需要根据事务事件进行重放，从而产生较低的 CPU 开销，但它受到上述描述的队列模型施加的约束。
 - en: 10.2.2 Bottleneck Analysis
+  id: totrans-71
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.2.2 瓶颈分析
 - en: 'In MySQL asynchronous replication, the secondary has two threads: the IO thread
     reads log entries from the primary and stores them on local disk, while the SQL
     thread reads the log from the local disk and replays the events. A single thread
@@ -337,119 +485,179 @@
     if handled by a single thread [18]. Specifically, unpacking row images consumes
     a significant amount of CPU resources for the SQL thread, severely constraining
     MySQL secondary replay performance.'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 MySQL 异步复制中，从节点有两个线程：IO 线程从主节点读取日志条目并将其存储在本地磁盘上，而 SQL 线程从本地磁盘读取日志并重放事件。单个线程顺序解析和执行日志事件。当解析行事件时，它包括操作类型和行图像，这些作为原始字节存储。SQL
+    线程必须“解包”这些字节到字段，在执行操作之前需要了解表模式。这种在将事件发送到多个线程进行重放之前对日志事件的解包和检查是昂贵的，如果由单个线程处理可能会成为瓶颈
+    [18]。具体来说，解包行图像消耗了 SQL 线程大量的 CPU 资源，严重限制了 MySQL 从节点重放性能。
 - en: For example, during Group Replication secondary replay, one of the main bottlenecks
     captured is the SQL thread, specifically seen in the *rpl_rca_sql-0* thread as
     shown in the figure below.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，在组复制从节点重放过程中，捕捉到的主要瓶颈之一是 SQL 线程，具体体现在图下所示的 *rpl_rca_sql-0* 线程中。
 - en: '![](../Images/9931de9c6964083d9b8e8e764f1b2982.png)'
+  id: totrans-74
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/9931de9c6964083d9b8e8e764f1b2982.png)'
 - en: Figure 10-7\. Top two CPU-consuming threads in Group Replication secondary replay.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-7\. 组复制从节点重放中 CPU 消耗最多的前两个线程。
 - en: Capturing performance data for the SQL thread and generating a flame graph can
     provide insights into where the CPU resources are being consumed. Please refer
     to the graph below for specifics.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 捕获 SQL 线程的性能数据并生成火焰图可以提供有关 CPU 资源消耗位置的见解。请参阅下面的图表以获取详细信息。
 - en: '![](../Images/e638ffa63d562da9405b896ebb14e0a9.png)'
+  id: totrans-77
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/e638ffa63d562da9405b896ebb14e0a9.png)'
 - en: Figure 10-8\. Bottlenecks identified in the flame graph for the SQL thread.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-8\. 火焰图中识别到的 SQL 线程瓶颈。
 - en: From the graph, it can be observed that the SQL thread encounters two major
     bottlenecks. One significant bottleneck is in the event parsing process (as seen
     in the *binlog_event_deserialize* function in the graph), and the other major
     bottleneck is in *malloc* calls.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以观察到，SQL 线程遇到了两个主要瓶颈。一个显著的瓶颈是在事件解析过程中（如图中 *binlog_event_deserialize* 函数所示），另一个主要瓶颈是在
+    *malloc* 调用中。
 - en: After switching to jemalloc 4.5 as the memory allocation tool, not only did
     the MySQL secondary replay speed increase, but also the CPU overhead of the SQL
     thread itself decreased. Please refer to the figure below for details.
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 在切换到 jemalloc 4.5 作为内存分配工具后，不仅 MySQL 的二级重放速度提高了，而且 SQL 线程本身的 CPU 开销也降低了。请参阅下面的图表以获取详细信息。
 - en: '![](../Images/9fd3b747476b3859622f566e8eb0943b.png)'
+  id: totrans-81
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/9fd3b747476b3859622f566e8eb0943b.png)'
 - en: Figure 10-9\. Reduced CPU overhead for the SQL thread with improved jemalloc.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-9\. 改进 jemalloc 后 SQL 线程的 CPU 开销降低。
 - en: Continuing with the new flame graph below, it’s evident that the SQL thread
     has significantly reduced their overhead in terms of memory allocation.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 继续查看下面的新火焰图，可以看出 SQL 线程在内存分配方面的开销显著减少。
 - en: '![](../Images/b5a4f1fc05f7a525358d13b9fa8e56a8.png)'
+  id: totrans-84
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/b5a4f1fc05f7a525358d13b9fa8e56a8.png)'
 - en: Figure 10-10\. Memory bottleneck solved for SQL thread.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-10\. 解决了 SQL 线程的内存瓶颈。
 - en: From the graph, it’s clear that *binlog_event_deserialize* constitutes approximately
     45% of the workload. The speed of event parsing directly affects the maximum replay
     speed. To address this bottleneck, parallelizing event parsing across multiple
     threads could significantly improve performance.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，*binlog_event_deserialize* 占据了大约 45% 的工作量。事件解析的速度直接影响最大重放速度。为了解决这个瓶颈，可以在多个线程上并行化事件解析，这可能会显著提高性能。
 - en: Once the *binlog_event_deserialize* bottleneck is addressed, the next step is
     to identify other potential bottlenecks impacting replay speed. Reviewing the
     relevant source code for the worker queue reveals that its size is limited to
     16,384.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦解决了 *binlog_event_deserialize* 瓶颈，下一步就是确定其他可能影响重放速度的潜在瓶颈。审查工作队列的相关源代码显示，其大小限制为
+    16,384。
 - en: '[PRE2]'
+  id: totrans-88
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: It’s clear that the worker queue can hold a maximum of 16,384 events. While
     this capacity usually suffices for standard transaction volumes, it becomes inadequate
     for larger transactions. Extensive testing shows that this limitation significantly
     restricts replay speeds, especially for tasks like loading TPC-C warehouse data.
     The following code demonstrates that a full worker queue can block the execution
     of the SQL thread.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 很明显，工作队列可以容纳最多 16,384 个事件。虽然这个容量通常足以满足标准事务量，但对于更大的事务来说就不够了。广泛的测试表明，这个限制显著限制了重放速度，尤其是在像加载
+    TPC-C 仓库数据这样的任务中。以下代码演示了当工作队列满时，会阻塞 SQL 线程的执行。
 - en: '[PRE3]'
+  id: totrans-90
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Large transactions can quickly fill up the worker queue, causing the SQL thread
     to remain idle and miss the opportunity to distribute other transactions.
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 大事务可以迅速填满工作队列，导致 SQL 线程保持空闲，错失分配其他事务的机会。
 - en: 'Not only does the SQL thread block when the worker queue is full, but it also
     waits if a transaction pending replay depends on a prior transaction that hasn’t
     finished replaying. For details, see the specific code below:'
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 不仅当工作队列满时 SQL 线程会阻塞，如果待重放的事务依赖于尚未完成重放的前一个事务，它也会等待。有关详细信息，请参阅以下具体代码：
 - en: '[PRE4]'
+  id: totrans-93
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: The code describes a mechanism where the SQL thread waits if the recorded low-water-mark
     (LWM)—which signifies that a transaction and all prior transactions have been
     committed—is less than the last committed value of the transaction being replayed.
     In MySQL, it is the SQL thread that waits, rather than the worker threads. This
     waiting mechanism significantly restricts the replay speed.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 代码描述了一种机制，即如果记录的低水位标记（LWM）——表示事务及其所有先前事务都已提交——小于正在重放的事务的最后一个提交值，则 SQL 线程会等待。在
+    MySQL 中，等待的是 SQL 线程，而不是工作线程。这种等待机制显著限制了重放速度。
 - en: 'Finally, let’s examine the problems related to MySQL secondary replay in a
     NUMA environment. The following figure shows the test results of MySQL secondary
     replay:'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，让我们检查 NUMA 环境中与 MySQL 次要重放相关的问题。以下图表显示了 MySQL 次要重放的测试结果：
 - en: '![image-20240829112700824](../Images/6ef565bcfc057c209cee8301d6dbbc5d.png)'
+  id: totrans-96
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829112700824](../Images/6ef565bcfc057c209cee8301d6dbbc5d.png)'
 - en: Figure 10-11\. Binding MySQL secondary to a single NUMA node improves replay
     speed.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-11\. 将 MySQL 次要绑定到单个 NUMA 节点可以提高重放速度。
 - en: Utilizing all NUMA nodes achieves a balanced replay speed of approximately 245,000
     tpmC. This means that if the throughput of the MySQL primary exceeds this value,
     the MySQL secondary generally cannot keep pace.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 利用所有 NUMA 节点实现约 245,000 tpmC 的平衡重放速度。这意味着如果 MySQL 主机的吞吐量超过此值，MySQL 次要通常无法跟上。
 - en: In contrast, when the MySQL secondary is bound to NUMA node 0, the balanced
     replay speed increases to 352,000 tpmC, a 43.7% improvement. This improvement
     is attributed to the significant global latch contention observed during MySQL
@@ -457,61 +665,93 @@
     migration between different NUMA nodes, reducing replay efficiency. Binding the
     MySQL secondary to NUMA node 0 mitigates this inefficiency by avoiding cache migration
     between NUMA nodes, resulting in a substantial performance improvement.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 相比之下，当 MySQL 次要绑定到 NUMA 节点 0 时，平衡的重放速度增加到 352,000 tpmC，提高了 43.7%。这种改进归因于 MySQL
+    次要重放期间观察到的显著全局闩锁竞争。在 NUMA 环境中，这种竞争导致不同 NUMA 节点之间频繁的缓存迁移，降低重放效率。将 MySQL 次要绑定到 NUMA
+    节点 0 通过避免 NUMA 节点之间的缓存迁移来减轻这种低效，从而实现显著的性能提升。
 - en: 10.3 MySQL Secondary Replay Optimization
+  id: totrans-100
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 10.3 MySQL 次要重放优化
 - en: 10.3.1 Parallelization of Transaction Event Parsing
+  id: totrans-101
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.3.1 事务事件解析的并行化
 - en: Here, a new model for splitting the SQL thread is implemented.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，实现了分割 SQL 线程的新模型。
 - en: '![](../Images/55e59749b7720e75b0e8d76448e6dd09.png)'
+  id: totrans-103
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/55e59749b7720e75b0e8d76448e6dd09.png)'
 - en: Figure 10-12\. A new model for splitting the SQL thread.
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-12\. 分割 SQL 线程的新模型。
 - en: 'In MySQL, the SQL thread for secondary replay is divided into six threads:
     one for reading events, four for decoding events, and one for handling scheduling
     (the scheduling thread). These threads are connected through queues. To manage
     excessive memory usage, flow control is applied to the event-reading thread when
     the queue size becomes too large.'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 MySQL 中，用于次要重放的 SQL 线程被分为六个线程：一个用于读取事件，四个用于解码事件，一个用于处理调度（调度线程）。这些线程通过队列连接。当队列大小变得过大时，为了管理过度的内存使用，会对事件读取线程应用流量控制。
 - en: Below is the *‘top’* screenshot of the MySQL secondary running process.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面是 MySQL 次要运行进程的 *‘top’* 截图。
 - en: '![](../Images/cfbee5195824dae9c63ed8c8b5c944e5.png)'
+  id: totrans-107
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/cfbee5195824dae9c63ed8c8b5c944e5.png)'
 - en: Figure 10-13\. SQL thread appears as six separate threads in *‘top’* display.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-13\. 在 *‘top’* 显示中，SQL 线程表现为六个独立的线程。
 - en: By splitting the SQL thread, the problem of limited processing capacity in a
     single thread has been solved, effectively eliminating the bottleneck of event
     parsing.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过分割 SQL 线程，解决了单个线程处理能力有限的问题，有效地消除了事件解析的瓶颈。
 - en: 10.3.2 Improving Parallel Replay of Large Transactions
+  id: totrans-110
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.3.2 改进大型事务的并行重放
 - en: For large transaction replays, the main problem lies in the worker queue being
     too small, causing frequent waiting for the SQL thread.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于大型事务重放，主要问题在于工作队列太小，导致 SQL 线程频繁等待。
 - en: To address this problem, a larger queue size can be set, as demonstrated in
     the code below.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决这个问题，可以将队列大小设置得更大，如下面的代码所示。
 - en: '[PRE5]'
+  id: totrans-113
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Increasing the worker queue size by 64 times to 1,048,576 transaction events
     accommodates large transactions with many events, allowing MySQL secondary to
     fully utilize its capacity for replaying these large transactions. However, this
@@ -520,15 +760,22 @@
     sizes and varying numbers of workers. The horizontal axis represents the number
     of workers, while the vertical axis shows the actual memory usage of the MySQL
     secondary process.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 将工作队列大小增加到 64 倍至 1,048,576 个事务事件，可以容纳具有许多事件的较大事务，使 MySQL 次要能够充分利用其重放这些大型事务的能力。然而，这种增加可能会引起对内存使用的担忧。以下图表显示了具有不同工作队列大小和不同工作者数量的
+    MySQL 次要进程的内存消耗。横坐标表示工作者的数量，纵坐标显示 MySQL 次要进程的实际内存使用量。
 - en: '![image-20240829112906641](../Images/a9c45dac30ca2a09d55b510ada6dfd5f.png)'
+  id: totrans-115
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829112906641](../Images/a9c45dac30ca2a09d55b510ada6dfd5f.png)'
 - en: Figure 10-14\. Memory consumption of MySQL secondary processes with different
     worker queue sizes and varying numbers of workers.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-14\. 不同工作队列大小和不同工作线程数量的 MySQL 从库进程内存消耗。
 - en: From the figure, it’s evident that the actual memory consumption of MySQL secondary
     is influenced both by the *worker_queue_len_max* and the number of workers. On
     high-end machines, the additional memory usage may not be a major concern. However,
@@ -536,17 +783,23 @@
     more effectively. Keep in mind that different hardware and software systems may
     produce varying results, so the data above is for reference only. Specific environments
     should undergo tailored testing.
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，MySQL 从库的实际内存消耗受 *worker_queue_len_max* 和工作线程数量的影响。在高性能机器上，额外的内存使用可能不是主要问题。然而，在低端机器上，减少工作线程数量可以帮助更有效地管理内存消耗。请注意，不同的硬件和软件系统可能会产生不同的结果，因此上述数据仅供参考。具体环境应进行定制测试。
 - en: Currently, MySQL does not offer a configuration option to adjust the *worker_queue_len_max*
     parameter. Nonetheless, on high-end machines, this parameter plays a crucial role
     in improving the replay speed of large transactions.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 目前，MySQL 没有提供配置选项来调整 *worker_queue_len_max* 参数。尽管如此，在高性能机器上，此参数在提高大事务重放速度方面起着至关重要的作用。
 - en: 10.3.3 Optimizing the Scheduling Thread Mechanism
+  id: totrans-119
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.3.3 优化调度线程机制
 - en: If two transactions occurring close together in time modify the same data in
     MySQL, they can create dependencies during replay on the secondary. Specifically,
     the *last_committed* value of the latter transaction might match the *sequence_number*
@@ -556,17 +809,26 @@
     ideally handle such waits, not the scheduling thread. The scheduling thread itself
     has plenty of other tasks to handle, and there’s no guarantee that the subsequent
     transaction couldn’t be replayed promptly.
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果两个在时间上接近的事务在 MySQL 中修改相同的数据，它们在从库重放过程中可能会创建依赖关系。具体来说，后一个事务的 *last_committed*
+    值可能与前一个事务的 *sequence_number* 相匹配。在 MySQL 从库重放过程中，如果后续事务依赖于尚未完成重放的前一个事务，调度线程将阻塞自身。这种方法效率低下，因为理想情况下应该由工作线程处理此类等待，而不是调度线程。调度线程本身还有许多其他任务要处理，而且无法保证后续事务不能及时重放。
 - en: 'To better understand this problem, consider the following case:'
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了更好地理解这个问题，考虑以下情况：
 - en: '![](../Images/1faa09f4129ccaa7660fb538fa241f7f.png)'
+  id: totrans-122
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/1faa09f4129ccaa7660fb538fa241f7f.png)'
 - en: Figure 10-15\. Typical examples of *sequence_number* and *last_committed*.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-15\. *sequence_number* 和 *last_committed* 的典型示例。
 - en: Assuming the MySQL secondary has completed transaction 12756 (*LWM*=12756),
     when the scheduling thread schedules transaction 12759 (highlighted in the green
     box in the figure), it finds that the dependent transaction 12757 has not yet
@@ -575,23 +837,34 @@
     could be allocated to workers for replay. The waiting for transaction 12757 could
     be handled by the worker replay thread, allowing the scheduling thread to continue
     with other tasks. This presents an opportunity for optimization.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设 MySQL 从库已完成事务 12756（*LWM*=12756），当调度线程调度事务 12759（如图中绿色方框所示）时，它发现依赖事务 12757
+    尚未完成重放。因此，调度线程会阻塞自身，直到事务 12757 完成。同时，事务 12760、12761、12762、12763 和 12764 可以分配给工作线程进行重放。等待事务
+    12757 的过程可以通过工作线程重放线程来处理，从而允许调度线程继续执行其他任务。这为优化提供了机会。
 - en: The following figure illustrates TPC-C tests conducted with BenchmarkSQL at
     various concurrency levels to evaluate whether the MySQL secondary can match the
     MySQL primary’s speed. The horizontal axis represents the concurrency level, and
     the vertical axis shows tpmC values. Light gray regions indicate that the MySQL
     secondary keeps pace with the MySQL primary, while dark gray regions signify that
     it does not.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图展示了使用 BenchmarkSQL 在不同并发级别下进行的 TPC-C 测试，以评估 MySQL 从库是否能够匹配 MySQL 主库的速度。横坐标表示并发级别，纵坐标显示
+    tpmC 值。浅灰色区域表示 MySQL 从库与 MySQL 主库保持同步，而深灰色区域表示没有。
 - en: '![image-20240829113049624](../Images/c8c2ee356c4bfb2928033d27f702acbb.png)'
+  id: totrans-126
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829113049624](../Images/c8c2ee356c4bfb2928033d27f702acbb.png)'
 - en: Figure 10-16\. If the processing speed of the MySQL primary exceeds the balanced
     replay speed, the secondaries may not keep up.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-16\. 如果 MySQL 主库的处理速度超过平衡回放速度，从库可能无法跟上。
 - en: From the figure, it’s evident that when concurrency reaches 70, the MySQL secondary
     falls behind the MySQL primary’s processing speed. This inefficiency is primarily
     due to the scheduling thread waiting unnecessarily, which disrupts the normal
@@ -599,180 +872,270 @@
     the throughput is below 245,439 tpmC. However, once this threshold is exceeded,
     the MySQL secondary struggles to match the primary’s speed. Essentially, the MySQL
     secondary replay cannot support high throughput effectively.
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，当并发性达到 70 时，MySQL 从库的处理速度落后于 MySQL 主库。这种低效主要由于调度线程不必要的等待，这干扰了正常的回放过程。只要吞吐量低于
+    245,439 tpmC，MySQL 从库就能与主库保持同步。然而，一旦超过这个阈值，MySQL 从库就难以匹配主库的速度。本质上，MySQL 从库回放无法有效地支持高吞吐量。
 - en: To address this, allowing workers to handle the waiting for **last_committed**
     transactions independently can completely relieve the scheduling thread. This
     adjustment provides a solid foundation for future improvements in MySQL secondary
     replay performance.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决这个问题，允许工作者独立处理 **last_committed** 事务的等待，可以完全缓解调度线程的压力。这种调整为未来 MySQL 从库回放性能的改进提供了坚实的基础。
 - en: 10.3.4 Effect of Memory Allocation Tools on Replay Performance
+  id: totrans-130
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.3.4 内存分配工具对回放性能的影响
 - en: Utilizing advanced memory allocation tools can improve the replay speed of MySQL
     secondaries. The figure below shows the impact of two jemalloc versions on MySQL
     secondary replay performance under the x86 architecture.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 利用高级内存分配工具可以提高 MySQL 从库的回放速度。以下图示展示了在 x86 架构下，两个 jemalloc 版本对 MySQL 从库回放性能的影响。
 - en: '![image-20240829113113252](../Images/7d8a6d030f5be8272baab56488578026.png)'
+  id: totrans-132
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829113113252](../Images/7d8a6d030f5be8272baab56488578026.png)'
 - en: Figure 10-17\. Achieve better replay speed with jemalloc 4.5.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-17\. 使用 jemalloc 4.5 实现更好的回放速度。
 - en: From the figure, it is evident that using jemalloc 4.5 markedly improves the
     replay speed of MySQL secondaries. Under the same conditions, jemalloc 3.6 achieves
     a balanced replay speed of just over 710,000 tpmC, while jemalloc 4.5 reaches
     810,000 tpmC, representing a 14% improvement in performance.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，使用 jemalloc 4.5 显著提高了 MySQL 从库的回放速度。在相同条件下，jemalloc 3.6 的平衡回放速度仅为 710,000
+    tpmC，而 jemalloc 4.5 达到 810,000 tpmC，性能提升了 14%。
 - en: 10.3.5 Addressing Unfriendliness Problems in NUMA Environments
+  id: totrans-135
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.3.5 解决 NUMA 环境中的不友好问题
 - en: In a scenario where NUMA is disabled at the BIOS level, the efficiency of the
     MySQL secondary replay process is evaluated. Refer to the figure below for details.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 BIOS 级别禁用 NUMA 的场景下，评估 MySQL 从库回放过程的效率。请参考以下图示的详细信息。
 - en: '![image-20240829113134905](../Images/4d47ec2e990be2aa7f6a29f396b00d31.png)'
+  id: totrans-137
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829113134905](../Images/4d47ec2e990be2aa7f6a29f396b00d31.png)'
 - en: Figure 10-18\. Comparison of balanced replay speed before and after disabling
     NUMA in the BIOS.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-18\. 在 BIOS 中禁用 NUMA 前后的平衡回放速度比较。
 - en: Disabling NUMA in the BIOS leads to a significant decrease in replay speed.
     While this change affects memory allocation methods, it does not alter the underlying
     NUMA hardware architecture.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 BIOS 中禁用 NUMA 导致回放速度显著下降。虽然这种变化影响了内存分配方法，但它并没有改变底层 NUMA 硬件架构。
 - en: The decision to disable NUMA should be made based on a thorough analysis. Testing
     on x86 architecture shows that disabling NUMA negatively impacts MySQL secondary
     replay but may benefit MySQL primary operations. Further investigation into NUMA’s
     incompatibility with MySQL secondary replay could reveal deeper problems within
     MySQL itself.
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 是否禁用 NUMA 的决定应基于全面的分析。在 x86 架构上的测试表明，禁用 NUMA 对 MySQL 从库的回放有负面影响，但可能对 MySQL 主库操作有益。进一步调查
+    NUMA 与 MySQL 从库回放的不兼容性可能会揭示 MySQL 本身更深层次的问题。
 - en: 'Based on MySQL’s Performance Schema, statistics on latch operations are gathered.
     See the results in the following figure:'
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于 MySQL 的性能架构，收集了闩锁操作的统计数据。请参见以下图示：
 - en: '![](../Images/a416a79e000e371c435176fc037fc538.png)'
+  id: totrans-142
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/a416a79e000e371c435176fc037fc538.png)'
 - en: Figure 10-19\. The bottleneck of pending_jobs_lock has been exposed in the Performance
     Schema.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-19\. 在性能架构中暴露了 pending_jobs_lock 的瓶颈。
 - en: 'From the figure, it can be seen that in a NUMA environment, *Relay_log_info::pending_jobs_lock*
     ranks fifth in importance in relation to replay. Binding the MySQL secondary instance
     to NUMA node 0, the test evaluates whether the Performance Schema statistics change
     under an SMP environment. The specific test results are shown in the following
     figure:'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在 NUMA 环境中，*Relay_log_info::pending_jobs_lock* 在重放相关的重要性排名第五。将 MySQL
+    辅助数据库实例绑定到 NUMA 节点 0，测试评估在 SMP 环境下性能模式统计是否发生变化。具体的测试结果如下图所示：
 - en: '![](../Images/632674f650cc9906cbd4fc1b5e734b46.png)'
+  id: totrans-145
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829113628989](../Images/955e718a501bc04559f04c450ec0d09a.png)'
 - en: Figure 10-20\. The bottleneck of pending_jobs_lock has been alleviated in an
     SMP environment.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-20\. 在 SMP 环境中，pending_jobs_lock 的瓶颈已经缓解。
 - en: From the figure, it can be observed that *Relay_log_info::pending_jobs_lock*
     has moved to the eighth position, indicating that under the scenario of binding
     to NUMA node 0, the contention related to *Relay_log_info::pending_jobs_lock*
     has been alleviated.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，*Relay_log_info::pending_jobs_lock* 已移动到第八位，这表明在绑定到 NUMA 节点 0 的场景下，与
+    *Relay_log_info::pending_jobs_lock* 相关的竞争已经缓解。
 - en: 'In the MySQL source code, the relevant code for *pending_jobs_lock* is frequently
     invoked in two places. The first occurrence is in the *remove_item_from_jobs*
     function, as illustrated in the code snippet below:'
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 MySQL 源代码中，与 *pending_jobs_lock* 相关的代码在两个地方频繁调用。第一次出现在 *remove_item_from_jobs*
+    函数中，如下代码片段所示：
 - en: '[PRE6]'
+  id: totrans-149
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'The other is in the **append_item_to_jobs** function, as shown in the code
     snippet below:'
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个是在 **append_item_to_jobs** 函数中，如下代码片段所示：
 - en: '[PRE7]'
+  id: totrans-151
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The *remove_item_from_jobs* and *append_item_to_jobs* functions primarily utilize
     the *pending_jobs_lock* latch for managing job queues. The *append_item_to_jobs*
     function, executed by the scheduling thread, is called once per event to enqueue
     it into the worker queue. In contrast, *remove_item_from_jobs*, executed by worker
     threads, is called once per event removal.
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: '*remove_item_from_jobs* 和 *append_item_to_jobs* 函数主要利用 *pending_jobs_lock*
+    锁来管理作业队列。由调度线程执行的 *append_item_to_jobs* 函数，每次事件发生时都会调用一次，将其入队到工作队列中。相比之下，由工作线程执行的
+    *remove_item_from_jobs*，每次事件移除时都会调用一次。'
 - en: In high-throughput scenarios, the scheduling thread frequently calls *append_item_to_jobs*
     to enqueue events, while numerous worker threads concurrently call *remove_item_from_jobs*
     to dequeue them. This leads to significant latch contention, as both functions
     involve acquiring and releasing the latch. With event processing rates reaching
     several hundred thousand per second, latch contention between the scheduling thread
     and worker threads may become severe.
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 在高吞吐量场景中，调度线程频繁调用 *append_item_to_jobs* 来入队事件，而多个工作线程并发调用 *remove_item_from_jobs*
+    来出队事件。这导致显著的锁竞争，因为这两个函数都涉及获取和释放锁。当事件处理速率达到每秒数百万次时，调度线程和工作线程之间的锁竞争可能会变得严重。
 - en: Frequent acquisition and release of latches cause context switches. In NUMA
     environments, these context switches lead to cache migration between NUMA nodes,
     resulting in decreased replay efficiency.
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 锁的频繁获取和释放会导致上下文切换。在 NUMA 环境中，这些上下文切换会导致 NUMA 节点之间的缓存迁移，从而降低重放效率。
 - en: After addressing the latch bottleneck related to *pending_jobs_lock* and applying
     the configuration parameters of the online MySQL secondary, the focus shifts to
     evaluating whether disabling NUMA in the BIOS improves MySQL secondary replay
     performance. The following figure compares the balanced replay speeds of MySQL
     secondaries under different NUMA configurations.
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 在解决与 *pending_jobs_lock* 相关的锁瓶颈并应用在线 MySQL 辅助数据库的配置参数后，重点转向评估在 BIOS 中禁用 NUMA
+    是否能提高 MySQL 辅助数据库的重放性能。以下图表比较了在不同 NUMA 配置下 MySQL 辅助数据库的平衡重放速度。
 - en: '![image-20240829113628989](../Images/955e718a501bc04559f04c450ec0d09a.png)'
+  id: totrans-156
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829113628989](../Images/955e718a501bc04559f04c450ec0d09a.png)'
 - en: Figure 10-21\. Disabling NUMA in the BIOS improves MySQL secondary replay speed
     by addressing the NUMA incompatibility bottleneck.
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-21\. 在 BIOS 中禁用 NUMA 通过解决 NUMA 不兼容瓶颈提高了 MySQL 辅助数据库的重放速度。
 - en: From the figure, it is evident that after addressing the NUMA incompatibility
     bottleneck, disabling NUMA in the BIOS on x86 architecture improves the speed
     of MySQL secondary replay.
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在解决 NUMA 不兼容瓶颈后，在 x86 架构的 BIOS 中禁用 NUMA 提高了 MySQL 辅助数据库的重放速度。
 - en: 10.3.6 Impact of ‘Dual One’ on Replay Performance
+  id: totrans-159
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.3.6 “Dual One” 对重放性能的影响
 - en: ‘Dual one’ refers to the real-time disk flushing of binlog and redo logs, a
     critical technology for MySQL crash recovery. Testing revealed that ‘dual one’
     significantly affects MySQL secondary replay speeds. The following figure shows
     that, under identical conditions, disabling ‘dual one’ increased the balanced
     replay speed to 810,000 tpmC, while enabling it reduced the replay speed to approximately
     700,000 tpmC. Disabling ‘dual one’ thus led to a 15.7% improvement in replay speed.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: “双一”指的是 binlog 和 redo 日志的实时磁盘刷新，这是 MySQL 故障恢复的关键技术。测试表明，“双一”显著影响了 MySQL 从属的重放速度。以下图表显示，在相同条件下，禁用“双一”将平衡重放速度提高到
+    810,000 tpmC，而启用它则将重放速度降低到大约 700,000 tpmC。因此，禁用“双一”导致重放速度提高了 15.7%。
 - en: '![image-20240829113649785](../Images/e7f97f3c908bbafb2a09efe234438dda.png)'
+  id: totrans-161
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829113649785](../Images/e7f97f3c908bbafb2a09efe234438dda.png)'
 - en: Figure 10-22\. Achieve better replay speed with ‘dual one’ closed.
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-22\. 通过关闭“双一”实现更好的重放速度。
 - en: 10.3.7 Effect of Binlog Row Image Format on Replay Performance
+  id: totrans-163
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.3.7 Binlog 行图像格式对重放性能的影响
 - en: 'Reducing the size of the binlog theoretically helps improve MySQL replay speed.
     The following figure shows the comparison between using *binlog_row_image=minimal*
     and *binlog_row_image=full* in terms of balanced replay speed:'
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 理论上减小 binlog 的大小有助于提高 MySQL 的重放速度。以下图表显示了使用 *binlog_row_image=minimal* 和 *binlog_row_image=full*
+    在平衡重放速度方面的比较：
 - en: '![image-20240829113734608](../Images/8d97d4940eb37b29e4a083cfb71597bf.png)'
+  id: totrans-165
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829113734608](../Images/8d97d4940eb37b29e4a083cfb71597bf.png)'
 - en: Figure 10-23\. Achieve better replay speed with binlog_row_image=minimal.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-23\. 通过设置 binlog_row_image=minimal 实现更好的重放速度。
 - en: When using full mode for binlog, MySQL achieves a balanced replay speed of just
     over 790,000 tpmC. Switching to minimal mode, however, increases this speed to
     over 890,000 tpmC, representing a significant 13% improvement. This improvement
@@ -780,65 +1143,98 @@
     the binlog size—boosts the replay speed of MySQL secondaries. However, it’s important
     to note that this setting may also pose a risk of incomplete data restoration
     in certain scenarios.
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 当使用 binlog 的完整模式时，MySQL 的平衡重放速度仅为略高于 790,000 tpmC。然而，切换到 minimal 模式后，这种速度增加到超过
+    890,000 tpmC，这代表了显著的 13% 的提升。这种提升突出了设置 *binlog_row_image=minimal*（这大大减小了 binlog
+    的大小）可以提升 MySQL 从属的重放速度。然而，需要注意的是，此设置在某些场景下可能也带来数据恢复不完整的风险。
 - en: 10.3.8 Impact of Performance Schema on Replay Performance
+  id: totrans-168
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10.3.8 性能模式对重放性能的影响
 - en: Enabling Performance Schema significantly impacts the replay speed of MySQL
     secondaries due to the extensive interaction with large amounts of memory involved
     in secondary replay. Here’s the flame graph captured after enabling Performance
     Schema.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于与大量内存的广泛交互，启用性能模式对 MySQL 从属的重放速度有显著影响。以下是启用性能模式后的火焰图。
 - en: '![](../Images/17dfc2f22a3434ae468643d805f4f327.png)'
+  id: totrans-170
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/17dfc2f22a3434ae468643d805f4f327.png)'
 - en: Figure 10-24\. Substantial overhead from my_malloc calling PFS-related functions.
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-24\. my_malloc 调用 PFS 相关函数产生的巨大开销。
 - en: From the graph, it is evident that the overhead associated with my_malloc calling
     PFS-related functions is substantial and distributed across multiple areas, highlighting
     a significant bottleneck. Extensive testing results indicate that enabling Performance
     Schema has a much greater impact on MySQL secondary replay compared to MySQL primary
     execution. For more detailed information, refer to Section 11.5.5.
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图表中可以看出，与 my_malloc 调用 PFS 相关函数相关的开销很大，并且分布在多个区域，突显了一个显著的瓶颈。广泛的测试结果表明，启用性能模式对
+    MySQL 从属重放的影响比 MySQL 主节点执行的影响要大得多。对于更详细的信息，请参阅第 11.5.5 节。
 - en: 10.4 Exploration of Maximum Replay Speed in Group Replication
+  id: totrans-173
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 10.4 组复制中最大重放速度的探索
 - en: 'Using the modified tpcc-mysql, high throughput tests can identify when Group
     Replication secondaries fall behind MySQL primary. The following figure presents
     detailed test results. The test setup includes: disabling ‘dual one’ using jemalloc
     4.5, deploying MySQL secondaries and primary on separate machines, setting binlog
     row image format to minimal, and running the test for 300 seconds.'
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用修改后的 tpcc-mysql，高吞吐量测试可以确定 Group Replication 从属何时落后于 MySQL 主节点。以下图表展示了详细的测试结果。测试设置包括：使用
+    jemalloc 4.5 禁用“双一”，在独立的机器上部署 MySQL 从属和主节点，将 binlog 行图像格式设置为 minimal，并运行 300 秒的测试。
 - en: '![image-20240829113824280](../Images/5ccdee1dd73cb185d51b821cd90b9936.png)'
+  id: totrans-175
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829113824280](../Images/5ccdee1dd73cb185d51b821cd90b9936.png)'
 - en: Figure 10-25\. Maximum replay speed in Group Replication.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 10-25. 组复制中的最大重放速度。
 - en: The figure illustrates the throughput of the MySQL primary at concurrency levels
     of 100, 150, 200, 300, and 400\. In the figure, light gray indicates that the
     MySQL primary and secondaries are synchronized in speed, while dark gray signifies
     a slight lag of the MySQL secondaries behind the MySQL primary. Except for the
     case at 200 concurrency, where a 2-second delay was observed, the MySQL secondaries
     generally keep pace with the primary.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 图表展示了 MySQL 主库在并发级别为 100、150、200、300 和 400 时的吞吐量。在图表中，浅灰色表示 MySQL 主库和从库同步速度，而深灰色则表示
+    MySQL 从库相对于 MySQL 主库存在轻微的延迟。除了在 200 并发的情况下观察到 2 秒的延迟外，MySQL 从库通常与主库保持同步。
 - en: Notably, maximum replay speed is directly correlated with concurrency. At 150
     concurrency, throughput is high with nearly zero delay, whereas at 200 concurrency,
     throughput is slightly reduced with a 2-second delay.
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得注意的是，最大重放速度与并发性直接相关。在 150 并发时，吞吐量高，几乎无延迟，而在 200 并发时，吞吐量略有下降，存在 2 秒的延迟。
 - en: With better hardware, further improvements in maximum replay speed might be
     possible, but the test results are already very close to the achievable maximum.
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用更好的硬件，最大重放速度的进一步改进可能成为可能，但测试结果已经非常接近可达到的最大值。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part4.html)'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一页](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part4.html)'

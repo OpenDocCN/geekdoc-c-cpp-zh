@@ -1,183 +1,270 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 《软件工程中的问题解决艺术——如何让 MySQL 更好》
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter1.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter1.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter1.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter1.html)
 - en: 'Chapter 1: Traditional Methods for Solving MySQL Problems'
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第 1 章：解决 MySQL 问题的传统方法
 - en: 1.1 Current State of Solving MySQL Problems
+  id: totrans-3
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 1.1 解决 MySQL 问题的当前状态
 - en: Solving problems related to MySQL usage is generally straightforward and involves
     gathering information and applying logical reasoning, making these problems typically
     resolvable. However, tackling inherent problems within MySQL itself proves significantly
     more complex. Fortunately, MySQL users are resourceful and have devised various
     solutions, such as implementing thread pools to mitigate scalability challenges.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 解决与 MySQL 使用相关的问题通常很简单，涉及收集信息和应用逻辑推理，使得这些问题通常可以解决。然而，解决 MySQL 内在的问题则证明要复杂得多。幸运的是，MySQL
+    用户富有创造力，已经设计了各种解决方案，例如实施线程池来缓解可扩展性挑战。
 - en: To effectively solve the myriad problems of MySQL, relying solely on peripheral
     fixes and patches is inadequate. It’s essential to delve into the core nature
     of these problems and comprehensively address them to achieve meaningful progress.
     For example, MySQL Group Replication has persistently struggled with instability.
     Despite robust development efforts, the ongoing challenge lies in adopting the
     correct problem-solving approach, resulting in difficulties in reducing bugs.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了有效地解决 MySQL 的各种问题，仅仅依靠外围的修复和补丁是不够的。深入探究这些问题的核心本质并全面解决它们，才能取得有意义的进展。例如，MySQL
+    Group Replication 持续面临不稳定的问题。尽管开发工作非常稳健，但持续的挑战在于采用正确的问题解决方法，这导致在减少错误方面存在困难。
 - en: 1.2 How Are MySQL Problems Solved?
+  id: totrans-6
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 1.2 如何解决 MySQL 问题？
 - en: Here are some classic problems listed, along with typical resolutions in real-world
     MySQL usage scenarios.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面列出了一些经典问题，以及在实际 MySQL 使用场景中的典型解决方案。
 - en: 1.2.1 Addressing Scalability Problems in MySQL 5.7
+  id: totrans-8
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.2.1 解决 MySQL 5.7 的可扩展性问题
 - en: The following figure illustrates the relationship between TPC-C throughput and
     concurrency in MySQL 5.7.39 under a specific configuration. This includes setting
     the transaction isolation level to Read Committed and adjusting the *innodb_spin_wait_delay*
     parameter to mitigate throughput degradation.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图展示了在特定配置下，MySQL 5.7.39 的 TPC-C 吞吐量与并发之间的关系。这包括将事务隔离级别设置为 Read Committed，并调整
+    *innodb_spin_wait_delay* 参数以减轻吞吐量下降。
 - en: '![image-20240829080057376](../Images/62b3cf4553332c790161ecec1d61693b.png)'
+  id: totrans-10
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829080057376](../Images/62b3cf4553332c790161ecec1d61693b.png)'
 - en: Figure 1-1\. Scalability problems in MySQL 5.7.39 during BenchmarkSQL testing.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 1-1\. 在 BenchmarkSQL 测试中 MySQL 5.7.39 的可扩展性问题。
 - en: From the figure, it is evident that scalability problems significantly limit
     the increase in MySQL throughput. For example, after 100 concurrency, the throughput
     begins to decline. Due to MySQL’s historical scalability challenges, Percona even
     open-sourced a thread pool to address these problems. The following figure illustrates
     the relationship between TPC-C throughput and concurrency after configuring the
     Percona thread pool.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，可扩展性问题显著限制了 MySQL 吞吐量的增加。例如，在 100 并发之后，吞吐量开始下降。由于 MySQL 历史上的可扩展性挑战，Percona
+    甚至开源了一个线程池来解决这些问题。下图展示了配置 Percona 线程池后 TPC-C 吞吐量与并发之间的关系。
 - en: '![image-20240829080659528](../Images/a1214094565cdee33d18a050f924f3af.png)'
+  id: totrans-13
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829080659528](../Images/a1214094565cdee33d18a050f924f3af.png)'
 - en: Figure 1-2\. Percona thread pool mitigates scalability problems in MySQL 5.7.39.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 1-2\. Percona 线程池缓解 MySQL 5.7.39 的可扩展性问题。
 - en: For MySQL 5.7.39, the thread pool effectively mitigates the decline in throughput
     degradation, although it also slightly reduces peak throughput due to inherent
     overhead costs. This overhead becomes more noticeable when comparing performance
     at lower concurrency levels.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于 MySQL 5.7.39，线程池有效地减轻了吞吐量下降，尽管由于固有的开销成本，它也略微降低了峰值吞吐量。当比较较低并发水平时的性能时，这种开销变得更加明显。
 - en: As MySQL 8.0 versions improve scalability, the effectiveness of the thread pool
     in mitigating throughput degradation diminishes. Subsequent chapters will provide
     real-world cases to substantiate this observation.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着MySQL 8.0版本的扩展性提升，线程池在缓解吞吐量下降方面的有效性降低。后续章节将提供实际案例来证实这一观察。
 - en: 1.2.2 Enhancing Join Performance in MySQL
+  id: totrans-17
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.2.2 提升MySQL中连接性能
 - en: Due to the absence of hash join support in MySQL 5.7, the following statistical
     SQL query took 3.82 seconds to execute.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于MySQL 5.7不支持哈希连接，以下统计SQL查询执行耗时为3.82秒。
 - en: '![](../Images/ed154c5e7e4a64453b3fb80f1b81b841.png)'
+  id: totrans-19
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/ed154c5e7e4a64453b3fb80f1b81b841.png)'
 - en: Figure 1-3\. Non-hash join performance in MySQL 5.7.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 图1-3\. MySQL 5.7中的非哈希连接性能。
 - en: In MySQL 8.0, the introduction of hash joins in the execution plan has improved
     join performance. For the same SQL query mentioned earlier, specifying hash join
     through comments reduced the execution time to just 1.22 seconds, a significant
     improvement from the previously observed 3.82 seconds.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 在MySQL 8.0中，执行计划中引入的哈希连接提高了连接性能。对于前面提到的相同SQL查询，通过注释指定哈希连接将执行时间缩短到仅为1.22秒，相较于之前观察到的3.82秒有显著提升。
 - en: '![](../Images/81e30c9f88dac4a4f7c0447c16d9c2ec.png)'
+  id: totrans-22
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/81e30c9f88dac4a4f7c0447c16d9c2ec.png)'
 - en: Figure 1-4\. Hash join performance in MySQL 8.0.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 图1-4\. MySQL 8.0中的哈希连接性能。
 - en: This illustrates the improvement in join execution introduced in MySQL 8.0,
     highlighting one of its key advancements.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 这说明了MySQL 8.0中引入的连接执行改进，突出了其关键进步之一。
 - en: 1.2.3 Challenges of MySQL Semisynchronous Replication in Large-Scale Deployments
+  id: totrans-25
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.2.3 大规模部署中MySQL半同步复制的挑战
 - en: Since the introduction of the Paxos protocol, an increasing number of databases
     have adopted state machine replication to construct a highly available cluster.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 自从引入Paxos协议以来，越来越多的数据库采用了状态机复制来构建高可用性集群。
 - en: The Paxos protocol relies on a majority-based mechanism rooted in set theory
     to achieve consensus. For instance, in a cluster with 3 MySQL nodes, 2 nodes can
     form a majority. If these 2 nodes reach consensus, the system can operate continuously.
     Theoretically, adherence to this majority-based mechanism should prevent divergence
     or split-brain problems under any anomaly.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: Paxos协议依赖于基于集合理论的多数机制来实现共识。例如，在包含3个MySQL节点的集群中，2个节点可以形成一个多数。如果这两个节点达成共识，系统可以持续运行。理论上，遵循这种基于多数的机制应该能够在任何异常情况下防止发散或脑裂问题。
 - en: Raft, another widely used protocol, is essentially a simplified version of the
     Paxos protocol. The following section describes Meta’s implementation of MySQL
     high availability using the Raft protocol [38], which simplifies traditional high
     availability processes.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: Raft是另一个广泛使用的协议，本质上是对Paxos协议的简化。以下章节描述了Meta使用Raft协议实现MySQL高可用性[38]，这简化了传统的高可用性流程。
 - en: '![](../Images/b9f92115059d54089a6d21248093bc7f.png)'
+  id: totrans-29
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/b9f92115059d54089a6d21248093bc7f.png)'
 - en: Figure 1-5\. Reasons Meta uses raft.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 图1-5\. Meta使用raft的原因。
 - en: Meta’s case study demonstrates that the new solution based on the Raft protocol
     simplifies high availability challenges. Raft is often viewed as a streamlined
     version of the Paxos protocol. Similarly, a Group Replication solution based on
     the Paxos protocol, if implemented correctly, could also offer an elegant solution.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: Meta的案例研究显示，基于Raft协议的新解决方案简化了高可用性挑战。Raft通常被视为Paxos协议的简化版本。同样，基于Paxos协议的Group
+    Replication解决方案，如果正确实施，也可以提供一个优雅的解决方案。
 - en: 1.2.4 Majority-Based Mechanism Performance and Its Accuracy
+  id: totrans-32
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.2.4 基于多数的机制性能及其准确性
 - en: With the transaction isolation level set to Read Committed, simulations based
     on Group Replication were conducted under various network latency conditions.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 将事务隔离级别设置为Read Committed后，在多种网络延迟条件下进行了基于Group Replication的模拟。
 - en: 'The deployment setup of Group Replication is illustrated as follows: On machine
     A, two MySQL instances are deployed—one serving as the primary and the other as
     the secondary. These two instances form the majority and communicate via localhost.
     Machine B hosts a third instance deployed as a member of the cluster, with a network
     latency of X milliseconds.'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: Group Replication的部署设置如下：在机器A上部署了两个MySQL实例——一个作为主实例，另一个作为从实例。这两个实例构成多数并通过localhost进行通信。机器B托管一个作为集群成员部署的第三个实例，网络延迟为X毫秒。
 - en: '![](../Images/0467e8f6fc7023d50baf4e9225dfa8ea.png)'
+  id: totrans-35
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/0467e8f6fc7023d50baf4e9225dfa8ea.png)'
 - en: Figure 1-6\. Deployment diagram for majority-based mechanism performance testing.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 图1-6\. 基于多数机制性能测试的部署图。
 - en: In theory, with a majority-based mechanism, a cluster of 3 nodes only needs
     responses from 2 nodes to provide results to the client. By this logic, local
     SysBench tests should demonstrate very high efficiency.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 理论上，基于多数制的机制，3 节点集群只需要从 2 个节点获取响应即可向客户端提供结果。按照这个逻辑，本地 SysBench 测试应该表现出非常高的效率。
 - en: Throughput comparisons over time have been conducted for machine B in scenarios
     within the same data center and across data centers with latencies of 10ms, 100ms,
     and 1000ms. Specific results are illustrated in the following figure.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 对同一数据中心内以及具有 10ms、100ms 和 1000ms 延迟的数据中心之间的场景进行了机器 B 的吞吐量随时间变化的比较。具体结果将在以下图中展示。
 - en: '![image-20240829081015123](../Images/8550043deb0ae840819477d3f29fc44a.png)'
+  id: totrans-39
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829081015123](../Images/8550043deb0ae840819477d3f29fc44a.png)'
 - en: Figure 1-7\. Performance testing results of the default multi-leader Paxos algorithm.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 1-7\. 默认多主 Paxos 算法的性能测试结果。
 - en: From the figure, it is evident that under the default mode of Group Replication,
     throughput across data centers deviates significantly from theoretical expectations.
     For example, in scenarios with 10ms network latency, the cluster’s throughput
@@ -185,92 +272,138 @@
     with MySQL 8.0.27, the *group_replication_paxos_single_leader* option was introduced.
     Enabling this option utilizes the single leader Paxos algorithm instead of the
     default multi-leader Paxos algorithm.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在 Group Replication 的默认模式下，数据中心间的吞吐量与理论预期存在显著偏差。例如，在网络延迟为 10ms 的场景中，集群的吞吐量降至原始水平的五分之一。为了解决这一差异，从
+    MySQL 8.0.27 版本开始，引入了 *group_replication_paxos_single_leader* 选项。启用此选项将使用单主 Paxos
+    算法而不是默认的多主 Paxos 算法。
 - en: After configuring Group Replication to use the single leader Paxos algorithm,
     tests were conducted under the same conditions using the SysBench testing tool.
     The test results are as follows.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 在配置 Group Replication 使用单主 Paxos 算法后，使用 SysBench 测试工具在相同条件下进行了测试。测试结果如下。
 - en: '![image-20240829081049988](../Images/cd78ed19fd2ee1857590ffdc269255c5.png)'
+  id: totrans-43
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829081049988](../Images/cd78ed19fd2ee1857590ffdc269255c5.png)'
 - en: Figure 1-8\. Performance testing results of the single-leader Paxos algorithm.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 1-8\. 单主 Paxos 算法的性能测试结果。
 - en: From the figure, it is evident that the results of the single leader mode are
     significantly better than previous results. However, the drawback is that the
     single leader mode can only function in MySQL’s single-primary mode, and its application
     scope is limited, unable to be applied in scenarios requiring strong consistency
     for read and write operations.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，单主模式的结果明显优于之前的结果。然而，缺点是单主模式只能在 MySQL 的单主模式下运行，其应用范围有限，无法应用于需要读写操作强一致性的场景。
 - en: Is this modification to the underlying Paxos algorithm truly the optimal solution?
     This will be explored in depth in the following chapters.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种对底层 Paxos 算法的修改是否真的是最佳解决方案？这将在以下章节中深入探讨。
 - en: '1.2.5 Group Replication: Localhost Deployment Reports Unreachable'
+  id: totrans-47
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.2.5 节点组复制：本地主机部署报告不可达
 - en: Deploying Group Replication with two nodes on the same machine, where communication
     between these nodes occurs via localhost, theoretically should not encounter network-related
     jitter, packet loss, or problems with unreachable peers under normal conditions.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 在同一台机器上部署具有两个节点的 Group Replication，其中这些节点之间的通信通过 localhost 进行，理论上不应遇到网络相关的抖动、数据包丢失或不可达的节点问题。
 - en: '![](../Images/ea27dd03d0158a33dafd292c1f934820.png)'
+  id: totrans-49
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/ea27dd03d0158a33dafd292c1f934820.png)'
 - en: Figure 1-9\. Localhost deployment relationships displayed by Performance Schema.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 1-9\. 性能模式显示的本地主机部署关系。
 - en: During TPC-C data loading tests with BenchmarkSQL under normal pressure, the
     MySQL error logs revealed multiple instances of the primary and secondary nodes
     reporting each other as unreachable.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 在正常压力下使用 BenchmarkSQL 进行 TPC-C 数据加载测试期间，MySQL 错误日志显示主节点和从节点多次报告对方不可达。
 - en: 'Here is a partial screenshot of the error log from the MySQL primary:'
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是 MySQL 主节点错误日志的部分截图：
 - en: '![](../Images/af5445408eafdc6ec3f39d076c61a99e.png)'
+  id: totrans-53
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/af5445408eafdc6ec3f39d076c61a99e.png)'
 - en: Figure 1-10\. A partial screenshot of the error log from the MySQL primary.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 1-10\. MySQL 主节点错误日志的部分截图。
 - en: 'Here is a partial screenshot of the error log from the MySQL secondary:'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是 MySQL 从节点错误日志的部分截图：
 - en: '![](../Images/6978d70d1c42adb1ceff708620c3bf1e.png)'
+  id: totrans-56
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/6978d70d1c42adb1ceff708620c3bf1e.png)'
 - en: Figure 1-11\. A partial screenshot of the error log from the MySQL secondary.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 图1-11\. MySQL从属服务器的错误日志的部分截图。
 - en: From these logs, warnings indicating ‘has become unreachable’ are evident. Under
     normal conditions, frequent ‘unreachable’ reports in a localhost scenario like
     this are unexpected. Blaming the network for Group Replication’s delayed problem
     handling isn’t optimal. Future chapters will explore enhancements to the network
     probing mechanism to address these false reporting problems.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 从这些日志中，可以明显看到指示“已无法访问”的警告。在正常情况下，在这种localhost场景中频繁出现“无法访问”的报告是不预期的。将Group Replication延迟处理问题的责任归咎于网络并不是最佳选择。未来的章节将探讨对网络探测机制的改进，以解决这些误报问题。
 - en: 1.3 Summary
+  id: totrans-59
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 1.3 摘要
 - en: This chapter analyzed how users approach solving MySQL problems. MySQL 8.0 has
     made strides in improvement, notably in mitigating scalability problems and introducing
     support for hash joins, which is a positive development. However, there remain
     numerous unsolved problems, both longstanding and newly emerging. Effectively
     addressing MySQL problems demands a thorough understanding of the problems and
     relevant theories; otherwise, the understanding may be incomplete.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章分析了用户如何解决MySQL问题。MySQL 8.0 在改进方面取得了进展，特别是在缓解可伸缩性问题以及引入对哈希连接的支持方面，这是一个积极的进展。然而，仍然存在许多未解决的问题，既有长期存在的问题，也有新出现的问题。有效地解决MySQL问题需要彻底理解这些问题和相关理论；否则，理解可能是不完整的。
 - en: The next chapter will demonstrate the considerable challenge of solving obscure
     MySQL problems through various case studies. It necessitates a broad knowledge
     base and extensive logical reasoning to pinpoint the root causes of these problems.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一章将通过各种案例研究展示解决晦涩MySQL问题的巨大挑战。这需要广泛的知识基础和深入的逻辑推理，以确定这些问题的根本原因。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter2.html)'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一章](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter2.html)'

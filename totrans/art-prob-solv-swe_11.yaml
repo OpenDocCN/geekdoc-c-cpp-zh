@@ -1,125 +1,180 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 《软件工程中的问题解决艺术——如何让 MySQL 更好》
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter7.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter7.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter7.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter7.html)
 - en: 'Chapter 7: Key Improvements of MySQL 8.0 Over MySQL 5.7'
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第 7 章：MySQL 8.0 相比 MySQL 5.7 的关键改进
 - en: MySQL 8.0 has introduced substantial improvements over MySQL 5.7\. It not only
     enhances functionality and adds support for hash joins in execution plans but,
     more importantly, greatly improves scalability. These advancements lay a solid
     foundation for future improvements.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 8.0 在 MySQL 5.7 的基础上引入了大量的改进。它不仅增强了功能并增加了执行计划中对哈希连接的支持，更重要的是，极大地提高了可扩展性。这些进步为未来的改进奠定了坚实的基础。
 - en: '7.1 Scaling Up: InnoDB Improvements'
+  id: totrans-4
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 7.1 扩展：InnoDB 改进
 - en: Early open-source DBMS code often used a coarse-grained latch for the entire
     kernel. In contrast, InnoDB has adopted a more refined approach, employing separate
     latches for different kernel components, such as the lock manager and buffer pool
     [19].
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 早期开源数据库管理系统代码通常在整个内核中使用粗粒度闩锁。相比之下，InnoDB 采用了更精细的方法，为不同的内核组件（如锁管理器和缓冲池）使用单独的闩锁
+    [19]。
 - en: 'MySQL 8.0 introduced additional improvements to enhance the scalability of
     the InnoDB storage engine. Here are the related improvements:'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 8.0 引入了额外的改进，以增强 InnoDB 存储引擎的可扩展性。以下是相关的改进：
 - en: '**Redo Log Optimization:** Enhancements to the redo log have facilitated subsequent
     performance improvements.'
+  id: totrans-7
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**重做日志优化**：对重做日志的增强促进了后续的性能改进。'
 - en: '**Lock-sys Latch Sharding:** The lock-sys latch has been sharded, akin to read-write
     locks, to improve transactional locking.'
+  id: totrans-8
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**锁-sys 闩锁分片**：锁-sys 闩锁已被分片，类似于读写锁，以提高事务锁定。'
 - en: '**Trx-sys Latch Splitting and Sharding:** While contention for latches persists,
     optimizations in trx-sys lay a strong foundation for future improvements in MVCC
     ReadView.'
+  id: totrans-9
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**trx-sys 闩锁拆分和分片**：尽管闩锁竞争仍然存在，但 trx-sys 的优化为 MVCC ReadView 的未来改进奠定了坚实的基础。'
 - en: These significant scalability improvements will be discussed in detail below.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下将详细讨论这些显著的扩展性改进。
 - en: 7.1.1 Redo Log Optimization
+  id: totrans-11
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 7.1.1 重做日志优化
 - en: 'Write-ahead logging is a fundamental, omnipresent component in ARIES-style
     concurrency and recovery, and it represents a significant potential bottleneck,
     especially in OLTP workloads making frequent small changes to data. Two logging-related
     impediments to database system scalability are identified, each challenging different
     levels of the software architecture [3]:'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 预写日志是 ARIES 风格并发和恢复中的基本、无处不在的组件，它代表了显著的潜在瓶颈，尤其是在频繁对数据进行小更改的 OLTP 工作负载中。确定了两个与数据库系统可扩展性相关的障碍，每个都挑战着软件架构的不同层面
+    [3]：
 - en: The high volume of small-sized I/O requests may saturate the disk.
+  id: totrans-13
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 大量的小型 I/O 请求可能会使磁盘饱和。
 - en: Contention arises as transactions serialize access to in-memory log data structures.
+  id: totrans-14
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 当事务序列化访问内存中的日志数据结构时，会出现竞争。
 - en: 'The above potential bottlenecks are reflected in MySQL 5.7\. Detailed information
     on redo log optimization can be found in “*MySQL 8.0: New Lock-Free, Scalable
     WAL Design*”, where the complexity lies in how the sequential order of Log Sequence
     Numbers (LSN) is ensured in the new design. The article also highlights the following
     improvements [27]:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 上述潜在瓶颈在 MySQL 5.7 中有所体现。有关重做日志优化的详细信息，请参阅“*MySQL 8.0：新的无锁、可扩展 WAL 设计*”，其中复杂性在于如何在新设计中确保日志序列号（LSN）的顺序。文章还强调了以下改进
+    [27]：
 - en: '*We have introduced dedicated threads for particular tasks related to the redo
     log writes. User threads no longer do writes to the redo files themselves. They
     simply wait when they need redo flushed to disk and it is not flushed yet.*'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: '*我们为与重做日志写入相关的特定任务引入了专用线程。用户线程不再直接写入重做文件。他们只需等待需要将重做刷新到磁盘，但尚未刷新时。*'
 - en: This improvement completely changed the previous mechanism and laid a solid
     foundation for scalability. The following git log details the specific optimizations
     made to the redo log.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 这次改进完全改变了之前的机制，为可扩展性奠定了坚实的基础。以下 git log 详细说明了对重做日志进行的特定优化。
 - en: '[PRE0]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: The new mechanism employs dedicated threads to flush redo log files, supports
     concurrent writes to the log buffer, removes global latches in the code, and introduces
     latch-free processing, significantly enhancing scalability.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 新机制采用专用线程来刷新重做日志文件，支持对日志缓冲区的并发写入，移除了代码中的全局闩锁，并引入了无闩锁处理，显著提高了可伸缩性。
 - en: 'A test comparing TPC-C throughput with different levels of concurrency before
     and after optimization was conducted. Specific details are shown in the following
     figure:'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 进行了一项测试，比较了优化前后不同并发级别下的TPC-C吞吐量。具体细节如下图所示：
 - en: '![image-20240829094221268](../Images/d7f66e43157014e054a21f9e87f38918.png)'
+  id: totrans-21
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829094221268](../Images/d7f66e43157014e054a21f9e87f38918.png)'
 - en: Figure 7-1\. Impact of redo log optimization under different concurrency levels.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-1. 不同并发级别下重做日志优化的影响。
 - en: 'The results in the figure show a significant improvement in throughput at a
     concurrency level of 100 but a decrease at high concurrency levels. This decrease
     can be attributed to two potential reasons:'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 图中的结果显示，在并发级别为100时吞吐量有显著提升，但在高并发级别时有所下降。这种下降可以归因于两个潜在原因：
 - en: '**Unsolved Foundational Flaws:** During the transformation process, foundational
     problems may not have been fully addressed.'
+  id: totrans-24
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**未解决的根本性缺陷**：在转换过程中，可能没有完全解决根本性问题。'
 - en: '**Interference from Multiple Queue Bottlenecks:** Problems similar to multi-queue
     bottlenecks interfering with each other may arise. Although performance in some
     areas has improved, other bottlenecks have worsened under high concurrency.'
+  id: totrans-25
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**多队列瓶颈的干扰**：可能出现类似多队列瓶颈相互干扰的问题。尽管在某些方面的性能有所提升，但在高并发情况下，其他瓶颈却变得更加严重。'
 - en: Extensive research suggests that the optimization should theoretically enhance
     throughput. The redo log optimization uses a group commit-like mechanism to reduce
     I/O overhead. Instead of immediately flushing redo log contents, user threads
@@ -128,587 +183,859 @@
     is expected to significantly decrease I/O operations under high concurrency. Therefore,
     the most likely cause of performance problems is exacerbated bottlenecks in other
     queues.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 广泛的研究表明，优化理论上应该提高吞吐量。重做日志优化使用类似于组提交的机制来减少I/O开销。用户线程不是立即刷新重做日志内容，而是写入日志缓冲区并等待，而专用线程则批量刷新日志到磁盘，并在过程完成后通知用户线程。这种方法预计在高并发情况下将显著减少I/O操作。因此，最可能引起性能问题的原因是其他队列中的瓶颈加剧。
 - en: Implementing redo log optimization is highly challenging, and without it, achieving
     throughput levels in the millions of tpmC would be nearly impossible.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 实施重做日志优化极具挑战性，没有它，达到数百万tpmC的吞吐量几乎是不可能的。
 - en: 'Extensive testing revealed that the optimizations performed well under low
     concurrency conditions and significantly accelerated the TPC-C data loading process.
     Specific details are shown in the following figure:'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 广泛的测试表明，在低并发条件下，这些优化表现良好，并显著加速了TPC-C数据加载过程。具体细节如下图所示：
 - en: '![image-20240829095452552](../Images/075bced720bbbdf5c2a4e2331c6f2079.png)'
+  id: totrans-29
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829095452552](../Images/075bced720bbbdf5c2a4e2331c6f2079.png)'
 - en: Figure 7-2\. Impact of redo log optimization for TPC-C data loading time.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-2. 重做日志优化对TPC-C数据加载时间的影响。
 - en: The TPC-C data loading process involves large transactions of up to 100MB. Previously,
     loading 1000 warehouses took 77 minutes, but with the optimization, it now takes
     only 16 minutes. This demonstrates that redo log optimization is highly effective
     for handling large transactions.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: TPC-C数据加载过程涉及高达100MB的大事务。以前，加载1000个仓库需要77分钟，但经过优化后，现在只需16分钟。这表明重做日志优化对于处理大事务非常有效。
 - en: 'To assess the true value of this optimization, scalability enhancements were
     applied to MySQL 5.7.36\. This process involved first applying the trx-sys patch,
     followed by the lock-sys patch, to evaluate the extent of throughput improvement.
     Specific details are shown in the following figure:'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了评估这种优化的真正价值，对MySQL 5.7.36进行了可伸缩性增强。这个过程首先应用了trx-sys补丁，然后是lock-sys补丁，以评估吞吐量提升的程度。具体细节如下图所示：
 - en: '![image-20240829100209917](../Images/df038ca81523ec4f6d21b7b7763c1a57.png)'
+  id: totrans-33
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829100209917](../Images/df038ca81523ec4f6d21b7b7763c1a57.png)'
 - en: Figure 7-3\. Indirect impact of redo log optimization.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-3. 重做日志优化的间接影响。
 - en: From the figure, it can be seen that after applying the trx-sys and lock-sys
     scalability patches, MySQL 5.7.36 experienced an improvement in throughput. However,
     it did not fundamentally solve scalability problems, especially when compared
     to the improved MySQL 8.0.27 version. The gap remains significant. To identify
     the bottleneck at 250 concurrency, the following screenshot from the *perf* tool
     can be examined.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在应用了trx-sys和lock-sys扩展性补丁后，MySQL 5.7.36的吞吐量有所提升。然而，它并没有从根本上解决扩展性问题，尤其是与改进后的MySQL
+    8.0.27版本相比。差距仍然很大。为了识别250并发时的瓶颈，可以检查以下*perf*工具的截图。
 - en: '![](../Images/4990fe18db5d697cf145e29c175acd0c.png)'
+  id: totrans-36
   prefs: []
   type: TYPE_IMG
+  zh: '![image](../Images/4990fe18db5d697cf145e29c175acd0c.png)'
 - en: Figure 7-4\. Screenshot from the *perf* tool at 250 concurrency.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-4. 在250并发时的*perf*工具截图。
 - en: From the figure, it is evident that the bottleneck is **prepare_write**, which
     precisely corresponds to the bottleneck of writing redo log buffer in MySQL 5.7.36
     version.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，瓶颈是**prepare_write**，这恰好对应于MySQL 5.7.36版本中写入重做日志缓冲区的瓶颈。
 - en: '[PRE1]'
+  id: totrans-39
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Let’s analyze this function by examining its call stack relationship.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们通过检查其调用栈关系来分析这个函数。
 - en: '![](../Images/5eabfef4a07c9d88d726c35feff2c693.png)'
+  id: totrans-41
   prefs: []
   type: TYPE_IMG
+  zh: '![image](../Images/5eabfef4a07c9d88d726c35feff2c693.png)'
 - en: Figure 7-5\. Call stack relationship revealing bottleneck in redo log writing.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-5. 显示重做日志写入瓶颈的调用栈关系。
 - en: The figure clearly shows that the bottleneck lies in redo log writing. Without
     the redo log optimization patch, the scalability problems in MySQL 5.7.36 cannot
     be fundamentally solved, underscoring the significant impact of redo log optimization.
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 图表清晰地显示瓶颈在于重做日志写入。没有重做日志优化补丁，MySQL 5.7.36的扩展性问题无法得到根本解决，这突显了重做日志优化的重要性。
 - en: 'Does redo log optimization currently have any side effects? Test data indicates
     that under low concurrency conditions, the number of flush operations increases
     significantly. Using SysBench read-write tests, the relationship between the average
     number of I/O flushes per transaction and concurrency was statistically analyzed.
     Specific details are shown in the following figure:'
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 目前重做日志优化是否有任何副作用？测试数据显示，在低并发条件下，刷新操作的数量显著增加。使用SysBench读写测试，对每笔交易平均I/O刷新次数与并发之间的关系进行了统计分析。具体细节如下所示：
 - en: '![image-20240829100245272](../Images/95ab89db6fe71f566fc5987d2c79171b.png)'
+  id: totrans-45
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829100245272](../Images/95ab89db6fe71f566fc5987d2c79171b.png)'
 - en: 'Figure 7-6\. Side effects of redo log optimization at low concurrency: more
     I/O flushes.'
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-6. 低并发下重做日志优化的副作用：更多的I/O刷新。
 - en: 'From the figure, it can be observed that with 3 concurrent read-write operations,
     each transaction averages over 9 flushes, while at 200 concurrency, it decreases
     to around 1 flush per transaction. These average flush counts can be further optimized,
     but it requires finding a balance: timely flushing activates user threads more
     quickly but incurs higher I/O overhead, whereas delaying flushing reduces I/O
     costs but may increase user response times.'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以观察到，在3个并发读写操作中，每笔交易平均超过9次刷新，而在200并发时，每笔交易减少到大约1次刷新。这些平均刷新次数可以进一步优化，但这需要找到一个平衡点：及时刷新可以更快地激活用户线程，但会带来更高的I/O开销，而延迟刷新可以降低I/O成本，但可能会增加用户响应时间。
 - en: It is important to note that the Redo log improvements are primarily focused
     on enhancing overall performance in high-concurrency environments, but they perform
     poorly in scenarios with fewer than 50 concurrent connections. Many users have
     complained that MySQL 8.0’s performance falls short of expectations, and this
     is one of the fundamental reasons.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 重要的是要注意，重做日志的改进主要关注于在高并发环境中提升整体性能，但在少于50个并发连接的场景中表现不佳。许多用户抱怨MySQL 8.0的性能未达到预期，这是其中一个基本原因。
 - en: 7.1.2 Optimizing Lock-Sys Through Latch Sharding
+  id: totrans-49
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 7.1.2 通过Latch Sharding优化Lock-Sys
 - en: In MySQL 5.7, the lock system experienced significant latch contention problems,
     which severely impacted throughput under high concurrency. During transaction
     execution, frequent locking and unlocking operations require acquiring a global
     latch. When many user threads compete for this global latch, MySQL’s scalability
     becomes a major concern.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 在MySQL 5.7中，锁系统遇到了严重的latch竞争问题，在高并发下严重影响了吞吐量。在事务执行期间，频繁的锁定和解锁操作需要获取全局latch。当许多用户线程竞争这个全局latch时，MySQL的可扩展性成为一个主要问题。
 - en: Lock-sys optimization is the second major improvement made in MySQL 8.0\. The
     following git log describes the specific details of the lock-sys optimization.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: Lock-sys 优化是 MySQL 8.0 中进行的第二大改进。以下 git log 描述了 lock-sys 优化的具体细节。
 - en: '[PRE2]'
+  id: totrans-52
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'Sharding the global latch theoretically can significantly improve scalability
     under high concurrency situations. Based on the program before and after optimizing
     with lock-sys, using BenchmarkSQL to compare TPC-C throughput with concurrency,
     the specific results are as shown in the following figure:'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 理论上对全局 Latch 进行分片可以显著提高在高并发情况下的可扩展性。基于对 lock-sys 优化前后的程序，使用 BenchmarkSQL 比较不同并发情况下的
+    TPC-C 吞吐量，具体结果如下所示：
 - en: '![image-20240829100432417](../Images/3c0335016408372c44248e78157f2f26.png)'
+  id: totrans-54
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829100432417](../Images/3c0335016408372c44248e78157f2f26.png)'
 - en: Figure 7-7\. Impact of lock-sys optimization under different concurrency levels.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 7-7\. 不同并发级别下 lock-sys 优化的影响。
 - en: From the figure, it can be seen that optimizing lock-sys significantly improves
     throughput under high concurrency conditions, while the effect is less pronounced
     under low concurrency due to fewer conflicts.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，优化 lock-sys 在高并发条件下显著提高了吞吐量，而在低并发条件下由于冲突较少，效果不太明显。
 - en: 7.1.3 Latch Splitting in trx-sys
+  id: totrans-57
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 7.1.3 trx-sys 中的 Latch Splitting
 - en: The trx-sys subsystem in MySQL, closely related to MVCC, primarily involves
     read operations. Improvements to redo log and lock-sys are mainly associated with
     write operations.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 中的 trx-sys 子系统与 MVCC 密切相关，主要涉及读操作。对重做日志和 lock-sys 的改进主要与写操作相关。
 - en: MySQL 5.7 utilized a global latch to synchronize various operations within trx-sys.
     To enhance read capabilities, it was crucial to address this latch bottleneck.
     However, the intertwined logic made modification challenging.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 5.7 使用全局 Latch 来同步 trx-sys 内部的各种操作。为了增强读能力，解决这个 Latch 瓶颈至关重要。然而，复杂的逻辑使得修改变得具有挑战性。
 - en: In MySQL 8.0, the global latch was initially split. A new latch was introduced
     for the *serialization_list*, allowing bypass of the global latch and reducing
     the contention pressure on it. The following git log describes the specific details
     of these optimizations.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 MySQL 8.0 中，全局 Latch 被最初分割。为 *serialization_list* 引入了一个新的 Latch，允许绕过全局 Latch
+    并减少其上的竞争压力。以下 git log 描述了这些优化的具体细节。
 - en: '[PRE3]'
+  id: totrans-61
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'Based on this optimization before and after, using BenchmarkSQL to compare
     TPC-C throughput with concurrency, the specific results are shown in the following
     figure:'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于此优化前后的对比，使用 BenchmarkSQL 比较不同并发情况下的 TPC-C 吞吐量，具体结果如下所示：
 - en: '![image-20240829100937477](../Images/54b11e2a4a28e3dfd6fc6cc426074998.png)'
+  id: totrans-63
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829100937477](../Images/54b11e2a4a28e3dfd6fc6cc426074998.png)'
 - en: Figure 7-8\. Impact of latch splitting in trx-sys under different concurrency
     levels.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 7-8\. 不同并发级别下 trx-sys 中 Latch Splitting 的影响。
 - en: From the figure, it can be seen that the optimization is effective at 150 concurrency.
     However, beyond 200 concurrency, throughput not only fails to increase but actually
     decreases. This decline at high concurrency levels is primarily due to interference
     from other queue bottlenecks.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，优化在 150 并发时有效。然而，超过 200 并发后，吞吐量不仅没有增加，实际上还下降了。这种在高并发水平下的下降主要是由于其他队列瓶颈的干扰。
 - en: 7.1.4 Latch Sharding for trx-sys
+  id: totrans-66
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 7.1.4 trx-sys 的 Latch Sharding
 - en: In MySQL 8.0, further scalability improvements are made to the trx-sys subsystem.
     The *rw_trx_set* has been divided into shards, each with its own latch. This significantly
     reduces global latch contention for read operations. The following git log describes
     the specific details of these optimizations.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 MySQL 8.0 中，对 trx-sys 子系统进行了进一步的扩展性改进。*rw_trx_set* 已被划分为多个分片，每个分片都有自己的 Latch。这显著减少了全局
+    Latch 在读操作上的竞争。以下 git log 描述了这些优化的具体细节。
 - en: '[PRE4]'
+  id: totrans-68
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'Based on these optimizations before and after, using BenchmarkSQL to compare
     TPC-C throughput with concurrency, the specific results are as shown in the following
     figure:'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于此优化前后的对比，使用 BenchmarkSQL 比较不同并发情况下的 TPC-C 吞吐量，具体结果如下所示：
 - en: '![image-20240829101111288](../Images/ea3541b32aff0ad79f8cb9fa1ee9d0e2.png)'
+  id: totrans-70
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101111288](../Images/ea3541b32aff0ad79f8cb9fa1ee9d0e2.png)'
 - en: Figure 7-9\. Impact of latch sharding in trx-sys under different concurrency
     levels.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 7-9\. 不同并发级别下 trx-sys 中 Latch Sharding 的影响。
 - en: From the figure, it can be seen that this improvement significantly enhances
     TPC-C throughput, reaching its peak at 200 concurrency. It is worth noting that
     the impact diminishes at 300 concurrency, primarily due to ongoing scalability
     problems in the trx-sys subsystem related to MVCC ReadView. This problem will
     be discussed further in the next chapter.
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，这种改进显著提高了TPC-C吞吐量，在200并发时达到峰值。值得注意的是，在300并发时，影响减弱，这主要是由于与MVCC ReadView相关的trx-sys子系统中的持续可扩展性问题。这个问题将在下一章中进一步讨论。
 - en: 7.1.5 Summary
+  id: totrans-73
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 7.1.5 总结
 - en: The series of scalability improvements mentioned above have laid a solid foundation
     for achieving high throughput in MySQL. Without these changes, subsequent improvements
     would lose their significance. Therefore, MySQL 8.0 has made significant advancements
     in scalability.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 上述一系列的可扩展性改进为在MySQL中实现高吞吐量奠定了坚实的基础。没有这些变化，后续的改进将失去其意义。因此，MySQL 8.0在可扩展性方面取得了显著的进步。
 - en: 7.2 Evaluating Performance Gains in MySQL Lock Scheduling Algorithms
+  id: totrans-75
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 7.2 评估MySQL锁调度算法的性能提升
 - en: Scheduling is crucial in computer system design. The right policy can significantly
     reduce mean response time without needing faster machines, effectively improving
     performance for free. Scheduling also optimizes other metrics, such as user fairness
     and differentiated service levels, ensuring some job classes have lower mean delays
     than others [24].
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 调度在计算机系统设计中至关重要。正确的策略可以在不需要更快的机器的情况下显著降低平均响应时间，从而免费提高性能。调度还优化了其他指标，如用户公平性和差异化服务水平，确保某些工作类别的平均延迟低于其他类别[24]。
 - en: MySQL 8.0 uses the Contention-Aware Transaction Scheduling (CATS) algorithm
     to prioritize transactions waiting for locks. When multiple transactions compete
     for the same lock, CATS determines the priority based on scheduling weight, calculated
     by the number of transactions a given transaction blocks. The transaction blocking
     the most others gets higher priority; if weights are equal, the longest waiting
     transaction goes first.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 8.0使用基于冲突感知的事务调度（CATS）算法来优先处理等待锁的事务。当多个事务竞争同一把锁时，CATS根据调度权重确定优先级，该权重由给定事务阻塞的事务数量计算得出。阻塞其他事务最多的交易获得更高的优先级；如果权重相等，则等待时间最长的交易优先。
 - en: A deadlock occurs when multiple transactions cannot proceed because each holds
     a lock needed by another, causing all involved to wait indefinitely without releasing
     their locks.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 当多个事务因为每个事务都持有其他事务需要的锁而无法进行时，就会发生死锁，导致所有涉及的事务无限期地等待而不释放它们的锁。
 - en: After understanding the MySQL lock scheduling algorithm, let’s examine how this
     algorithm affects throughput. Before testing, it is necessary to understand the
     previous FIFO algorithm and how to restore it. For relevant details, refer to
     the git log explanations provided below.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 在理解了MySQL锁调度算法之后，让我们来考察这个算法如何影响吞吐量。在测试之前，有必要了解之前的FIFO算法以及如何恢复它。有关详细信息，请参阅以下git
+    log解释。
 - en: '[PRE5]'
+  id: totrans-80
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Based on the above prompt, restoring the FIFO lock scheduling algorithm in MySQL
     is straightforward. Subsequently, throughput was tested using SysBench Pareto
     distribution scenarios with varying concurrency levels in the improved MySQL 8.0.32\.
     Details are provided in the following figure.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据上述提示，在MySQL中恢复FIFO锁调度算法是直接的。随后，使用SysBench Pareto分布场景和改进后的MySQL 8.0.32的不同并发级别进行了吞吐量测试。详细信息见以下图表。
 - en: '![image-20240829101222447](../Images/e2bbab0a50484c4512cada95e23cd4b0.png)'
+  id: totrans-82
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101222447](../Images/e2bbab0a50484c4512cada95e23cd4b0.png)'
 - en: Figure 7-10\. Impact of CATS on throughput at various concurrency levels.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-10\. CATS在不同并发级别上对吞吐量的影响。
 - en: From the figure, it can be seen that the throughput of the CATS algorithm significantly
     exceeds that of the FIFO algorithm. To compare these two algorithms in terms of
     user response time, refer to the following figure.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，CATS算法的吞吐量显著高于FIFO算法。要比较这两个算法的用户响应时间，请参阅以下图表。
 - en: '![image-20240829101254601](../Images/3a5c4d81f6a6083c92db92ad1a70f122.png)'
+  id: totrans-85
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101254601](../Images/3a5c4d81f6a6083c92db92ad1a70f122.png)'
 - en: Figure 7-11\. Impact of CATS on response time at various concurrency levels.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-11\. CATS在不同并发级别上对响应时间的影响。
 - en: From the figure, it can be seen that the CATS algorithm provides significantly
     better user response times.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，CATS算法提供了显著更好的用户响应时间。
 - en: Furthermore, comparing deadlock error statistics during the Pareto distribution
     test process, details can be found in the following figure.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，在帕累托分布测试过程中比较死锁错误统计，详细信息可以在以下图中找到。
 - en: '![image-20240829101332034](../Images/b52da62952ddc961d2ce63deb40ef462.png)'
+  id: totrans-89
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101332034](../Images/b52da62952ddc961d2ce63deb40ef462.png)'
 - en: Figure 7-12\. Impact of CATS on ignored errors at various concurrency levels.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-12\. CATS在不同并发级别对忽略错误的影响。
 - en: 'Comparative analysis shows that the CATS algorithm significantly reduces deadlocks.
     This reduction in deadlocks likely plays a key role in improving performance.
     The theoretical basis for this correlation is as follows [8]:'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 比较分析表明，CATS算法显著减少了死锁。这种死锁的减少可能在提高性能中发挥了关键作用。这一相关性的理论基础如下[8]：
 - en: '*Under a high-contention setting, the throughput of the target system will
     be determined by the concurrency control mechanism of the target system: systems
     which can release locks earlier or reduce the number of aborts will have advantages
     in such a setting.*'
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: '*在高竞争设置下，目标系统的吞吐量将由目标系统的并发控制机制决定：能够更早释放锁或减少中止次数的系统将在这种设置中具有优势。*'
 - en: The above test results align closely with MySQL’s official findings. The following
     two figures, based on official tests [57], demonstrate the significant effectiveness
     of the CATS algorithm.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 上述测试结果与MySQL的官方发现非常吻合。以下两个图基于官方测试[57]，展示了CATS算法的显著有效性。
 - en: '![](../Images/b310997cccf5a47e469129246583f04c.png)'
+  id: totrans-94
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/b310997cccf5a47e469129246583f04c.png)'
 - en: 'Figure 7-13\. Comparison of CATS and FIFO in TPS and mean latency: insights
     from the MySQL blog.'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-13\. CATS与FIFO在TPS和平均延迟方面的比较：来自MySQL博客的见解。
 - en: 'Additionally, MySQL’s official requirements for implementing the CATS algorithm
     are stringent. Specific details are provided in the following figure:'
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，MySQL 实施CATS算法的官方要求非常严格。具体细节在以下图中提供：
 - en: '![](../Images/0ead65693f0a60f349e4ef7d6a9651e3.png)'
+  id: totrans-97
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/0ead65693f0a60f349e4ef7d6a9651e3.png)'
 - en: Figure 7-14\. Requirements of the official worklog for CATS.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-14\. CATS官方工作日志的要求。
 - en: 'Therefore, with the adoption of the CATS algorithm, performance degradation
     should be absent in all scenarios. It seems like things end here, but the summary
     in the CATS algorithm’s paper [24] raises some doubts. Details are provided in
     the following figure:'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，采用CATS算法后，所有场景中都不应出现性能下降。看起来事情到此为止，但CATS算法论文[24]中的总结引发了一些疑问。具体细节在以下图中提供：
 - en: '![](../Images/bba749fc0c5101cc3cf32f0d089bf3ae.png)'
+  id: totrans-100
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/bba749fc0c5101cc3cf32f0d089bf3ae.png)'
 - en: Figure 7-15\. Doubts about the CATS paper.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-15\. 对CATS论文的疑问。
 - en: 'From the information above, it can be inferred that either the industry has
     overlooked potential flaws in FIFO, or the paper’s assessment is flawed, and FIFO
     does not have the serious problems suggested. This contradiction highlights a
     critical problem: one of these conclusions must be flawed; both cannot be correct.'
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 从上述信息可以推断，要么行业忽视了FIFO的潜在缺陷，要么论文的评估有误，FIFO并没有出现所暗示的严重问题。这种矛盾突显了一个关键问题：这些结论中必有一个是错误的；两者不可能都是正确的。
 - en: Contradictions often present valuable opportunities for in-depth problem analysis
     and resolution. They highlight areas where existing understanding may be challenged
     or where new insights can be gained.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 矛盾往往为深入的问题分析和解决提供了宝贵的机会。它们突出了现有理解可能受到挑战或可以取得新见解的领域。
 - en: 'This time, testing on the improved MySQL 8.0.27 revealed a large number of
     error logs in the MySQL error log file. Below is a partial screenshot:'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 这次，在改进的MySQL 8.0.27上进行测试时，MySQL错误日志文件中出现了大量错误日志。以下是部分截图：
 - en: '![](../Images/f5362a8c9da0af6746edab7bd9ab8ac0.png)'
+  id: totrans-105
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/f5362a8c9da0af6746edab7bd9ab8ac0.png)'
 - en: Figure 7-16\. Partial screenshot of numerous error logs.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-16\. 大量错误日志的部分截图。
 - en: 'Continuing the analysis of the corresponding code, the specifics are as follows:'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 继续分析相应的代码，具体如下：
 - en: '[PRE6]'
+  id: totrans-108
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: From the code analysis, it’s clear that deadlocks lead to a substantial amount
     of log output. The ignored errors observed during testing are connected to these
     deadlocks. The CATS algorithm helps reduce the number of ignored errors, resulting
     in fewer log outputs. This problem can be consistently reproduced.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 从代码分析来看，死锁会导致大量的日志输出。在测试期间观察到的忽略错误与这些死锁有关。CATS算法有助于减少忽略错误的数量，从而减少日志输出。这个问题可以持续重现。
 - en: 'Given this context, several considerations emerge:'
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 在此背景下，出现了一些考虑因素：
 - en: '**Impact on Performance Testing:** The extensive error logs and the resulting
     disruptions could potentially skew the performance evaluation, leading to inaccurate
     assessments of the system’s capabilities.'
+  id: totrans-111
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**对性能测试的影响：**广泛的错误日志和由此产生的中断可能会潜在地扭曲性能评估，导致对系统能力的评估不准确。'
 - en: '**Effectiveness of the CATS Algorithm:** The performance improvement of the
     CATS algorithm may need re-evaluation. If the extensive output of error logs significantly
     impacts performance, its actual effectiveness may not be as high as initially
     believed.'
+  id: totrans-112
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**CATS算法的有效性：**CATS算法的性能提升可能需要重新评估。如果广泛的错误日志输出对性能有显著影响，其实际有效性可能不如最初认为的那么高。'
 - en: 'Set `innodb_print_all_deadlocks=OFF` or remove all logging from the `Deadlock_notifier::notify`
     function, recompile MySQL, and run SysBench read-write tests with a Pareto distribution.
     Details are provided in the following figure:'
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 设置`innodb_print_all_deadlocks=OFF`或从`Deadlock_notifier::notify`函数中移除所有日志，重新编译MySQL，并使用帕累托分布运行SysBench读写测试。详细信息见以下图表：
 - en: '![image-20240829101534550](../Images/a5a0464e2d8f6cff94fc7cd6f711f19d.png)'
+  id: totrans-114
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101534550](../Images/a5a0464e2d8f6cff94fc7cd6f711f19d.png)'
 - en: Figure 7-17\. Impact of CATS on throughput at various concurrency levels for
     improved MySQL 8.0.27 after eliminating interference.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 7-17\. 消除干扰后，在改进后的MySQL 8.0.27的各个并发级别上CATS对吞吐量的影响。
 - en: From the figure, it is evident that there has been a significant change in throughput
     comparison. In scenarios with severe conflicts, the CATS algorithm slightly outperforms
     the FIFO algorithm, but the difference is minimal and much less pronounced than
     in previous tests. Note that these tests were conducted on the improved MySQL
     8.0.27.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，吞吐量比较发生了显著变化。在严重冲突的场景中，CATS算法略优于FIFO算法，但差异很小，远不如之前的测试中明显。请注意，这些测试是在改进后的MySQL
+    8.0.27上进行的。
 - en: Let’s conduct performance comparison tests on the improved MySQL 8.0.32, with
     deadlock log interference removed, using Pareto distribution.
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们在改进后的MySQL 8.0.32上执行性能比较测试，移除死锁日志干扰，使用帕累托分布。
 - en: '![image-20240829101612063](../Images/1fc0c4040379dabf2ad2a13add5c5b75.png)'
+  id: totrans-118
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101612063](../Images/1fc0c4040379dabf2ad2a13add5c5b75.png)'
 - en: Figure 7-18\. Impact of CATS on throughput at various concurrency levels for
     improved MySQL 8.0.32 after eliminating interference.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 7-18\. 消除干扰后，在改进后的MySQL 8.0.32的各个并发级别上CATS对吞吐量的影响。
 - en: From the figure, it is evident that removing the interference results in only
     a slight performance difference. This small variation makes it understandable
     why the severity of FIFO scheduling problems may be difficult to notice. The perceived
     bias from the CATS author and MySQL officials is likely due to interference from
     extensive deadlock log output.
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，消除干扰只导致轻微的性能差异。这种小的变化使得FIFO调度问题的严重性可能难以察觉。CATS作者和MySQL官员感知到的偏差很可能是由于广泛的死锁日志输出造成的干扰。
 - en: Using the same 32 warehouses as in the CATS algorithm paper, TPC-C tests were
     conducted at various concurrency levels. MySQL was based on the improved MySQL
     8.0.27, and BenchmarkSQL was modified to support 100 concurrent transactions per
     warehouse.
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用与CATS算法论文中相同的32个仓库，在各个并发级别上进行了TPC-C测试。MySQL基于改进后的MySQL 8.0.27，BenchmarkSQL被修改以支持每个仓库100个并发事务。
 - en: '![image-20240829101632142](../Images/9fb06ba2573f47a3467fcdcbbadabde2.png)'
+  id: totrans-122
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101632142](../Images/9fb06ba2573f47a3467fcdcbbadabde2.png)'
 - en: Figure 7-19\. Impact of CATS on throughput at different concurrency levels under
     NUMA after eliminating interference, according to the CATS paper.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 7-19\. 根据CATS论文，消除干扰后，在NUMA下不同并发级别上CATS对吞吐量的影响。
 - en: From the figure, it’s evident that the CATS algorithm performs worse than the
     FIFO algorithm. To avoid NUMA-related interference, MySQL was bound to NUMA node
     0 for a new round of throughput versus concurrency tests.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，CATS算法的性能不如FIFO算法。为了避免NUMA相关的干扰，MySQL被绑定到NUMA节点0，进行了一轮新的吞吐量与并发测试。
 - en: '![image-20240829101650730](../Images/1e3bff5182c8fa0e7e51cc41ad13514c.png)'
+  id: totrans-125
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101650730](../Images/1e3bff5182c8fa0e7e51cc41ad13514c.png)'
 - en: Figure 7-20\. Impact of CATS on throughput at different concurrency levels under
     SMP after eliminating interference, according to the CATS paper.
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 7-20\. 根据CATS论文，消除干扰后，在SMP下不同并发级别上CATS对吞吐量的影响。
 - en: 'In this round of testing, the FIFO algorithm continued to outperform the CATS
     algorithm. The decline in performance of the CATS algorithm in BenchmarkSQL TPC-C
     testing compared to improvements in SysBench Pareto testing can be attributed
     to the following reasons:'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这一轮测试中，FIFO算法继续优于CATS算法。与SysBench Pareto测试中的改进相比，BenchmarkSQL TPC-C测试中CATS算法性能的下降可以归因于以下原因：
 - en: '**Additional Overhead**: The CATS algorithm inherently introduces some extra
     overhead.'
+  id: totrans-128
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**额外开销**：CATS算法本身引入了一些额外的开销。'
 - en: '**NUMA Environment Problems**: The CATS algorithm may not perform optimally
     in NUMA environments.'
+  id: totrans-129
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**NUMA环境问题**：CATS算法可能在NUMA环境中无法发挥最佳性能。'
 - en: '**Conflict Severity**: The conflict severity in TPC-C testing is less pronounced
     than in SysBench Pareto testing.'
+  id: totrans-130
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**冲突严重程度**：在TPC-C测试中，冲突严重程度比在SysBench Pareto测试中要轻微。'
 - en: '**Different Concurrency Scenarios**: SysBench creates concurrency scenarios
     that differ significantly from those in BenchmarkSQL.'
+  id: totrans-131
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**不同的并发场景**：SysBench创建的并发场景与BenchmarkSQL中的场景有显著差异。'
 - en: 'Finally, standard TPC-C testing was performed again with 1000 warehouses at
     varying concurrency levels. Specific details are shown in the following figure:'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，在1000个仓库和不同并发级别下再次进行了标准的TPC-C测试。具体细节如下所示：
 - en: '![image-20240829101712694](../Images/07d1e1ce7058308849d128242880cc42.png)'
+  id: totrans-133
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101712694](../Images/07d1e1ce7058308849d128242880cc42.png)'
 - en: Figure 7-21\. Impact of CATS on BenchmarkSQL throughput after eliminating interference.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-21\. 消除干扰后，CATS对BenchmarkSQL吞吐量的影响。
 - en: From the figure, it is evident that there is little difference between the two
     algorithms in low-conflict scenarios. In other words, the CATS algorithm does
     not offer significant benefits in situations with fewer conflicts.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在低冲突场景下，两种算法之间几乎没有差异。换句话说，在冲突较少的情况下，CATS算法并没有提供显著的优势。
 - en: Overall, while CATS shows some improvement in Pareto testing, it is less pronounced
     than expected. The CATS algorithm significantly reduces transaction deadlocks,
     potentially resulting in less performance degradation than the FIFO algorithm.
     When deadlock logs are suppressed, the difference between these algorithms is
     minimal, clarifying the confusion surrounding the CATS algorithm’s performance.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 总体而言，虽然CATS在Pareto测试中显示出一些改进，但比预期的要少。CATS算法显著减少了事务死锁，可能比FIFO算法导致更少的性能下降。当抑制死锁日志时，这些算法之间的差异最小，澄清了围绕CATS算法性能的困惑。
 - en: Database performance testing is inherently complex and error-prone [9]. It cannot
     be judged by data alone and requires thorough investigation to ensure logical
     consistency.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 数据库性能测试本质上复杂且容易出错[9]。不能仅凭数据来判断，需要彻底调查以确保逻辑一致性。
 - en: 7.3 Enhancements in MySQL Execution Plans
+  id: totrans-138
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 7.3 MySQL执行计划的增强
 - en: 7.3.1 Hash Join Implementation in MySQL
+  id: totrans-139
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 7.3.1 MySQL中哈希连接的实现
 - en: As the name suggests, hashing is central to the hash join algorithm. It builds
     a hash table from one input table and then processes the other table row by row,
     using the hash table for lookups.
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如名称所示，哈希是哈希连接算法的核心。它从一个输入表构建哈希表，然后逐行处理另一个表，使用哈希表进行查找。
 - en: Hash joins are typically faster and are preferred over the block nested loop
     algorithm used in earlier MySQL versions. The benefits are substantial, as demonstrated
     by the practical case below.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 哈希连接通常更快，并且比早期MySQL版本中使用的块嵌套循环算法更受欢迎。以下实际案例展示了其显著的益处。
 - en: In MySQL 5.7, which lacks hash join support, the SQL query relies on traditional
     join methods, resulting in a longer execution time of 3.82 seconds.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 在缺乏哈希连接支持的MySQL 5.7中，SQL查询依赖于传统的连接方法，导致执行时间延长至3.82秒。
 - en: '![](../Images/ed154c5e7e4a64453b3fb80f1b81b841.png)'
+  id: totrans-143
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/ed154c5e7e4a64453b3fb80f1b81b841.png)'
 - en: Figure 7-22\. Non-hash join performance in MySQL 5.7.
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-22\. MySQL 5.7中非哈希连接的性能。
 - en: MySQL 8.0 introduced hash join. For the same SQL query, using hash join with
     hints reduced the execution time to 1.22 seconds, a significant improvement over
     the 3.82 seconds with traditional methods.
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 8.0引入了哈希连接。对于相同的SQL查询，使用带有提示的哈希连接将执行时间缩短至1.22秒，比传统方法的3.82秒有显著改进。
 - en: '![](../Images/81e30c9f88dac4a4f7c0447c16d9c2ec.png)'
+  id: totrans-146
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/81e30c9f88dac4a4f7c0447c16d9c2ec.png)'
 - en: Figure 7-23\. Hash join performance in MySQL 8.0.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-23\. MySQL 8.0中哈希连接的性能。
 - en: 'Notably, hash join in MySQL 8.0 enhances join performance under the following
     conditions [13]:'
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得注意的是，在以下条件下，MySQL 8.0中的哈希连接增强了连接性能[13]：
 - en: No index is available
+  id: totrans-149
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 没有可用的索引
 - en: The query is I/O-bound
+  id: totrans-150
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 查询是I/O受限的
 - en: A large portion of a table is accessed
+  id: totrans-151
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 表的大部分内容被访问
 - en: There are selective conditions across multiple tables
+  id: totrans-152
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在多个表中存在选择性条件
 - en: Increasing join_buffer_size can further improve performance
+  id: totrans-153
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 增加join_buffer_size可以进一步提高性能
 - en: The introduction of hash join is a significant feature in MySQL 8.0, offering
     a promising solution for reducing response times.
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 哈希连接的引入是MySQL 8.0的一个重要特性，为减少响应时间提供了有希望的解决方案。
 - en: 7.3.2 Introduction of Hypergraph Algorithm in MySQL
+  id: totrans-155
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 7.3.2 MySQL中引入超图算法
 - en: The hypergraph algorithm was introduced in MySQL 8.0 but is currently only available
     in debug mode. The following git log provides specific implementation details
     of the hypergraph algorithm.
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 超图算法是在MySQL 8.0中引入的，但目前仅在调试模式下可用。以下git log提供了超图算法的具体实现细节。
 - en: '[PRE7]'
+  id: totrans-157
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: From the above, it can be seen that the theoretical foundation for the hypergraph
     algorithm’s implementation is detailed in the paper “Dynamic Programming Strikes
     Back” [35]. This highlights the high level of complexity involved in its implementation.
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 从上述内容可以看出，超图算法实现的原理在论文“动态规划卷土重来” [35] 中进行了详细阐述。这突显了其在实现过程中涉及的高度复杂性。
 - en: A cost-based query optimizer is crucial for the overall performance of a database
     management system, particularly in finding the optimal join order. Building on
     the efficient *DPccp* algorithm, which uses dynamic programming, a new algorithm,
@@ -716,129 +1043,194 @@
     the query graph as a hypergraph and analyzing its connected subgraphs, *DPhyp*
     improves the optimization of non-inner joins, offering substantial performance
     gains over previous methods.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于成本的查询优化器对于数据库管理系统的整体性能至关重要，尤其是在寻找最佳连接顺序方面。基于使用动态规划的效率较高的*DPccp*算法，引入了一种新的算法*DPhyp*，以有效地处理复杂的连接谓词。通过将查询图建模为超图并分析其连通子图，*DPhyp*改善了非内连接的优化，与先前方法相比提供了实质性的性能提升。
 - en: With advances in hardware, high-complexity algorithms are becoming practical.
     Even though some algorithms may not run in polynomial time, modern computers can
     handle large NP-complete problems efficiently. Dynamic programming techniques,
     while still exponential, are increasingly viable for moderate instance sizes,
     often achieving time complexities of O(2^n).
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着硬件的进步，高复杂度算法变得可行。尽管某些算法可能不在多项式时间内运行，但现代计算机可以有效地处理大型NP完全问题。动态规划技术，虽然仍然是指数级的，但对于中等实例大小越来越可行，通常达到时间复杂度为O(2^n)。
 - en: 'Nevertheless, when using the hypergraph algorithm, the number of tables involved
     in joins should be kept within reasonable limits to avoid potential performance
     problems. Performance comparisons were conducted for complex join operations in
     TPC-C, with and without hypergraph optimization enabled. Detailed results are
     shown in the following figure:'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，在使用超图算法时，应将参与连接的表的数量控制在合理的范围内，以避免潜在的性能问题。在TPC-C中进行了复杂连接操作的性能比较，包括启用和未启用超图优化。详细结果如下图所示：
 - en: '![](../Images/479d19e7baca5f40961422c966334bcb.png)'
+  id: totrans-162
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/479d19e7baca5f40961422c966334bcb.png)'
 - en: Figure 7-24\. Effects of hypergraph algorithms on typical TPC-C SQL workloads.
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-24\. 超图算法对典型TPC-C SQL工作负载的影响。
 - en: From the figure, it is evident that enabling the hypergraph algorithm results
     in an execution time of 0.88 seconds, whereas disabling it reduces the time to
     0.03 seconds. This demonstrates the significant performance impact of using the
     hypergraph algorithm. In many cases, the overhead of the hypergraph can be substantial.
     If MySQL’s default execution plan leads to slow performance, the hypergraph algorithm
     might offer valuable improvements.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，启用超图算法的执行时间为0.88秒，而禁用它则将时间缩短到0.03秒。这证明了使用超图算法对性能的显著影响。在许多情况下，超图的额外开销可能很大。如果MySQL的默认执行计划导致性能缓慢，超图算法可能会提供有价值的改进。
 - en: Let’s further analyze the performance of the hypergraph algorithm by examining
     the *perf* flame graph in the following figure.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们进一步通过以下图中显示的*perf*火焰图来分析超图算法的性能。
 - en: '![](../Images/016861ff478ed8cbf861ab045a71f3fb.png)'
+  id: totrans-166
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/016861ff478ed8cbf861ab045a71f3fb.png)'
 - en: Figure 7-25\. A typical flame graph of hypergraph algorithm.
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 图7-25\. 超图算法的典型火焰图。
 - en: From the figure, it is evident that the hypergraph algorithm (hypergraph*) consumes
     a significant amount of computation. Currently operating in single-threaded mode,
     there is substantial potential for optimizing the hypergraph algorithm.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，超图算法（超图*）消耗了大量的计算资源。目前它以单线程模式运行，超图算法的优化潜力巨大。
 - en: Due to MySQL’s absence of query plan caching, constructing optimal execution
     plans with the hypergraph algorithm is time-consuming, posing challenges for its
     effective use in production environments.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于 MySQL 缺乏查询计划缓存，使用超图算法构建最优执行计划耗时较长，这对其在生产环境中的有效使用构成了挑战。
 - en: Notably, AI can also be utilized for optimizing execution plans, as discussed
     in section 5.20.2.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得注意的是，AI 也可以用于优化执行计划，如第 5.20.2 节所述。
 - en: 7.4 Cost Savings with Binlog Compression
+  id: totrans-171
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 7.4 使用 Binlog 压缩节省成本
 - en: Starting with MySQL 8.0.20, binlog compression is supported but disabled by
     default. It can be enabled with the *binlog_transaction_compression* parameter,
     and the *zstd* compression level can be adjusted using the *binlog_transaction_compression_level_zstd*
     parameter, with a default level of 3.
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 从 MySQL 8.0.20 版本开始，支持 binlog 压缩，但默认情况下是禁用的。可以通过设置 *binlog_transaction_compression*
+    参数来启用它，并且可以使用 *binlog_transaction_compression_level_zstd* 参数调整 *zstd* 压缩级别，默认级别为
+    3。
 - en: 'Using a Group Replication cluster within the same data center, the impact of
     binlog compression on TPC-C throughput and concurrency was examined using BenchmarkSQL.
     Both primary and secondary nodes were configured with the *binlog_transaction_compression*
     parameter. Specific test results are shown in the following figure:'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 在同一数据中心内使用 Group Replication 集群，使用 BenchmarkSQL 检查了 binlog 压缩对 TPC-C 吞吐量和并发性的影响。主节点和从节点都配置了
+    *binlog_transaction_compression* 参数。具体测试结果如下图所示：
 - en: '![image-20240829101915930](../Images/3f5357ee2ff758a709d1e16c5a40f1a7.png)'
+  id: totrans-174
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101915930](../Images/3f5357ee2ff758a709d1e16c5a40f1a7.png)'
 - en: Figure 7-26\. Impact of binlog compression on BenchmarkSQL performance.
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 7-26\. binlog 压缩对 BenchmarkSQL 性能的影响。
 - en: From the figure, it is evident that enabling binlog compression significantly
     affects throughput, with noticeable fluctuations.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，启用 binlog 压缩对吞吐量有显著影响，且波动明显。
 - en: 'The next step is to compare binlog sizes before and after compression. Specific
     details are shown in the following figure:'
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一步是比较压缩前后的 binlog 大小。具体细节如下图所示：
 - en: '![image-20240829101936734](../Images/61ff7db622e36ed0918e0509e044333e.png)'
+  id: totrans-178
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101936734](../Images/61ff7db622e36ed0918e0509e044333e.png)'
 - en: Figure 7-27\. Effects of binlog compression after BenchmarkSQL testing.
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 7-27\. BenchmarkSQL 测试后 binlog 压缩的影响。
 - en: 'From the figure, it is evident that binlog compression has a notable positive
     effect on TPC-C testing. It’s worth noting that setting *binlog_row_image=minimal*
     can significantly reduce binlog size, but it has less impact on performance. Specific
     details are shown in the following figure:'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，binlog 压缩对 TPC-C 测试有明显的积极影响。值得注意的是，设置 *binlog_row_image=minimal* 可以显著减小
+    binlog 的大小，但它对性能的影响较小。具体细节如下图所示：
 - en: '![image-20240829101956608](../Images/cd7718f0c275f3cde86b00d06d4b0b1e.png)'
+  id: totrans-181
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829101956608](../Images/cd7718f0c275f3cde86b00d06d4b0b1e.png)'
 - en: Figure 7-28\. Impact of *binlog_row_image=minimal* on BenchmarkSQL performance.
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 7-28\. *binlog_row_image=minimal* 对 BenchmarkSQL 性能的影响。
 - en: 'Finally, let’s examine the comparison of binlog sizes between *binlog_row_image=minimal*
     and *binlog_row_image=full*. Specific details are shown in the following figure:'
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，让我们比较 *binlog_row_image=minimal* 和 *binlog_row_image=full* 之间的 binlog 大小。具体细节如下图所示：
 - en: '![image-20240829102020166](../Images/d64733af5ac5decd5731b014911e152b.png)'
+  id: totrans-184
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829102020166](../Images/d64733af5ac5decd5731b014911e152b.png)'
 - en: Figure 7-29\. Effects of *binlog_row_image=minimal* after BenchmarkSQL testing.
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 7-29\. BenchmarkSQL 测试后 *binlog_row_image=minimal* 的影响。
 - en: From the figure, it can be seen that setting *binlog_row_image=minimal* can
     also significantly reduce the size of binlogs.
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，设置 *binlog_row_image=minimal* 也可以显著减小 binlog 的大小。
 - en: Overall, MySQL 8.0 offers effective solutions to address the problem of binlogs
     consuming substantial I/O space. Users can leverage binlog compression and, where
     feasible, further reduce binlog size by using *binlog_row_image=minimal* to save
     on storage costs. It’s important to note that the compression ratio can vary across
     different applications.
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 总体而言，MySQL 8.0 提供了有效的解决方案来解决 binlog 消耗大量 I/O 空间的问题。用户可以利用 binlog 压缩，并在可行的情况下，通过使用
+    *binlog_row_image=minimal* 来进一步减小 binlog 的大小，从而节省存储成本。需要注意的是，压缩比可能因不同的应用程序而异。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter8.html)'
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一章](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter8.html)'

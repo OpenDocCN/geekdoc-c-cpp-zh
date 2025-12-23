@@ -1,282 +1,416 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Appendix.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Appendix.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Appendix.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Appendix.html)
 - en: Appendix
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 附录
 - en: Glossary
+  id: totrans-3
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 术语表
 - en: This book includes numerous terms. Familiarizing yourself with their meanings
     in advance will help you better understand the problems discussed.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书包含许多术语。提前熟悉它们的含义将有助于您更好地理解所讨论的问题。
 - en: '**1 Achieving Strong Consistency in Read/Write Operations**'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '**1 实现读写操作的强一致性**'
 - en: 'MySQL Group Replication ensures strong consistency with two mechanisms:'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 组复制通过两种机制确保强一致性：
 - en: '**Strong Consistency Read (Before Mechanism)**:'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '**强一致性读（机制前）**：'
 - en: A read-write (RW) transaction waits for all prior transactions to complete before
     being applied. A read-only (RO) transaction waits for all prior transactions before
     execution. This guarantees that the transaction reads the latest value, affecting
     only the read latency.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个读写（RW）事务在应用之前会等待所有先前事务完成。一个只读（RO）事务在执行之前会等待所有先前事务。这保证了事务读取最新的值，只影响读取延迟。
 - en: '**Strong Consistency Write (After Mechanism):**'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '**强一致性写（机制后）**：'
 - en: A RW transaction waits until its changes are applied to all group members. This
     ensures that once committed on the local member, any subsequent reads on any member
     will see the committed value or a more recent one. RO transactions are unaffected.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个 RW 事务会等待其更改应用到所有组成员上。这确保了在本地成员上提交后，任何后续在任何成员上的读取都将看到已提交的值或更近的值。RO 事务不受影响。
 - en: '**2 AI**'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '**2 人工智能**'
 - en: Artificial intelligence (AI) enables machines to exhibit intelligent behavior
     by developing methods and software for perception, learning, and goal-oriented
     actions. Machine learning (ML), a subset of AI, creates algorithms that learn
     from data to perform tasks without explicit instructions. Advances in neural networks
     have significantly improved performance in many areas.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 人工智能（AI）通过开发用于感知、学习和目标导向行为的方法和软件，使机器表现出智能行为。机器学习（ML），作为人工智能的一个子集，创建出从数据中学习以执行任务而不需要明确指令的算法。神经网络的发展显著提高了许多领域的性能。
 - en: Deep learning, a prominent ML direction, has greatly enhanced fields like computer
     vision, speech recognition, and natural language processing, thanks to increased
     computational power (especially GPUs) and extensive training datasets like ImageNet.
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 深度学习，一个突出的机器学习方向，由于计算能力的提升（尤其是 GPU）和像 ImageNet 这样的广泛训练数据集，极大地增强了计算机视觉、语音识别和自然语言处理等领域。
 - en: In databases, AI can automate operations, tune performance parameters, and construct
     SQL statements, enhancing efficiency and functionality. MySQL HeatWave combines
     transactions, analytics, and machine learning into a single managed service.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 在数据库中，人工智能可以自动化操作、调整性能参数和构建 SQL 语句，提高效率和功能。MySQL HeatWave 将事务、分析和机器学习结合成一个单一的管理服务。
 - en: '**3 Algorithms**'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '**3 算法**'
 - en: Design algorithms are instructions for solving specific problems. Logical reasoning
     is essential, as it involves creating a logically organized sequence of steps
     to achieve the desired outcome. Programmers must consider control flow, data flow,
     and interactions to ensure the algorithm is efficient, correct, and meets requirements.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 设计算法是解决特定问题的指令。逻辑推理是必不可少的，因为它涉及到创建一个逻辑上组织有序的步骤序列以实现预期的结果。程序员必须考虑控制流、数据流和交互，以确保算法高效、正确并满足要求。
 - en: '**4 Balanced Replay Speed**'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '**4 平衡重放速度**'
 - en: For MySQL secondary replay, balanced replay speed is the point at which the
     secondary matches the primary’s speed under normal conditions. If the primary’s
     speed is at or below this threshold, there is minimal lag. However, if the primary’s
     speed exceeds this threshold, the secondary begins to lag in transaction replay
     progress.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于 MySQL 的二级重放，平衡重放速度是在正常条件下二级副本与主副本速度相匹配的点。如果主副本的速度达到或低于此阈值，延迟最小。然而，如果主副本的速度超过此阈值，二级副本在事务重放进度上开始落后。
 - en: '**5 Causality**'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: '**5 因果性**'
 - en: Causality is the relationship where one event or state (the cause) leads to
     the production of another event or state (the effect). The cause is partly responsible
     for the effect, and the effect depends on the cause.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 因果性是指一个事件或状态（原因）导致另一个事件或状态（结果）的产生。原因是结果的部分原因，结果依赖于原因。
 - en: '**6 Crash Recovery**'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '**6 崩溃恢复**'
 - en: Transactions in a database can be interrupted unexpectedly. If a failure occurs
     before all changes in a transaction are completed and committed, the database
     may become inconsistent and unusable. Crash recovery is the process of restoring
     the database to a consistent and usable state.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 数据库中的事务可能会意外中断。如果在事务的所有更改完成并提交之前发生故障，数据库可能会变得不一致且不可用。崩溃恢复是将数据库恢复到一致和可用状态的过程。
 - en: '**7 Data Structure**'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: '**7 数据结构**'
 - en: In computer science, a data structure is a data organization, and storage format
     that is usually chosen for efficient access to data. It consists of data values,
     their relationships, and the operations that can be performed on them, forming
     an algebraic structure.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 在计算机科学中，数据结构是一种数据组织、存储格式，通常用于高效访问数据。它由数据值、它们之间的关系以及可以对这些值执行的操作组成，形成一个代数结构。
 - en: '**8 Doublewrite**'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: '**8 双写**'
 - en: The doublewrite buffer is a storage area where InnoDB writes pages from the
     buffer pool before writing them to their final positions in the data files. If
     an unexpected failure occurs during a page write, InnoDB can use the copy in the
     doublewrite buffer to recover the page during crash recovery.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 双写缓冲区是一个存储区域，其中 InnoDB 在将页面写入数据文件最终位置之前，先将其从缓冲池中写入。如果在页面写入过程中发生意外故障，InnoDB 可以使用双写缓冲区中的副本在崩溃恢复期间恢复页面。
 - en: '**9 Dual One**'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: '**9 双一**'
 - en: Binlog is a logical log that records transaction modifications for data replication
     and disaster recovery in MySQL. In contrast, the redo log is a physical log that
     captures modifications to data pages, essential for recovering committed data
     after a crash. Both logs are crucial for MySQL crash recovery. To prevent data
     loss during unexpected failures, ‘dual one’ protection is essential, which involves
     ensuring timely disk flushing for both the binlog and redo log.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: Binlog 是记录 MySQL 数据复制和灾难恢复中事务修改的逻辑日志。相比之下，重做日志是一个物理日志，它捕获数据页面的修改，对于在崩溃后恢复已提交的数据至关重要。这两个日志对于
+    MySQL 崩溃恢复至关重要。为了防止意外故障期间的数据丢失，'双一'保护是必不可少的，这涉及到确保 binlog 和重做日志及时刷新到磁盘。
 - en: '**10 Fault Tolerance**'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: '**10 容错性**'
 - en: Fault tolerance is a system’s ability to continue operating correctly despite
     failures or faults in its components.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 容错性是指系统在组件出现故障或错误的情况下，仍能继续正确运行的能力。
 - en: '**11 GTID**'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: '**11 GTID**'
 - en: 'Global Transaction Identifiers (GTIDs) simplify replication by uniquely identifying
     each transaction, eliminating the need to refer to log files or positions when
     setting up new secondaries or handling failovers. With GTID-based replication,
     tracking transactions directly ensures easy verification of consistency: if all
     transactions committed on the primary are present on the secondary, consistency
     is guaranteed.'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 全局事务标识符（GTID）通过唯一标识每个事务简化了复制，消除了在设置新从节点或处理故障转移时引用日志文件或位置的必要性。基于 GTID 的复制直接跟踪事务，确保一致性验证简单：如果主节点上提交的所有事务都存在于从节点上，则一致性得到保证。
 - en: GTIDs are maintained between primary and secondary, enabling you to trace any
     transaction’s origin through the binary log. Once a transaction with a specific
     GTID is committed on a server, duplicate transactions with the same GTID are ignored,
     ensuring that each transaction is applied only once on the secondary, thus preserving
     consistency.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: GTID 在主节点和从节点之间维护，使您能够通过二进制日志追踪任何事务的起源。一旦在服务器上提交了具有特定 GTID 的事务，具有相同 GTID 的重复事务将被忽略，确保每个事务只在从节点上应用一次，从而保持一致性。
 - en: 'In this book, MySQL Server is configured with the following settings before
     running:'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本书中，MySQL 服务器在运行前配置了以下设置：
 - en: '[PRE0]'
+  id: totrans-35
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: This configuration ensures that each MySQL node uses GTID, simplifying the process
     of tracing and troubleshooting problems.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 此配置确保每个 MySQL 节点使用 GTID，简化了问题和故障追踪的过程。
 - en: '**12 High Availability**'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: '**12 高可用性**'
 - en: High availability is a network resilience property that ensures an acceptable
     level of service despite faults and operational challenges.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 高可用性是一种网络弹性属性，即使在故障和操作挑战的情况下，也能确保可接受的服务水平。
 - en: '**13 Idempotence**'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: '**13 幂等性**'
 - en: Idempotence is a property of certain operations in computer science where applying
     the operation multiple times has the same effect as applying it once.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 幂等性是计算机科学中某些操作的一个属性，其中多次应用操作的效果与单次应用相同。
 - en: '**14 Latch vs. Lock: Key Differences**'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: '**14 闩锁与锁：关键区别**'
 - en: In computer science, a latch or mutex (short for mutual exclusion) is a synchronization
     primitive that prevents simultaneous access to state by multiple threads. Locking
     is a technique used to prevent concurrent access to data in a database, ensuring
     consistent results.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 在计算机科学中，闩锁或互斥锁（简称互斥）是一种同步原语，它防止多个线程同时访问状态。锁定是一种用于防止数据库中数据并发访问的技术，确保结果的一致性。
 - en: 'Latch is similar to mutex, while the lock structure in MySQL is as follows:'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 闩锁类似于互斥锁，而 MySQL 中的锁结构如下：
 - en: '[PRE1]'
+  id: totrans-44
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'So, what distinguishes these two concepts? Consider this metaphor [19]:'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 那么，这两个概念有什么区别呢？考虑以下比喻 [19]：
 - en: A **latch** secures a door, gate, or window in place but does not offer protection
     against unauthorized access.
+  id: totrans-46
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**闩锁**可以固定门、栅栏或窗户，但不会提供防止未经授权访问的保护。'
 - en: A **lock**, however, restricts entry to those without the key, ensuring security
     and control.
+  id: totrans-47
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 然而，**锁**限制了没有钥匙的人的进入，确保了安全和控制。
 - en: In MySQL, a global latch is employed to serialize specific processing procedures.
     For instance, the following is MySQL’s description of the role of a global latch.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 MySQL 中，全局闩锁用于序列化特定的处理过程。例如，以下是 MySQL 对全局闩锁作用的描述。
 - en: '[PRE2]'
+  id: totrans-49
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: In MySQL, locks are integral to the transaction model, with common types including
     row locks and table locks. Deadlock detection in MySQL is related to locks, not
     latches.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 MySQL 中，锁是事务模型的核心，常见的类型包括行锁和表锁。MySQL 中的死锁检测与锁有关，而不是与闩锁有关。
 - en: 'Understanding locks is crucial for:'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 理解锁对于：
 - en: Implementing large-scale, busy, or highly reliable database applications
+  id: totrans-52
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 实现大规模、繁忙或高度可靠的数据库应用程序
 - en: Tuning MySQL performance
+  id: totrans-53
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 调优 MySQL 性能
 - en: Familiarity with InnoDB locking and the InnoDB transaction model is essential
     for these tasks.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 理解 InnoDB 锁定和 InnoDB 事务模型对于这些任务至关重要。
 - en: It is worth noting that lock objects in MySQL require latch protection to ensure
     correctness, as seen in the following code.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得注意的是，MySQL 中的锁对象需要闩锁保护以确保正确性，如下面的代码所示。
 - en: '[PRE3]'
+  id: totrans-56
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '**15 Maintaining Transaction Order with replica_preserve_commit_order**'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: '**15 使用 replica_preserve_commit_order 维护事务顺序**'
 - en: 'In MySQL, the *replica_preserve_commit_order* configuration ensures that transactions
     on secondary databases are committed in the same order as they appear in the relay
     log. This setting lays the foundation for maintaining the causal relationship
     between transactions: if transaction A commits before transaction B on the primary,
     transaction A will also commit before transaction B on the secondary. This prevents
     inconsistencies where transactions could be read in the reverse order on the secondary.'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 MySQL 中，`replica_preserve_commit_order` 配置确保在从数据库上提交的事务按照它们在重播日志中出现的顺序进行提交。这个设置是维护事务因果关系的基石：如果在主数据库上事务
+    A 在事务 B 之前提交，那么事务 A 也会在从数据库上在事务 B 之前提交。这防止了在从数据库上读取事务的顺序可能相反的不一致性。
 - en: '**16 MVCC**'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: '**16 多版本并发控制 (MVCC**)'
 - en: Multiversion Concurrency Control (MVCC) is a non-locking concurrency control
     method used by database management systems to enable concurrent access to the
     database.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 多版本并发控制 (MVCC) 是数据库管理系统使用的一种非锁定并发控制方法，用于实现数据库的并发访问。
 - en: '**17 Network Latency**'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: '**17 网络延迟**'
 - en: Network latency in packet-switched networks is typically measured as round-trip
     delay time, which includes the latency from source to destination and back. This
     latency significantly affects the performance of MySQL.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 在分组交换网络中，网络延迟通常测量为往返延迟时间，这包括从源到目的地以及返回的延迟。这种延迟显著影响了 MySQL 的性能。
 - en: '**18 Network Partition**'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: '**18 网络分区**'
 - en: A network partition divides a computer network into separate subnets, either
     intentionally for optimization or due to device failures. Distributed software
     must be partition-tolerant, meaning it should continue to function correctly even
     when the network is partitioned.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 网络分区将计算机网络划分为独立的子网，这可能是出于优化目的而有意为之，也可能是由于设备故障。分布式软件必须具备分区容错性，这意味着即使在网络分区的情况下，它也应继续正确地运行。
 - en: '**19 NUMA**'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: '**19 NUMA**'
 - en: Non-uniform memory access (NUMA) is a computer memory design used in multiprocessing,
     where the memory access time depends on the memory location relative to the processor.
     NUMA extends the scaling of symmetric multiprocessing (SMP) architectures. SMP
@@ -284,55 +418,79 @@
     at a time, leading to bottlenecks. NUMA, now the mainstream server architecture,
     mitigates these problems. However, binding a MySQL instance to a single NUMA node
     essentially makes it function as a pure SMP architecture.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 非一致性内存访问（NUMA）是一种在多处理器系统中使用的计算机内存设计，其中内存访问时间取决于内存位置相对于处理器的位置。NUMA扩展了对称多处理（SMP）架构的扩展性。SMP在可扩展性方面存在挑战，因为它一次只允许一个处理器访问内存，导致瓶颈。NUMA，现在是主流的服务器架构，缓解了这些问题。然而，将MySQL实例绑定到单个NUMA节点实际上使其功能类似于纯SMP架构。
 - en: '**20 OLTP**'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: '**20 OLTP**'
 - en: Online Transaction Processing (OLTP) refers to database systems used in transaction-oriented
     applications, such as operational systems. These systems are designed to process
     and respond to user requests in real-time. This is in contrast to Online Analytical
     Processing (OLAP), which focuses on data analysis rather than transaction processing.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 在线事务处理（OLTP）指的是用于面向事务的应用程序（如运营系统）的数据库系统。这些系统旨在实时处理和响应用户请求。这与专注于数据分析而不是事务处理的在线分析处理（OLAP）形成对比。
 - en: '**21 Paxos Algorithm**'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: '**21 Paxos算法**'
 - en: Paxos is a family of protocols for solving consensus in a network of unreliable
     or fallible processors.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: Paxos是一系列用于解决不可靠或易出错的处理器网络中共识的协议。
 - en: '**22 Pipelining**'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: '**22 流水线**'
 - en: In computing, pipelining, or pipeline processing, is akin to a manufacturing
     assembly line where different stages of a process are executed concurrently, even
     if some stages depend on the completion of others. This approach allows multiple
     operations to proceed simultaneously, improving overall efficiency and reducing
     processing time.
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 在计算机科学中，流水线（或流水线处理）类似于一个制造装配线，其中过程的不同阶段可以并发执行，即使某些阶段依赖于其他阶段的完成。这种方法允许多个操作同时进行，从而提高整体效率并减少处理时间。
 - en: '**23 PGO**'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: '**23 PGO**'
 - en: Profile-Guided Optimization (PGO) is a compiler technique that uses profiling
     data to improve program runtime performance. As a dynamic optimization method,
     PGO improves code based on runtime information.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于配置文件优化（PGO）是一种编译器技术，它使用配置文件数据来提高程序运行时性能。作为一种动态优化方法，PGO根据运行时信息改进代码。
 - en: '**24 Read Committed Isolation Level**'
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: '**24 可读提交隔离级别**'
 - en: Put simply, the Read Committed isolation level ensures that any data read during
     a transaction is committed at the time of reading. It prevents the reader from
     seeing uncommitted or ‘dirty’ data. However, it doesn’t guarantee that if the
     transaction reads the same data again, it will be the same; the data can change
     after being read.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 简而言之，可读提交隔离级别确保在读取数据时，事务期间读取的任何数据都已被提交。它防止读取者看到未提交或“脏”数据。然而，它不保证如果事务再次读取相同的数据，它将是相同的；数据在读取后可能会更改。
 - en: '**25 Replication**'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: '**25 复制**'
 - en: Replication relies on the primary server tracking all database changes (updates,
     deletes, etc.) in its binary log. This log records all events that alter the database’s
     structure or content from server startup. SELECT statements are not recorded,
@@ -340,529 +498,770 @@
     the binary log on the primary server and processing them on the secondary server.
     Events are recorded in various formats within the binary log, depending on the
     type of event.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 复制依赖于主服务器跟踪其二进制日志中所有数据库更改（更新、删除等）。此日志记录了从服务器启动以来更改数据库结构或内容的所有事件。SELECT语句不记录，因为它们不会修改数据库。复制通过从主服务器上的二进制日志读取事件并在从服务器上处理这些事件来工作。事件以不同的格式记录在二进制日志中，具体取决于事件类型。
 - en: '**26 Response Time**'
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: '**26 响应时间**'
 - en: In computing, response time measures how long a system takes to respond to a
     service request, indicating the service’s responsiveness.
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 在计算机科学中，响应时间衡量系统对服务请求做出响应所需的时间，这表明了服务的响应性。
 - en: '**27 Row-based Replication**'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: '**27 基于行的复制**'
 - en: When using row-based logging, the primary writes events to the binary log that
     detail changes to individual table rows. Replication to the secondary involves
     copying these row change events to the secondary, a process known as row-based
     replication.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 当使用基于行的日志记录时，主服务器将事件写入二进制日志，详细记录单个表行的更改。将复制到从服务器涉及将这些行更改事件复制到从服务器，这个过程称为基于行的复制。
 - en: '**28 State Machine Replication**'
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: '**28 状态机复制**'
 - en: In computer science, state machine replication (SMR) is a method for implementing
     fault-tolerant services by replicating servers and coordinating client interactions
     with these replicas. In a MySQL Group Replication cluster, SMR is employed using
     the Paxos algorithm.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 在计算机科学中，状态机复制（SMR）是通过复制服务器并协调客户端与这些副本的交互来实现容错服务的一种方法。在MySQL组复制集群中，使用Paxos算法实现SMR。
 - en: '**29 Thread Pool**'
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: '**29 Thread Pool**'
 - en: In computer programming, a thread pool is a design pattern used to achieve concurrent
     execution. It maintains a pool of threads that are ready to execute tasks as they
     become available. This approach improves performance by reducing the overhead
     associated with frequently creating and destroying threads. The number of threads
     in the pool is adjusted based on the program’s computing resources, optimizing
     task execution and resource utilization.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 在计算机编程中，线程池是一种用于实现并发执行的设计模式。它维护一个线程池，这些线程准备执行任务，当任务可用时执行。这种方法通过减少频繁创建和销毁线程的开销来提高性能。线程池中的线程数量根据程序的计算资源进行调整，优化任务执行和资源利用。
 - en: '**30 Throughput**'
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: '**30 Throughput**'
 - en: 'Throughput measures the number of requests a system processes within a unit
     of time. Common statistical indicators include:'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 吞吐量衡量系统在单位时间内处理请求数量。常见的统计指标包括：
 - en: '**Transactions Per Second (TPS):** The number of database transactions performed
     per second.'
+  id: totrans-89
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**Transactions Per Second (TPS):** 每秒执行的数据库事务数。'
 - en: '**Queries Per Second (QPS):** The number of database queries performed per
     second.'
+  id: totrans-90
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**Queries Per Second (QPS):** 每秒执行的数据库查询数。'
 - en: '**tpmC for TPC-C:** The rate of New-Order transactions executed per minute
     in TPC-C benchmarks.'
+  id: totrans-91
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**tpmC for TPC-C:** TPC-C基准测试中每分钟执行的新订单交易率。'
 - en: '**tpmTOTAL for TPC-C:** The rate of total transactions executed per minute
     in TPC-C benchmarks.'
+  id: totrans-92
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**tpmTOTAL for TPC-C:** TPC-C基准测试中每分钟执行的总交易率。'
 - en: '**31 Thundering Herd**'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: '**31 Thundering Herd**'
 - en: In computer science, the thundering herd problem occurs when many processes
     or threads are awakened by an event, but only one can handle it. This leads to
     excessive competition for resources, potentially freezing the system.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 在计算机科学中，当许多进程或线程被一个事件唤醒，但只有一个可以处理它时，会发生雷鸣般的人群问题。这会导致对资源的过度竞争，可能使系统冻结。
 - en: '**32 TPC-C**'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: '**32 TPC-C**'
 - en: TPC-C is an OLTP benchmark that measures performance based on the rate of New-Order
     transactions executed per minute. This rate is reported as the tpmC (transactions
     per minute C), which serves as the benchmark’s primary performance metric.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: TPC-C是一个OLTP基准测试，它根据每分钟执行的新订单交易率来衡量性能。这个比率报告为tpmC（每分钟C个交易），它是基准测试的主要性能指标。
 - en: '**33 Transaction**'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: '**33 Transaction**'
 - en: In a database management system, a transaction is a logical unit of work, often
     comprising multiple operations. Transactions not only simplify the complexity
     of application coding but are also one of the core functionalities of database
     management systems.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 在数据库管理系统（DBMS）中，事务是一个逻辑工作单元，通常包含多个操作。事务不仅简化了应用编码的复杂性，而且是数据库管理系统的一个核心功能。
 - en: '**34 Transaction Throttling**'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: '**34 Transaction Throttling**'
 - en: In MySQL, transaction throttling manages high concurrency by limiting the number
     of user threads entering the transaction system at once. This approach helps reduce
     system pressure and enhances stability by controlling the load on the system.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 在MySQL中，通过限制一次性进入事务系统的用户线程数量来管理高并发的事务节流。这种方法通过控制系统负载来帮助减少系统压力并增强稳定性。
 - en: '**35 View Change**'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: '**35 View Change**'
 - en: A view represents the active members of a MySQL Group Replication configuration
     at a given time. A view change occurs when the group configuration changes, such
     as when a member joins or leaves, and is communicated to all members simultaneously.
     Each view is uniquely identified by a view identifier, which is generated with
     each view change.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 视图表示在特定时间点MySQL组复制配置中的活动成员。当组配置发生变化时，例如成员加入或离开，并且同时通知所有成员时，会发生视图变更。
 - en: '**Testing Tool**'
+  id: totrans-103
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '**Testing Tool**'
 - en: 1 SysBench
+  id: totrans-104
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1 SysBench
 - en: SysBench is a widely used open-source benchmark tool for testing open-source
     database management systems (DBMSs). It provides a quick assessment of system
     performance without the need for elaborate benchmark setups. The tool supports
     various tests, including conventional read-write and write-only tests, as well
     as conflict-type tests based on Pareto distribution.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: SysBench 是一个广泛使用的开源基准测试工具，用于测试开源数据库管理系统（DBMS）。它提供了快速评估系统性能，无需复杂的基准测试设置。该工具支持各种测试，包括传统的读写和只写测试，以及基于帕累托分布的冲突类型测试。
 - en: SysBench’s main advantages are its simplicity, ease of use, and user-friendliness.
     However, this simplicity can also be a significant drawback. The oversimplification
     of the testing process may lead to distortions, potentially missing critical problems
     and failing to accurately represent online processing capabilities. Therefore,
     while SysBench offers a straightforward approach to benchmarking, it may not fully
     capture the complexities of database performance.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: SysBench 的主要优势在于其简单性、易用性和用户友好性。然而，这种简单性也可能是一个重大的缺点。测试过程的过度简化可能导致扭曲，可能遗漏关键问题，并且无法准确代表在线处理能力。因此，虽然
+    SysBench 提供了一种简单的基准测试方法，但它可能无法完全捕捉数据库性能的复杂性。
 - en: 2 TPC-C Testing Tool
+  id: totrans-107
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2 TPC-C 测试工具
 - en: The TPC-C benchmark, defined by the Transaction Processing Council, is an OLTP
     test involving 9 tables with 10 foreign key relationships. All tables, except
     the Item table, scale in cardinality based on the number of warehouses (W) specified
     during the initial database load.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: TPC-C 基准测试由事务处理委员会定义，是一个涉及 9 个表和 10 个外键关系的 OLTP 测试。除了项目表外，所有表在初始数据库加载期间指定的仓库数量（W）的基础上进行基数扩展。
 - en: '![](../Images/690f6ba0b28281ebfc6151397143565a.png)'
+  id: totrans-109
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/690f6ba0b28281ebfc6151397143565a.png)'
 - en: 'This schema is used by five different transactions, each creating varied access
     patterns:'
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 此架构被五个不同的交易使用，每个交易创建不同的访问模式：
 - en: '**Item:** Read-only.'
+  id: totrans-111
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**项目：** 只读。'
 - en: '**Warehouse, District, Customer, Stock:** Read/write.'
+  id: totrans-112
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**仓库、区域、客户、库存：** 读写。'
 - en: '**New-Order:** Insert, read, and delete.'
+  id: totrans-113
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**新订单：** 插入、读取和删除。'
 - en: '**Order and Order-Line:** Inserts with time-delayed updates, causing rows to
     become stale and infrequently read.'
+  id: totrans-114
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**订单和订单行：** 插入带有时间延迟更新，导致行变得过时且很少被读取。'
 - en: '**History:** Insert-only.'
+  id: totrans-115
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**历史：** 只插入。'
 - en: The diverse access patterns of this small schema with a limited number of transactions
     contribute to TPC-C’s ongoing significance as a major database benchmark. In this
     book, BenchmarkSQL [68] is primarily employed to evaluate TPC-C performance in
     MySQL.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个小型模式中有限数量的交易的多样化访问模式有助于 TPC-C 作为主要数据库基准测试的持续重要性。在这本书中，BenchmarkSQL [68] 主要用于评估
+    MySQL 中的 TPC-C 性能。
 - en: How MySQL Processes SQL?
+  id: totrans-117
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 如何处理 MySQL 的 SQL？
 - en: In computer science, the request-response or request-reply model is a fundamental
     communication method in networks. It involves a computer sending a request for
     data, and another computer responding to that request. Specifically, this pattern
     involves a request or sending a message to a replier system, which processes the
     request and returns a response.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 在计算机科学中，请求-响应或请求-回复模型是网络中的基本通信方法。它涉及一台计算机发送数据请求，另一台计算机响应该请求。具体来说，这种模式涉及向回复系统发送请求或消息，该系统处理请求并返回响应。
 - en: 'MySQL uses the classic request-response model: clients send SQL queries to
     the MySQL Server, which processes these queries and sends the responses back to
     the clients. The following figure illustrates the standard SQL query processing
     flow in MySQL Server 8.0.'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 使用经典的请求-响应模型：客户端向 MySQL 服务器发送 SQL 查询，服务器处理这些查询并将响应发送回客户端。以下图示了 MySQL 8.0
+    服务器中标准 SQL 查询处理流程。
 - en: '![](../Images/a56d9a9380c4861463fc224337c233e0.png)'
+  id: totrans-120
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/a56d9a9380c4861463fc224337c233e0.png)'
 - en: 'Here’s how MySQL Server processes a SQL request with a detailed example. Suppose
     a user sends the following SQL statement from a MySQL client to MySQL Server:'
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面是如何处理 SQL 请求的详细示例。假设用户从 MySQL 客户端向 MySQL 服务器发送以下 SQL 语句：
 - en: '[PRE4]'
+  id: totrans-122
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'Before executing the SQL query, MySQL Server first parses the SQL statement
     using the “parser”, which performs two essential tasks:'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 在执行 SQL 查询之前，MySQL 服务器首先使用“解析器”解析 SQL 语句，该解析器执行两个基本任务：
 - en: '**1\. Lexical Analysis**'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: '**1. 词法分析**'
 - en: MySQL Server scans the SQL string you input and converts it into tokens, identifying
     keywords and other elements.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 服务器扫描您输入的 SQL 字符串，并将其转换为标记，识别关键字和其他元素。
 - en: '![](../Images/0da788021b9904f38d0db04bfbf1c327.png)'
+  id: totrans-126
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/0da788021b9904f38d0db04bfbf1c327.png)'
 - en: '**2\. Syntax Analysis**'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: '**2. 语法分析**'
 - en: 'Using the tokens from lexical analysis, the syntax parser checks whether the
     SQL statement adheres to MySQL syntax rules. Upon successful validation, it constructs
     an SQL syntax tree. This tree structure helps subsequent modules extract key components
     like SQL types (e.g., SELECT, INSERT), table names, field names, and conditions
     from the WHERE clause. For example, the SQL statement provided will generate a
     syntax tree representing these components:'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用词法分析中的标记，语法解析器检查SQL语句是否遵循MySQL语法规则。验证成功后，它构建一个SQL语法树。这种树结构有助于后续模块从WHERE子句中提取关键组件，如SQL类型（例如，SELECT、INSERT）、表名、字段名和条件。例如，提供的SQL语句将生成一个表示这些组件的语法树：
 - en: '![](../Images/94646a21bc499592da20ca31d822b04b.png)'
+  id: totrans-129
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/94646a21bc499592da20ca31d822b04b.png)'
 - en: This captures the core of the parsing process, where MySQL Server uses a Bison
     parser to build the syntax tree.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 这捕捉了解析过程的核心，MySQL服务器使用Bison解析器构建语法树。
 - en: 'After parsing, MySQL Server undertakes several steps to optimize query performance
     before actual execution begins:'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 解析后，MySQL服务器在实际执行开始之前执行几个步骤以优化查询性能：
 - en: '**1\. Preprocessor**'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: '**1. 预处理器**'
 - en: The preprocessor performs preliminary tasks such as verifying the existence
     of tables or fields and expanding wildcard characters like `*` in `select *` to
     include all table columns.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 预处理器执行初步任务，例如验证表或字段的存在，并将`select *`中的通配符`*`展开以包含所有表列。
 - en: '**2\. Query Optimizer**'
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: '**2. 查询优化器**'
 - en: 'The query optimizer determines the execution plan for the SQL query. This phase
     includes:'
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 查询优化器确定SQL查询的执行计划。此阶段包括：
 - en: '**Logical Query Rewrites:** Transforming queries into logically equivalent
     forms.'
+  id: totrans-136
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**逻辑查询重写**：将查询转换为逻辑上等价的形式。'
 - en: '**Cost-Based Join Optimization:** Evaluating different join methods to minimize
     execution cost.'
+  id: totrans-137
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**基于成本的连接优化**：评估不同的连接方法以最小化执行成本。'
 - en: '**Rule-Based Access Path Selection:** Choosing the best data access paths based
     on predefined rules.'
+  id: totrans-138
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**基于规则的访问路径选择**：根据预定义的规则选择最佳数据访问路径。'
 - en: The query optimizer generates the execution plan, which is then used by the
     query executor engine.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 查询优化器生成执行计划，然后由查询执行器引擎使用。
 - en: With the execution plan finalized, the query executor engine starts executing
     the SQL statement, interacting with the storage engine on a record-by-record basis.
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 执行计划确定后，查询执行器引擎开始执行SQL语句，逐条记录与存储引擎交互。
 - en: 'Here are two types of execution processes: full table scan and index query.'
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里有两种执行过程：全表扫描和索引查询。
 - en: '**1\. Full Table Scan**'
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: '**1. 全表扫描**'
 - en: 'Suppose a query is made to retrieve all information about students older than
     20:'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设有一个查询用于检索所有20岁以上的学生信息：
 - en: '[PRE5]'
+  id: totrans-144
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Since this query condition does not use an index, the optimizer chooses a full
     table scan by setting the access type to ALL.
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于此查询条件未使用索引，优化器通过将访问类型设置为ALL来选择全表扫描。
 - en: '![](../Images/e8d626d352abdfe2ed62cc41df5935ae.png)'
+  id: totrans-146
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/e8d626d352abdfe2ed62cc41df5935ae.png)'
 - en: 'The execution process for the executor and storage engine is as follows:'
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 执行器和存储引擎的执行过程如下：
 - en: The Server layer calls the storage engine’s full scan interface to start reading
     records from the table.
+  id: totrans-148
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 服务器层调用存储引擎的全表扫描接口以开始从表中读取记录。
 - en: The executor checks if the age of the retrieved record exceeds 20\. Records
     that meet this condition are dispatched to the network write buffer if there is
     available space.
+  id: totrans-149
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 执行器检查检索的记录的年龄是否超过20岁。如果记录满足此条件，并且有可用空间，则将这些记录发送到网络写入缓冲区。
 - en: The executor requests the next record from the storage engine in a loop. Each
     record is evaluated against the query conditions, and those that meet the criteria
     are sent to the network write buffer, provided the buffer is not full.
+  id: totrans-150
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 执行器在循环中从存储引擎请求下一条记录。每条记录都会与查询条件进行评估，如果满足条件，并且缓冲区未满，则将这些记录发送到网络写入缓冲区。
 - en: Once the storage engine has read all records from the table, it notifies the
     executor that reading is complete.
+  id: totrans-151
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 一旦存储引擎已从表中读取所有记录，它将通知执行器读取已完成。
 - en: Upon receiving the completion signal, the executor exits the loop and flushes
     the query results to the client.
+  id: totrans-152
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 接收到完成信号后，执行器退出循环并将查询结果刷新到客户端。
 - en: To optimize performance, MySQL minimizes frequent write system calls by checking
     if the network buffer is full before sending records to the client. Records are
     sent only when the buffer is full or when the completion signal is received.
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了优化性能，MySQL在将记录发送到客户端之前检查网络缓冲区是否已满，以最小化频繁的写系统调用。只有在缓冲区已满或接收到完成信号时，才会发送记录。
 - en: '**2\. Index Query**'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: '**2. 索引查询**'
 - en: 'Consider the following SQL query:'
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑以下SQL查询：
 - en: '[PRE6]'
+  id: totrans-156
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'Before executing this query, add a secondary index on the name field in the
     student table:'
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 在执行此查询之前，请在学生表的姓名字段上添加一个二级索引：
 - en: '[PRE7]'
+  id: totrans-158
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The execution plan for this SQL query can be viewed using the *‘explain’* statement,
     which shows that the query now utilizes the newly created index.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以使用*‘explain’*语句查看此SQL查询的执行计划，该语句显示查询现在正在使用新创建的索引。
 - en: '![](../Images/8eea230e32d2675e4b2f90027c4de86e.png)'
+  id: totrans-160
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/8eea230e32d2675e4b2f90027c4de86e.png)'
 - en: 'The execution process with an index is as follows:'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 带有索引的执行过程如下：
 - en: The executor requests the storage engine to locate the first index record matching
     the query condition (e.g., name LIKE ‘wang%’).
+  id: totrans-162
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 执行器请求存储引擎定位与查询条件匹配的第一个索引记录（例如，name LIKE ‘wang%’）。
 - en: The storage engine retrieves and returns the matching index record to the Server
     layer.
+  id: totrans-163
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 存储引擎检索并返回匹配的索引记录到服务器层。
 - en: The executor checks if the record meets the additional query conditions (e.g.,
     id < 3).
+  id: totrans-164
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 执行器检查记录是否满足额外的查询条件（例如，id < 3）。
 - en: If conditions are met, the corresponding name is added to the network buffer,
     unless it is full. If conditions are not met, the executor skips the record and
     requests the next one from the storage engine.
+  id: totrans-165
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 如果满足条件，相应的名称将被添加到网络缓冲区中，除非它已满。如果不满足条件，执行器将跳过该记录并从存储引擎请求下一个记录。
 - en: This cycle continues as the executor repeatedly requests and evaluates the next
     index record that matches the query condition until all relevant index records
     are processed.
+  id: totrans-166
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 此周期会持续进行，直到执行器反复请求和评估与查询条件匹配的下一个索引记录，直到处理完所有相关索引记录。
 - en: Once the storage engine indicates that all relevant index records have been
     processed, the executor exits the loop and sends the collected results to the
     client.
+  id: totrans-167
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 一旦存储引擎指示所有相关索引记录都已处理，执行器将退出循环并将收集到的结果发送到客户端。
 - en: Using an index allows the storage engine to quickly locate necessary records,
     bypassing the need to scan the entire table. In general, this significantly improves
     execution efficiency and speeds up the query.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用索引允许存储引擎快速定位必要的记录，绕过扫描整个表的需要。通常，这会显著提高执行效率并加快查询速度。
 - en: MySQL Architecture
+  id: totrans-169
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: MySQL架构
 - en: 'The following picture illustrates the client-server architecture:'
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图说明了客户端-服务器架构：
 - en: '![](../Images/31726aedf07ea2292410a154e685b385.png)'
+  id: totrans-171
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/31726aedf07ea2292410a154e685b385.png)'
 - en: 'MySQL follows the client-server architecture, which divides the system into
     two main components: Client and Server.'
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL遵循客户端-服务器架构，将系统分为两个主要组件：客户端和服务器。
 - en: 1 Client
+  id: totrans-173
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1 客户端
 - en: The client is an application that interacts with the MySQL database server.
+  id: totrans-174
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 客户端是一个与应用程序交互的MySQL数据库服务器。
 - en: It can be a standalone application, a web application, or any program requiring
     a database.
+  id: totrans-175
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 它可以是一个独立的应用程序，一个Web应用程序，或任何需要数据库的程序。
 - en: The client sends SQL queries to the MySQL server for processing.
+  id: totrans-176
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 客户端将SQL查询发送到MySQL服务器进行处理。
 - en: 2 Server
+  id: totrans-177
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2 服务器
 - en: The server is the MySQL database management system responsible for storing,
     managing, and processing data.
+  id: totrans-178
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 服务器是负责存储、管理和处理数据的MySQL数据库管理系统。
 - en: It receives SQL queries, processes them, and returns the result sets.
+  id: totrans-179
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 它接收SQL查询，处理它们，并返回结果集。
 - en: It manages data storage, security, and concurrent access for multiple clients.
+  id: totrans-180
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 它管理多个客户端的数据存储、安全和并发访问。
 - en: The client communicates with the server over the network using the MySQL protocol,
     enabling multiple clients to interact concurrently. Applications use MySQL connectors
     to connect to the database server. MySQL also provides client tools, such as the
     terminal-based MySQL client, for direct interaction with the server.
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 客户端通过网络使用MySQL协议与服务器通信，允许多个客户端并发交互。应用程序使用MySQL连接器连接到数据库服务器。MySQL还提供客户端工具，如基于终端的MySQL客户端，以直接与服务器交互。
 - en: 'The MySQL database server includes several daemon processes:'
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL数据库服务器包括几个守护进程：
 - en: '**SQL Interface**: Provides a standardized interface for applications to interact
     with the database using SQL queries.'
+  id: totrans-183
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**SQL接口**：为应用程序提供使用SQL查询与数据库交互的标准接口。'
 - en: '**Query Parser**: Analyzes SQL queries to understand their structure and syntax,
     breaking them down into components for further processing.'
+  id: totrans-184
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**查询解析器**：分析SQL查询以理解其结构和语法，将它们分解成组件以进行进一步处理。'
 - en: '**Query Optimizer**: Evaluates various execution plans for a given query and
     selects the most efficient one to improve performance.'
+  id: totrans-185
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**查询优化器**：评估给定查询的各种执行计划，并选择最有效的一个以提高性能。'
 - en: In MySQL, a storage engine is responsible for storage, retrieval, and management
     of data. MySQL’s pluggable storage engine architecture allows selecting different
     storage engines, such as InnoDB and MyISAM, to meet specific performance and scalability
     requirements while maintaining a consistent SQL interface.
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 在MySQL中，存储引擎负责数据的存储、检索和管理。MySQL的可插拔存储引擎架构允许选择不同的存储引擎，如InnoDB和MyISAM，以满足特定的性能和可伸缩性要求，同时保持一致的SQL接口。
 - en: The file system organizes and stores various file types, including data and
     index files. MySQL uses log files, such as binary logs and redo logs, to maintain
     transactional consistency and support recovery mechanisms.
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 文件系统组织和存储各种文件类型，包括数据和索引文件。MySQL使用日志文件，如二进制日志和重做日志，以维护事务一致性并支持恢复机制。
 - en: Overall, MySQL follows a client-server architecture where clients send SQL queries
     to the server for processing. MySQL supports a pluggable storage engine architecture,
     allowing for the management of data storage and retrieval with various features
     and performance characteristics.
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 总体而言，MySQL遵循客户端-服务器架构，其中客户端将SQL查询发送到服务器进行处理。MySQL支持可插拔存储引擎架构，允许使用具有各种功能和性能特性的不同存储引擎来管理数据存储和检索。
 - en: MySQL Cluster
+  id: totrans-189
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: MySQL集群
 - en: The most common way to create a fault-tolerant system is to use redundant components,
     allowing the system to continue operating if one component fails.
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 创建容错系统的最常见方法是使用冗余组件，允许系统在某个组件失败时继续运行。
 - en: 'Replication in MySQL copies data from one server (primary) to one or more servers
     (secondaries), offering several advantages:'
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL中的复制将数据从一台服务器（主服务器）复制到一台或多台服务器（从服务器），提供了以下优点：
 - en: '**Scale-out solutions**: Spreads the load among multiple secondaries to improve
     performance. All writes and updates occur on the primary server, while reads can
     occur on secondaries, enhancing read speed.'
+  id: totrans-192
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**扩展解决方案**：在多个从服务器之间分配负载以提高性能。所有写入和更新都发生在主服务器上，而读取可以在从服务器上进行，从而提高读取速度。'
 - en: '**Analytics**: Permits analysis on secondaries without impacting primary performance.'
+  id: totrans-193
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**分析**：允许在不影响主性能的情况下对从服务器进行分析。'
 - en: '**Long-distance data distribution**: Creates local data copies for remote sites
     without needing constant access to the primary.'
+  id: totrans-194
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**长距离数据分布**：为远程站点创建本地数据副本，无需持续访问主服务器。'
 - en: The original synchronization type is one-way asynchronous replication. The advantage
     of asynchronous replication is that user response time is unaffected by secondaries.
     However, there is a significant risk of data loss if the primary server fails
     and secondaries are not fully synchronized.
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 原始的同步类型是单向异步复制。异步复制的优点是用户响应时间不受从服务器的影响。然而，如果主服务器失败且从服务器未完全同步，则存在数据丢失的重大风险。
 - en: Semisynchronous replication, in addition to asynchronous replication, requires
     a commit on the primary server to wait until at least one secondary acknowledges
     and logs the transaction events. This ensures up-to-date data on secondaries but
     impacts user response time and introduces high-availability complexities.
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了异步复制之外，半同步复制还需要在主服务器上进行提交，直到至少一个从服务器确认并记录事务事件。这确保了从服务器上的数据是最新的，但会影响用户响应时间并引入高可用性复杂性。
 - en: Replication introduces significant complexity, as it requires managing multiple
     servers instead of one. This involves addressing classic distributed systems problems
     like network partitioning and split-brain scenarios. The main challenge is to
@@ -870,266 +1269,411 @@
     states with each change. Essentially, servers must function as a distributed state
     machine, either progressing as a single entity or eventually converging to the
     same state.
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 复制引入了显著的复杂性，因为它需要管理多个服务器而不是一个。这涉及到解决经典分布式系统问题，如网络分区和脑裂场景。主要挑战是协调这些服务器的一致性，确保它们在每个变化时都同意系统和数据状态。本质上，服务器必须作为一个分布式状态机运行，要么作为一个单一实体前进，要么最终收敛到相同的状态。
 - en: MySQL Group Replication provides distributed state machine replication with
     strong server coordination. Servers within a group automatically maintain a consistent
     view through a built-in membership service, updating when servers join or leave.
     If a server fails, the failure detection mechanism alerts the group.
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL群组复制提供了具有强服务器协调的分布式状态机复制。组内的服务器通过内置的成员服务自动维护一致视图，当服务器加入或离开时进行更新。如果服务器发生故障，故障检测机制会通知组。
 - en: Transaction commits require a majority consensus on the global transaction sequence,
     ensuring uniform commit or abort decisions. In split-brain scenarios, network
     partitions halt progress until solved. The Group Communication System (GCS) protocols
     ensure consistent data replication through failure detection, membership management,
     and ordered message delivery, all powered by the Paxos algorithm as the core communication
     engine.
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: 事务提交需要全局事务序列的多数共识，确保统一的提交或中止决策。在脑裂场景中，网络分区会停止进度直到问题解决。群组通信系统（GCS）协议通过故障检测、成员管理以及有序消息传递确保一致的数据复制，所有这些均由
+    Paxos 算法作为核心通信引擎提供支持。
 - en: MySQL Group Replication can run in single-primary mode with automatic primary
     election, allowing only one server to accept updates at a time. Alternatively,
     advanced users can deploy the group in multi-primary mode, where all servers can
     accept concurrent updates. However, this requires applications to manage the limitations
     of such deployments.
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 群组复制可以在单主模式运行，并自动选择主节点，一次只允许一个服务器接受更新。另外，高级用户可以部署多主模式，此时所有服务器都可以接受并发更新。然而，这要求应用程序管理此类部署的限制。
 - en: Generally, a simpler cluster setup is easier to configure but may become more
     challenging when problems arise. In contrast, a more complex cluster is harder
     to configure initially but offers more elegant solutions for handling problems.
     The choice of replication mechanism should be based on the specific use case.
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常，简单的集群设置更容易配置，但问题出现时可能会更具挑战性。相比之下，更复杂的集群初始配置更困难，但提供了处理问题的更优雅解决方案。复制机制的选取应基于具体的使用场景。
 - en: Testing Related Materials
+  id: totrans-202
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 测试相关材料
 - en: Here are the detailed hardware configurations, operating systems, and various
     test scripts provided to help readers replicate some of the test results presented
     in this book.
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里提供了详细的硬件配置、操作系统和各种测试脚本，以帮助读者复制本书中展示的一些测试结果。
 - en: 1 Hardware Configurations
+  id: totrans-204
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1 硬件配置
 - en: Intel(R) Xeon(R) Gold 6238 CPU @ 2.10GHz
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: Intel(R) Xeon(R) Gold 6238 CPU @ 2.10GHz
 - en: 'cache_alignment : 64'
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 缓存对齐：64
 - en: 'cpu MHz : 3700.000'
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: cpu MHz：3700.000
 - en: 'cache size : 30976 KB'
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: 缓存大小：30976 KB
 - en: 'Node details in a NUMA environment on x86 architecture:'
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: x86 架构 NUMA 环境中的节点详细信息：
 - en: '![](../Images/c13c7dbc563f4d7aa8c6090e465466c6.png)'
+  id: totrans-210
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/c13c7dbc563f4d7aa8c6090e465466c6.png)'
 - en: The disks are all NVMe SSDs.
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 磁盘都是 NVMe SSD。
 - en: Unless otherwise specified, most tests are conducted under these hardware conditions.
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: 除非另有说明，大多数测试都是在这些硬件条件下进行的。
 - en: 2 Operating System
+  id: totrans-213
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2 操作系统
 - en: The operating system kernel version is Linux 5.19.8.
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: 操作系统内核版本是 Linux 5.19.8。
 - en: 3 BenchmarkSQL Script
+  id: totrans-215
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3 BenchmarkSQL 脚本
 - en: 'The script for creating TPC-C tables can be found at the following address:'
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: 创建 TPC-C 表的脚本可以在以下地址找到：
 - en: https://github.com/enhancedformysql/mysql_8.0.27/blob/main/tableCreates.sql_base_for_test
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: https://github.com/enhancedformysql/mysql_8.0.27/blob/main/tableCreates.sql_base_for_test
 - en: 'The script for creating relevant indexes can be found at the following address:'
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: 创建相关索引的脚本可以在以下地址找到：
 - en: https://github.com/enhancedformysql/mysql_8.0.27/blob/main/indexCreates.sql_base_for_test
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: https://github.com/enhancedformysql/mysql_8.0.27/blob/main/indexCreates.sql_base_for_test
 - en: 'The main configuration script for BenchmarkSQL testing is as follows:'
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: BenchmarkSQL 测试的主要配置脚本如下：
 - en: '[PRE8]'
+  id: totrans-221
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: From the figure, it can be seen that there are typically 1000 warehouses, and
     each test lasts for 5 minutes.
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，通常有 1000 个仓库，每个测试持续 5 分钟。
 - en: 4 SysBench Script
+  id: totrans-223
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 4 SysBench 脚本
 - en: SysBench testing is quite simple; here are just the key parameters.
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: SysBench 测试相当简单；这里只列出关键参数。
 - en: 'SysBench test parameters: *-table_size=1000000 –tables=1*'
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: SysBench 测试参数：*-table_size=1000000 –tables=1*
 - en: For tests with low contention, use the parameter *–rand-type=uniform*; for tests
     with high contention, use the parameter *–rand-type=pareto*.
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于低争用率的测试，请使用参数 *–rand-type=uniform*；对于高争用率的测试，请使用参数 *–rand-type=pareto*。
 - en: 5 Using the tpcc-mysql Script for Benchmarking
+  id: totrans-227
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5 使用 tpcc-mysql 脚本进行基准测试
 - en: 'Download link for the tpcc-mysql improvement tool: http://www.anysql.net/'
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: tpcc-mysql 改进工具的下载链接：http://www.anysql.net/
 - en: '![](../Images/f19d96e4077b3a47d03f144a4889f88d.png)'
+  id: totrans-229
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/f19d96e4077b3a47d03f144a4889f88d.png)'
 - en: How to use the tpcc-mysql tool?
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: 如何使用 tpcc-mysql 工具？
 - en: 'Assuming the username is xxx and the password is yyy, the steps are as follows:'
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设用户名为 xxx，密码为 yyy，步骤如下：
 - en: 'The data loading command is as follows:'
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: 数据加载命令如下：
 - en: '[PRE9]'
+  id: totrans-233
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'The testing command is as follows:'
+  id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: 测试命令如下：
 - en: '[PRE10]'
+  id: totrans-235
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 6 Configuration Parameters
+  id: totrans-236
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 6 配置参数
 - en: Due to numerous tests, only typical configurations are listed here. Special
     configurations require corresponding parameter modifications.
+  id: totrans-237
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于进行了大量测试，此处仅列出典型配置。特殊配置需要相应的参数修改。
 - en: 'For specific details on the typical configuration parameters for a standalone
     MySQL instance, please refer to the following address:'
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于独立 MySQL 实例的典型配置参数的详细信息，请参阅以下地址：
 - en: https://github.com/enhancedformysql/mysql_8.0.27/blob/main/my.cnf_base_for_test
+  id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: https://github.com/enhancedformysql/mysql_8.0.27/blob/main/my.cnf_base_for_test
 - en: It should be noted that by default, the tests are conducted under the *Read
     Committed* transaction isolation level, with *binary logging* enabled, *‘dual
     one’* configuration, and *doublewrite* enabled.
+  id: totrans-240
   prefs: []
   type: TYPE_NORMAL
+  zh: 应注意，默认情况下，测试是在 *可重复读* 事务隔离级别下进行的，启用了 *二进制日志*，*‘双一’* 配置，并启用了 *双写*。
 - en: 'For Group Replication, The primary server configuration parameters in the native
     MySQL version are as follows:'
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于组复制，原生 MySQL 版本中的主服务器配置参数如下：
 - en: '[PRE11]'
+  id: totrans-242
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: It should be noted that readers should modify the IP addresses to match their
     specific environment.
+  id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: 应注意，读者应修改 IP 地址以匹配其特定环境。
 - en: 'For Group Replication, the configuration parameters for the secondary server
     in the native MySQL version are as follows:'
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于组复制，原生 MySQL 版本中从服务器的配置参数如下：
 - en: '[PRE12]'
+  id: totrans-245
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'Regarding the improved Group Replication, since it is similar between MySQL
     8.0.32 and MySQL 8.0.40, we have provided a version available for online use at
     the following address: https://github.com/enhancedformysql/mysql-8.0.40.'
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于改进的组复制，由于它在 MySQL 8.0.32 和 MySQL 8.0.40 之间相似，我们已在以下地址提供了可供在线使用的版本：https://github.com/enhancedformysql/mysql-8.0.40。
 - en: 'Accordingly, the configuration parameters for the primary server are as follows:'
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，主服务器的配置参数如下：
 - en: '[PRE13]'
+  id: totrans-248
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: 'For the improved Group Replication, the configuration parameters for the secondary
     server are as follows:'
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于改进的组复制，从服务器的配置参数如下：
 - en: '[PRE14]'
+  id: totrans-250
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: Please note that we no longer provide the source code based on MySQL 8.0.32,
     but we do provide the source code based on MySQL 8.0.40.
+  id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: 请注意，我们不再提供基于 MySQL 8.0.32 的源代码，但我们提供基于 MySQL 8.0.40 的源代码。
 - en: 'The details related to semisynchronous replication can be found at the following
     address:'
+  id: totrans-252
   prefs: []
   type: TYPE_NORMAL
+  zh: 与半同步复制相关的详细信息可在以下地址找到：
 - en: https://github.com/enhancedformysql/mysql_8.0.27/blob/main/semisynchronous.txt
+  id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: https://github.com/enhancedformysql/mysql_8.0.27/blob/main/semisynchronous.txt
 - en: 7 Source Code Repository
+  id: totrans-254
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 7 源代码仓库
 - en: '**Patch for “Percona Server for MySQL 8.0.27-18”:**'
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: '**针对“Percona Server for MySQL 8.0.27-18”的补丁：**'
 - en: 'Patch Address:'
+  id: totrans-256
   prefs: []
   type: TYPE_NORMAL
+  zh: 补丁地址：
 - en: https://github.com/enhancedformysql/mysql_8.0.27/blob/main/book_8.0.27_single.patch
+  id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: https://github.com/enhancedformysql/mysql_8.0.27/blob/main/book_8.0.27_single.patch
 - en: 'This patch specifically targets optimizations for a standalone MySQL instance,
     including:'
+  id: totrans-258
   prefs: []
   type: TYPE_NORMAL
+  zh: 该补丁专门针对独立 MySQL 实例的优化，包括：
 - en: '**MVCC ReadView** enhancements'
+  id: totrans-259
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**多版本并发控制（MVCC）ReadView**增强'
 - en: '**Binlog group commit** improvements'
+  id: totrans-260
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**二进制日志组提交**改进'
 - en: '**Query execution plan** optimizations'
+  id: totrans-261
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**查询执行计划**优化'
 - en: '**Cluster Source Code:**'
+  id: totrans-262
   prefs: []
   type: TYPE_NORMAL
+  zh: '**集群源代码：**'
 - en: 'The source code for MySQL cluster versions is available here: https://github.com/enhancedformysql/mysql-8.0.40'
+  id: totrans-263
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 集群版本的源代码在此处可用：https://github.com/enhancedformysql/mysql-8.0.40
 - en: For MySQL clusters, the patch introduces further optimizations for **Group Replication**
     and **MySQL secondary replay**.
+  id: totrans-264
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于 MySQL 集群，该补丁引入了对 **组复制** 和 **MySQL 从库重放** 的进一步优化。
 - en: About the Author
+  id: totrans-265
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 关于作者
 - en: In earlier years, Bin Wang worked at an internet company focused on developing
     high-performance computing and high-concurrency systems. He also contributed to
     open-source projects like TCPCopy [65] and MySQL Proxy [66], gaining valuable
     experience in problem-solving, particularly in logical thinking.
+  id: totrans-266
   prefs: []
   type: TYPE_NORMAL
+  zh: 在早年，Bin Wang 在一家专注于开发高性能计算和高并发系统的互联网公司工作。他还为像 TCPCopy [65] 和 MySQL Proxy [66]
+    这样的开源项目做出了贡献，在问题解决方面积累了宝贵的经验，尤其是在逻辑思维方面。
 - en: After leaving the internet company, he concentrated on MySQL-related development,
     successfully contributing to projects such as Group Replication, secondary replay,
     InnoDB storage engines, and query optimization [67]. He has accumulated extensive
     experience in problem-solving within the MySQL domain.
+  id: totrans-267
   prefs: []
   type: TYPE_NORMAL
+  zh: 离开互联网公司后，他专注于 MySQL 相关的开发，成功为组复制、从库重放、InnoDB 存储引擎和查询优化等项目做出了贡献 [67]。他在 MySQL
+    领域的问题解决方面积累了丰富的经验。

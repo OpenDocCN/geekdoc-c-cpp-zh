@@ -1,84 +1,122 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 《软件工程中的问题解决艺术——如何让MySQL更优秀》
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter2.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter2.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter2.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter2.html)
 - en: 'Chapter 2: Mysterious MySQL Problems'
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第二章：神秘的MySQL问题
 - en: MySQL, the most popular open-source database software with a history spanning
     several decades, is renowned for its simplicity and user-friendly nature, making
     it a cornerstone choice among internet companies. Despite its widespread adoption,
     MySQL faces a variety of challenges.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL，拥有几十年历史的最受欢迎的开源数据库软件，以其简洁性和用户友好性而闻名，成为互联网公司的基础选择。尽管其应用广泛，MySQL仍面临各种挑战。
 - en: This chapter introduces nine puzzling MySQL problems or phenomena that serve
     as examples and lay the groundwork for deeper exploration in subsequent topics.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章介绍了九个令人困惑的MySQL问题或现象，作为例子并为后续主题的深入探讨奠定了基础。
 - en: 2.1 SysBench Read-Write Test Demonstrates Super-Linear Throughput Growth
+  id: totrans-5
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2.1 SysBench读写测试展示超线性吞吐量增长
 - en: In the MySQL 8.0.27 release version, for example, in a 4-way NUMA environment
     on x86 architecture, using SysBench to remotely test MySQL’s read-write capabilities.
     The MySQL transaction isolation level is set to Read Committed. MySQL instances
     1 and 2 are deployed on the same machine, with a testing duration of 60 seconds.
     The results of separate SysBench tests for MySQL instance 1 and instance 2 are
     shown in the following figure.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 以MySQL 8.0.27版本为例，在x86架构的4路NUMA环境中，使用SysBench远程测试MySQL的读写能力。MySQL事务隔离级别设置为Read
+    Committed。MySQL实例1和实例2部署在同一台机器上，测试持续时间为60秒。以下图中显示了MySQL实例1和实例2的单独SysBench测试结果。
 - en: '![image-20240829081346732](../Images/4b0375da1bd67aa5ba01e20bbf59ae04.png)'
+  id: totrans-7
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829081346732](../Images/4b0375da1bd67aa5ba01e20bbf59ae04.png)'
 - en: Figure 2-1\. Throughput of MySQL running separately.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-1\. MySQL独立运行时的吞吐量。
 - en: The throughput of each instance is modest, with figures of 172,781 QPS and 155,387
     QPS respectively. When combined, the two instances achieve a total throughput
     of 328,168 QPS. When using SysBench to simultaneously test the read and write
     capabilities of these two instances, the obtained throughputs are 271,232 QPS
     and 275,197 QPS respectively.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个实例的吞吐量都相当适中，分别为172,781 QPS和155,387 QPS。当组合时，这两个实例的总吞吐量为328,168 QPS。当使用SysBench同时测试这两个实例的读写能力时，获得的吞吐量分别为271,232
+    QPS和275,197 QPS。
 - en: '![image-20240829204745429](../Images/1a8e24e554d620728c802e02cdbc9cfa.png)'
+  id: totrans-10
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829204745429](../Images/1a8e24e554d620728c802e02cdbc9cfa.png)'
 - en: Figure 2-2\. Throughput of MySQL running together.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-2\. MySQL一起运行时的吞吐量。
 - en: The combined throughput of the two MySQL instances is 546,429 QPS. This data
     demonstrates that when these two MySQL instances share the same machine, the combined
     throughput is significantly higher than the sum of their individual throughputs
     when run separately. For detailed statistical comparisons, please refer to the
     following figure.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两个MySQL实例的组合吞吐量为546,429 QPS。这些数据表明，当这两个MySQL实例在同一台机器上运行时，组合吞吐量显著高于它们单独运行时的吞吐量之和。对于详细的统计比较，请参阅以下图表。
 - en: '![image-20240829081541149](../Images/247c0a2d6a11182b31da63d83b2a657b.png)'
+  id: totrans-13
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829081541149](../Images/247c0a2d6a11182b31da63d83b2a657b.png)'
 - en: Figure 2-3\. Total throughput of running separately vs. running together.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-3\. 独立运行与一起运行的总吞吐量。
 - en: In terms of mathematical logic, if the total throughput when running two instances
     together is roughly equal to the sum of the throughputs when running them separately,
     it represents a linear relationship. If the combined throughput exceeds this sum,
     it suggests a super-linear relationship.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 从数学逻辑的角度来看，如果同时运行两个实例的总吞吐量大致等于单独运行时的吞吐量之和，这表示线性关系。如果组合吞吐量超过这个总和，则表明存在超线性关系。
 - en: What drives super-linear relationships? Does MySQL exhibit super-linear behavior?
     Understanding this requires a deep dive into computer fundamentals and advanced
     MySQL concepts.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 什么驱动超线性关系？MySQL是否表现出超线性行为？理解这一点需要深入研究计算机基础和高级MySQL概念。
 - en: 2.2 Unexpected Decline in TPC-C Throughput After Applying PGO
+  id: totrans-17
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2.2 应用PGO后TPC-C吞吐量意外下降
 - en: Profile-guided optimization (PGO) is a well-established technique for improving
     compile-time optimization decisions. Profile information is collected through
     instrumentation or sampling of the executable, and this data is used to optimize
@@ -87,64 +125,93 @@
     model. Nevertheless, PGO remains a highly valuable optimization technique to consider
     for improving MySQL performance, as it theoretically has the potential to significantly
     improve MySQL’s efficiency.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: Profile-guided optimization（PGO）是一种成熟的提高编译时优化决策的技术。通过仪器或可执行文件的采样收集配置文件信息，并使用这些数据优化收集到的可执行文件
+    [45]。尽管PGO非常有效，但由于其繁琐的双编译模型，它尚未被软件项目广泛采用。然而，PGO仍然是考虑提高MySQL性能的一个非常有价值的优化技术，因为它理论上有可能显著提高MySQL的效率。
 - en: The following diagram illustrates the application of PGO to higher versions
     of MySQL 8.0.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下图展示了PGO在MySQL 8.0更高版本中的应用。
 - en: '![](../Images/ae99fcd5e823f541d7fefb98808bda0f.png)'
+  id: totrans-20
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/ae99fcd5e823f541d7fefb98808bda0f.png)'
 - en: 'Figure 2-4\. Using PGO in higher versions of MySQL 8.0: a step-by-step guide.'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-4\. 在MySQL 8.0更高版本中使用PGO：一步一步指南。
 - en: 'From the diagram, the Profile-Guided Optimization (PGO) mechanism involves
     several steps:'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，Profile-Guided Optimization（PGO）机制涉及几个步骤：
 - en: Initially, compile a specific version of MySQL with the compilation option *“-DFPROFILE_GENERATE=ON”*.
+  id: totrans-23
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 首先，使用编译选项 *“-DFPROFILE_GENERATE=ON”* 编译MySQL的特定版本。
 - en: Start this MySQL version and capture training data by running performance tests
     such as TPC-C, which helps collect performance metrics.
+  id: totrans-24
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 启动这个MySQL版本，通过运行性能测试（如TPC-C）来捕获训练数据，这些测试有助于收集性能指标。
 - en: After completing the training phase, perform a second compilation with the option
     *“-DFPROFILE_USE=ON”*. During this compilation, the compiler automatically utilizes
     the gathered statistical data to optimize conditional branches and related aspects,
     significantly improving the performance of the resulting MySQL executable.
+  id: totrans-25
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在完成训练阶段后，使用选项 *“-DFPROFILE_USE=ON”* 进行第二次编译。在此编译过程中，编译器自动利用收集到的统计数据来优化条件分支和相关方面，显著提高了生成的MySQL可执行文件的性能。
 - en: The following figure illustrates the relationship between throughput and concurrency
     before and after applying PGO to MySQL 8.0.27.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下图展示了应用PGO前后MySQL 8.0.27的吞吐量和并发之间的关系。
 - en: '![image-20240829081620633](../Images/b6b04f80128c2493951ed2b7e22a25e2.png)'
+  id: totrans-27
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829081620633](../Images/b6b04f80128c2493951ed2b7e22a25e2.png)'
 - en: Figure 2-5\. Performance comparison tests before and after using PGO in MySQL
     8.0.27.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-5\. 在MySQL 8.0.27中使用PGO前后的性能比较测试。
 - en: Based on the figure, it’s evident that PGO leads to notable improvements in
     MySQL throughput at lower concurrency levels. However, beyond 150 concurrency,
     both the overall throughput and peak performance show a decline.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据图示，很明显，在较低的并发级别下，PGO（Profile-Guided Optimization）对MySQL的吞吐量有显著的提升。然而，当并发超过150时，整体吞吐量和峰值性能都出现了下降。
 - en: Does PGO primarily benefit low-concurrency scenarios, or are there additional
     factors limiting its effectiveness? This question delves into queueing theory
     and system architecture. Further exploration of practical computer fundamentals
     will provide deeper insights into this matter.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: PGO主要受益于低并发场景，还是存在其他因素限制了其有效性？这个问题深入探讨了排队论和系统架构。进一步探索实际的计算机基础知识将有助于更深入地了解这个问题。
 - en: 2.3 Adverse Effects of Thread Pool on MySQL After Scalability Enhancements
+  id: totrans-31
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2.3 可扩展性增强后线程池对MySQL的负面影响
 - en: After applying various scalability patches to MySQL 8.0.27, it’s crucial to
     evaluate whether the Percona thread pool still effectively addresses scalability
     problems. The following figure depicts the results of TPC-C testing on a standalone
@@ -153,15 +220,21 @@
     red line represents the configuration with the thread pool disabled. The test
     covered concurrency levels ranging from 50 to 2000, utilizing a database with
     1000 warehouses.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 在对MySQL 8.0.27应用各种可扩展性补丁后，评估Percona线程池是否仍然有效地解决可扩展性问题至关重要。以下图展示了使用BenchmarkSQL在独立MySQL实例上进行的TPC-C测试结果。深蓝色线条表示启用Percona线程池的配置（线程池大小=128），而深红色线条表示禁用线程池的配置。测试覆盖了从50到2000的并发级别，使用了一个包含1000个仓库的数据库。
 - en: '![image-20240829081719592](../Images/19020790b6e4bb0ba79c70e5806c1b1a.png)'
+  id: totrans-33
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829081719592](../Images/19020790b6e4bb0ba79c70e5806c1b1a.png)'
 - en: Figure 2-6\. Enabling the Percona thread pool resulted in a significant reduction
     in throughput compared to when it was disabled.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-6\. 启用Percona线程池与未启用时的吞吐量相比有显著降低。
 - en: From the figure, it is clear that enabling the Percona thread pool clearly led
     to a significant decrease in throughput compared to having it disabled. Notably,
     even without the thread pool enabled, MySQL 8.0 showed a marked improvement in
@@ -169,74 +242,102 @@
     of using the Percona thread pool for improving TPC-C testing was limited. Moreover,
     the Percona thread pool mechanism itself introduces overhead, which is reflected
     in the figure’s results.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，启用Percona线程池与未启用时相比，吞吐量明显降低。值得注意的是，即使在未启用线程池的情况下，MySQL 8.0与MySQL 5.7相比，可扩展性也有显著提升。这表明使用Percona线程池来提高TPC-C测试的额外好处是有限的。此外，Percona线程池机制本身引入了开销，这在图的结果中得到了体现。
 - en: 'It’s important to acknowledge that the Percona thread pool remains valuable
     in scenarios involving frequent connection creation and severe contention. However,
     the key question remains: what exactly contributed to such significant improvements
     in MySQL scalability? Future chapters will explore these mysteries further.'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 重要的是要承认，在涉及频繁连接创建和严重竞争的场景中，Percona线程池仍然很有价值。然而，关键问题仍然是：究竟是什么导致了MySQL可扩展性如此显著的提升？未来的章节将进一步探讨这些谜团。
 - en: 2.4 In MySQL 8.0, TPC-C Throughput Drops Too Quickly
+  id: totrans-37
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2.4 在MySQL 8.0中，TPC-C吞吐量下降过快
 - en: 'The standards for long-term TPC-C testing are as follows: the TPC-C benchmark
     requires that the database run for at least eight hours with jitters less than
     2% in two hours [14].'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 长期TPC-C测试的标准如下：TPC-C基准要求数据库至少运行八小时，在两小时内抖动小于2% [14]。
 - en: 'Based on MySQL 8.0.27, long-term TPC-C testing was conducted using the BenchmarkSQL
     tool. Below are the BenchmarkSQL testing parameters:'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于MySQL 8.0.27，使用BenchmarkSQL工具进行了长期TPC-C测试。以下是BenchmarkSQL测试参数：
 - en: '[PRE0]'
+  id: totrans-40
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: From the above, it can be seen that there are 1000 warehouses, with a concurrency
     of 200, and terminalWarehouseFixed is set to false. This setting enables each
     transaction to use a different warehouse ID every time, thereby accessing data
     across all warehouses.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 从上述内容可以看出，有1000个仓库，并发数为200，且terminalWarehouseFixed设置为false。此设置使每次事务都能使用不同的仓库ID，从而访问所有仓库的数据。
 - en: The following figure illustrates the throughput over time during long-term testing.
     The TPC-C throughput shows a decline rate that significantly surpasses expectations,
     nearing a 50% decrease.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图展示了长期测试过程中吞吐量随时间的变化。TPC-C吞吐量显示出远超预期的下降率，接近50%的减少。
 - en: '![image-degrade](../Images/fb8512e9e16a446b64ce536566d96926.png)'
+  id: totrans-43
   prefs: []
   type: TYPE_IMG
+  zh: '![image-degrade](../Images/fb8512e9e16a446b64ce536566d96926.png)'
 - en: Figure 2-7\. Performance degradation exposed during BenchmarkSQL testing of
     MySQL 8.0.27.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-7\. 在BenchmarkSQL测试MySQL 8.0.27时暴露的性能下降。
 - en: This problem was identified during testing using BenchmarkSQL and may not necessarily
     occur with other TPC-C testing tools. As of the current version, MySQL 8.0.40,
     the problem of rapid throughput decline has not been fully solved. Subsequent
     chapters will delve into detailed explanations of the underlying causes of this
     problem.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个问题是在使用BenchmarkSQL进行测试时发现的，可能不会在其他TPC-C测试工具中出现。截至当前版本MySQL 8.0.40，快速吞吐量下降的问题尚未完全解决。后续章节将深入探讨该问题的根本原因。
 - en: 2.5 Repeatable Read Surprisingly Outperforms Read Committed
+  id: totrans-46
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2.5 可重复读意外优于可重复读
 - en: Transaction isolation is fundamental to database processing, represented by
     the ‘I’ in the ACID acronym. The isolation level determines the balance between
     performance and the reliability, consistency, and predictability of results when
     multiple transactions concurrently make changes and queries. Commonly used isolation
     levels are Read Committed, Repeatable Read, and Serializable. By default, InnoDB
     uses Repeatable Read.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 事务隔离性是数据库处理的基本要素，在ACID缩写中表示为‘I’。隔离级别决定了在多个事务同时进行更改和查询时，性能与结果的可靠性、一致性和可预测性之间的平衡。常用的隔离级别有读已提交、可重复读和串行化。默认情况下，InnoDB使用可重复读。
 - en: InnoDB employs distinct locking strategies for each isolation level, impacting
     query locking behavior under concurrent conditions. Depending on the isolation
     level, queries may need to wait for locks currently held by other sessions before
     execution begins [13]. There’s a common perception that stricter isolation levels
     can degrade performance. How does MySQL perform in practical scenarios?
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: InnoDB为每个隔离级别采用不同的锁定策略，这影响了并发条件下的查询锁定行为。根据隔离级别，查询在开始执行之前可能需要等待其他会话持有的锁 [13]。有一种普遍的看法认为，更严格的隔离级别可能会降低性能。MySQL在实际场景中的表现如何？
 - en: 'Tests were conducted across Serializable, Repeatable Read (RR), and Read Committed
     (RC) isolation levels using two benchmark types: SysBench uniform and pareto tests.
     The SysBench uniform test simulates low-conflict scenarios, while the SysBench
@@ -245,107 +346,147 @@
     analysis, these logs were suppressed by modifying the source code to ensure fair
     testing conditions. Moreover, the MySQL testing program utilized a modified version
     for accuracy, rather than the original version.'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 在可序列化、可重复读（RR）和读取提交（RC）隔离级别上进行了测试，使用了两种基准类型：SysBench均匀测试和pareto测试。SysBench均匀测试模拟低冲突场景，而SysBench
+    pareto测试模拟高冲突情况。由于SysBench pareto测试期间生成了过多的死锁日志，这严重干扰了性能分析，因此通过修改源代码抑制了这些日志，以确保公平的测试条件。此外，MySQL测试程序使用了修改后的版本以确保准确性，而不是原始版本。
 - en: The figure below presents results from the SysBench uniform test, where concurrency
     increases from 50 to 800 in doubling increments. Given the few conflicts in this
     test type, there is little variation in throughput among the three transaction
     isolation levels at low concurrency levels. However, beyond 400 concurrency, the
     throughput of the Serializable isolation level exhibits a notable decline.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的图展示了SysBench均匀测试的结果，其中并发性从50增加到800，以加倍的方式增加。鉴于这种测试类型中的冲突很少，在低并发级别上，三个事务隔离级别之间的吞吐量变化很小。然而，超过400并发性后，可序列化隔离级别的吞吐量表现出明显的下降。
 - en: '![image-20240829151823981](../Images/9cc90a9a314099d2959fdca30879ba7f.png)'
+  id: totrans-51
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829151823981](../Images/9cc90a9a314099d2959fdca30879ba7f.png)'
 - en: Figure 2-8\. SysBench read-write performance comparison with low conflicts under
     different isolation levels.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-8. 在不同隔离级别下，SysBench读写性能比较（低冲突）。
 - en: Below 400 concurrency, the differences are minor because of fewer conflicts
     in the uniform test. With fewer conflicts, the impact of lock strategies under
     different transaction isolation levels is reduced. However, Read Committed is
     mainly constrained by frequent acquisition of MVCC ReadView, resulting in performance
     inferior to Repeatable Read.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 在400并发性以下，由于均匀测试中的冲突较少，差异很小。由于冲突较少，不同事务隔离级别下的锁定策略的影响降低。然而，读取提交主要受频繁获取MVCC ReadView的限制，导致性能劣于可重复读。
 - en: Continuing with the SysBench test under pareto distribution conditions, specific
     comparative test results can be seen in the following figure.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 继续在pareto分布条件下进行SysBench测试，具体的比较测试结果可以在以下图中看到。
 - en: '![image-20240829081950365](../Images/863a6a952f8f78d9ba4db908e60ab73c.png)'
+  id: totrans-55
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829081950365](../Images/863a6a952f8f78d9ba4db908e60ab73c.png)'
 - en: Figure 2-9\. SysBench read-write performance comparison with high conflicts
     under different isolation levels.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-9. 在不同隔离级别下，SysBench读写性能比较（高冲突）。
 - en: The figure clearly illustrates that in scenarios with significant conflicts,
     performance differences due to lock strategies under different transaction isolation
     levels are pronounced. As anticipated, higher transaction isolation levels generally
     exhibit lower throughput, particularly under severe conflict conditions.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 该图清楚地说明了，在存在重大冲突的场景中，不同事务隔离级别下的锁定策略导致的性能差异明显。正如预期的那样，较高的事务隔离级别通常表现出较低的吞吐量，尤其是在严重冲突条件下。
 - en: In scenarios with few conflicts, performance is primarily constrained by the
     overhead of acquiring ReadView in MVCC. This is because, under the Read Committed
     isolation level, MySQL must copy the entire active transaction list each time
     it reads from the global active transaction list, whereas under Repeatable Read,
     it only needs to obtain a copy of the active transaction list at the start of
     the transaction.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 在冲突较少的场景中，性能主要受MVCC中获取ReadView开销的限制。这是因为，在可重复读隔离级别下，MySQL每次从全局活动事务列表中读取时，都必须复制整个活动事务列表，而在可重复读隔离级别下，它只需要在事务开始时获取活动事务列表的副本。
 - en: In summary, in low-conflict tests like SysBench uniform, the overhead of MVCC
     ReadView is the predominant bottleneck, outweighing lock overhead. Consequently,
     Repeatable Read performs better than Read Committed. Conversely, in high-conflict
     tests like SysBench pareto, lock overhead becomes the primary bottleneck, resulting
     in Read Committed outperforming Repeatable Read.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结来说，在像SysBench均匀这样的低冲突测试中，MVCC ReadView的开销是主要的瓶颈，超过了锁的开销。因此，可重复读的性能优于可重复读。相反，在像SysBench
+    pareto这样的高冲突测试中，锁的开销成为主要的瓶颈，导致可重复读的性能优于可重复读。
 - en: 2.6 Group Replication Throughput Lower Than Semisynchronous Replication
+  id: totrans-60
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2.6 组复制吞吐量低于半同步复制
 - en: During Group Replication operation, a certification database is maintained.
     Regular cleanup of outdated certification information is crucial to manage memory
     usage efficiently. However, this cleanup process involves acquiring a global latch,
     temporarily pausing MySQL primary execution until the certification information
     is cleared.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 在组复制操作期间，维护一个认证数据库。定期清理过时的认证信息对于有效地管理内存使用至关重要。然而，此清理过程涉及获取全局闩锁，暂时暂停MySQL主节点的执行，直到认证信息被清除。
 - en: In contrast, traditional semisynchronous replication requires the MySQL secondary
     to process a substantial amount of relay log event information. Only after these
     relay log events are written to disk can the secondary send acknowledgment (ack)
     information back to the MySQL primary. This process includes network interactions,
     handling numerous relay log events, and disk flushes, resulting in relatively
     longer response times for semisynchronous replication.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 相比之下，传统的半同步复制要求MySQL从节点处理大量的重传日志事件信息。只有在这些重传日志事件被写入磁盘后，从节点才能将确认（ack）信息发送回MySQL主节点。此过程包括网络交互、处理多个重传日志事件和磁盘刷新，导致半同步复制的响应时间相对较长。
 - en: Overall, with semisynchronous replication, the MySQL primary must wait for acknowledgment
     from the MySQL secondary after relay log events are written to disk before it
     can proceed. In contrast, Group Replication continues processing once consensus
     is achieved at the Paxos layer, without waiting for log writes at that layer.
     Theoretically, Group Replication can achieve higher throughput.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 总体而言，在半同步复制中，MySQL主节点必须在将重传日志事件写入磁盘后等待MySQL从节点的确认才能继续。相比之下，组复制在Paxos层达成共识后继续处理，无需等待该层的日志写入。理论上，组复制可以达到更高的吞吐量。
 - en: In the scenario of a two-node cluster, TPC-C throughput comparisons based on
     concurrency were conducted between Group Replication and semisynchronous replication.
     Please refer to the following figure for details.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 在双节点集群的场景中，进行了基于并发的TPC-C吞吐量比较，比较了组复制和半同步复制。请参考以下图表以获取详细信息。
 - en: '![image-20240829082024079](../Images/9351e17f8c92f4f061ee17c5acaeecd5.png)'
+  id: totrans-65
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829082024079](../Images/9351e17f8c92f4f061ee17c5acaeecd5.png)'
 - en: Figure 2-10\. Performance comparison between Group Replication and semisynchronous
     replication.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-10. 组复制与半同步复制的性能比较。
 - en: The figure indicates that under low concurrency, semisynchronous replication
     outperforms Group Replication, whereas Group Replication shows superior performance
     under high concurrency. Semisynchronous replication reaches its peak performance
     at 100 concurrency, whereas Group Replication peaks at 250 concurrency but offers
     lower peak performance than semisynchronous replication. These test results are
     unexpected. What could be the problem?
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 该图表明，在低并发情况下，半同步复制优于组复制，而在高并发情况下，组复制表现出更优越的性能。半同步复制在100并发时达到峰值性能，而组复制在250并发时达到峰值，但峰值性能低于半同步复制。这些测试结果出乎意料。可能是什么问题？
 - en: The root problem lies in the certification database mechanism used by Group
     Replication, which is absent in semisynchronous replication. This mechanism involves
     substantial memory allocation and deallocation, significantly limiting throughput
@@ -353,12 +494,16 @@
     the advantages of Group Replication. It is clear that the implementation of the
     certification database mechanism poses the primary performance challenge for Group
     Replication.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 根本问题在于组复制使用的认证数据库机制，而在半同步复制中则不存在这种机制。该机制涉及大量的内存分配和释放，这显著限制了吞吐量的提升。尽管不需要Paxos日志持久化，但这个瓶颈抵消了组复制的优势。很明显，认证数据库机制的实现是组复制的主要性能挑战。
 - en: 2.7 Modified Group Replication Outperforms Semisynchronous Replication
+  id: totrans-69
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2.7 修改后的组复制优于半同步复制
 - en: Group Replication has been extensively enhanced while addressing scalability
     problems in MySQL 8.0.32\. To validate these improvements, simultaneous testing
     of semisynchronous replication and Group Replication with Paxos log persistence
@@ -368,143 +513,206 @@
     utilized NUMA nodes 0 to 2, while the MySQL secondary utilized NUMA node 3\. All
     settings, except those directly related to semisynchronous or Group Replication
     configurations, remained identical.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 在解决MySQL 8.0.32中的可扩展性问题的同时，组复制得到了广泛增强。为了验证这些改进，对半同步复制和基于Paxos日志持久化的组复制进行了同时测试。部署设置包括半同步复制和组复制的双节点配置，它们托管在同一台机器上，具有独立的NVMe
+    SSD和NUMA绑定以隔离每个节点。具体来说，MySQL主实例使用了NUMA节点0到2，而MySQL从实例使用了NUMA节点3。所有设置，除了与半同步复制或组复制配置直接相关的设置外，都保持一致。
 - en: The following figure shows the throughput comparison of semisynchronous replication
     and Group Replication with Paxos log persistence under different concurrency levels.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图显示了不同并发级别下半同步复制和基于Paxos日志持久化的组复制的吞吐量比较。
 - en: '![image-20240829082055680](../Images/425d17eb1164f66705bb88ac813356d2.png)'
+  id: totrans-72
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829082055680](../Images/425d17eb1164f66705bb88ac813356d2.png)'
 - en: Figure 2-11\. Performance comparison between Group Replication with Paxos log
     persistence and semisynchronous replication.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-11. 基于Paxos日志持久化的组复制与半同步复制的性能比较。
 - en: Both employ persistence mechanisms, with Group Replication utilizing Paxos log
     persistence and semisynchronous replication utilizing relay log persistence. Due
     to these distinct mechanisms, Group Replication with Paxos log persistence demonstrates
     significantly superior performance compared to semisynchronous replication.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 两者都采用了持久化机制，组复制使用Paxos日志持久化，而半同步复制使用中继日志持久化。由于这些不同的机制，基于Paxos日志持久化的组复制在性能上显著优于半同步复制。
 - en: Meta Company has implemented a MySQL high availability solution based on Raft.
     According to tests conducted by Meta Company developers, the performance of the
     Raft-based improved version is comparable to that of semisynchronous replication.
     For specific details, refer to the figure below [42].
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: Meta公司已经实施了一个基于Raft的MySQL高可用性解决方案。根据Meta公司开发人员进行的测试，基于Raft的改进版本的性能与半同步复制相当。有关具体细节，请参阅下面的图[42]。
 - en: '![](../Images/237394cba6704ecede134066d538b56d.png)'
+  id: totrans-76
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/237394cba6704ecede134066d538b56d.png)'
 - en: Figure 2-12\. Throughput comparison borrowed from Meta paper.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-12. 吞吐量比较，借鉴自Meta论文。
 - en: In theory, Group Replication can leverage a batching-based disk persistence
     mechanism, eliminating the need to process binlog events during disk writes, thereby
     achieving higher expected throughput. Future chapters will delve into detailed
     discussions on modifying Group Replication and examining specific factors contributing
     to the scalability challenges of native semisynchronous replication.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 在理论上，组复制可以利用基于批处理的磁盘持久化机制，从而在磁盘写入过程中消除处理binlog事件的必要性，从而实现更高的预期吞吐量。未来的章节将深入讨论修改组复制以及检查导致原生半同步复制的可扩展性挑战的具体因素。
 - en: 2.8 SysBench Shows No Effect, TPC-C Performs Well
+  id: totrans-79
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2.8 SysBench无影响，TPC-C表现良好
 - en: 'The specifics of the lock-sys optimization in MySQL 8.0 are detailed below:'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 8.0中锁-sys优化的具体细节如下：
 - en: '[PRE1]'
+  id: totrans-81
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: This represents a scalability improvement in MySQL 8.0 by addressing the global
     latch bottleneck and optimizing lock scheduling in InnoDB. To validate the effectiveness
     of this lock-sys optimization, refer to the specific test results illustrated
     in the figure below using SysBench read-write tests.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 这代表了MySQL 8.0通过解决全局闩锁瓶颈和优化InnoDB中的锁调度，在可扩展性方面取得的改进。为了验证这种锁-sys优化的有效性，请参考下面图表中用SysBench读写测试展示的具体测试结果。
 - en: '![image-20240829082201268](../Images/705d7cb4c07b467983305f07877a5508.png)'
+  id: totrans-83
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829082201268](../Images/705d7cb4c07b467983305f07877a5508.png)'
 - en: Figure 2-13\. Comparison of SysBench read-write tests before and after lock-sys
     optimization.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-13. 锁-sys优化前后SysBench读写测试的比较。
 - en: It’s surprising that after implementing the lock-sys optimization, the throughput
     decreased, which was unexpected. To mitigate interference from NUMA compatibility
     problems in MySQL code, the MySQL running instance was bound to NUMA node 0 (similar
     to an SMP environment). The test results are as follows.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 实施锁-sys优化后，吞吐量下降，这是出乎意料的。为了减轻MySQL代码中NUMA兼容性问题带来的干扰，MySQL运行实例被绑定到NUMA节点0（类似于SMP环境）。以下是测试结果。
 - en: '![image-20240829082231096](../Images/8fdedabe9286e8570b48c7ff839fbb24.png)'
+  id: totrans-86
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829082231096](../Images/8fdedabe9286e8570b48c7ff839fbb24.png)'
 - en: Figure 2-14\. Comparison of SysBench read-write tests before and after lock-sys
     optimization under SMP.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-14. 在SMP下锁-sys优化前后SysBench读写测试的比较。
 - en: The figure shows that the difference before and after optimization is minimal,
     almost negligible. This suggests that during the testing process, the effectiveness
     of the lock-sys optimization is overshadowed by other factors, resulting in distorted
     test results. However, binding to NUMA node 0 reduced interference from other
     bottlenecks, narrowing the performance gap. It also indicates that the lock-sys
     optimization has limited impact on SysBench standard read-write tests.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 图表显示，优化前后的差异最小，几乎可以忽略不计。这表明在测试过程中，锁-sys优化的有效性被其他因素所掩盖，导致测试结果失真。然而，绑定到NUMA节点0减少了来自其他瓶颈的干扰，缩小了性能差距。这也表明，锁-sys优化对SysBench标准读写测试的影响有限。
 - en: 'Using BenchmarkSQL for TPC-C testing, the results are as follows:'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用BenchmarkSQL进行TPC-C测试，结果如下：
 - en: '![image-20240829082255780](../Images/0dcf63ede0309279dce727da79852a49.png)'
+  id: totrans-90
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829082255780](../Images/0dcf63ede0309279dce727da79852a49.png)'
 - en: Figure 2-15\. Comparison of BenchmarkSQL tests before and after lock-sys optimization.
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-15. 锁-sys优化前后BenchmarkSQL测试的比较。
 - en: The figure demonstrates a noticeable improvement from the lock-sys optimization.
     However, it raises questions as to why SysBench testing shows no effect while
     BenchmarkSQL testing does. Understanding the differences between these two tools
     and important considerations during testing will be thoroughly discussed in upcoming
     chapters.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 图表表明，锁-sys优化带来了明显的改进。然而，它也提出了疑问，为什么SysBench测试没有效果，而BenchmarkSQL测试却有效。在接下来的章节中，将详细讨论这两种工具之间的差异以及测试过程中的重要考虑因素。
 - en: 2.9 Is Disabling NUMA Really Beneficial for MySQL?
+  id: totrans-93
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2.9 禁用NUMA对MySQL真的有益吗？
 - en: 'The impact of disabling NUMA on the MySQL primary was initially tested. The
     deployment setup was as follows: BenchmarkSQL high-pressure stress tests were
     conducted on two x86 machines with identical hardware configurations. One machine
     had NUMA disabled in the BIOS, while the other had NUMA enabled. The comparison
     of TPC-C throughput versus concurrency is illustrated in the figure below.'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先测试了禁用NUMA对MySQL主服务器的影响。部署设置如下：在具有相同硬件配置的两个x86机器上进行了BenchmarkSQL高压压力测试。一台机器在BIOS中禁用了NUMA，而另一台则启用了NUMA。以下是TPC-C吞吐量与并发的比较图。
 - en: '![image-20240829082344150](../Images/9504f742addd5d137a4c93010b1c9795.png)'
+  id: totrans-95
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829082344150](../Images/9504f742addd5d137a4c93010b1c9795.png)'
 - en: Figure 2-16\. Significantly improved TPC-C throughput by disabling NUMA in the
     BIOS.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-16. 通过在BIOS中禁用NUMA显著提高了TPC-C吞吐量。
 - en: The figure demonstrates that disabling NUMA on x86 machines significantly improves
     TPC-C throughput. This improvement stems from the favorable memory allocation
     mechanism after disabling NUMA in the BIOS, particularly beneficial for applications
     like MySQL primary servers.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 图表表明，在x86机器上禁用NUMA可以显著提高TPC-C吞吐量。这种改进源于在BIOS中禁用NUMA后的有利内存分配机制，这对像MySQL主服务器这样的应用程序特别有益。
 - en: 'Now, does disabling NUMA also benefit MySQL secondary replay? Using the same
     machines mentioned earlier for testing, the setup details are as follows: in the
     environment where NUMA is disabled in the BIOS, NUMA binding cannot be utilized,
     allowing all memory to be utilized. Conversely, in the environment where NUMA
     is enabled in the BIOS, MySQL secondaries are bound to NUMA node 0\. The following
     figure illustrates the balanced replay speeds tested in these different environments.'
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，禁用NUMA是否也有利于MySQL二级回放？使用之前提到的相同机器进行测试，设置细节如下：在BIOS中禁用NUMA的环境中，无法使用NUMA绑定，允许使用所有内存。相反，在BIOS中启用NUMA的环境中，MySQL二级被绑定到NUMA节点0。以下图显示了在这些不同环境中测试的平衡回放速度。
 - en: '![image-20240829082406694](../Images/86aa08156ec12b7b94a09fa1d35169a0.png)'
+  id: totrans-99
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829082406694](../Images/86aa08156ec12b7b94a09fa1d35169a0.png)'
 - en: Figure 2-17\. Comparison of balanced replay speed before and after disabling
     NUMA in the BIOS.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2-17. 在BIOS中禁用NUMA前后平衡回放速度的比较。
 - en: The figure reveals that disabling NUMA at the BIOS level results in a balanced
     replay speed of only around 570,000 tpmC, primarily due to the unsolved NUMA unfriendliness
     problems with MySQL secondaries. In contrast, enabling NUMA and binding MySQL
@@ -515,12 +723,17 @@
     as failure to do so significantly reduces efficiency. The upcoming Chapter 10
     on improving MySQL secondary replay will provide a detailed examination of these
     NUMA unfriendliness problems.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 该图显示，在BIOS级别禁用NUMA会导致平衡回放速度仅为约570,000 tpmC，这主要是由于MySQL二级的未解决NUMA不友好问题。相比之下，启用NUMA并将MySQL二级绑定到单个NUMA节点可以实现超过810,000
+    tpmC的平衡回放速度。这项测试突出了在BIOS级别禁用NUMA对MySQL二级回放效率的劣势。在NUMA禁用的情况下进行有效的MySQL二级回放需要解决这些NUMA不友好问题，因为未能这样做会显著降低效率。即将到来的第10章将详细检查这些NUMA不友好问题。
 - en: 2.10 Summary
+  id: totrans-102
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2.10 概述
 - en: This chapter delves into classic and intricate MySQL problems, which pose significant
     challenges for analysis. The resolution of these problems begins with a detailed
     logical analysis, as outlined in the following chapter. Addressing and solving
@@ -530,8 +743,12 @@
     networks, compilers, queueing theory, and distributed systems theory, among others.
     These topics will be thoroughly explored in Chapter 4\. Chapter 5 will focus specifically
     on MySQL internals.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章深入探讨经典且复杂的MySQL问题，这些问题对分析提出了重大挑战。解决这些问题的第一步是对以下章节中概述的详细逻辑分析。解决这些问题需要深刻理解计算机基础和MySQL内部机制。计算机基础包括广泛的主题，如计算机架构、数据结构、算法、操作系统、计算机网络、编译器、排队论和分布式系统理论等。这些主题将在第4章中详细探讨。第5章将专门关注MySQL内部机制。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part2.html)'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一节](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part2.html)'

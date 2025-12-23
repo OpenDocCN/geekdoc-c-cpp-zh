@@ -1,58 +1,82 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter9.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter9.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter9.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter9.html)
 - en: 'Chapter 9: Major Enhancements in Group Replication'
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第9章：Group Replication的主要增强功能
 - en: 9.1 Major Design Flaws in Group Replication
+  id: totrans-3
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 9.1 Group Replication中的主要设计缺陷
 - en: Group Replication was initially designed before SSDs became widely adopted.
     Introducing I/O operations at the Paxos layer could significantly impact performance,
     so the initial design did not consider persisting Paxos logs to disk.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: Group Replication最初是在SSD被广泛采用之前设计的。在Paxos层引入I/O操作可能会显著影响性能，因此最初的设计没有考虑将Paxos日志持久化到磁盘。
 - en: Group Replication adopted a conflict detection method based on certification
     databases to achieve concurrent control in distributed environments, aiming to
     support write operations on any MySQL node. This approach overlooked the inherent
     characteristics of single-node writes in MySQL, resulting in Group Replication’s
     single-primary throughput being inferior to semisynchronous replication.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: Group Replication采用了一种基于认证数据库的冲突检测方法，以在分布式环境中实现并发控制，旨在支持对任何MySQL节点的写操作。这种方法忽略了MySQL单节点写入的固有特性，导致Group
+    Replication的单主吞吐量低于半同步复制。
 - en: In designing Group Replication for multi-primary scenarios, strict adherence
     to the principles of state machine replication, where the operation sequence should
     be consistent across all nodes, was not strictly followed. This led to eventual
     inconsistency problems in some scenarios with Group Replication’s multi-primary
     setup.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 在为多主场景设计Group Replication时，并没有严格遵循状态机复制原则，即操作序列应在所有节点上保持一致。这导致Group Replication的多主设置在某些场景中出现了最终不一致的问题。
 - en: When a MySQL secondary replay gets stuck or its I/O storage fills up, eventually
     all Group Replication nodes will be affected, with the possibility of most nodes
     experiencing Out Of Memory (OOM) problems. While Group Replication aims to solve
     high availability problems, it should also ensure its own high availability, preventing
     the entire cluster from becoming unavailable due to problems with a single MySQL
     secondary.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 当MySQL从节点重放卡住或其I/O存储空间填满时，最终所有Group Replication节点都会受到影响，大多数节点可能会遇到内存不足（OOM）问题。虽然Group
+    Replication旨在解决高可用性问题，但它也应该确保自身的高可用性，防止整个集群因单个MySQL从节点的问题而不可用。
 - en: These design flaws are typically only effectively discovered through exposure
     to problems. Group Replication’s logic is highly complex, making it challenging
     to directly identify problems from the code alone.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些设计缺陷通常只有通过暴露问题才能有效地发现。Group Replication的逻辑非常复杂，仅从代码中直接识别问题具有挑战性。
 - en: '9.1.1 Lack of Durability: Paxos Not Committed to Disk'
+  id: totrans-9
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.1.1 缺乏持久性：Paxos未提交到磁盘
 - en: 'Below is Meta company engineers’ view on Group Replication [42]:'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下是Meta公司工程师对Group Replication的观点[42]：
 - en: '*Another significant and deliberate choice was to not use Group Replication
     offered by MySQL 5.7 onwards. While there are significant advancements offered
     by the protocol (such as the multi-primary mode), using Group Replication in our
@@ -63,57 +87,82 @@
     a new leader and brief network blips trigger a computationally expensive recovery
     algorithm. This option could have worked but not without excessive engineering
     effort to fix the drawbacks.*'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '*另一个重要且故意的选择是，不使用从MySQL 5.7开始提供的Group Replication。虽然该协议提供了显著的进步（例如多主模式），但在我们的部署中使用Group
+    Replication带来了重大的挑战。它基于一种不使用持久日志的Paxos变体。条目仅在通过内存共识轮考虑为已提交后才会写入日志。领导者选举算法是本地和确定性的。它也不考虑选择新领导者时的延迟，短暂的网络中断会触发一个计算成本高昂的恢复算法。这个选项可能可行，但不是没有付出过度的工程努力来修复其缺点。*'
 - en: 'The main problem with Group Replication, as outlined in the above content,
     is the lack of persistence in Paxos messages. The initial design background includes:'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 如上所述，Group Replication的主要问题在于Paxos消息缺乏持久化。最初的设计背景包括：
 - en: Suboptimal SSD hardware performance.
+  id: totrans-13
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 不理想的SSD硬件性能。
 - en: Paxos log persistence not meeting the requirements for Group Replication with
     multiple primaries.
+  id: totrans-14
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: Paxos日志持久化不符合具有多个主机的Group Replication的要求。
 - en: Without persistent storage in certification databases, Group Replication with
     multiple primaries cannot use Paxos message persistence for crash recovery. After
     MySQL restarts, there is no corresponding certification database, making continued
     processing of persisted Paxos messages prone to inconsistent states.
+  id: totrans-15
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 在认证数据库中没有持久化存储的情况下，具有多个主机的Group Replication无法使用Paxos消息持久化进行故障恢复。MySQL重启后，没有相应的认证数据库，导致持续处理持久化的Paxos消息容易导致不一致的状态。
 - en: 'Based on Group Replication single-primary mode using NVMe SSDs, SysBench write-only
     tests were used to examine the impact of adding Paxos persistence on throughput.
     Please refer to the specific figure below:'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于使用NVMe SSDs的Group Replication单主模式，使用SysBench只写测试来检查添加Paxos持久化对吞吐量的影响。请参考下面的具体图表：
 - en: '![image-20240829105418671](../Images/f1ee371ce00d02e40e60cf9b38c2dd43.png)'
+  id: totrans-17
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829105418671](../Images/f1ee371ce00d02e40e60cf9b38c2dd43.png)'
 - en: Figure 9-1\. Performance overhead of Paxos log persistence in SysBench write-only
     tests.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-1\. SysBench只写测试中Paxos日志持久化的性能开销。
 - en: From the figure, it can be seen that after adding Paxos persistence, there is
     a slight decrease in performance under low concurrency, which is an expected result.
     However, under high concurrency, the difference is not significant. This is because,
     under high concurrency, Paxos uses a batching mechanism that allows multiple transaction
     records to be logged into the Paxos instance together, thereby reducing I/O pressure.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在低并发情况下，添加了Paxos持久化后，性能略有下降，这是预期结果。然而，在高并发情况下，差异并不显著。这是因为，在高并发情况下，Paxos使用批处理机制，允许多个事务记录一起记录到Paxos实例中，从而减少I/O压力。
 - en: Next, let’s examine the comparative response times.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，让我们检查比较响应时间。
 - en: '![image-20240829105441723](../Images/82872f4e38668eec4f87d03fd5af05a9.png)'
+  id: totrans-21
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829105441723](../Images/82872f4e38668eec4f87d03fd5af05a9.png)'
 - en: Figure 9-2\. After adding Paxos log persistence, the average response time in
     SysBench write-only tests increased.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-2\. 在SysBench只写测试中添加Paxos日志持久化后，平均响应时间增加。
 - en: The figure shows response times for 50 to 200 concurrent scenarios. The increase
     in average response time with Paxos log persistence is acceptable. SysBench write-only
     tests stress Group Replication significantly, while TPC-C tests, due to their
@@ -121,25 +170,36 @@
     based on Group Replication in single-primary mode, using SSDs, and BenchmarkSQL
     for TPC-C throughput at various concurrency levels, please refer to the figure
     below.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 图表显示了50到200个并发场景的响应时间。具有Paxos日志持久化的平均响应时间增加是可以接受的。SysBench只写测试对Group Replication的压力很大，而TPC-C测试由于它们的读操作，减少了Group
+    Replication的写压力。对于基于单主模式、使用SSD的Group Replication和不同并发级别下BenchmarkSQL的TPC-C吞吐量的比较，请参考下面的图表。
 - en: '![image-20240829105506722](../Images/84a5018427c0b59922490399a795cd57.png)'
+  id: totrans-24
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829105506722](../Images/84a5018427c0b59922490399a795cd57.png)'
 - en: Figure 9-3\. Performance overhead of Paxos log persistence in BenchmarkSQL tests.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-3\. BenchmarkSQL测试中Paxos日志持久化的性能开销。
 - en: The figure shows that, at low concurrency levels, the version with Paxos log
     persistence has slightly lower throughput, though the impact is much smaller compared
     to SysBench write-only tests. Based on the results of the various tests, it can
     be concluded that, under current SSD hardware conditions, employing Paxos log
     persistence is a viable solution.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 图表显示，在低并发级别下，具有Paxos日志持久化的版本吞吐量略有降低，尽管与SysBench只写测试相比，影响要小得多。基于各种测试结果，可以得出结论，在当前的SSD硬件条件下，采用Paxos日志持久化是一个可行的解决方案。
 - en: 9.1.2 Applying the Barrel Principle to Certification Databases
+  id: totrans-27
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.1.2 将桶原理应用于认证数据库
 - en: Conflict detection using the certification database is part of Optimistic Concurrency
     Control (OCC). OCC allows multiple transactions to read and update data concurrently
     without blocking, by maintaining transaction histories and checking for conflicts
@@ -149,78 +209,110 @@
     waits. OCC performs well with infrequent conflicts but suffers from excessive
     rollbacks and retries when conflicts are frequent, making it less effective in
     such scenarios [59].
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用认证数据库进行冲突检测是乐观并发控制（OCC）的一部分。OCC允许多个事务并发读取和更新数据而不阻塞，通过维护事务历史并检查提交前的冲突来实现。如果检测到冲突，其中一个事务将被回滚。虽然OCC避免了锁等待，但在实际冲突中可能会产生重大惩罚，类似于两阶段锁定（2PL），但以回滚代替锁等待。OCC在冲突不频繁时表现良好，但在冲突频繁时，由于过多的回滚和重试，效果较差，使其在这种场景下不太有效[59]。
 - en: In multi-primary Group Replication, each MySQL node can write independently,
     necessitating global concurrency control. MySQL uses the certification database
     for this, implementing OCC to decide transaction commits or rollbacks. However,
     in cases of severe write conflicts, OCC may result in numerous rollbacks, indicating
     its ineffectiveness in high-conflict scenarios.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 在多主组复制中，每个MySQL节点可以独立写入，需要全局并发控制。MySQL使用认证数据库来实现这一点，通过实现OCC来决定事务提交或回滚。然而，在严重写冲突的情况下，OCC可能会导致大量的回滚，这表明它在高冲突场景中的无效性。
 - en: 'Let’s continue by examining the data structure used by the MySQL certification
     database:'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们继续通过检查MySQL认证数据库使用的数结构来继续：
 - en: '[PRE0]'
+  id: totrans-31
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: The certification database uses an *unordered_map* from the C++ Standard Template
     Library (STD), which is a hash table. This database stores information about transaction
     write operations, where each key is a base64-encoded string representing a row,
     and each value contains the GTID and related information used for replay calculations.
     The following code demonstrates how to insert a row into the certification database.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 认证数据库使用C++标准模板库（STD）中的*unordered_map*，这是一个哈希表。该数据库存储有关事务写操作的信息，其中每个键是一个表示行的base64编码字符串，每个值包含用于重放计算的GTID和相关信息。以下代码演示了如何将行插入到认证数据库中。
 - en: '[PRE1]'
+  id: totrans-33
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: As updates become more frequent, the certification database grows larger. To
     promptly clean up outdated information, Group Replication uses a barrel principle.
     For instance, if the slowest node’s executed GTID is A, then information in the
     certification database with GTIDs less than or equal to A can be cleaned up.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着更新的频率增加，认证数据库会变得更大。为了及时清理过时信息，组复制使用桶原理。例如，如果最慢节点的执行GTID是A，那么认证数据库中GTID小于或等于A的信息可以被清理。
 - en: Next, review the *perf* screenshots taken during Group Replication operation
     below.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，回顾以下在组复制操作期间拍摄的*perf*屏幕截图。
 - en: '![](../Images/42774f7bdba2a6c3bdcece5670911787.png)'
+  id: totrans-36
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/42774f7bdba2a6c3bdcece5670911787.png)'
 - en: Figure 9-4\. A bottleneck revealed in hash table operations.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-4. 哈希表操作中揭示的瓶颈。
 - en: The figure reveals a bottleneck in operating the hash table. Cleaning the certification
     database is akin to garbage collection; transactions must wait while this cleaning
     occurs, involving extensive memory deallocation. Queueing theory indicates that
     this latency significantly impacts transaction processing speed. The figure below
     illustrates the relationship between throughput and concurrency for Group Replication
     and semisynchronous replication.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 该图揭示了操作哈希表时的瓶颈。清理认证数据库类似于垃圾回收；在清理过程中，事务必须等待，涉及大量的内存释放。排队论表明，这种延迟显著影响了事务处理速度。下图展示了组复制和半同步复制的吞吐量与并发之间的关系。
 - en: '![image-20240829105659262](../Images/c1bc1f06b3103429a6ef4798799fd044.png)'
+  id: totrans-39
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829105659262](../Images/c1bc1f06b3103429a6ef4798799fd044.png)'
 - en: Figure 9-5\. Performance comparison between semisynchronous replication and
     Group Replication.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-5. 半同步复制和组复制之间的性能比较。
 - en: The figure shows that the peak throughput of Group Replication is lower than
     that of semisynchronous replication.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 该图显示，组复制的峰值吞吐量低于半同步复制。
 - en: What kind of Group Replication do users need? Given that Group Replication is
     designed for high availability services, its high availability features should
     not significantly impact performance. Users expect Group Replication to provide
     true high availability while also offering better performance compared to semisynchronous
     replication.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 用户需要什么样的组复制？鉴于组复制是为高可用性服务设计的，其高可用性功能不应显著影响性能。用户期望组复制提供真正的高可用性，同时与半同步复制相比提供更好的性能。
 - en: 9.1.3 Lack of Strict Adherence to State Machine Replication Mechanisms
+  id: totrans-43
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.1.3 缺乏对状态机复制机制的严格遵循
 - en: A well-known method for implementing fault-tolerant distributed systems with
     strong consistency is state-machine replication. This technique orders and propagates
     operations to all servers, which then execute them sequentially. All copies of
@@ -229,73 +321,101 @@
     replication ensures strong consistency among replicas, enabling a distributed
     service to appear as a coherent, centralized service while retaining distributed
     advantages.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 实现具有强一致性的容错分布式系统的一个著名方法是状态机复制。这项技术将操作按顺序排列并传播到所有服务器，然后它们依次执行。所有状态机的副本都从相同的初始状态开始，经过相同的连续状态，并产生相同的输出序列。状态机复制确保副本之间的一致性，使分布式服务看起来像一个连贯的、集中的服务，同时保留分布式优势。
 - en: The key to state-machine replication is that all copies start from the same
     initial state, transition through the same states, and produce the same outputs
     [41]. Any deviation from this rule is non-compliant and difficult to detect, often
     only revealing problems in corner cases. All nodes must execute in the same sequence,
     with identical transactions and underlying data.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 状态机复制的关键在于所有副本都从相同的初始状态开始，经过相同的状态，并产生相同的输出[41]。任何偏离此规则的偏差都是不符合规定的，并且难以检测，通常只在边缘情况下揭示问题。所有节点必须以相同的顺序执行，使用相同的交易和底层数据。
 - en: 'In the Group Replication multi-primary architecture, a rule violation occurs:
     *CT_CERTIFICATION_MESSAGE* messages are not placed into the applier queue, leading
     to a non-uniform processing order. Below is the function *handle_certifier_data*
     that prematurely processes *CT_CERTIFICATION_MESSAGE* messages.'
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 在组复制多主架构中，发生规则违反：*CT_CERTIFICATION_MESSAGE*消息没有被放入应用队列，导致处理顺序不统一。以下是在提前处理*CT_CERTIFICATION_MESSAGE*消息的函数*handle_certifier_data*。
 - en: '[PRE2]'
+  id: totrans-47
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Handling *CT_CERTIFICATION_MESSAGE* messages prematurely can lead to inconsistencies
     in the certification database data that different nodes’ OCC rely on, potentially
     resulting in eventual data inconsistencies. While this problem may not be easy
     to detect, it is relatively straightforward to reproduce under specific conditions.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 提前处理*CT_CERTIFICATION_MESSAGE*消息可能导致不同节点依赖的证书数据库数据不一致，可能最终导致数据不一致。虽然这个问题可能不容易检测到，但在特定条件下相对容易重现。
 - en: 'The specific details of reproduction are as follows: in a Group Replication
     multi-primary scenario, distribute write pressure evenly across all MySQL nodes
     using a load balancer (such as LVS). Given sufficient write conflicts, it is possible
     to reproduce inconsistencies in the final state of state machine replication.'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 重现的具体细节如下：在组复制多主场景中，使用负载均衡器（如LVS）在所有MySQL节点之间均匀分配写压力。在足够的写冲突下，有可能在状态机复制的最终状态中重现不一致性。
 - en: Based on extensive testing, placing certification messages into the applier
     queue for unified processing can eliminate the aforementioned data inconsistency
     problem.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据广泛的测试，将证书消息放入应用队列进行统一处理可以消除上述数据不一致问题。
 - en: 9.1.4 Group Replication Lacks Built-in High Availability
+  id: totrans-51
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.1.4 组复制缺乏内置的高可用性
 - en: 'Group Replication can face collective failure scenarios in the following situations:'
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 组复制在以下情况下可能会面临集体故障场景：
 - en: If the I/O space of a MySQL secondary becomes full, causing replay to block,
     it can trigger a cascade effect across the cluster.
+  id: totrans-53
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 如果MySQL从属节点的I/O空间已满，导致重放操作受阻，这可能会在整个集群中引发级联效应。
 - en: If replay stops on a MySQL secondary for any reason, effectively reducing its
     throughput to zero, the overall throughput of the cluster eventually drops to
     zero, according to the barrel principle.
+  id: totrans-54
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 如果由于任何原因在MySQL从属节点上停止重放，实际上将其吞吐量降低到零，根据桶原理，集群的整体吞吐量最终也会降至零。
 - en: Group Replication is designed for high availability, but these problems can
     make the entire cluster system unavailable. Therefore, addressing the high availability
     problems inherent to Group Replication is essential to provide users with better
     high availability.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: Group Replication旨在实现高可用性，但这些问题可能导致整个集群系统不可用。因此，解决Group Replication固有的高可用性问题对于提供更好的高可用性至关重要。
 - en: 9.2 The Problems with Paxos Variant Algorithms
+  id: totrans-56
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 9.2 Paxos变体算法的问题
 - en: 9.2.1 Why Hasn’t the Raft Protocol Been Adopted?
+  id: totrans-57
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.2.1 为什么没有采用Raft协议？
 - en: Raft is a consensus algorithm equivalent to Multi-Paxos in fault tolerance and
     performance. Designed to improve understandability, Raft is described in detail
     to meet practical system needs. Unlike Paxos, Raft reduces state space and divides
@@ -304,338 +424,483 @@
     servers with the most up-to-date data can become leaders, and it includes a mechanism
     for changing cluster membership using overlapping majorities to ensure safety
     [42].
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: Raft是一种在容错性和性能上与Multi-Paxos等效的共识算法。设计用于提高可理解性，Raft被详细描述以满足实际系统需求。与Paxos不同，Raft减少了状态空间，并将共识分为领导者选举、日志复制和安全阶段。它通过选出的领导者实现共识，并且不是拜占庭容错。只有拥有最新数据的服务器才能成为领导者，并且它包括一个使用重叠多数来确保安全性的机制
+    [42]。
 - en: When designing Group Replication, the goal was to support both single-primary
     and multi-primary modes. Adopting Raft or Multi-Paxos protocols wouldn’t effectively
     support Group Replication’s multi-primary mode. Hence, a variant of Paxos with
     multiple leaders, the Mencius algorithm, was chosen.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 在设计Group Replication时，目标是支持单主和多主模式。采用Raft或多Paxos协议并不能有效地支持Group Replication的多主模式。因此，选择了一种具有多个领导者的Paxos变体，即Mencius算法。
 - en: 9.2.2 The Problems with Implementing Mencius in Group Replication
+  id: totrans-60
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.2.2 在Group Replication中实现Mencius的问题
 - en: Group Replication employs Mencius, a multi-leader state machine replication
     protocol derived from Paxos, at its core. Mencius is novel in that it not only
     partitions sequence numbers but also addresses key performance problems like adapting
     to changing client loads and asymmetric network bandwidth.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: Group Replication在其核心采用了Mencius，这是一种从Paxos衍生出的多领导者状态机复制协议。Mencius的独特之处在于它不仅分区序列号，还解决了适应变化的客户端负载和不对称网络带宽等关键性能问题。
 - en: Mencius achieves this by using a simplified version of consensus called simple
     consensus. This allows servers with low client load to skip their turns without
     needing majority agreement. By opportunistically piggybacking SKIP messages on
     other messages, Mencius enables servers to skip turns with minimal communication
     and computation overhead, allowing it to efficiently adapt to client and network
     load variance [32].
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: Mencius通过使用简化的共识版本，称为简单共识来实现这一点。这使得负载较低的服务器可以跳过它们的轮次，而无需多数同意。通过在其它消息上 opportunistic
+    地 piggybacking SKIP 消息，Mencius使服务器能够以最小的通信和计算开销跳过轮次，从而使其能够高效地适应客户端和网络负载的变化 [32]。
 - en: Unfortunately, Group Replication did not adhere to the above design. The cost
     of waiting for SKIP information remains significant, leading to Group Replication
     experiencing potential throughput fluctuations and longer-than-expected response
     times, especially in cross-datacenter deployment scenarios.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 不幸的是，Group Replication没有遵循上述设计。等待SKIP信息的花费仍然很大，导致Group Replication可能经历吞吐量波动和比预期更长的响应时间，尤其是在跨数据中心部署场景中。
 - en: 9.2.3 Why Add Its Own Implementation of Multi-Paxos?
+  id: totrans-64
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.2.3 为什么添加自己的Multi-Paxos实现？
 - en: Given that MySQL introduced a new Multi-Paxos algorithm in addition to the existing
     Mencius algorithm, this indicates either an inadequacy in the Mencius implementation
     or inherent problems with the Mencius algorithm itself.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于MySQL除了现有的Mencius算法外，还引入了一种新的Multi-Paxos算法，这表明Mencius实现存在不足，或者Mencius算法本身存在固有问题。
 - en: 'Regarding the Mencius algorithm, the following aspects are particularly noteworthy
     [32]:'
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于Mencius算法，以下方面特别值得关注 [32]：
 - en: '*By opportunistically piggybacking SKIP messages on other messages, Mencius
     allows servers to skip turns with little or no communication and computation overhead.
     This allows Mencius to adapt inexpensively to client and network load variance.*'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: '*通过在其它消息上 opportunistic 地 piggybacking SKIP 消息，Mencius允许服务器以最小的或没有通信和计算开销跳过轮次。这使得Mencius能够以低成本适应客户端和网络负载的变化。*'
 - en: It can be inferred that the Mencius algorithm performs well even under severe
     leader imbalance, as both theoretical validation and practical evidence support
     this. Therefore, the problems are likely due to an inadequate implementation of
     the Mencius algorithm.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以推断出，即使在严重的领导者不平衡下，孟子算法也能表现出良好的性能，因为理论和实践证据都支持这一点。因此，问题很可能是由于孟子算法实施不充分造成的。
 - en: 'When there are no theoretical problems with the Mencius algorithm, introducing
     a new Multi-Paxos algorithm is not an elegant solution and brings several challenges:'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 当孟子算法没有理论问题时，引入新的多Paxos算法并不是一个优雅的解决方案，并且带来了几个挑战：
 - en: '**High Maintenance Cost**: Maintaining and testing two sets of codebases doubles
     the workload for this part.'
+  id: totrans-70
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**高维护成本**：维护和测试两套代码库使这部分的工作量翻倍。'
 - en: '**Regression Testing Challenges**: In practice, the new algorithm has led to
     several regression problems, some of which are difficult to address.'
+  id: totrans-71
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**回归测试挑战**：在实践中，新算法导致了一些回归问题，其中一些问题难以解决。'
 - en: '**Partial Problem-Solving**: The new algorithm may only partially address the
     requirements. In Group Replication’s single-primary mode, it might not be universally
     applicable, as consistent read and write operations require all nodes to continuously
     communicate information.'
+  id: totrans-72
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**部分问题解决**：新算法可能只部分满足要求。在组复制的单主模式中，它可能并不普遍适用，因为一致性的读写操作需要所有节点持续通信信息。'
 - en: 9.3 The Specific Implementation of Paxos Skip Optimization
+  id: totrans-73
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 9.3 Paxos跳过优化的具体实现
 - en: 'First, let’s investigate the performance problems of the MySQL Mencius algorithm
     implementation. The following figure illustrates the network interaction status
     when the Mencius algorithm operates stably with a network delay of 10ms:'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，让我们调查MySQL孟子算法实现中的性能问题。以下图示了孟子算法在网络延迟为10毫秒时稳定运行的网络交互状态：
 - en: '![](../Images/334f1a98f2ad894e5ae310e1c22f753b.png)'
+  id: totrans-75
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/334f1a98f2ad894e5ae310e1c22f753b.png)'
 - en: Figure 9-6\. Insights into the Mencius protocol from packet capture data.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-6. 从数据包捕获数据中得到的孟子协议见解。
 - en: The green box in the figure indicates that the time interval between two consecutive
     Paxos instances reached 24ms. This suggests that the Mencius algorithm in MySQL
     is not aligned with a single Round-trip Time (RTT) in its implementation.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 图中的绿色框表示两个连续Paxos实例之间的时间间隔达到了24毫秒。这表明MySQL中的孟子算法在其实施中并未与单个往返时间（RTT）对齐。
 - en: 'Next, let’s refer to the Mencius algorithm paper *“State Machine Replication
     for Wide Area Networks”* [54]. The specific details of the network testing environment
     are as follows:'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，让我们参考孟子算法论文《“广域网中的状态机复制”》[54]。网络测试环境的具体细节如下：
 - en: '![](../Images/cbe4e4adb97b899200839947ea896e2d.png)'
+  id: totrans-79
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/cbe4e4adb97b899200839947ea896e2d.png)'
 - en: From the green box, it is evident that the network latency tested in the paper
     is RTT=100ms. Let’s now examine the relevant information on Paxos processing provided
     in the paper.
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 从绿色框中可以明显看出，论文中测试的网络延迟是RTT=100毫秒。现在让我们检查论文中提供的Paxos处理的相关信息。
 - en: '![](../Images/5c9d12dd2e53d6afeed38d23df4aa3d0.png)'
+  id: totrans-81
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/5c9d12dd2e53d6afeed38d23df4aa3d0.png)'
 - en: Figure 9-7\. Consensus mechanism of the Mencius protocol as indicated in the
     Mencius paper.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-7. 如孟子论文中所示，孟子协议的共识机制。
 - en: Based on the figure, it can be inferred that if only one node generates a request,
     the Mencius protocol consensus requires 100ms, equivalent to one round-trip time
     (RTT). This indicates that from the Group Replication primary node’s perspective,
     Mencius consensus can be achieved within a single RTT. With the theoretical feasibility
     clarified, the following discussion will focus on optimizing Group Replication’s
     Mencius communication.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据图示，可以推断出如果只有一个节点生成请求，孟子协议共识需要100毫秒，相当于一个往返时间（RTT）。这表明从组复制主节点的角度来看，孟子共识可以在单个RTT内完成。在理论可行性明确之后，接下来的讨论将集中在优化组复制的孟子通信上。
 - en: 'The theoretical basis for optimizing Mencius includes [32]:'
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 优化孟子算法的理论基础包括[32]：
 - en: '*Skipping is the core technique that makes Mencius efficient.*'
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: '*跳过是使孟子高效的核心技术*。'
 - en: '[The specific Paxos network interaction]([Paxos Visualization](https://enhancedformysql.github.io/animation/paxos_app.html))
     diagram after Paxos skip optimization is shown in the following figure:'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: '[Paxos网络交互的具体图示](https://enhancedformysql.github.io/animation/paxos_app.html)在Paxos跳过优化后的显示如下：'
 - en: '![](../Images/805bceb1e414dde5b613a552e9286dd4.png)'
+  id: totrans-87
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/805bceb1e414dde5b613a552e9286dd4.png)'
 - en: Figure 9-8\. Mechanism of Paxos skip optimization.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-8. Paxos跳过优化的机制。
 - en: When a Paxos node receives an *accept_op* message from the Paxos leader and
     has no messages to propose itself, it can include skip information when sending
     the *ack_accept_op* message. This informs other nodes that the current node will
     not propose any messages in this round. During normal stable operation, every
     *accept_op* message can be handled this way by Paxos nodes.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 当Paxos节点从Paxos领导者接收*accept_op*消息且没有要提出的消息时，它可以在发送*ack_accept_op*消息时包含跳过信息。这通知其他节点当前节点在本轮不会提出任何消息。在正常稳定运行期间，每个*accept_op*消息都可以由Paxos节点以这种方式处理。
 - en: In the specific implementation, the impact of pipelining must also be considered.
     During the Paxos skip optimization process, it is necessary to record these skip
     actions to avoid interference between communications of different Paxos instances.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 在具体实现中，还必须考虑流水线的影响。在Paxos跳过优化过程中，有必要记录这些跳过操作，以避免不同Paxos实例之间通信的干扰。
 - en: 'Finally, under a network delay scenario of 10ms, evaluating the effectiveness
     of Paxos skip optimization shows significant benefits. Here is a comparison of
     TPC-C throughput at different concurrency levels before and after Paxos skip optimization:'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，在网络延迟为10ms的情况下，评估Paxos跳过优化的有效性显示出显著的好处。以下是Paxos跳过优化前后在不同并发级别下TPC-C吞吐量的比较：
 - en: '![image-20240829110009589](../Images/1546101a40988042c5ee0078b9e51dab.png)'
+  id: totrans-92
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829110009589](../Images/1546101a40988042c5ee0078b9e51dab.png)'
 - en: Figure 9-9\. Impact of Paxos skip optimization on BenchmarkSQL tests with 10ms
     latency.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-9. Paxos跳过优化对具有10ms延迟的BenchmarkSQL测试的影响。
 - en: From the figure, it’s clear that Paxos skip optimization significantly improves
     performance with a 10ms network latency. Extensive TPC-C testing confirms that
     this optimization improves performance for Group Replication, whether using a
     single primary or multiple primaries, and supports consistent reads and writes.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，Paxos跳过优化在网络延迟为10ms的情况下显著提高了性能。广泛的TPC-C测试证实，这种优化提高了组复制的性能，无论是使用单个主节点还是多个主节点，并支持一致性的读写。
 - en: Paxos skip optimization reduces code complexity by an order of magnitude compared
     to Multi-Paxos implementations with a single leader. It also minimizes regression
     testing problems and simplifies maintenance.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: Paxos跳过优化将代码复杂度降低了与单领导者Multi-Paxos实现相比一个数量级。它还最小化了回归测试问题并简化了维护。
 - en: Overall, leveraging theoretical and logical solutions elegantly addresses this
     problem more effectively than the current native MySQL implementation.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 总体而言，利用理论和逻辑解决方案优雅地解决了这个问题，比当前的MySQL原生实现更有效地解决了这个问题。
 - en: 9.4 Optimized Design for Using Group Replication in Single-Primary Mode
+  id: totrans-97
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 9.4 单主模式使用组复制的优化设计
 - en: 'Based on the feasibility of Paxos log persistence, a design architecture for
     Group Replication single-primary mode could be structured as follows:'
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于Paxos日志持久化的可行性，组复制单主模式的设计架构可以构建如下：
 - en: '![](../Images/b890d032b12d1fa05f6909c23451273a.png)'
+  id: totrans-99
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/b890d032b12d1fa05f6909c23451273a.png)'
 - en: Figure 9-10\. Redesigned Group Replication single-primary mode with Paxos log
     persistence.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-10. 带有Paxos日志持久化的重新设计的组复制单主模式。
 - en: When a transaction is committed, it undergoes Paxos communication, achieving
     consensus only after being persisted in the Paxos log. Once consensus is reached,
     the primary server proceeds with operations such as writing the transaction to
     the binary log and performing the commit. Meanwhile, secondary servers handle
     tasks like calculating the last_committed value for replay, writing transaction
     events to the relay log, and replaying transactions.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 当一个事务提交时，它将经历Paxos通信，只有在其内容被持久化到Paxos日志后才能达成共识。一旦达成共识，主服务器将继续执行操作，如将事务写入二进制日志和执行提交。同时，从服务器处理诸如计算last_committed值以进行重放、将事务事件写入中继日志和重放事务等任务。
 - en: The need for secondary servers to calculate the last_committed value in Group
     Replication arises because the primary server has not reached the binlog stage
     before engaging in low-level Paxos communication. Thus, the last_committed value
     is not yet available. Secondary servers calculate the last_committed value from
     writeset information in the certification database, allowing Group Replication
     to achieve high parallel replay.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 在组复制中，从服务器需要计算last_committed值的需求源于主服务器在参与低级Paxos通信之前尚未达到binlog阶段。因此，last_committed值尚未可用。从服务器通过证书数据库中的writeset信息计算last_committed值，从而使组复制能够实现高并行的重放。
 - en: After MySQL secondaries calculate last_committed, the next step is to write
     transaction events to the relay log. To speed up writing to disk, batching technology
     should be used, with careful planning required for its implementation.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 在MySQL从库计算last_committed之后，下一步是将事务事件写入中继日志。为了加快写入磁盘的速度，应使用批处理技术，并对其实现进行周密规划。
 - en: 'Enhancing replay speed is crucial for:'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 提高重放速度对于：
 - en: '**Rapid Failover**: Faster replay ensures quicker failover.'
+  id: totrans-105
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**快速故障转移**: 更快的重放确保了更快的故障转移。'
 - en: '**Improved Data Freshness**: Faster replay increases the chances of accessing
     the most current data.'
+  id: totrans-106
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**改进数据新鲜度**: 更快的重放增加了访问最新数据的可能性。'
 - en: With these aspects addressed, the design for Group Replication in single-primary
     mode is complete, laying the groundwork for a high-performance, highly available
     system with rapid failover and efficient state machine replication.
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 在解决这些方面之后，组复制单主模式的设计就完成了，为构建一个高性能、高可用、快速故障转移和高效状态机复制的系统奠定了基础。
 - en: 9.4.1 Paxos Log Persistence
+  id: totrans-108
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.4.1 Paxos日志持久性
 - en: 'The most critical foundation for Paxos log persistence feasibility [30]:'
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: Paxos日志持久性可行性的最关键基础[30]：
 - en: '*In order to get additional throughput in a concurrent system, it is possible
     to batch a collection of values submitted by different application threads into
     a single Paxos instance.*'
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: '*为了在并发系统中获得更高的吞吐量，可以将不同应用线程提交的值集合批处理成一个单一的Paxos实例。*'
 - en: By using batching technology, multiple transactions can be grouped into a single
     Paxos instance. After reaching consensus, the transaction data can be written
     to disk together, significantly reducing I/O pressure. With advances in SSD technology,
     achieving state machine replication without data loss is entirely feasible.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过使用批处理技术，可以将多个事务组合成一个单一的Paxos实例。在达成共识后，事务数据可以一起写入磁盘，显著减少I/O压力。随着SSD技术的进步，实现无数据丢失的状态机复制是完全可行的。
 - en: 9.4.2 Bypass Conflict Detection
+  id: totrans-112
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.4.2 绕过冲突检测
 - en: Traditional certification databases use a lot of memory, especially when there
     is a speed mismatch between the primary and secondaries, leading to increased
     queue wait times due to extensive memory allocation and deallocation. In NUMA
     environments, frequent cross-NUMA memory allocation worsens performance.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统的认证数据库使用大量内存，尤其是在主节点和从节点之间存在速度不匹配时，会导致由于大量内存分配和释放而增加的队列等待时间。在NUMA环境中，频繁的跨NUMA内存分配会降低性能。
 - en: 'In Group Replication single-primary mode, it is feasible to bypass conflict
     detection in the certification database. Conflict detection is mainly used in:'
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 在组复制单主模式下，可以在认证数据库中绕过冲突检测。冲突检测主要用在：
 - en: Group Replication multi-primary mode.
+  id: totrans-115
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 组复制多主模式。
 - en: During a Group Replication single-primary switchover when the new primary is
     still replaying transactions while receiving new user requests.
+  id: totrans-116
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在组复制单主模式下的单主切换过程中，当新主节点仍在重放事务的同时接收新的用户请求时。
 - en: For Group Replication in single-primary mode, only the second scenario needs
     to be considered, while mechanisms like ‘before on primary failover’ ensure the
     new primary completes transaction replay before accepting new requests. Accelerating
     the replay process on MySQL secondaries can help reduce user wait times.
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于组复制单主模式，只需考虑第二种场景，而“在主节点故障切换前”等机制确保新主节点在接收新请求之前完成事务重放。加速MySQL从库的重放过程可以帮助减少用户等待时间。
 - en: 9.4.3 Quickly Calculate the Required last_committed Value for Replay
+  id: totrans-118
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.4.3 快速计算重放所需的last_committed值
 - en: 'First, let’s clarify the terms “*sequence_number*” and “*last_committed*”:'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，让我们明确“*sequence_number*”和“*last_committed*”这两个术语的含义：
 - en: '**sequence_number**: This is an automatically incremented value used to track
     the order of transactions during Group Replication operation. Each transaction
     is assigned a unique *sequence_number* during operation.'
+  id: totrans-120
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**sequence_number**: 这是一个自动递增的值，用于跟踪组复制操作期间事务的顺序。在操作期间，每个事务都会被分配一个唯一的*sequence_number*。'
 - en: '**last_committed**: This value indicates the sequence number of the last committed
     transaction that a new transaction depends on. For a transaction to proceed during
     replay on a MySQL secondary, the transaction must wait until the one with a *sequence_number*
     equal to *last_committed* has been fully replayed.'
+  id: totrans-121
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**last_committed**: 这个值表示新事务所依赖的最后一个已提交事务的序列号。在MySQL从库的重放过程中，为了使事务能够继续进行，该事务必须等待序列号等于*last_committed*的事务被完全重放。'
 - en: For example, in the transaction highlighted in the green box below, with *sequence_number=12759*
     and *last_committed=12757*, the *last_committed=12757* indicates that the transaction
     with *sequence_number=12759* must wait until the transaction with *sequence_number=12757*
     has been fully replayed before it can proceed.
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，在下图中绿色方框突出显示的事务中，*sequence_number=12759* 和 *last_committed=12757*，*last_committed=12757*
+    表示具有 *sequence_number=12759* 的事务必须等待具有 *sequence_number=12757* 的事务被完全重放后才能继续进行。
 - en: '![](../Images/1faa09f4129ccaa7660fb538fa241f7f.png)'
+  id: totrans-123
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/1faa09f4129ccaa7660fb538fa241f7f.png)'
 - en: Figure 9-11\. Typical examples of *sequence_number* and *last_committed*.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-11\. *sequence_number* 和 *last_committed* 的典型示例。
 - en: 'Once *sequence_number* and *last_committed* are understood, the calculation
     of the *last_committed* value can be explored. Typically, this value is derived
     from the transaction’s writeset, which details the rows modified by the transaction.
     Each row in the writeset is represented by a key corresponding to a table row.
     In the writeset:'
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦理解了 *sequence_number* 和 *last_committed*，就可以探索 *last_committed* 值的计算。通常，此值来自事务的写集，它详细说明了事务修改的行。写集中的每一行都由一个对应于表行的键表示。在写集中：
 - en: For update operations, there are two elements with the same key.
+  id: totrans-126
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 对于更新操作，有两个具有相同键的元素。
 - en: For insert and delete operations, there is one element.
+  id: totrans-127
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 对于插入和删除操作，有一个元素。
 - en: The writeset for DDL transactions is empty, indicating that DDL operations must
     be replayed serially.
+  id: totrans-128
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: DDL事务的写集为空，表示DDL操作必须顺序重放。
 - en: In Group Replication, when processing a transaction’s writeset, the applier
     thread examines the certification database for transactions that have modified
     the same records as those in the writeset. If such transactions are found, the
@@ -643,291 +908,422 @@
     current transaction’s *sequence_number*, which becomes the transaction’s *last_committed*
     value. This ensures transactions are replayed in the correct order to maintain
     data consistency.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 在组复制中，当处理事务的写集时，应用线程会检查认证数据库中已修改与写集中相同记录的事务。如果找到这样的交易，应用线程确定小于当前事务 *sequence_number*
+    的最新 *sequence_number*，这成为事务的 *last_committed* 值。这确保了事务以正确的顺序重放，以维护数据一致性。
 - en: 'Before diving deeper into the analysis, let’s review what the applier thread
     does:'
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 在深入分析之前，让我们回顾一下应用线程做了什么：
 - en: Calculating *last_committed* based on the certification database.
+  id: totrans-131
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 基于认证数据库计算 *last_committed*。
 - en: Writing transaction events to the relay log file.
+  id: totrans-132
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 将事务事件写入中继日志文件。
 - en: 'Below is a flame graph generated from capturing performance data of the applier
     thread:'
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面是从捕获应用线程性能数据生成的火焰图：
 - en: '![](../Images/72d19cff3e522ea9b0af9c722cf86e7a.png)'
+  id: totrans-134
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/72d19cff3e522ea9b0af9c722cf86e7a.png)'
 - en: Figure 9-12\. Flame graph of performance data for the applier thread.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-12\. 应用线程性能数据的火焰图。
 - en: From the flame graph, it is evident that the *‘add_item’* operation in the certification
     database consumes 29.80% of the computation time, with half of this time spent
     on hash table operations. The inefficiency of the hash table results in high CPU
     resource consumption for calculating last_committed, and delays in writing transaction
     events to disk.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 从火焰图中可以看出，认证数据库中的 *‘add_item’* 操作消耗了29.80%的计算时间，其中一半的时间花在哈希表操作上。哈希表的低效导致计算 *last_committed*
+    时CPU资源消耗过高，并延迟写入事务事件到磁盘。
 - en: To address this bottleneck and improve disk write performance, the hash table’s
     overhead must be reduced. Since direct improvements to the hash table are challenging,
     a new data structure is necessary.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决这个瓶颈并提高磁盘写入性能，必须减少哈希表的开销。由于直接改进哈希表具有挑战性，因此需要一个新的数据结构。
 - en: 'Based on the design of Group Replication in single-primary mode, a redesigned
     data structure has been developed to replace the previous hash table approach
     in the certification database. This new structure aims to eliminate delays in
     calculating last_committed and ensure timely writing of transaction events to
     disk. See the specific code below for the new data structure:'
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于单主模式下的组复制设计，已经开发了一种重新设计的数据结构来替换认证数据库中之前使用的哈希表方法。这个新结构旨在消除计算 *last_committed*
+    时的延迟，并确保及时将事务事件写入磁盘。下面是新的数据结构的具体代码：
 - en: '[PRE3]'
+  id: totrans-139
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'To store the information necessary for calculating *last_committed*, a static
     array named *replayed_cal_array* is used. This array contains 65,536 elements,
     each representing a bucket slot with a *replay_cal_hash_item*. The *replay_cal_hash_item*
     structure includes:'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了存储计算 *last_committed* 所必需的信息，使用了一个名为 *replayed_cal_array* 的静态数组。这个数组包含 65,536
+    个元素，每个元素代表一个带有 *replay_cal_hash_item* 的桶槽。*replay_cal_hash_item* 结构包括：
 - en: '**number**: Indicates the current count of elements within the *replay_cal_hash_item*,
     tracking how many elements are in use.'
+  id: totrans-141
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**数量**：表示 *replay_cal_hash_item* 内当前元素的数量，跟踪有多少元素在使用。'
 - en: '**size**: Specifies the maximum capacity of the *replay_cal_hash_item*, defining
     the upper limit of elements it can accommodate.'
+  id: totrans-142
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**大小**：指定 *replay_cal_hash_item* 的最大容量，定义它可以容纳的元素的上限。'
 - en: '**values**: An array of 4,088 unsigned char elements that stores data.'
+  id: totrans-143
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**值**：一个包含 4,088 个无符号字符元素的数组，用于存储数据。'
 - en: 'The **values** member is used to store 511 entries, with each entry occupying
     8 bytes. Each entry consists of:'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: '**values** 成员用于存储 511 个条目，每个条目占用 8 字节。每个条目由以下内容组成：'
 - en: '**Key Value**: 6 byte.'
+  id: totrans-145
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**键值**：6 字节。'
 - en: '**Relative Sequence Number**: 2 bytes.'
+  id: totrans-146
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**相对序列号**：2 字节。'
 - en: 'For specific details, refer to the figure below:'
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于具体细节，请参考下面的图：
 - en: '![](../Images/3ac535473c3ec2377419f26271cb5362.png)'
+  id: totrans-148
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/3ac535473c3ec2377419f26271cb5362.png)'
 - en: Figure 9-13\. A new data structure suitable for calculating last_committed.
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 9-13\. 一种适合计算 last_committed 的新数据结构。
 - en: 'The *key* undergoes base64 conversion into an 8-byte integer. This 8-byte integer
     is divided as follows:'
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: '*键* 经过 base64 转换成一个 8 字节的整数。这个 8 字节整数如下划分：'
 - en: '**Index for replayed_cal_array**: The first two bytes serve as an index for
     the *replayed_cal_array*.'
+  id: totrans-151
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**replayed_cal_array 的索引**：前两个字节用作 *replayed_cal_array* 的索引。'
 - en: '**Value**: The remaining six bytes are stored in the first six bytes of each
     8-byte entry.'
+  id: totrans-152
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**值**：剩余的六个字节存储在每个 8 字节条目的前六个字节中。'
 - en: 'Regarding the storage of *sequence_number*:'
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于 *序列号* 的存储：
 - en: Only the relative value of the *sequence_number* is stored, calculated as the
     current *sequence_number* minus a base sequence value.
+  id: totrans-154
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 只存储 *序列号* 的相对值，计算为当前 *序列号* 减去一个基序列值。
 - en: Instead of requiring 8 bytes, this relative *sequence_number* needs only 2 bytes.
+  id: totrans-155
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 与需要 8 字节相比，这个相对的 *序列号* 只需 2 字节。
 - en: This 2-byte relative *sequence_number* is stored in the last two bytes of each
     8-byte entry.
+  id: totrans-156
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 这个 2 字节的相对 *序列号* 存储在每个 8 字节条目的最后两个字节中。
 - en: This setup optimizes storage by using a compact representation of the *key*
     and storing only the necessary relative *sequence_number*, ensuring efficient
     memory use within the *replay_cal_hash_item* structure.
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种设置通过使用 *键* 的紧凑表示和仅存储必要的相对 *序列号* 来优化存储，确保在 *replay_cal_hash_item* 结构中高效使用内存。
 - en: 'The algorithm based on the new data structure is illustrated in the figure
     below, highlighting the following key points:'
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的图展示了基于新数据结构的算法，突出以下关键点：
 - en: Fully utilizes the characteristics of *keys* and the monotonic increase of *sequence*
     numbers, compressing storage space effectively, resulting in very high memory
     usage efficiency for the new data structure.
+  id: totrans-159
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 充分利用 *键* 的特性和 *序列* 号的单调增加，有效地压缩存储空间，从而实现新数据结构的高内存使用效率。
 - en: Sets an upper limit on the stored information. Once the threshold is exceeded,
     a process similar to checkpointing is triggered, and the current transaction is
     set for serial replay.
+  id: totrans-160
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 对存储的信息设置上限。一旦超过阈值，将触发类似于检查点的过程，并将当前事务设置为串行回放。
 - en: The content of the new data structure is relatively small, with a high cache
     hit rate. Moreover, within *replay_cal_hash_item*, the *values* are stored contiguously,
     making it very cache-friendly.
+  id: totrans-161
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 新数据结构的内容相对较小，具有高缓存命中率。此外，在 *replay_cal_hash_item* 中，*值* 是连续存储的，这使得它非常适合缓存。
 - en: '![](../Images/5f180f1b2f5adae2d0f328ddec77e287.png)'
+  id: totrans-162
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/5f180f1b2f5adae2d0f328ddec77e287.png)'
 - en: Figure 9-14\. A new algorithm suitable for calculating last_committed.
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 9-14\. 一种适合计算 last_committed 的新算法。
 - en: It should be noted that the new data structure occupies a memory footprint of
     256MB (65536 * 4096 bytes), which is significantly smaller compared to the several
     gigabytes or even tens of gigabytes typically required by traditional certification
     databases during benchmarking. This modest memory usage lays a solid foundation
     for optimizing the performance of the entire applier thread.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 应该注意的是，新的数据结构占用256MB（65536 * 4096字节）的内存占用，这比在基准测试期间传统认证数据库通常需要的几个GB甚至数十GB小得多。这种适度的内存使用为优化整个应用线程的性能奠定了坚实的基础。
 - en: After optimization, the applier thread has significantly accelerated its computation
     of the last_committed value, resulting in a considerable improvement in the overall
     processing speed of the applier thread. The following is a flame graph generated
     by capturing *perf* data of the applier thread using the improved version.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 优化后，应用线程显著加速了其计算last_committed值的速度，从而显著提高了应用线程的整体处理速度。以下是通过捕获应用线程改进版本的*perf*数据生成的火焰图。
 - en: '![](../Images/210e8f04ed9acd718c1ad6ca81e0c9f4.png)'
+  id: totrans-166
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/210e8f04ed9acd718c1ad6ca81e0c9f4.png)'
 - en: Figure 9-15\. Flame graph of performance data for the applier thread after optimization.
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-15。优化后应用线程性能数据的火焰图。
 - en: From the graph, it can be observed that the CPU processing overhead for *Certifier::certify*
     has significantly reduced. Specifically, *quick_add_item* now accounts for only
     12.85% of the overhead, whereas previously, when throughput was lower, *add_item*
     consumed 29.80%. This highlights a significant performance improvement achieved
     by adopting the new data structure.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，*Certifier::certify*的CPU处理开销显著降低。具体来说，*quick_add_item*现在只占开销的12.85%，而之前，当吞吐量较低时，*add_item*消耗了29.80%。这突出了采用新数据结构所取得的显著性能提升。
 - en: 'Based on extensive TPC-C testing statistics, the following optimization conclusions
     can be drawn: Before optimization, the applier thread’s disk throughput supported
     approximately 500,000 tpmC. After optimization, with more CPU time available to
     process disk writes, the applier thread’s disk throughput now supports approximately
     1,000,000 tpmC.'
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于广泛的TPC-C测试统计数据，可以得出以下优化结论：在优化之前，应用线程的磁盘吞吐量支持大约500,000 tpmC。优化后，由于有更多的CPU时间用于处理磁盘写入，应用线程的磁盘吞吐量现在支持大约1,000,000
+    tpmC。
 - en: This improvement not only enhances the overall processing capability of the
     applier thread but also accelerates the cleaning of outdated writeset information.
     According to tests, each cleaning operation now takes milliseconds. As a result,
     it effectively mitigates the performance fluctuations inherent in native Group
     Replication, further improving stability.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种改进不仅提高了应用线程的整体处理能力，还加速了过时writeset信息的清理。根据测试，每次清理操作现在只需毫秒。因此，它有效地缓解了原生Group
+    Replication固有的性能波动，进一步提高了稳定性。
 - en: 'From this case study, the reasons for performance improvement can be summarized
     as follows:'
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 从这个案例研究中，性能提升的原因可以总结如下：
 - en: '**Static Array for Values**: Using a static array for *values* in *replay_cal_hash_item*
     enhances search efficiency due to contiguous memory access, making it very cache-friendly.'
+  id: totrans-172
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**静态数组用于值**：在*replay_cal_hash_item*中的*values*使用静态数组增强了搜索效率，由于连续内存访问，这使得它非常缓存友好。'
 - en: '**Reduced Data Storage**: The amount of stored data has been significantly
     reduced. Previously, it might have required gigabytes of storage, whereas now
     it only requires 256MB. Smaller memory footprints generally lead to higher efficiency.'
+  id: totrans-173
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**减少数据存储**：存储的数据量已经显著减少。之前可能需要几GB的存储空间，而现在只需256MB。较小的内存占用通常会导致更高的效率。'
 - en: '**Fixed Memory Space**: The allocated memory space is fixed and does not require
     dynamic allocation. Previous frequent memory allocations and deallocations were
     detrimental to high performance due to the synchronous nature of memory operations.'
+  id: totrans-174
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**固定内存空间**：分配的内存空间是固定的，不需要动态分配。之前的频繁内存分配和释放由于内存操作的同步性质而对高性能有害。'
 - en: '**Efficient Certification Cleanup**: Certification cleanup can achieve millisecond-level
     performance. During certification cleanup, only zeroing operations are needed
     for the *number* values among the 65,536 *replay_cal_hash_item* items.'
+  id: totrans-175
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**高效的认证清理**：认证清理可以达到毫秒级的性能。在认证清理过程中，只需要对65,536个*replay_cal_hash_item*项目中的*number*值进行零值操作。'
 - en: By implementing a better data structure based on Group Replication’s single-primary
     mode to achieve the same last_committed calculation functionality, the applier
     thread’s maximum processing capability can be significantly enhanced, and performance
     fluctuations can be eliminated.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过基于 Group Replication 的单主模式实现更好的数据结构，以实现相同的 last_committed 计算功能，可以显著提高应用线程的最大处理能力，并消除性能波动。
 - en: 9.4.4 Batch Write Mechanism for Relay logs
+  id: totrans-177
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.4.4  Relay 日志的批量写入机制
 - en: 'The transactional event logging to disk is one of the two main tasks of the
     applier thread. The efficiency of this logging directly impacts the usability
     of Group Replication. If the logging process is inefficient, the applier queue
     size will continuously increase according to queueing theory. Let’s examine the
     optimized main process of the applier thread, as shown in the figure below:'
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: 事务事件记录到磁盘是应用线程的两个主要任务之一。此记录的效率直接影响 Group Replication 的可用性。如果记录过程效率低下，根据排队理论，应用队列的大小将不断增大。让我们检查如图所示的优化后的应用线程主流程：
 - en: '![](../Images/c321b866b039feec17ab62ce6f387b18.png)'
+  id: totrans-179
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/c321b866b039feec17ab62ce6f387b18.png)'
 - en: Figure 9-16\. The optimized main process of the applier thread.
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 9-16. 应用线程优化后的主流程。
 - en: The batch write mechanism refers to an improvement over the native MySQL version,
     where events were flushed to disk individually. Now, events from at least the
     same transaction are flushed together, significantly reducing the number of I/O
     flush operations. If the apply queue size exceeds a specified threshold, events
     from a batch of transactions are flushed together, further reducing the frequency
     of I/O flush calls.
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 批量写入机制指的是对原生 MySQL 版本的改进，其中事件是单独写入磁盘的。现在，至少来自同一事务的事件会一起写入磁盘，显著减少了 I/O 写入操作的次数。如果应用队列的大小超过指定的阈值，事务批次中的事件会一起写入，进一步减少
+    I/O 写入调用的频率。
 - en: The batch write mechanism, tested with TPC-C benchmarks, initially improved
     disk write speed from just over 200,000 tpmC to 500,000 tpmC. With further enhancements
     in last_committed replay calculations from the previous section, this speed can
     be pushed to around 1,000,000 tpmC, effectively solving problems related to excessive
     applier queue growth caused by delays in disk writes.
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 批量写入机制，通过 TPC-C 基准测试，最初将磁盘写入速度从略超过 200,000 tpmC 提高到 500,000 tpmC。通过上一节中 last_committed
+    重放计算的进一步改进，这个速度可以提升到大约 1,000,000 tpmC，有效解决了由于磁盘写入延迟导致的过多应用队列增长问题。
 - en: 9.4.5 Comparing Performance with Traditional Group Replication
+  id: totrans-183
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.4.5 与传统 Group Replication 的性能比较
 - en: 'The figure below compares TPC-C throughput against concurrency levels in different
     modes. The deployment setup is as follows: Both MySQL primary and secondary are
     deployed on the same machine, with NUMA binding isolation to prevent computational
     interference. Separate NVMe SSDs are used for the primary and secondary to ensure
     no I/O operation interference.'
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图比较了 TPC-C 吞吐量与不同模式下的并发级别。部署设置如下：MySQL 的主从都部署在同一台机器上，使用 NUMA 绑定隔离以防止计算干扰。主从分别使用独立的
+    NVMe SSD，以确保没有 I/O 操作干扰。
 - en: '![image-20240829110334937](../Images/0c8729295ff8c25d1d78357bc323ed92.png)'
+  id: totrans-185
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829110334937](../Images/0c8729295ff8c25d1d78357bc323ed92.png)'
 - en: Figure 9-17\. Effects of the new Group Replication single-primary mode design.
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 9-17. 新的 Group Replication 单主模式设计的影响。
 - en: From the figure, it is evident that the new Group Replication single-primary
     mode design comprehensively outperforms the traditional mode of Group Replication.
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，新的 Group Replication 单主模式设计在性能上全面优于传统的 Group Replication 模式。
 - en: 9.5 How to Mitigate Performance Fluctuations in Group Replication?
+  id: totrans-188
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 9.5 如何减轻 Group Replication 中的性能波动？
 - en: 9.5.1 Enhancing the Fail Detection Mechanism
+  id: totrans-189
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.5.1 增强故障检测机制
 - en: Accurately detecting node failure is challenging due to the FLP impossibility
     result, which states that consensus is impossible in a purely asynchronous system
     if even one process can fail. The difficulty arises because a server can’t distinguish
@@ -937,23 +1333,31 @@
     synchrony are made, allowing for the design of protocols that maintain safety
     and provide liveness under certain conditions. One common method is to use an
     inaccurate local failure detector.
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于FLP不可行性结果，准确检测节点故障具有挑战性，该结果指出，如果即使有一个进程可以失败，在纯异步系统中达成共识是不可能的。困难在于，当服务器没有收到消息时，它无法区分另一个服务器是已经失败还是只是“非常慢”。[32]。幸运的是，大多数实际系统不是纯异步的，所以FLP结果不适用。为了规避这一点，对系统同步性做出了额外的假设，从而允许设计在特定条件下保持安全并提供活性的协议。一种常见的方法是使用不精确的本地故障检测器。
 - en: '![](../Images/b29e9986d6515dba4b2b715e0324ca7c.png)'
+  id: totrans-191
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/b29e9986d6515dba4b2b715e0324ca7c.png)'
 - en: Figure 9-18\. The asynchronous message passing model borrowed from the Mencius
     paper.
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-18. 从孟子论文中借鉴的异步消息传递模型。
 - en: The figure above illustrates the asynchronous message passing model. Each failure
     detector monitors servers and maintains a list of suspected faulty servers. These
     detectors can make mistakes, such as suspecting a running server has crashed.
     If later corrected, the server can be removed from the suspected list. Protocols
     using failure detectors must always ensure safety despite these errors and guarantee
     progress when the detectors remain accurate for long periods.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 上面的图示说明了异步消息传递模型。每个故障检测器监控服务器并维护一个疑似故障服务器的列表。这些检测器可能会犯错误，例如怀疑一个正在运行的服务器已经崩溃。如果后来得到纠正，该服务器可以从疑似列表中移除。使用故障检测器的协议必须始终确保安全，即使在这些错误发生的情况下，并且在检测器长时间准确时保证进展。
 - en: Group Replication’s failure detection mechanism identifies and expels non-communicating
     members. This increases the likelihood of the group containing a majority of functioning
     members, ensuring correct client request processing. All group members regularly
@@ -961,390 +1365,557 @@
     it suspects that member. If suspicion is not solved, the member is expelled. The
     expelled member remains unaware of its status and sees other members as unreachable.
     If it reconnects, it learns of its expulsion through an updated membership view.
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: Group Replication的故障检测机制识别并驱逐不通信的成员。这增加了组中包含大多数功能成员的可能性，确保正确处理客户端请求。所有组成员都会定期交换消息。如果一个成员在5秒内没有收到来自另一个成员的消息，它会怀疑那个成员。如果怀疑没有得到解决，该成员将被驱逐。被驱逐的成员对其状态一无所知，并认为其他成员是不可达的。如果它重新连接，它将通过更新的成员视图了解到自己的驱逐情况。
 - en: 'After understanding the above content, let’s analyze common types of view change
     events:'
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 在理解了上述内容之后，让我们分析常见的视图变更事件类型：
 - en: '**Node is Killed**'
+  id: totrans-196
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**节点被杀死**'
 - en: In a Linux system, when a node is killed, the TCP layer typically sends a reset
     (RST) packet to notify other nodes of the connection problem. Paxos communication
     can use this RST packet to identify the node’s termination. However, MySQL does
     not handle this specifically and relies on the standard timeout mechanism.
+  id: totrans-197
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 在Linux系统中，当一个节点被杀死时，TCP层通常会发送一个重置（RST）数据包来通知其他节点连接问题。Paxos通信可以使用这个RST数据包来识别节点的终止。然而，MySQL并没有专门处理这个问题，而是依赖于标准的超时机制。
 - en: '**Node is Network-Partitioned**'
+  id: totrans-198
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**节点网络分割**'
 - en: Detecting whether a node is network-partitioned or simply slow is challenging.
     In such cases, timeout mechanisms are used, as it is difficult to definitively
     distinguish between these situations.
+  id: totrans-199
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 检测一个节点是否是网络分割还是仅仅缓慢是一个挑战。在这种情况下，通常会使用超时机制，因为很难明确区分这些情况。
 - en: '**Node is Gracefully Taken Offline**'
+  id: totrans-200
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**节点优雅地离线**'
 - en: Normally, informing other nodes by sending a command should be straightforward.
     However, MySQL has not managed this aspect well.
+  id: totrans-201
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 通常，通过发送命令通知其他节点应该是直接的。然而，MySQL并没有很好地处理这个方面。
 - en: '**Adding a new node to the cluster**'
+  id: totrans-202
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**向集群添加新节点**'
 - en: Adding a new node requires consensus and involves a final installation view
     synchronization. Although some performance fluctuations are expected, severe fluctuations
     indicate poor handling of the node addition process.
+  id: totrans-203
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 添加新节点需要共识并涉及最终安装视图同步。尽管预期会有一些性能波动，但严重的波动表明节点添加过程处理不当。
 - en: Whenever a change that needs replication occurs, the group must achieve consensus.
     This applies to regular transactions, group membership changes, and certain internal
     messaging to maintain group consistency. Consensus requires a majority of group
     members to agree on a decision. Without a majority, the group cannot progress
     and blocks because it cannot secure a quorum.
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: 每当发生需要复制的变更时，组必须达成共识。这适用于常规事务、组成员变更以及某些维护组一致性的内部消息。共识需要多数派成员就决策达成一致。如果没有多数派，组无法进步，并且会阻塞，因为它无法确保法定人数。
 - en: Quorum may be lost due to multiple involuntary failures, causing a majority
     of servers to be abruptly removed. In a group of 5 servers, if 3 servers become
     unresponsive simultaneously, the majority is lost, which prevents reaching quorum.
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于多次非自愿故障，可能会丢失法定人数，导致大多数服务器被突然移除。在一个由5个服务器组成的组中，如果3个服务器同时变得无响应，多数派就会丢失，这阻止了达到法定人数。
 - en: Conversely, if servers exit the group voluntarily, they can instruct the group
     to reconfigure itself. A server leaving the group notifies others, allowing proper
     reconfiguration. This maintains membership consistency and recalculates the majority.
     For example, if 3 out of 5 servers leave one by one, informing the group, the
     membership can adjust from 5 to 2 while securing quorum during the process [13].
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 相反，如果服务器自愿退出组，它们可以指示组重新配置自己。离开组的服务器会通知其他人，允许适当的重新配置。这保持了成员一致性，并重新计算多数派。例如，如果5个服务器中有3个一个接一个地离开并通知组，成员可以从5个减少到2个，同时在过程中确保法定人数
+    [13]。
 - en: After understanding the working mechanism of view change, one can then examine
     how MySQL handles it.
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: 在理解视图变更的工作机制之后，可以进一步考察MySQL是如何处理它的。
 - en: In cases of node failure or network partitioning, MySQL’s handling approach
     is similar. Testing was conducted with one MySQL secondary killed. Details of
     the test can be seen in the following figure.
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: 在节点故障或网络分区的情况下，MySQL的处理方法类似。测试是在杀死一个MySQL从节点的情况下进行的。测试的详细信息可以在以下图中查看。
 - en: '![image-20240829110513812](../Images/0efb171eaf7028055fc2967a9a48db2f.png)'
+  id: totrans-209
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829110513812](../Images/0efb171eaf7028055fc2967a9a48db2f.png)'
 - en: Figure 9-19\. Significant throughput fluctuations when a node is killed.
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-19\. 杀死节点时显著的吞吐量波动。
 - en: From the figure, it is evident that when the MySQL secondary is killed, the
     MySQL primary’s throughput fluctuates significantly, with a drop to zero lasting
     over 20 seconds. Ideally, in a three-node cluster, if one node is killed, the
     remaining two nodes should still form a majority, preventing a prolonged zero-throughput
     problem. This suggests that MySQL may not effectively manage the majority quorum
     and fail detection mechanisms.
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，当MySQL从节点被杀死时，MySQL主节点的吞吐量显著波动，吞吐量降至零并持续超过20秒。理想情况下，在一个三节点集群中，如果一个节点被杀死，剩余的两个节点仍然可以形成一个多数派，防止出现长时间的零吞吐量问题。这表明MySQL可能无法有效管理多数法定人数和故障检测机制。
 - en: 'When a MySQL secondary is gracefully taken offline, the throughput typically
     behaves as follows:'
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: 当MySQL从节点被优雅地关闭时，吞吐量通常会表现出以下行为：
 - en: '![image-20240829110533157](../Images/7ae76184c2df5c2f3fb8c51aec58af1d.png)'
+  id: totrans-213
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829110533157](../Images/7ae76184c2df5c2f3fb8c51aec58af1d.png)'
 - en: Figure 9-20\. Throughput drops to zero at intervals when a node is shut down.
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-20\. 关闭节点时吞吐量在间隔中降至零。
 - en: The figure shows that allowing a MySQL node to be gracefully taken offline causes
     throughput to drop to zero at several points, indicating problems with the fail
     detection mechanism.
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: 图中显示，允许MySQL节点优雅地离线会导致吞吐量在几个点降至零，这表明故障检测机制存在问题。
 - en: What will happen when adding a MySQL node in Group Replication?
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: 在组复制中添加MySQL节点会发生什么？
 - en: '![image-20240829110551420](../Images/18286b5c2abbd7a5186b13eb9e3f7301.png)'
+  id: totrans-217
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829110551420](../Images/18286b5c2abbd7a5186b13eb9e3f7301.png)'
 - en: Figure 9-21\. Throughput drop of approximately 10 seconds when a node is added.
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-21\. 添加节点时吞吐量下降约10秒。
 - en: From the figure, it is evident that the node addition process resulted in a
     throughput drop of approximately 10 seconds. This indicates that MySQL did not
     handle the node addition process effectively.
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，节点添加过程导致吞吐量下降约10秒。这表明MySQL没有有效地处理节点添加过程。
 - en: To address these problems in Group Replication, improving the probing mechanism
     is crucial for enhancing fault detection accuracy. Without this improvement, throughput
     can be significantly disrupted, making further performance enhancements challenging.
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决组复制中的这些问题，提高探测机制对于提高故障检测准确性至关重要。没有这项改进，吞吐量可能会受到严重影响，使得进一步的性能提升变得困难。
 - en: Regarding the probe mechanism, the following improvements have been made.
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于探测机制，已经做出了以下改进。
 - en: '**Ensure Fair Execution for Probe Coroutines**'
+  id: totrans-222
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**确保探测协程的公平执行**'
 - en: During the processing of large transactions, the Paxos protocol handles substantial
     writeset data, monopolizing the processing resources of the single-threaded coroutine
     model. This leaves limited opportunities for the probe detection coroutine to
     update critical information. As a result, outdated probe data can lead to incorrect
     judgments, as observed in section 1.2.5.
+  id: totrans-223
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 在处理大型事务期间，Paxos协议处理大量的writeset数据，垄断了单线程协程模型的处理资源。这给探测检测协程更新关键信息的机会有限。因此，过时的探测数据可能导致错误的判断，如1.2.5节中所述。
 - en: To address this, the solution is to amortize data processing by splitting large
     transactions into multiple stages. This approach ensures that the probe detection
     coroutine gets more equitable opportunities to execute and update information
     promptly, enhancing the accuracy of fault detection.
+  id: totrans-224
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 为了解决这个问题，解决方案是将数据处理分摊到多个阶段，这种方法确保探测检测协程有更多公平的机会执行并及时更新信息，从而提高故障检测的准确性。
 - en: '**Improved Wakeup Delay Function**'
+  id: totrans-225
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**改进的唤醒延迟函数**'
 - en: 'Check the **wakeup_delay** function in MySQL, as shown in the code below:'
+  id: totrans-226
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 检查MySQL中的**wakeup_delay**函数，如下所示：
 - en: '[PRE4]'
+  id: totrans-227
   prefs:
   - PREF_IND
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: From the code, it is evident that the calculated delay time is too rigid. This
     inflexibility is a key reason for performance fluctuations, as the primary may
     wait too long after a node exits. To address this, adjusting the relevant constants
     based on the environment is essential for adapting to complex and variable network
     conditions.
+  id: totrans-228
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 从代码中可以看出，计算出的延迟时间过于僵化。这种僵化性是性能波动的主要原因，因为主节点在节点退出后可能等待时间过长。为了解决这个问题，根据环境调整相关常数对于适应复杂多变网络条件是必不可少的。
 - en: '**Split the wakeup_delay function to adapt to different environments**'
+  id: totrans-229
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**将wakeup_delay函数拆分以适应不同的环境**'
 - en: 'For example, when checking if propose messages have been accepted, utilize
     the original *wakeup_delay* function, as shown in the code below:'
+  id: totrans-230
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 例如，在检查提议消息是否被接受时，使用原始的*wakeup_delay*函数，如下所示：
 - en: '[PRE5]'
+  id: totrans-231
   prefs:
   - PREF_IND
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'In the function *get_xcom_message*, the *wakeup_delay_for_perf* function is
     used, as shown in the code below:'
+  id: totrans-232
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 在函数*get_xcom_message*中，使用*wakeup_delay_for_perf*函数，如下所示：
 - en: '[PRE6]'
+  id: totrans-233
   prefs:
   - PREF_IND
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: In the *wakeup_delay_for_perf* function, a more aggressive strategy can be employed,
     such as reducing the waiting time further.
+  id: totrans-234
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 在*wakeup_delay_for_perf*函数中，可以采用更激进的策略，例如进一步减少等待时间。
 - en: Incorporate the Round-trip time (RTT) from the network into the wakeup_delay.
+  id: totrans-235
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 将网络往返时间（RTT）纳入wakeup_delay。
 - en: The purpose of this is to enhance the accuracy of network probing activities.
+  id: totrans-236
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 这样做的目的是提高网络探测活动的准确性。
 - en: Distinguish between node being killed and network partition.
+  id: totrans-237
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 区分节点被杀死和网络分区。
 - en: In Linux systems, when a node is killed, TCP sends reset packets to the other
     nodes in the cluster, helping distinguish between node terminations and network
     partition faults. Integrating information about abnormal node terminations into
     Paxos’ decision-making logic allows for more accurate judgments, addressing the
     problem of prolonged throughput drops experienced during abrupt node terminations.
+  id: totrans-238
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 在Linux系统中，当一个节点被杀死时，TCP向集群中的其他节点发送重置包，有助于区分节点终止和网络分区故障。将异常节点终止的信息集成到Paxos的决策逻辑中，可以做出更准确的判断，解决在节点终止过程中出现的吞吐量长时间下降的问题。
 - en: With the implementation of the above mechanism, probing accuracy has been significantly
     enhanced. Combined with the forthcoming degradation mechanism, this ensures relatively
     stable throughput even under abnormal conditions.
+  id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过实施上述机制，探测精度得到了显著提高。结合即将到来的降级机制，即使在异常条件下也能确保相对稳定的吞吐量。
 - en: 9.5.2 Leverage the Degradation Mechanism to Address Prolonged Waiting Problems
+  id: totrans-240
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.5.2 利用降级机制解决长时间等待问题
 - en: The degradation mechanism employs a majority-based approach to make decisions
     when a node becomes unresponsive after a short delay. While this mechanism is
     not new and is already part of Mencius interaction, MySQL has not effectively
     leveraged it to handle exceptional situations.
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: 降级机制采用基于多数的方法在节点在短暂延迟后无响应时做出决策。虽然这个机制并不新颖，并且已经是Mencius交互的一部分，但MySQL并没有有效地利用它来处理异常情况。
 - en: One drawback of the degradation mechanism is that it increases network interactions,
     including the prepare phase, leading to a performance decrease. However, its advantage
     lies in significantly improving throughput compared to how MySQL handles faults.
     In theory, as long as network latency between majority nodes is low, the degradation
     mechanism can be highly effective.
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: 降级机制的缺点是它增加了网络交互，包括准备阶段，导致性能下降。然而，它的优势在于与MySQL处理故障相比，显著提高了吞吐量。理论上，只要多数节点之间的网络延迟低，降级机制可以非常有效。
 - en: The following figure compares the throughput of SysBench read-write tests before
     and after improvements, following node being killed.
+  id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图比较了在节点被杀死后，改进前后SysBench读写测试的吞吐量。
 - en: '![image-20240829110903709](../Images/57f2d0ce7b2145f5be82feeeb44bffc9.png)'
+  id: totrans-244
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829110903709](../Images/57f2d0ce7b2145f5be82feeeb44bffc9.png)'
 - en: Figure 9-22\. Significant throughput improvement observed when a node is killed.
+  id: totrans-245
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-22. 杀死节点时观察到的显著吞吐量提升。
 - en: From the figure, it’s evident that the native Group Replication experiences
     prolonged throughput drops, which are unacceptable to users. In the improved Group
     Replication, throughput decreases from 20,000 to 14,000 transactions per second
     due to the degradation process. Although this decrease is noticeable, users consider
     it acceptable as it represents a significant improvement over the native Group
     Replication.
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，原生组复制经历了长时间的吞吐量下降，这对用户来说是不可接受的。在改进后的组复制中，由于降级过程，吞吐量从每秒20,000次下降到14,000次交易。尽管这种下降是明显的，但用户认为它是可接受的，因为它比原生组复制有显著改进。
 - en: 'Let’s continue to examine the throughput comparison over time before and after
     improvements following the normal shutdown of a particular node, as shown in the
     following figure:'
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们继续检查在特定节点正常关闭后，改进前后吞吐量随时间变化的比较，如图所示：
 - en: '![image-20240829110922449](../Images/95f103f824216e76c563afafddd06acf.png)'
+  id: totrans-248
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829110922449](../Images/95f103f824216e76c563afafddd06acf.png)'
 - en: Figure 9-23\. Significant throughput improvement observed when a node is closed.
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-23. 关闭节点时观察到的显著吞吐量提升。
 - en: From the figure, it’s clear that the improved Group Replication provides much
     more stable throughput compared to the native version. Although minor fluctuations
     occur during view changes due to internal synchronization, the improved Group
     Replication’s throughput performance is deemed acceptable by users. In contrast,
     the frequent throughput drops in the native Group Replication are considered unacceptable.
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，改进后的组复制与原生版本相比提供了更稳定的吞吐量。尽管由于内部同步，视图变化期间会有轻微的波动，但改进后的组复制的吞吐量性能被认为是用户可接受的。相比之下，原生组复制频繁的吞吐量下降被认为是不可接受的。
 - en: 'Once again, comparing the throughput over time before and after improvements
     in the scenario of adding a MySQL secondary to the cluster, as shown in the following
     figure:'
+  id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次比较在向集群添加MySQL从节点后，改进前后的吞吐量，如图所示：
 - en: '![image-20240829110943245](../Images/676267176ff217ac1990003102da2f6a.png)'
+  id: totrans-252
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829110943245](../Images/676267176ff217ac1990003102da2f6a.png)'
 - en: Figure 9-24\. Significant throughput improvement observed when adding a node
     to cluster.
+  id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-24. 向集群添加节点时观察到的显著吞吐量提升。
 - en: From the figure, it is evident that the native Group Replication experiences
     throughput drops of around 10 seconds, whereas the improved Group Replication
     shows only a slight decrease in throughput with minimal impact on performance.
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，原生组复制在吞吐量上大约有10秒的下降，而改进后的组复制吞吐量仅略有下降，对性能的影响最小。
 - en: Overall, the problems with native Group Replication in abnormal scenarios can
     be effectively solved.
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: 总体而言，原生组复制在异常场景中的问题可以得到有效解决。
 - en: 9.5.3 Mitigating Performance Fluctuations in the XCom Cache
+  id: totrans-256
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.5.3 缓解XCom Cache中的性能波动
 - en: The Mencius algorithm uses a catch-up mechanism for lagging replicas. If a process
     detects an undecided instance from the past and the leader’s correctness is confirmed
     via heartbeats, it should query other processes to learn the decision.
+  id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: 孟子算法使用一个追赶机制来处理延迟副本。如果一个进程检测到过去的一个未决实例，并且通过心跳确认了领导者的正确性，它应该查询其他进程以了解决定。
 - en: XCom, the group communication engine for Group Replication, includes a cache
     for storing Paxos instance messages and metadata. This cache aids in recovering
     missed messages for nodes that rejoin after communication failures. If messages
     are no longer in the cache, nodes must exit the cluster and undergo a costly traditional
     recovery. Thus, the XCom cache should be large enough to optimize recovery efficiency
     while considering memory constraints [13].
+  id: totrans-258
   prefs: []
   type: TYPE_NORMAL
+  zh: XCom是Group Replication的群组通信引擎，它包括一个用于存储Paxos实例消息和元数据的缓存。这个缓存有助于恢复在通信故障后重新加入节点的丢失消息。如果消息不再在缓存中，节点必须退出集群并经历代价高昂的传统恢复。因此，XCom缓存应该足够大，以优化恢复效率，同时考虑内存限制[13]。
 - en: MySQL uses dynamic memory allocation to adjust the XCom cache size. While this
     approach appears advantageous, testing revealed that the XCom cache led to performance
     fluctuations.
+  id: totrans-259
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL使用动态内存分配来调整XCom缓存大小。虽然这种方法看起来有利，但测试表明XCom缓存导致了性能波动。
 - en: 'Let’s examine the expand_lru function responsible for XCom cache memory allocation,
     as detailed in the code below:'
+  id: totrans-260
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们检查负责XCom缓存内存分配的expand_lru函数，如下面的代码所示：
 - en: '[PRE7]'
+  id: totrans-261
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The *expand_lru* function allocates memory based on the number of *BUCKETS*.
     A large number of *BUCKETS* can lead to significant overhead. Next, let’s determine
     the specific size of *BUCKETS*.
+  id: totrans-262
   prefs: []
   type: TYPE_NORMAL
+  zh: '*expand_lru*函数根据*BUCKETS*的数量分配内存。大量的*BUCKETS*可能导致显著的开销。接下来，让我们确定*BUCKETS*的具体大小。'
 - en: The definition of *BUCKETS* is as follows.
+  id: totrans-263
   prefs: []
   type: TYPE_NORMAL
+  zh: '*BUCKETS*的定义如下。'
 - en: '[PRE8]'
+  id: totrans-264
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: '*BUCKETS* corresponds to *length_increment*, which is defined by *INCREMENT*.
     Let’s proceed to examine the definition of *INCREMENT*.'
+  id: totrans-265
   prefs: []
   type: TYPE_NORMAL
+  zh: '*BUCKETS*对应于*长度增量*，它由*增量*定义。让我们继续检查*增量*的定义。'
 - en: '[PRE9]'
+  id: totrans-266
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: '*INCREMENT* is equivalent to *MIN_LENGTH*, and *MIN_LENGTH* is defined by *MIN_CACHE_SIZE*.
     Finally, the definition of *MIN_CACHE_SIZE* is located as follows:'
+  id: totrans-267
   prefs: []
   type: TYPE_NORMAL
+  zh: '*增量*等同于*最小长度*，而*最小长度*由*最小缓存大小*定义。最后，*最小缓存大小*的定义如下：'
 - en: '[PRE10]'
+  id: totrans-268
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: '*MIN_CACHE_SIZE* is set to 250,000, making *BUCKETS* 250,000 as well. Consequently,
     the *expand_lru* function performs 250,000 memory allocation calls. Given that
     memory allocation is a blocking system call, this extensive number of calls can
     introduce delays ranging from tens to hundreds of milliseconds. Log analysis was
     previously conducted to assess the overhead of performing 250,000 memory allocation
     calls, as illustrated in the figure below.'
+  id: totrans-269
   prefs: []
   type: TYPE_NORMAL
+  zh: '*MIN_CACHE_SIZE*设置为250,000，因此*BUCKETS*也是250,000。因此，*expand_lru*函数执行250,000次内存分配调用。鉴于内存分配是一个阻塞的系统调用，如此大量的调用可能会引入从数十到数百毫秒的延迟。之前进行了日志分析，以评估执行250,000次内存分配调用的开销，如图下所示。'
 - en: '![](../Images/7d8b9dd842dc35e980947e287104296e.png)'
+  id: totrans-270
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/7d8b9dd842dc35e980947e287104296e.png)'
 - en: Figure 9-25\. Overhead of 250,000 memory allocation calls on a typical machine.
+  id: totrans-271
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-25.典型机器上250,000次内存分配调用的开销。
 - en: The 250,000 memory allocation calls took 112ms. Additionally, the XCom cache
     experiences batch memory release problems, which can also cause performance delays.
     While the duration of these delays varies with machine performance, delays of
     tens of milliseconds are typical. Such fluctuations can lead to unexpected blocking
     of many user commits for tens of milliseconds, significantly impacting the user
     experience.
+  id: totrans-272
   prefs: []
   type: TYPE_NORMAL
+  zh: 250,000次内存分配调用耗时112毫秒。此外，XCom缓存在批量内存释放方面存在问题，这也可能导致性能延迟。虽然这些延迟的持续时间随机器性能而变化，但通常为数十毫秒。这种波动可能导致许多用户提交在数十毫秒内意外阻塞，从而严重影响用户体验。
 - en: 'To address this problem, various configuration options—high-end, mid-range,
     and low-end—have been provided. These options involve selecting appropriate sizes
     for fixed static arrays, which eliminate the problems associated with batch memory
     allocation and release. The benefits of this new mechanism include:'
+  id: totrans-273
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决这个问题，提供了各种配置选项——高端、中端和低端。这些选项涉及选择固定静态数组的大小，从而消除了与批量内存分配和释放相关的问题。这种新机制的好处包括：
 - en: Cache-friendly with high performance.
+  id: totrans-274
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 缓存友好，性能高。
 - en: Elimination of performance fluctuations on the XCom cache side.
+  id: totrans-275
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 消除了XCom缓存侧的性能波动。
 - en: 9.5.4 A New Strategy for Multi-Primary Certification Database cleanup
+  id: totrans-276
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.5.4 多主认证数据库清理的新策略
 - en: In Group Replication’s single-primary mode, a mechanism was implemented to quickly
     calculate the *last_committed* value during replay, reducing significant performance
     fluctuations caused by certification database cleanup. However, in multi-primary
@@ -1352,341 +1923,483 @@
     limiting flexibility in managing performance fluctuations. To address these challenges,
     a load-spreading strategy was adopted to mitigate the impact of significant performance
     variations.
+  id: totrans-277
   prefs: []
   type: TYPE_NORMAL
+  zh: 在组复制的单主模式下，实现了一种机制，在重放期间快速计算*最后提交*值，从而减少由认证数据库清理引起的显著性能波动。然而，在多主组复制中，通过认证数据库进行冲突检测是不可避免的，这限制了管理性能波动时的灵活性。为了解决这些挑战，采用了负载均衡策略来减轻显著性能变化的影响。
 - en: The following figure shows the relationship between the throughput of SysBench
     read/write tests over time in a Group Replication multi-primary scenario.
+  id: totrans-278
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下图显示了在组复制多主场景中，SysBench读写测试吞吐量随时间变化的关系。
 - en: '![image-20240829111514798](../Images/4e2e69e70bb8c0d0d52f63e1eace79cd.png)'
+  id: totrans-279
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829111514798](../Images/4e2e69e70bb8c0d0d52f63e1eace79cd.png)'
 - en: Figure 9-26\. Performance fluctuation in Group Replication.
+  id: totrans-280
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-26. 组复制中的性能波动。
 - en: The figure demonstrates a notable throughput fluctuation every 60 seconds, reflecting
     instability. This instability arises from the need to clean the certification
     database at regular intervals, which necessitates acquiring a global latch. This
     process causes the MySQL primary to pause, resulting in sudden performance drops.
+  id: totrans-281
   prefs: []
   type: TYPE_NORMAL
+  zh: 图中每60秒出现一次显著的吞吐量波动，反映了不稳定性。这种不稳定性源于定期清理认证数据库的需要，这需要获取全局闩锁。这个过程导致MySQL主服务器暂停，从而引起性能的突然下降。
 - en: The certification database consumes significant memory, and prolonged cleaning
     processes lead to stalls. Reducing the cleaning cycle period from 60 seconds to
     10 seconds isn’t a one-size-fits-all solution. In environments with large transaction
     processing, a 10-second cycle might be insufficient, causing overlapping cleaning
     cycles that worsen performance problems.
+  id: totrans-282
   prefs: []
   type: TYPE_NORMAL
+  zh: 认证数据库消耗了大量的内存，长时间的清理过程会导致停滞。将清理周期从60秒减少到10秒并不是万能的解决方案。在处理大量事务的环境中，10秒的周期可能不足，会导致重叠的清理周期，从而加剧性能问题。
 - en: 'Based on extensive practice and experience, addressing the problem effectively
     involves:'
+  id: totrans-283
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于广泛的实践和经验，有效解决该问题涉及：
 - en: '**Strict Adherence to State Machine Replication**: Following the state machine
     replication mechanism closely, as outlined in section 9.1.3, ensures consistency
     in handling transactions.'
+  id: totrans-284
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**严格遵守状态机复制**：如第9.1.3节所述，紧密遵循状态机复制机制，确保处理事务的一致性。'
 - en: '**Reducing GTID Broadcast Interval**: Decreasing the interval of GTID (Global
     Transaction Identifier) broadcast to sub-second levels.'
+  id: totrans-285
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**减少GTID广播间隔**：将GTID（全局事务标识符）广播的间隔降低到亚秒级别。'
 - en: '**Enhancing Transaction Parallel Replay**: Improving the efficiency of parallel
     transaction replay on MySQL secondaries, especially for large transactions, reduces
     memory consumption and mitigates the effects of the ‘barrel principle,’ leading
     to better performance and reduced impact of performance fluctuations.'
+  id: totrans-286
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**增强事务并行重放**：提高MySQL从服务器上并行事务重放的效率，特别是对于大事务，可以减少内存消耗并减轻“桶原理”的影响，从而提高性能并减少性能波动的影响。'
 - en: By implementing these steps, it becomes feasible to reduce the cleaning cycle
     from 60 seconds to sub-second intervals. This approach enables each cleaning operation
     to manage smaller data volumes, thereby reducing sudden performance drops and
     stabilizing throughput. The following figure shows the relationship between SysBench
     read/write test throughput over time after applying the amortization approach.
+  id: totrans-287
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过实施这些步骤，将清理周期从60秒减少到亚秒间隔变得可行。这种方法使每次清理操作能够管理更小的数据量，从而减少性能的突然下降并稳定吞吐量。以下图显示了应用摊销方法后，SysBench读写测试吞吐量随时间变化的关系。
 - en: '![image-20240829111542163](../Images/610541c563aaab837488ef4606b2eb1f.png)'
+  id: totrans-288
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829111542163](../Images/610541c563aaab837488ef4606b2eb1f.png)'
 - en: Figure 9-27\. Eliminated performance fluctuations in improved Group Replication.
+  id: totrans-289
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-27. 改进后的组复制中消除的性能波动。
 - en: From the figure, it is evident that after optimizing this part of the logic,
     sudden performance drops have been eliminated. Overall, the solution implemented
     here exemplifies the application of the amortization principle, effectively distributing
     and reducing the impact of the cleaning operations.
+  id: totrans-290
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，优化这部分逻辑后，突然的性能下降已被消除。总体而言，这里实施的解决方案展示了摊销原则的应用，有效地分配和减少了清理操作的影响。
 - en: 9.5.5 Flow Control Avoidance in Group Replication Single-Primary Mode
+  id: totrans-291
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.5.5 组复制单主模式中的流量控制避免
 - en: In Group Replication, the flow control mechanism synchronizes MySQL secondaries
     with the primary node’s pace, preventing the primary from outpacing the secondaries
     and avoiding performance problems like Out-Of-Memory (OOM) situations.
+  id: totrans-292
   prefs: []
   type: TYPE_NORMAL
+  zh: 在组复制中，流量控制机制同步 MySQL 二级节点与主节点的速度，防止主节点超过二级节点，避免出现内存不足（OOM）等性能问题。
 - en: 'To avoid the impact of Group Replication flow control in a single-primary setup,
     consider the following strategies:'
+  id: totrans-293
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了避免单主设置中组复制流量控制的影响，可以考虑以下策略：
 - en: '**Accelerate MySQL Secondary Replay Speed**: Improve the replay speed of transactions
     on MySQL secondaries, especially for large transactions. This helps ensure that
     secondaries can keep up with the primary node, reducing the need for flow control
     interventions.'
+  id: totrans-294
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**加速 MySQL 二级重放速度**：提高 MySQL 二级上事务的重放速度，特别是对于大型事务。这有助于确保二级节点能够跟上主节点的步伐，减少需要流量控制干预的需求。'
 - en: '**Increase Relay Log Writing Speed**: Speed up the process of writing to the
     relay log to prevent the applier queue from growing excessively due to delays
     in writing to disk. This prevents a surge in memory usage, which can trigger flow
     control mechanisms.'
+  id: totrans-295
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**增加中继日志写入速度**：加快写入中继日志的过程，以防止由于写入磁盘的延迟而导致应用队列过度增长。这可以防止内存使用激增，从而触发流量控制机制。'
 - en: By implementing these two strategies in a single-primary Group Replication setup,
     the flow control mechanism imposed by Group Replication can be effectively avoided.
+  id: totrans-296
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过在单个主节点的组复制设置中实施这两种策略，可以有效地避免组复制强加的流量控制机制。
 - en: 9.6 The Complexity Problem of View Change
+  id: totrans-297
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 9.6 视图变化复杂性问题
 - en: When there are changes in the membership of nodes within a Group Replication
     cluster, corresponding view change events occur. These view change events also
     require consensus among a majority of Paxos participants.
+  id: totrans-298
   prefs: []
   type: TYPE_NORMAL
+  zh: 当组复制集群内节点的成员发生变化时，会发生相应的视图变化事件。这些视图变化事件还需要大多数 Paxos 参与者的共识。
 - en: 9.6.1 Theoretical Foundation
+  id: totrans-299
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.6.1 理论基础
 - en: To achieve high availability, incoming payloads should be replicated to multiple
     nodes in the same order. This distribution reduces the burden on the primary secondary,
     allowing another secondary to quickly take over if the primary fails, while preserving
     the original log order even after recovery [43].
+  id: totrans-300
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了实现高可用性，应按相同顺序将传入的有效负载复制到多个节点。这种分布减少了主二级节点的负担，如果主节点失败，另一个二级节点可以快速接管，同时即使在恢复后也能保持原始日志顺序
+    [43]。
 - en: Each reign of different members is assigned a unique view number, establishing
     a total ordering. The system progresses through a series of views, with view changes
     occurring whenever members change. Multiple proposals from different views are
     ordered by their view numbers, with a lower view number indicating an earlier
     occurrence.
+  id: totrans-301
   prefs: []
   type: TYPE_NORMAL
+  zh: 每位不同成员的统治时期都分配了一个唯一的视图编号，从而建立了一个总顺序。系统通过一系列视图进行进展，每当成员发生变化时，都会发生视图变化。来自不同视图的多个提案按其视图编号排序，较低的视图编号表示较早发生。
 - en: In Group Replication, view change is a synchronous process that helps address
     the FLP impossibility problem but introduces new performance jitter problems.
+  id: totrans-302
   prefs: []
   type: TYPE_NORMAL
+  zh: 在组复制中，视图变化是一个同步过程，有助于解决 FLP 不可能性问题，但引入了新的性能抖动问题。
 - en: 9.6.2 The Problem of Simultaneous Multiple View Changes
+  id: totrans-303
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.6.2 同时多次视图变化的问题
 - en: 'The following figure shows the situations of different network partition failures
     [6]:'
+  id: totrans-304
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图显示了不同网络分区故障的情况 [6]：
 - en: '![](../Images/cd60ab86f65abe78e88fd74acc1db26a.png)'
+  id: totrans-305
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/cd60ab86f65abe78e88fd74acc1db26a.png)'
 - en: Figure 9-28\. The types of network partitions.
+  id: totrans-306
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 9-28\. 网络分区类型。
 - en: Network partitions can be categorized into complete, partial, and simplex types.
     When these partitions intersect with other failures or commands triggering view
     changes, it creates complex concurrency challenges. Currently, Group Replication
     lacks effective isolation measures to handle these problems.
+  id: totrans-307
   prefs: []
   type: TYPE_NORMAL
+  zh: 网络分区可以分为完全、部分和单点类型。当这些分区与其他导致视图变更的故障或命令相交时，会创建复杂的并发挑战。目前，组复制缺乏有效的隔离措施来处理这些问题。
 - en: 'Here are some common concurrent view change problems:'
+  id: totrans-308
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里有一些常见的并发视图变更问题：
 - en: '**force_members Command**: This command is incompatible with view changes triggered
     by network jitter. Use it cautiously, especially during severe network instability.'
+  id: totrans-309
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**force_members命令**：此命令与由网络抖动触发的视图变更不兼容。请谨慎使用，尤其是在严重的网络不稳定期间。'
 - en: '**Rapid Node Restarts**: Nodes restarting too quickly can cause view confusion
     if they rejoin before being fully removed. Group Replication attempts to address
     this, but the problem persists.'
+  id: totrans-310
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**快速节点重启**：节点重启过快，如果在完全移除之前重新加入，可能会导致视图混乱。组复制试图解决这个问题，但问题仍然存在。'
 - en: '**Simultaneous Node Additions**: Adding multiple nodes at once can lead to
     view problems.'
+  id: totrans-311
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**同时添加节点**：一次性添加多个节点可能导致视图问题。'
 - en: '**Install View Process Failures**: New failures during the Install view process
     can freeze the entire cluster.'
+  id: totrans-312
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**安装视图过程失败**：在安装视图过程中出现的新故障可以使整个集群冻结。'
 - en: Some view change problems are challenging to mitigate and require significant
     effort to solve, especially due to the lack of theoretical support in this area.
+  id: totrans-313
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些视图变更问题难以缓解，解决它们需要大量的努力，尤其是在这个领域缺乏理论支持。
 - en: 'For the problem where a MySQL node attempts to rejoin the Group Replication
     cluster before its information is fully removed, potentially causing view inconsistencies,
     a solution involves measures similar to TCP’s timewait mechanism:'
+  id: totrans-314
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于MySQL节点在信息尚未完全移除之前尝试重新加入组复制集群，可能造成视图不一致的问题，解决方案涉及类似于TCP的timewait机制的措施：
 - en: When the Group Replication cluster detects that a node is about to be removed
     (using remove_node_type), it informs the Paxos layer to temporarily prevent the
     node from rejoining.
+  id: totrans-315
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 当组复制集群检测到一个节点即将被移除（使用remove_node_type）时，它会通知Paxos层暂时阻止节点重新加入。
 - en: After the node removal process is complete, typically following the install
     view operation, the Paxos layer is notified that the node can proceed with reapplying
     to join the cluster.
+  id: totrans-316
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在节点移除过程完成后，通常在安装视图操作之后，Paxos层被通知节点可以继续重新应用以加入集群。
 - en: This careful process helps minimize view-related problems from premature node
     reentry.
+  id: totrans-317
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个谨慎的过程有助于最小化节点提前重新进入导致的视图相关问题。
 - en: Currently, problems related to concurrent view changes (problems 2 and 3) have
     been addressed, but problems 1 and 4 remain complex and are planned for future
     resolution.
+  id: totrans-318
   prefs: []
   type: TYPE_NORMAL
+  zh: 目前，关于并发视图变更（问题2和3）的问题已经得到解决，但问题1和4仍然复杂，并计划在未来解决。
 - en: 9.6.3 Synchronization Problems with the Install View
+  id: totrans-319
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.6.3 与安装视图的同步问题
 - en: The view change process is more complex than typical Paxos interactions. Once
     consensus is reached on a view change within the Group Replication cluster, the
     cluster must undergo a synchronous “install view” process. This strong synchronization
     can cause the entire cluster to freeze if problems arise during the installation.
+  id: totrans-320
   prefs: []
   type: TYPE_NORMAL
+  zh: 视图变更过程比典型的Paxos交互更复杂。一旦在组复制集群内就视图变更达成共识，集群必须经历一个同步的“安装视图”过程。这种强同步如果在安装过程中出现问题，可能会导致整个集群冻结。
 - en: 9.7 Consistency Problems in Group Replication
+  id: totrans-321
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 9.7 组复制中的一致性问题
 - en: 9.7.1 Read Consistency During Primary Switch in Group Replication
+  id: totrans-322
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.7.1 组复制中主切换期间的读一致性
 - en: In a single-primary group, in the event of a primary failover when a secondary
     is promoted to primary, the new primary can either be made available to application
     traffic immediately, regardless of how large the replication backlog is, or alternatively
     access to it can be restricted until the backlog has been applied [13].
+  id: totrans-323
   prefs: []
   type: TYPE_NORMAL
+  zh: 在单主组中，在发生主故障切换，将一个从节点提升为主节点时，新主节点可以立即对应用流量开放，无论复制积压有多大，或者可以选择在积压被应用后限制对其的访问[13]。
 - en: 'Consistency during failover includes:'
+  id: totrans-324
   prefs: []
   type: TYPE_NORMAL
+  zh: 故障转移期间的一致性包括：
 - en: '**RW Transactions**: Wait for all preceding transactions to complete before
     being applied.'
+  id: totrans-325
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**RW事务**：在应用之前等待所有先前的交易完成。'
 - en: '**RO Transactions**: Wait for preceding transactions to complete before execution,
     ensuring they read the latest data.'
+  id: totrans-326
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**RO事务**：在执行之前等待先前的交易完成，确保它们读取最新的数据。'
 - en: New transactions on a newly elected primary are held until the backlog is applied,
     guaranteeing that clients see the latest values. This approach prioritizes consistency
     but may introduce delays depending on the backlog size.
+  id: totrans-327
   prefs: []
   type: TYPE_NORMAL
+  zh: 在新选出的主节点上，新事务将保持直到积压的事务被应用，确保客户端看到最新的值。这种方法优先考虑一致性，但可能会根据积压的大小引入延迟。
 - en: 'To elegantly solve the problem of reading dirty data during the primary switch
     process, the following measures can be implemented:'
+  id: totrans-328
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了优雅地解决主节点切换过程中读取脏数据的问题，可以实施以下措施：
 - en: '**Accelerate Replay Speed**: Enhance the replay speed of MySQL secondaries
     to ensure they catch up with the primary as quickly as possible. This minimizes
     the window during which stale data might be read.'
+  id: totrans-329
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**加速重放速度**：增强 MySQL 从节点的重放速度，确保它们尽可能快地赶上主节点。这最小化了可能读取旧数据的窗口。'
 - en: '**Optimized Leader Election**: During leader election, choose the node with
     the fastest replay progress among MySQL secondaries. This reduces the waiting
     time for the primary switch, ensuring a quicker transition and more up-to-date
     data availability.'
+  id: totrans-330
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**优化领导者选举**：在领导者选举过程中，选择 MySQL 从节点中具有最快重放进度的节点。这减少了主节点切换的等待时间，确保更快的过渡和更及时的数据可用性。'
 - en: 9.7.2 Consistency Problems in Write Operations
+  id: totrans-331
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.7.2 写操作中的一致性问题和
 - en: 'The ‘after’ mechanism in Group Replication aims for near-complete synchronization
     between the MySQL primary and secondaries, achieving strong synchronization. This
     requires synchronization at both the Paxos and replay levels, leading to longer
     user response times. Users opting for this strong synchronization should be aware
     of the following risks:'
+  id: totrans-332
   prefs: []
   type: TYPE_NORMAL
+  zh: Group Replication 中的“之后”机制旨在实现 MySQL 主节点和从节点之间的几乎完全同步，达到强同步。这需要在 Paxos 和重放级别进行同步，导致用户响应时间更长。选择这种强同步的用户应了解以下风险：
 - en: Performance fluctuations.
+  id: totrans-333
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 性能波动。
 - en: User commit response times may not meet performance requirements.
+  id: totrans-334
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 用户提交响应时间可能无法满足性能要求。
 - en: The ‘after’ mechanism is currently immature; during testing, many instances
     have shown MySQL nodes remaining in a recovering state for extended periods. The
     root cause lies in the adoption of a new ticket mechanism to address the ‘after’
     problem, which is overly complex and insufficiently effective.
+  id: totrans-335
   prefs: []
   type: TYPE_NORMAL
+  zh: “之后”机制目前还不成熟；在测试期间，许多实例显示 MySQL 节点长时间处于恢复状态。根本原因在于采用新的票据机制来解决“之后”问题，该机制过于复杂且效果不足。
 - en: In practical applications, it is not recommended to use strong consistency writes
     based on the ‘after’ mechanism. Although this mechanism ensures no data loss,
     the CAP theorem dictates that such mechanisms do not guarantee availability.
+  id: totrans-336
   prefs: []
   type: TYPE_NORMAL
+  zh: 在实际应用中，不建议使用基于“之后”机制的强一致性写入。尽管此机制确保没有数据丢失，但 CAP 定理规定此类机制不能保证可用性。
 - en: This book prefers and recommends mechanisms based on Paxos log persistence.
     These mechanisms not only offer lower and more predictable response times but
     also far surpass the scalability of the ‘after’ mechanism. The following figure
     compares the throughput of TPC-C with concurrency levels between the strong synchronization
     mechanism based on ‘after’ and the Paxos log persistence mechanism.
+  id: totrans-337
   prefs: []
   type: TYPE_NORMAL
+  zh: 这本书推荐基于 Paxos 日志持久性的机制。这些机制不仅提供更低且更可预测的响应时间，而且远远超过了“之后”机制的扩展性。以下图表比较了基于“之后”的强同步机制和
+    Paxos 日志持久性机制的 TPC-C 吞吐量。
 - en: '![image-20240829111619905](../Images/44b640125b9afe49973ceda3c84f357a.png)'
+  id: totrans-338
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829111619905](../Images/44b640125b9afe49973ceda3c84f357a.png)'
 - en: Figure 9-29\. Group Replication with Paxos Log Persistence vs. Strong Synchronization
     Mechanism.
+  id: totrans-339
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 9-29\. 基于 Paxos 日志持久性的组复制与强同步机制的比较。
 - en: From the figure, it can be seen that the mechanism based on Paxos log persistence
     significantly outperforms the strong synchronization mechanism based on ‘after’.
+  id: totrans-340
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，基于 Paxos 日志持久性的机制在性能上显著优于基于“之后”的强同步机制。
 - en: 9.8 Comparison of Group Replication with Other Replication Mechanisms
+  id: totrans-341
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 9.8 组复制与其他复制机制的比较
 - en: 9.8.1 Comparison Tests Under Different Network Latency Conditions
+  id: totrans-342
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.8.1 不同网络延迟条件下的比较测试
 - en: 'A MySQL cluster can be deployed in various environments, and understanding
     the pros and cons of each helps in making informed decisions. Performance comparisons
     under different network latency conditions were conducted for four solutions:
     asynchronous replication, semisynchronous replication, Group Replication, and
     Group Replication with Paxos log persistence, using an improved version of MySQL.'
+  id: totrans-343
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL集群可以在各种环境中部署，了解每种环境的优缺点有助于做出明智的决定。在改进版的MySQL下，对四种解决方案（异步复制、半同步复制、组复制和具有Paxos日志持久化的组复制）在不同网络延迟条件下的性能进行了比较。
 - en: 'The following figure compares the throughput of SysBench read/write tests with
     varying concurrency levels under different replication schemes in a 1ms network
     latency scenario:'
+  id: totrans-344
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图比较了在1ms网络延迟场景下，不同复制方案下SysBench读/写测试的吞吐量。
 - en: '![image-20240829111645952](../Images/93f772e933205d22920937fc1e93c56a.png)'
+  id: totrans-345
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829111645952](../Images/93f772e933205d22920937fc1e93c56a.png)'
 - en: Figure 9-30\. Throughput comparison of SysBench Read/Write tests with varying
     concurrency levels under different replication schemes at 1ms network latency.
+  id: totrans-346
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-30。在1ms网络延迟下，不同复制方案下SysBench读/写测试的吞吐量比较。
 - en: Asynchronous replication offers the best throughput since it does not require
     MySQL secondary ACK confirmation, but it cannot guarantee high availability. Group
     Replication, by achieving consensus at the in-memory Paxos layer and ensuring
@@ -1694,64 +2407,93 @@
     much better performance compared to semisynchronous mechanisms. Group Replication
     with Paxos log persistence shows similar performance to Group Replication, benefiting
     from batch processing of Paxos entries and enhanced SSD hardware performance.
+  id: totrans-347
   prefs: []
   type: TYPE_NORMAL
+  zh: 异步复制提供了最佳的吞吐量，因为它不需要MySQL从节点ACK确认，但它不能保证高可用性。通过在内存中的Paxos层达成共识并确保事务批量共识，组复制提供了显著的优势，并且与半同步机制相比，表现出更好的性能。具有Paxos日志持久化的组复制与组复制表现出相似的性能，得益于Paxos条目的批量处理和增强的SSD硬件性能。
 - en: Semisynchronous replication, on the other hand, processes events sequentially.
     Since a transaction involves multiple events, it leads to high CPU processing
     delays. According to queueing theory, the wait time in semisynchronous replication
     is significantly higher compared to other solutions, resulting in poorer throughput.
+  id: totrans-348
   prefs: []
   type: TYPE_NORMAL
+  zh: 相反，半同步复制按顺序处理事件。由于一个事务涉及多个事件，这会导致高CPU处理延迟。根据排队论，半同步复制中的等待时间与其他解决方案相比显著更高，导致吞吐量较差。
 - en: The following figure illustrates the comparison of response times for the 4
     solutions across different concurrency levels.
+  id: totrans-349
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图展示了在不同并发级别下4种解决方案的响应时间比较。
 - en: '![image-20240829111711642](../Images/cf6cc54f64e74f7ea3bd5630f07ff3f0.png)'
+  id: totrans-350
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829111711642](../Images/cf6cc54f64e74f7ea3bd5630f07ff3f0.png)'
 - en: Figure 9-31\. Response time comparison of SysBench Read/Write tests with varying
     concurrency levels under different replication schemes at 1ms network latency.
+  id: totrans-351
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-31。在1ms网络延迟下，不同复制方案下SysBench读/写测试的响应时间比较。
 - en: From the figure, it is clear that semisynchronous replication exhibits the worst
     response time, while asynchronous replication shows the best performance, which
     is consistent with expectations.
+  id: totrans-352
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，半同步复制的响应时间最差，而异步复制表现出最佳性能，这与预期一致。
 - en: 'When network latency is increased to 10ms, the following figure illustrates
     the specific performance comparisons:'
+  id: totrans-353
   prefs: []
   type: TYPE_NORMAL
+  zh: 当网络延迟增加到10ms时，以下图展示了具体的性能比较。
 - en: '![image-20240829111732678](../Images/16815385309ec89b5ff7d92a52167bd3.png)'
+  id: totrans-354
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829111732678](../Images/16815385309ec89b5ff7d92a52167bd3.png)'
 - en: Figure 9-32\. Throughput comparison of SysBench Read/Write tests with varying
     concurrency levels under different replication schemes at 10ms network latency.
+  id: totrans-355
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-32。在10ms网络延迟下，不同复制方案下SysBench读/写测试的吞吐量比较。
 - en: From the figure, it is clear that asynchronous replication offers the best throughput.
     It achieves significantly higher throughput and maintains relatively stable response
     times despite network latency, making it a preferred choice for deployments across
     cities or regions.
+  id: totrans-356
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，异步复制提供了最佳的吞吐量。它实现了显著更高的吞吐量，并且在网络延迟的情况下保持了相对稳定的响应时间，使其成为跨城市或区域部署的首选选择。
 - en: In scenarios with long network latencies (10ms), the processing delay of MySQL
     secondaries is less of a bottleneck for both semisynchronous replication and Group
     Replication. However, semisynchronous replication lags behind Group Replication
     in throughput due to its less efficient event processing mechanism.
+  id: totrans-357
   prefs: []
   type: TYPE_NORMAL
+  zh: 在网络延迟较长（10ms）的场景中，MySQL 从库的处理延迟对于半同步复制和 Group Replication 来说都不是瓶颈。然而，由于事件处理机制效率较低，半同步复制的吞吐量在
+    Group Replication 之下。
 - en: At the same time, a comparison was made among the 4 different solutions in terms
     of response time.
+  id: totrans-358
   prefs: []
   type: TYPE_NORMAL
+  zh: 同时，对 4 种不同的解决方案在响应时间方面的比较进行了评估。
 - en: '![image-20240829111753566](../Images/dbdfe1490b5ef27330131c66b81872a7.png)'
+  id: totrans-359
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829111753566](../Images/dbdfe1490b5ef27330131c66b81872a7.png)'
 - en: Figure 9-33\. Response time comparison of SysBench Read/Write tests with varying
     concurrency levels under different replication schemes at 10ms network latency.
+  id: totrans-360
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 9-33\. 在 10ms 网络延迟下，不同复制方案下 SysBench Read/Write 测试的响应时间比较。
 - en: From the figure, it is clear that at low concurrency levels, asynchronous replication
     has the lowest response time. However, as concurrency increases, the performance
     gap between asynchronous replication and Group Replication narrows. Semisynchronous
@@ -1759,98 +2501,141 @@
     Theoretically, Group Replication with Paxos log persistence could fully replace
     semisynchronous replication, offering improved performance while retaining the
     high availability benefits of Group Replication.
+  id: totrans-361
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在低并发级别下，异步复制的响应时间最低。然而，随着并发性的增加，异步复制与 Group Replication 之间的性能差距缩小。在所有解决方案中，半同步复制始终显示出最高的响应时间。理论上，带有
+    Paxos 日志持久性的 Group Replication 可以完全替代半同步复制，提供改进的性能，同时保留 Group Replication 的高可用性优势。
 - en: 9.8.2 Group Replication with Paxos Log Persistence vs. Other Replication Methods
+  id: totrans-362
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 9.8.2 带有 Paxos 日志持久性的 Group Replication 与其他复制方法的比较
 - en: 'In the same data center environment, TPC-C tests using BenchmarkSQL were performed
     to compare the throughput against concurrency levels for semisynchronous replication,
     Group Replication with Paxos log persistence, and asynchronous replication. Specific
     details are illustrated in the following figure:'
+  id: totrans-363
   prefs: []
   type: TYPE_NORMAL
+  zh: 在相同的数据中心环境中，使用 BenchmarkSQL 进行的 TPC-C 测试用于比较半同步复制、带有 Paxos 日志持久性的 Group Replication
+    和异步复制的吞吐量与并发级别。具体细节在以下图中展示：
 - en: '![image-20240829111911455](../Images/af1c2e76b6edf491f822846859a8ee10.png)'
+  id: totrans-364
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829111911455](../Images/af1c2e76b6edf491f822846859a8ee10.png)'
 - en: Figure 9-34\. Throughput comparison of BenchmarkSQL tests with varying concurrency
     levels under different replication schemes.
+  id: totrans-365
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 9-34\. 不同复制方案下，BenchmarkSQL 测试的吞吐量与不同并发级别的比较。
 - en: From the figure, it is evident that in the same data center environment, asynchronous
     replication achieves the highest throughput, though the difference compared to
     Group Replication is not substantial. The trade-off of some performance for higher
     availability with Group Replication is often worthwhile. Compared to Group Replication
     with Paxos log persistence, semisynchronous replication significantly lags in
     performance.
+  id: totrans-366
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在相同的数据中心环境中，异步复制实现了最高的吞吐量，尽管与 Group Replication 相比，差异并不显著。为了提高可用性而牺牲一些性能，对于
+    Group Replication 来说通常是值得的。与带有 Paxos 日志持久性的 Group Replication 相比，半同步复制在性能上明显落后。
 - en: In terms of ease of use, semisynchronous replication is simpler, especially
     with fewer MySQL instances. However, as the number of instances increases, managing
     semisynchronous replication becomes more complex due to the potential for more
     corner cases and failures.
+  id: totrans-367
   prefs: []
   type: TYPE_NORMAL
+  zh: 在易用性方面，半同步复制更简单，尤其是在 MySQL 实例较少的情况下。然而，随着实例数量的增加，由于可能出现更多边缘情况和故障，管理半同步复制变得更加复杂。
 - en: 9.9 Scalability of Group Replication
+  id: totrans-368
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 9.9 Group Replication 的可伸缩性
 - en: The Paxos algorithm’s dependence on majority agreement slows decision-making,
     as each decision requires round trips to many participants [29]. This communication
     and synchronization cost introduces significant overhead, resulting in lower request
     rates for state-machine replication compared to non-replicated systems.
+  id: totrans-369
   prefs: []
   type: TYPE_NORMAL
+  zh: Paxos 算法对多数一致性的依赖会减慢决策过程，因为每个决策都需要往返于许多参与者之间 [29]。这种通信和同步成本引入了显著的开销，导致与未复制系统相比，状态机复制的请求数率较低。
 - en: After reviewing the content, use the modified tpcc-mysql tool to compare the
     throughput between a standalone server and a Group Replication setup. This comparison
     will help assess the limits of Group Replication’s capabilities.
+  id: totrans-370
   prefs: []
   type: TYPE_NORMAL
+  zh: 在审查完内容后，使用修改后的tpcc-mysql工具来比较独立服务器和组复制设置之间的吞吐量。这种比较将有助于评估组复制功能的限制。
 - en: '![image-20240829111935904](../Images/acf349e428ec423e658596f19f92a93a.png)'
+  id: totrans-371
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829111935904](../Images/acf349e428ec423e658596f19f92a93a.png)'
 - en: Figure 9-35\. The limits of Group Replication’s capabilities.
+  id: totrans-372
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-35. 组复制功能的限制。
 - en: From the figure, it is clear that there is still potential for improving the
     throughput of a standalone MySQL instance. Group Replication adds extra queue
     delays, with throughput peaking at 200 concurrency. Further increases in throughput
     are challenging given the current hardware environment.
+  id: totrans-373
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，独立MySQL实例的吞吐量仍有提升空间。组复制增加了额外的队列延迟，吞吐量峰值达到200并发。在当前硬件环境下，进一步提高吞吐量具有挑战性。
 - en: Group Replication faces a throughput ceiling influenced by hardware capabilities,
     the synchronization cost of Paxos, and the single-threaded processing limits of
     XCom. In contrast, standalone MySQL shows better scalability and achieves higher
     throughput.
+  id: totrans-374
   prefs: []
   type: TYPE_NORMAL
+  zh: 组复制面临由硬件能力、Paxos的同步成本和XCom的单线程处理限制所决定的吞吐量上限。相比之下，独立的MySQL显示出了更好的可伸缩性，并实现了更高的吞吐量。
 - en: Involving most participants in each decision places a high load on the network
     between participants and the leader. As a result, systems are often limited to
     five or seven participants, as each additional participant substantially decreases
     overall performance [29].
+  id: totrans-375
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个决策都涉及大多数参与者，这给参与者和领导者之间的网络带来了高负载。因此，系统通常限制在五到七个参与者，因为每个额外的参与者都会显著降低整体性能[29]。
 - en: 'How does Group Replication’s scalability fare with increasing numbers of nodes?
     Due to the underlying Paxos communication being based on a single-threaded model,
     adding more nodes theoretically weakens processing capability. In the same data
     center environment, cluster tests were conducted with 3 nodes, 5 nodes, 7 nodes,
     and 9 nodes as shown in the figure below:'
+  id: totrans-376
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着节点数量的增加，组复制的可伸缩性如何？由于底层Paxos通信基于单线程模型，增加更多节点理论上会削弱处理能力。在同一数据中心环境中，进行了3节点、5节点、7节点和9节点的集群测试，如图下所示：
 - en: '![image-20240829111959287](../Images/256c5a444d90f9bba30e8cb9193dc8ee.png)'
+  id: totrans-377
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829111959287](../Images/256c5a444d90f9bba30e8cb9193dc8ee.png)'
 - en: Figure 9-36\. Scalability of Group Replication across different node configurations.
+  id: totrans-378
   prefs: []
   type: TYPE_NORMAL
+  zh: 图9-36. 不同节点配置下组复制的可伸缩性。
 - en: 'From the figure, it can be seen that the throughput of the 7-node cluster is
     still acceptable, but there is a significant drop in throughput with 9 nodes compared
     to 7 nodes. These tests were conducted in the same data center environment, which
     may not represent all scenarios. However, it highlights a concern: as the number
     of nodes increases, the scalability of Group Replication may be affected.'
+  id: totrans-379
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，7节点集群的吞吐量仍然可以接受，但与7节点相比，9节点的吞吐量有显著下降。这些测试是在同一数据中心环境中进行的，可能不代表所有场景。然而，它突显了一个担忧：随着节点数量的增加，组复制的可伸缩性可能会受到影响。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter10.html)'
+  id: totrans-380
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一页](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter10.html)'

@@ -1,24 +1,34 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 《软件工程中的问题解决艺术——如何让MySQL更佳》
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter5.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter5.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter5.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter5.html)
 - en: 'Chapter 5: MySQL Internals'
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第5章：MySQL内部结构
 - en: To address the numerous problems inherent in MySQL, it is essential to have
     a solid foundation of knowledge related to MySQL. This chapter provides detailed
     explanations of MySQL core fundamentals.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决MySQL中固有的众多问题，掌握与MySQL相关的扎实知识基础至关重要。本章提供了MySQL核心基础知识的详细解释。
 - en: 5.1 The “Storage Stack” of InnoDB
+  id: totrans-4
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.1 InnoDB的“存储栈”
 - en: The following figure depicts the InnoDB storage stack from a developer’s perspective.
     The upper layer primarily consists of the SQL layer, while the lower layer comprises
     the InnoDB storage engine layer with transaction capabilities. Interaction between
@@ -26,41 +36,59 @@
     InnoDB storage engine primarily includes the transaction layer and the mini-transaction
     layer. InnoDB interacts with the operating system through system functions, and
     the operating system interacts with the hardware.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图从开发者的角度描述了InnoDB存储栈。上层主要包含SQL层，而下层由具有事务能力的InnoDB存储引擎层组成。SQL层与InnoDB存储引擎层之间的交互通过接口进行。InnoDB存储引擎主要包括事务层和迷你事务层。InnoDB通过系统函数与操作系统交互，操作系统与硬件交互。
 - en: '![](../Images/91096b34b517bc15cea58a69f18b3a42.png)'
+  id: totrans-6
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/91096b34b517bc15cea58a69f18b3a42.png)'
 - en: Figure 5-1\. The InnoDB Storage Stack.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 图5-1\. InnoDB存储栈。
 - en: In the InnoDB storage engine, changes are applied through mini-transactions
     (mtr), which enable atomic modifications across multiple pages. This approach
     maintains data consistency during concurrent transactions and database anomalies.
     Since a single transaction often involves changes to multiple pages, mini-transactions
     ensure page-level consistency, meaning a single transaction typically comprises
     multiple mini-transactions.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 在InnoDB存储引擎中，更改通过迷你事务（mtr）应用，这允许跨多个页面的原子修改。这种方法在并发事务和数据库异常期间保持数据一致性。由于单个事务通常涉及多个页面的更改，迷你事务确保页面级一致性，这意味着单个事务通常包含多个迷你事务。
 - en: The figure below illustrates the function call stack relationship between transactions
     and mini-transactions, showing how transactions use mini-transactions to execute
     low-level operations.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图展示了事务与迷你事务之间的函数调用栈关系，展示了事务如何使用迷你事务执行低级操作。
 - en: '![](../Images/5eabfef4a07c9d88d726c35feff2c693.png)'
+  id: totrans-10
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/5eabfef4a07c9d88d726c35feff2c693.png)'
 - en: Figure 5-2\. Call stack relationship between transactions and mini-transactions.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 图5-2\. 事务与迷你事务之间的调用栈关系。
 - en: It should be emphasized that the transaction layer and the mini-transaction
     layer together implement the functionality of a complete transaction.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 应该强调的是，事务层和迷你事务层共同实现了完整事务的功能。
 - en: 5.2 Transactions
+  id: totrans-13
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.2 事务
 - en: The ACID model outlines key database design principles essential for business
     data and mission-critical applications. MySQL, with components like the InnoDB
     storage engine, adheres closely to the ACID model to ensure data integrity and
@@ -70,97 +98,134 @@
     additional safeguards exist, ultra-reliable hardware is used, or minor data loss
     or inconsistency is acceptable, MySQL settings can be adjusted to trade some ACID
     reliability for increased performance or throughput [13].
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: ACID模型概述了关键数据库设计原则，这些原则对于商业数据和关键任务应用至关重要。MySQL，如InnoDB存储引擎等组件，严格遵循ACID模型，以确保数据完整性，防止在软件崩溃和硬件故障等异常情况下数据损坏。依赖ACID兼容功能消除了自定义一致性检查和崩溃恢复机制的需求。然而，在存在额外安全措施、使用超可靠硬件或可接受轻微数据丢失或不一致的情况下，MySQL设置可以调整以在ACID可靠性和性能或吞吐量之间进行权衡[13]。
 - en: 'To implement a transaction, the following ACID properties must be satisfied:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 要实现事务，必须满足以下ACID属性：
 - en: '**Atomicity**: Ensures “all or nothing” semantics, meaning either all operations
     of a transaction are completed, or none are. This aspect mainly involves InnoDB
     transactions.'
+  id: totrans-16
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**原子性**：确保“全有或全无”的语义，意味着事务的所有操作要么全部完成，要么一个都不完成。这一方面主要涉及 InnoDB 事务。'
 - en: '**Consistency**: Requires every transaction to maintain the predetermined integrity
     rules of the database, transforming it from one consistent state to another. Consistency
     is ensured by the DBMS and involves internal InnoDB processing to protect data
     from crashes.'
+  id: totrans-17
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**一致性**：要求每个事务都维护数据库预定的完整性规则，将其从一种一致状态转换为另一种状态。一致性由数据库管理系统保证，并涉及 InnoDB 的内部处理以保护数据免受崩溃的影响。'
 - en: '**Isolation**: Prevents transactions from interfering with each other, ensuring
     incomplete transactions are not visible to others. Isolation is primarily managed
     through InnoDB transactions and the isolation level applied to each transaction.'
+  id: totrans-18
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**隔离性**：防止事务相互干扰，确保未完成的事务对其他人不可见。隔离性主要通过 InnoDB 事务和每个事务应用的隔离级别来管理。'
 - en: '**Durability**: Guarantees that once a transaction is committed, it remains
     so, even in the event of a crash. This aspect involves MySQL software features
     and the hardware configuration, and it is the most complex to provide specific
     guidelines for.'
+  id: totrans-19
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**持久性**：保证一旦事务提交，它就会保持这种状态，即使在崩溃的情况下也是如此。这一方面涉及 MySQL 软件功能和硬件配置，并且是提供具体指南最复杂的方面。'
 - en: 'In the InnoDB storage engine:'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 InnoDB 存储引擎中：
 - en: '**Transaction Layer**:'
+  id: totrans-21
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**事务层**：'
 - en: '**Atomicity, Consistency, and Isolation**: Achieved through locks and ReadView.'
+  id: totrans-22
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**原子性、一致性和隔离性**：通过锁和 ReadView 实现。'
 - en: '**Cross-Engine Atomic Commits**: Implemented using XA Two-Phase Commit (2PC),
     ensuring atomicity between SQL layer binlogs and InnoDB redo logs, forming the
     basis for crash recovery.'
+  id: totrans-23
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**跨引擎原子提交**：使用 XA 两阶段提交（2PC）实现，确保 SQL 层 binlog 和 InnoDB 重做日志之间的原子性，形成崩溃恢复的基础。'
 - en: '**Mini-Transaction Layer**:'
+  id: totrans-24
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**最小事务层**：'
 - en: '**Atomic, Consistent, and Durable Modifications**: Managed through interactions
     with redo/undo logs across multiple pages, supporting crash recovery.'
+  id: totrans-25
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**原子性、一致性和持久性修改**：通过跨多个页面的重做/回滚日志交互进行管理，支持崩溃恢复。'
 - en: Overall, atomicity, consistency, and durability are jointly achieved through
     both the mini-transaction and transaction layers, while isolation is mainly managed
     at the transaction layer.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 总体而言，原子性、一致性和持久性是通过最小事务层和事务层共同实现的，而隔离性主要在事务层管理。
 - en: In InnoDB, each transaction is assigned a transaction ID that strictly increases
     in chronological order. Transaction IDs are generated not only by external transactions
     but also by various internal operations within MySQL, such as GTID updates triggering
     internal transactions for persistence.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 InnoDB 中，每个事务都被分配一个事务 ID，该 ID 严格按照时间顺序严格递增。事务 ID 不仅由外部事务生成，还由 MySQL 内部的各种操作生成，例如
+    GTID 更新触发内部事务以实现持久性。
 - en: 5.3 Concurrency Control
+  id: totrans-28
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.3 并发控制
 - en: High-performance transactional systems require concurrent transactions to meet
     performance demands. Without concurrency control, these systems cannot provide
     correct results or maintain consistent databases [45].
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 高性能事务系统需要并发事务以满足性能需求。没有并发控制，这些系统无法提供正确的结果或维护一致的数据[45]。
 - en: Concurrency control allows end-users to access a database simultaneously while
     maintaining the illusion that each transaction runs independently on a dedicated
     system, ensuring atomicity and isolation.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 并发控制允许最终用户同时访问数据库，同时保持每个事务似乎在专用系统上独立运行的错觉，确保原子性和隔离性。
 - en: Two-phase locking (2PL) was the first proven method for ensuring the correct
     execution of concurrent transactions in a database system. Under 2PL, transactions
     must acquire locks on database elements before reading or writing them. A transaction
     needs a read lock to read an element and a write lock to modify it.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 两阶段锁定（2PL）是确保数据库系统中并发事务正确执行的第一种已证明的方法。在 2PL 下，事务必须在读取或写入数据库元素之前获取对这些元素的锁。一个事务需要一个读锁来读取一个元素，需要一个写锁来修改它。
 - en: Online Transaction Processing (OLTP) systems rely on concurrency control protocols
     to ensure the serializability of concurrently executed transactions. When two
     parallel transactions attempt to access the same data item, the concurrency control
@@ -170,202 +235,283 @@
     locks (shared or exclusive) before releasing any. Validation-based protocols,
     such as optimistic concurrency control (OCC), execute a transaction with potentially
     stale or uncommitted data and validate for serializability before committing [51].
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 在线事务处理（OLTP）系统依赖于并发控制协议来确保并发执行的事务的串行化。当两个并行事务尝试访问相同的数据项时，并发控制协议会协调它们的访问以保持串行化。不同的协议以各种方式实现这一点。基于锁的协议，如两阶段锁（2PL），将锁与每个数据项关联。在释放任何锁之前，事务必须获取所有必要的锁（共享或独占）。基于验证的协议，如乐观并发控制（OCC），使用可能过时或未提交的数据执行事务，并在提交前验证其串行化
+    [51]。
 - en: It is worth noting that concurrency control is only one of the several aspects
     of a DBMS that affects scalability [51].
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL的默认隔离级别是可重复读。在这个级别上，事务开始时获取一个ReadView，确保整个事务中数据读取的一致性。该机制使用ReadView中的事务ID信息从回滚日志中获取指定的数据版本，以保持数据一致性。
 - en: 5.4 Transaction Isolation Level
+  id: totrans-34
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.4 事务隔离级别
 - en: Transaction isolation is fundamental to database processing. Isolation, the
     “I” in ACID, balances performance, reliability, consistency, and reproducibility
     when multiple transactions occur simultaneously [45]. In InnoDB, the traditional
     four transaction isolation levels are implemented, focusing here on Repeatable
     Read (RR), Read Committed (RC), and Serializable levels.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 事务隔离是数据库处理的基本要素。隔离，ACID中的“I”，在多个事务同时发生时平衡性能、可靠性、一致性和可重复性 [45]。在InnoDB中，实现了传统的四个事务隔离级别，这里主要关注可重复读（RR）、可重复读（RC）和可串行化级别。
 - en: MySQL’s default isolation level is Repeatable Read. In this level, a ReadView
     is obtained at the start of the transaction, ensuring consistent data reads throughout.
     The mechanism uses transaction ID information from ReadView to fetch the specified
     data version from the undo log, maintaining data consistency.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得注意的是，并发控制只是影响数据库管理系统可扩展性的几个方面之一 [51]。
 - en: The most commonly used isolation level in MySQL is Read Committed, which is
     also Oracle’s default. All TPC-C tests in this book use the Read Committed level.
     In Read Committed, each read operation in a transaction acquires a corresponding
     ReadView, potentially resulting in different data for identical reads if concurrent
     modifications occur.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL中最常用的隔离级别是可重复读（Read Committed），这也是Oracle的默认设置。本书中所有TPC-C测试都使用可重复读级别。在可重复读中，事务中的每个读操作都会获取一个相应的ReadView，如果发生并发修改，可能会导致相同读取操作的数据不同。
 - en: Serializable isolation provides the strongest form of isolation, similar to
     serial execution. However, Serializable isolation does not mandate serial execution;
     transactions can execute in parallel if they do not conflict.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 可串行化隔离提供了最强的隔离形式，类似于串行执行。然而，可串行化隔离并不强制执行串行执行；如果事务不冲突，它们可以并行执行。
 - en: 5.5 MVCC
+  id: totrans-39
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.5 MVCC
 - en: Due to performance and other considerations, databases rarely implement isolation
     levels based solely on locks. The MVCC + lock method is the most popular implementation,
     as it allows read requests without locking.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于性能和其他考虑因素，数据库很少仅基于锁来实现隔离级别。MVCC + 锁的方法是最流行的实现方式，因为它允许在不锁定的情况下读取请求。
 - en: Under MVCC (Multi-Version Concurrency Control), each write operation creates
     a new version of a tuple, tagged with the transaction’s timestamp. The DBMS maintains
     a list of versions for each element, determining which version a transaction will
     access during read operations. This ensures a serializable ordering of operations
     and prevents the rejection of read operations due to overwritten data.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 在MVCC（多版本并发控制）下，每个写操作都会创建一个元组的新版本，并带有事务的时间戳标记。数据库管理系统为每个元素维护一个版本列表，确定事务在读取操作期间将访问哪个版本。这确保了操作的串行化顺序，并防止由于数据被覆盖而拒绝读取操作。
 - en: InnoDB, a multi-version storage engine, keeps old versions of changed rows to
     support concurrency and rollback. This information is stored in undo tablespaces
     within rollback segments, which contain insert and update undo logs. Insert undo
     logs are needed only for transaction rollbacks and can be discarded upon commit.
     Update undo logs are used for consistent reads and can be discarded only when
     no transaction requires them for building an earlier version of a row.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: InnoDB，一个多版本存储引擎，保留已更改行的旧版本以支持并发和回滚。这些信息存储在回滚段内的撤销表空间中，其中包含插入和更新撤销日志。插入撤销日志仅用于事务回滚，提交后可以丢弃。更新撤销日志用于一致性读取，只能在没有事务需要它们来构建行的早期版本时才能丢弃。
 - en: Regularly committing transactions, including those with consistent reads, is
     recommended to prevent the rollback segment from growing excessively and filling
     up the undo tablespace in which it resides [13].
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 建议定期提交事务，包括具有一致性读取的事务，以防止回滚段过度增长并填满其所在的撤销表空间[13]。
 - en: 5.6 InnoDB Architecture
+  id: totrans-44
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.6 InnoDB架构
 - en: The following diagram illustrates the in-memory and on-disk structures that
     comprise the InnoDB storage engine architecture.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下图示说明了构成InnoDB存储引擎架构的内存和磁盘结构。
 - en: '![](../Images/93a8187af3ee6fb46ec37fcdc1f29026.png)'
+  id: totrans-46
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/93a8187af3ee6fb46ec37fcdc1f29026.png)'
 - en: Figure 5-3\. InnoDB Architecture borrowed from the official MySQL documentation.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 图5-3\. 从官方MySQL文档借用的InnoDB架构。
 - en: '**In-Memory Structures**'
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: '**内存结构**'
 - en: '**Buffer Pool**:'
+  id: totrans-49
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**缓冲池**:'
 - en: Caches table and index data in main memory, allowing frequently accessed data
     to be read directly from memory, speeding up processing.
+  id: totrans-50
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在主内存中缓存表和索引数据，允许频繁访问的数据直接从内存中读取，从而加快处理速度。
 - en: Divided into pages to hold multiple rows, managed using a linked list and a
     variation of the least recently used (LRU) algorithm.
+  id: totrans-51
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 分为页面以容纳多个行，使用链表和LRU（最近最少使用）算法的变体进行管理。
 - en: Key aspect of MySQL tuning for efficient high-volume read operations.
+  id: totrans-52
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: MySQL调优的关键方面，以实现高效的高容量读取操作。
 - en: '**Log Buffer**:'
+  id: totrans-53
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**日志缓冲区**:'
 - en: Holds data to be written to the log files on disk, periodically flushed to disk.
+  id: totrans-54
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 存储要写入磁盘的日志文件中的数据，定期刷新到磁盘。
 - en: A larger log buffer allows large transactions to run without writing redo log
     data to disk before committing, reducing disk I/O.
+  id: totrans-55
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 较大的日志缓冲区允许在提交前不将重做日志数据写入磁盘，从而减少磁盘I/O。
 - en: Controlled by the **innodb_flush_log_at_trx_commit** variable.
+  id: totrans-56
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 由**innodb_flush_log_at_trx_commit**变量控制。
 - en: '**On-Disk Structures**'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: '**磁盘结构**'
 - en: '**Doublewrite Buffer**:'
+  id: totrans-58
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**双写缓冲区**:'
 - en: An intermediate storage area where pages from the buffer pool are written before
     their final position in InnoDB data files.
+  id: totrans-59
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 一个中间存储区域，在页面最终写入InnoDB数据文件之前，从缓冲池中写入页面。
 - en: Ensures recovery from partial writes due to system crashes or unexpected shutdowns.
+  id: totrans-60
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 确保从系统崩溃或意外关闭导致的部分写入中恢复。
 - en: Efficient as it doesn’t double the I/O overhead despite data being written twice.
+  id: totrans-61
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 尽管数据被写入两次，但效率高，不会加倍I/O开销。
 - en: '**Redo Log**:'
+  id: totrans-62
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**重做日志**:'
 - en: Disk-based structure used for crash recovery, correcting data from incomplete
     transactions.
+  id: totrans-63
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 用于崩溃恢复的基于磁盘的结构，纠正不完整事务的数据。
 - en: Encodes changes from SQL statements or low-level API calls; replayed automatically
     during initialization after a crash.
+  id: totrans-64
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 编码来自SQL语句或低级API调用的更改；在崩溃后初始化期间自动重放。
 - en: Optimizes random writes into sequential log writes (ARIES algorithm) [2], improving
     performance.
+  id: totrans-65
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 通过ARIES算法优化随机写入到顺序日志写入（提高性能）[2]。
 - en: Redo log files are crucial for acknowledging transaction completion.
+  id: totrans-66
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 重做日志文件对于确认事务完成至关重要。
 - en: '**Undo Log**:'
+  id: totrans-67
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**撤销日志**:'
 - en: Part of undo log segments within rollback segments, residing in undo tablespaces
     and the global temporary tablespace.
+  id: totrans-68
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 回滚段内的撤销日志段的一部分，位于撤销表空间和全局临时表空间中。
 - en: Essential for transaction rollbacks and MVCC (Multi-Version Concurrency Control)
     reads.
+  id: totrans-69
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 对于事务回滚和MVCC（多版本并发控制）读取至关重要。
 - en: By effectively managing these structures, InnoDB achieves a balance of high
     reliability and performance.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过有效管理这些结构，InnoDB实现了高可靠性和性能的平衡。
 - en: 5.7 Log Manager
+  id: totrans-71
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.7日志管理器
 - en: The log manager is a critical component of modern DBMSs, often prone to bottlenecks
     due to its centralized design and dependence on I/O. Long flush times, log-induced
     latch contention, and contention for log buffers in main memory all impact scalability,
@@ -373,88 +519,124 @@
     systems can achieve transaction rates of 100 ktps or higher, exacerbating the
     log bottleneck. Existing research offers partial solutions to these bottlenecks,
     but none provide a fully scalable log manager for today’s multicore hardware [3].
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 日志管理器是现代数据库管理系统的一个关键组件，由于其集中式设计和对I/O的依赖，常常容易成为瓶颈。长时间的刷新时间、由日志引起的闩锁竞争以及主内存中日志缓冲区的竞争都会影响可伸缩性，没有单一的瓶颈完全负责次优性能。现代系统可以达到每秒100千次事务或更高的交易率，加剧了日志瓶颈。现有研究为这些瓶颈提供了一些部分解决方案，但没有一个提供适用于今天多核硬件的完全可伸缩的日志管理器[3]。
 - en: The log manager was a major scalability bottleneck in MySQL 5.7\. However, MySQL
     8.0 underwent significant restructuring in this area, leading to substantial improvements
     in scalability.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 日志管理器是MySQL 5.7的主要可伸缩性瓶颈。然而，MySQL 8.0在这个领域进行了重大重构，从而在可伸缩性方面取得了实质性改进。
 - en: 5.8 Lock Scheduling Algorithms
+  id: totrans-74
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.8 锁调度算法
 - en: In computing, scheduling is the action of assigning resources to perform tasks
     [45]. Scheduling algorithms are resource allocation strategies determined by the
     system’s needs, such as FIFO (First In, First Out), Round Robin, and Shortest
     Job First (SJF). These algorithms are used in operating systems, databases, and
     networks.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 在计算机科学中，调度是将资源分配给执行任务的行为[45]。调度算法是由系统需求决定的资源分配策略，例如FIFO（先进先出）、轮转和最短作业优先（SJF）。这些算法用于操作系统、数据库和网络。
 - en: MySQL 5.7 utilized the classic FIFO lock scheduling algorithm. Later versions,
     starting with MySQL 8.0.20, adopted the CATS (Contention-Aware Transaction Scheduling)
     lock scheduling algorithm. The purpose of this change was to improve the overall
     efficiency of MySQL operations and improve throughput.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 5.7使用了经典的FIFO锁调度算法。从MySQL 8.0.20版本开始，后续版本采用了CATS（Contention-Aware Transaction
+    Scheduling）锁调度算法。这次变更的目的是提高MySQL操作的整体效率并提高吞吐量。
 - en: Let’s analyze the CATS algorithm used in MySQL 8.0\. The core idea of the CATS
     algorithm is to prioritize locks for transactions with higher weighted costs when
     locks are released. The figure below illustrates the principle mechanism of CATS
     [57]. Despite transaction t1 having a deeper subgraph, CATS allocates the lock
     to t2 because completing t2 allows triggering more concurrent transactions to
     execute.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们分析MySQL 8.0中使用的CATS算法。CATS算法的核心思想是在释放锁时优先考虑具有更高加权成本的交易锁。下面的图示说明了CATS的原理机制[57]。尽管事务t1具有更深的子图，但CATS将锁分配给了t2，因为完成t2可以触发更多并发事务的执行。
 - en: '![](../Images/b568d49d2705cde60e5532c0c9109a80.png)'
+  id: totrans-78
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/b568d49d2705cde60e5532c0c9109a80.png)'
 - en: Figure 5-4\. Lock scheduling example borrowed from the Paper ‘Contention-Aware
     Lock Scheduling for Transactional Databases’.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 图5-4. 从论文《针对事务数据库的竞争感知锁调度》中借用的锁调度示例。
 - en: The CATS algorithm theoretically has significant effectiveness in scenarios
     with severe lock contention. It has shown some impact in SysBench Pareto distribution
     test scenarios, but the exact extent of its effectiveness depends on specific
     circumstances.
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: CATS算法在严重锁竞争的场景中理论上具有显著的有效性。它在SysBench Pareto分布测试场景中显示了一些影响，但它的确切有效性取决于具体环境。
 - en: Chapter 7 will subsequently provide a detailed discussion of the CATS scheduling
     algorithm.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 第7章将随后对CATS调度算法进行详细讨论。
 - en: 5.9 Binlog File
+  id: totrans-82
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.9 Binlog文件
 - en: MySQL improves its versatility by introducing binlog files at the SQL layer
     to record transaction modifications, facilitating data replication and disaster
     recovery. For MySQL transactions, changes are first written to the binlog files
     and then to the redo log files, with atomicity ensured through the XA Two-Phase
     Commit (2PC) mechanism.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL通过在SQL层引入binlog文件来记录事务修改，从而提高了其多功能性，便于数据复制和灾难恢复。对于MySQL事务，更改首先写入binlog文件，然后写入重做日志文件，通过XA两阶段提交（2PC）机制确保原子性。
 - en: Binlog files are crucial for data replication and high availability, supporting
     asynchronous replication, semisynchronous replication, and Group Replication.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: Binlog文件对于数据复制和高可用性至关重要，支持异步复制、半同步复制和组复制。
 - en: This book focuses on row-based binlog, where transactions are stored as events.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书侧重于基于行的binlog，其中事务以事件的形式存储。
 - en: With the advent of fast solid-state drives and techniques like group commit,
     the impact of log flush I/O times has lessened.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着快速固态硬盘和组提交等技术的出现，日志刷新 I/O 时间的影響已经减小。
 - en: 5.10 Group Commit Mechanism
+  id: totrans-87
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.10 组提交机制
 - en: MySQL introduced the binlog group commit mechanism to reduce the number of disk
     I/O operations by combining multiple binlog flush operations when multiple transactions
     are committed simultaneously. This approach reduces disk I/O by postponing log
     access to stable storage, gathering multiple commits in memory, and issuing a
     single write and flush for a set of transactions.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 引入了 binlog 组提交机制，通过在多个事务同时提交时合并多个 binlog 刷新操作，减少了磁盘 I/O 操作的数量。这种方法通过推迟日志访问到稳定存储，在内存中聚集多个提交，并为一组事务执行单个写入和刷新操作，从而减少了磁盘
+    I/O。
 - en: Group commit strategies improve disk performance by aggregating multiple log
     flush requests into a single I/O operation, reducing the frequency of disk accesses.
     However, group commit does not eliminate unwanted context switches, as transactions
@@ -462,19 +644,26 @@
     [3]. Efficient activation mechanisms are needed to reduce context switches, but
     the current MySQL implementation is inefficient. This problem will be thoroughly
     explored in Chapter 8.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 组提交策略通过将多个日志刷新请求聚合为单个 I/O 操作，提高了磁盘性能。然而，组提交并不能消除不想要的上下文切换，因为事务阻塞了日志的待处理通知，而不是直接在
+    I/O 请求上阻塞 [3]。需要有效的激活机制来减少上下文切换，但当前 MySQL 的实现效率不高。这个问题将在第 8 章中详细探讨。
 - en: 5.11 Execution Plan
+  id: totrans-90
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.11 执行计划
 - en: An execution plan details how a SQL statement is executed after optimization
     by the MySQL query optimizer. Depending on the table structure, indexes, and WHERE
     clause conditions, the optimizer considers various techniques to perform efficient
     lookups. Queries on large tables can be executed without reading all rows, and
     joins can be performed without comparing every row combination.
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 执行计划详细说明了 SQL 语句在 MySQL 查询优化器优化后的执行方式。根据表结构、索引和 WHERE 子句条件，优化器考虑各种技术以执行高效的查找。对大型表的查询可以在不读取所有行的情况下执行，并且可以在不比较每一行组合的情况下进行连接。
 - en: The MySQL query optimizer is designed for simple, OLTP-type queries and has
     limitations with complex queries. For instance, join order optimization in practical
     applications uses only left-deep plans and a greedy algorithm. The figure below
@@ -482,38 +671,53 @@
     and Solver layers handle syntax checking, name resolution, access control, data
     types, and string collations. During the Prepare phase, logical transformations
     occur, such as merging derived tables, predicate pushdown, and converting subqueries.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 查询优化器是为简单的、OLTP 类型的查询设计的，对于复杂查询存在局限性。例如，在实际应用中，连接顺序优化仅使用左深计划和使用贪婪算法。下面的图示说明了
+    MySQL 查询优化和执行架构 [44]。解析器和求解器层处理语法检查、名称解析、访问控制、数据类型和字符串排序。在准备阶段，发生逻辑转换，例如合并派生表、谓词下沉和将子查询转换为连接。
 - en: '![](../Images/7bf617906da900d574bf7cfc1cbeb12a.png)'
+  id: totrans-93
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/7bf617906da900d574bf7cfc1cbeb12a.png)'
 - en: Figure 5-5\. MySQL query optimization and execution architecture borrowed from
     the Paper ‘Integrating the Orca Optimizer into MySQL’.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 5-5\. MySQL 查询优化和执行架构借鉴自论文《将 Orca 优化器集成到 MySQL》。
 - en: Cost-based Optimization, which is limited to one SELECT block at a time, determines
     the best join order, join method, and table access method. The optimizer generally
     considers only left-deep plans and performs aggregation after all tables are joined.
     Plan Refinement involves pushing selection conditions into tables and indexes,
     avoiding sorts if index scans deliver sorted rows, and adding aggregations, group-level
     filtering, and row limit enforcement.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于成本的优化，一次仅限于一个 SELECT 块，确定最佳连接顺序、连接方法和表访问方法。优化器通常只考虑左深计划，并在所有表连接后进行聚合。计划细化包括将选择条件推入表和索引中，如果索引扫描提供排序的行则避免排序，并添加聚合、分组级别过滤和行限制执行。
 - en: Heuristics might miss the optimal plan, leading to higher execution times. Join
     Order Optimization has been extensively studied, with parallel approaches developed
     for multicore architectures. Due to the NP-hard nature of join order optimization,
     heuristic solutions and limited search spaces are used.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 启发式算法可能会错过最优计划，导致执行时间更长。连接顺序优化已被广泛研究，并为多核架构开发了并行方法。由于连接顺序优化的 NP-hard 特性，使用了启发式解决方案和有限的搜索空间。
 - en: In general, there is still a lot of optimization potential in MySQL’s execution
     plans. MySQL continues to explore new approaches, which have been reflected in
     MySQL 8.0.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常情况下，MySQL的执行计划中仍然存在大量的优化潜力。MySQL持续探索新的方法，这些方法在MySQL 8.0中得到了体现。
 - en: 5.12 Partitioning
+  id: totrans-98
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.12 分区
 - en: Partitioning allows you to distribute table data across a file system based
     on rules you define, effectively storing different parts of a table as separate
     tables in various locations. This division, governed by a partitioning function,
@@ -521,113 +725,164 @@
     The function, specified by the user, takes a user-supplied expression as its parameter,
     which can be a column value, a function acting on one or more column values, or
     a set of column values [13].
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 分区允许您根据您定义的规则在文件系统上分布表数据，有效地将表的不同部分作为单独的表存储在不同的位置。这种由分区函数控制的划分可以使用模数、范围或列表匹配、内部哈希或线性哈希。用户指定的函数将用户提供的表达式作为其参数，该表达式可以是列值、作用于一个或多个列值的函数，或是一组列值
+    [13]。
 - en: 'The benefits of using partitioning are as follows:'
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用分区的优点如下：
 - en: Enabling storage of more data than a single disk or file system partition can
     hold.
+  id: totrans-101
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 允许存储比单个磁盘或文件系统分区所能容纳的更多数据。
 - en: Simplifying data management by allowing easy removal of obsolete data through
     dropping partitions, and facilitating the addition of new data by adding partitions.
+  id: totrans-102
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 通过允许通过删除分区轻松删除过时数据，以及通过添加分区来促进新数据的添加，简化数据管理。
 - en: Optimizing queries by limiting searches to specific partitions that contain
     relevant data.
+  id: totrans-103
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 通过限制搜索到包含相关数据的特定分区来优化查询。
 - en: MySQL partitioning not only offers these benefits but also reduces latch contention
     for large tables under high concurrency. The following figure shows the impact
     on TPC-C throughput after partitioning a large table in BenchmarkSQL.
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL分区不仅提供了这些好处，还在高并发下减少了大型表的闩锁竞争。以下图显示了在BenchmarkSQL中对大型表进行分区后对TPC-C吞吐量的影响。
 - en: '![image-20240829091316193](../Images/f7ee06d391e2889b41c0edf6557909f2.png)'
+  id: totrans-105
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829091316193](../Images/f7ee06d391e2889b41c0edf6557909f2.png)'
 - en: Figure 5-6\. Comparison of BenchmarkSQL tests before and after partitioning.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 图5-6\. 分区前后BenchmarkSQL测试的比较。
 - en: The figure shows that partitioning has minimal impact under low concurrency.
     However, when concurrency exceeds 150, partitioning significantly improves throughput
     by alleviating latch conflicts in large tables.
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 该图显示，在低并发下，分区的影响最小。然而，当并发超过150时，分区通过缓解大型表的闩锁冲突，显著提高了吞吐量。
 - en: Unless stated otherwise, all TPC-C tests in this book use partitioned large
     tables. Each table has its own latch, and partitioning employs latch sharding
     to reduce latch conflicts under high concurrency, preventing latch contention
     from affecting performance tests on large tables.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 除非另有说明，本书中所有TPC-C测试都使用分区的大型表。每个表都有自己的闩锁，分区采用闩锁分片来减少高并发下的闩锁冲突，防止闩锁竞争影响大型表的性能测试。
 - en: 5.13 Coordination Avoidance
+  id: totrans-109
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.13 协调避免
 - en: Minimizing coordination between concurrently executing operations is crucial
     for maximizing scalability, availability, and performance in database systems.
     However, coordination-free execution can compromise application correctness and
     consistency. While serializable transactions maintain correctness, they are not
     necessary for all applications and can limit scalability [25].
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 在数据库系统中，最小化并发执行操作之间的协调对于最大化可伸缩性、可用性和性能至关重要。然而，无协调执行可能会损害应用程序的正确性和一致性。虽然可序列化事务保持正确性，但它们对于所有应用程序来说并非必要，并且可能会限制可伸缩性
+    [25]。
 - en: 5.14 Disaster Recovery
+  id: totrans-111
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.14 灾难恢复
 - en: Disaster recovery ensures a database can be brought back online after an outage.
     For MySQL, this involves timely flushing of binlog and redo logs, as well as writing
     to the doublewrite buffer to prevent recovery problems caused by damaged data
     pages.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 灾难恢复确保数据库在故障后能够重新上线。对于MySQL来说，这涉及到及时刷新binlog和重做日志，以及写入双写缓冲区，以防止损坏的数据页引起的恢复问题。
 - en: 5.15 Idempotence
+  id: totrans-113
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.15 幂等性
 - en: Database code that creates or alters tables and routines should be idempotent
     to avoid problems if applied multiple times. Idempotence prevents duplicate data
     creation during sync failures by recording progress by batch, rather than by individual
     record. When a sync is interrupted, the process must often restart at the beginning
     of the last batch, leading to reprocessing some data.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 创建或修改表和例程的数据库代码应该是幂等的，以避免多次应用时出现的问题。幂等性通过按批次记录进度，而不是按单个记录记录，防止在同步失败期间创建重复数据。当同步中断时，进程通常必须从最后一个批次的开始重新启动，导致重新处理一些数据。
 - en: Here’s an example of MySQL secondary replay. In the following code snippet,
     MySQL achieves idempotence during the replay process on the secondary.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是一个 MySQL 从节点重放的示例。在以下代码片段中，MySQL 在从节点上的重放过程中实现了幂等性。
 - en: '[PRE0]'
+  id: totrans-116
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: The *is_already_logged_transaction* function is called to determine if a transaction
     has already been executed. If it has, *skip_transaction* is set to true. Consequently,
     the subsequent process immediately returns *GTID_STATEMENT_SKIP*, halting further
     replay of the transaction.
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用 *is_already_logged_transaction* 函数以确定事务是否已经执行。如果已执行，则 *skip_transaction*
+    设置为 true。因此，后续过程立即返回 *GTID_STATEMENT_SKIP*，停止进一步重放事务。
 - en: 5.16 Thread Pool
+  id: totrans-118
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.16 线程池
 - en: MySQL executes statements using one thread per client connection. As the number
     of connections increases beyond a certain threshold, performance degrades. The
     following figure shows the TPC-C throughput versus concurrency testing for MySQL
     5.7.36.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 使用每个客户端连接一个线程来执行语句。当连接数量超过某个阈值时，性能会下降。以下图显示了 MySQL 5.7.36 的 TPC-C 吞吐量与并发性测试。
 - en: '![image-20240829091450756](../Images/a2d5501d728e0c7808a80ec3b454910f.png)'
+  id: totrans-120
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829091450756](../Images/a2d5501d728e0c7808a80ec3b454910f.png)'
 - en: Figure 5-7\. TPC-C throughput vs. concurrency in MySQL 5.7.36.
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 5-7. MySQL 5.7.36 的 TPC-C 吞吐量与并发性。
 - en: After a concurrency level of 75, the throughput sharply declines, confirming
     the above conclusion.
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 当并发级别达到 75 后，吞吐量急剧下降，证实了上述结论。
 - en: Thread pooling reuses a fixed number of threads to handle multiple client connections,
     reducing overhead and avoiding contention and context switching [31]. The MySQL
     thread pool separates user connections from threads. Each user connection no longer
@@ -635,14 +890,21 @@
     with a default of *n* groups. User connections are assigned to a thread group
     in a round-robin fashion. Each thread group manages a subset of connections, with
     one or more threads executing queries from those connections.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 线程池重用固定数量的线程来处理多个客户端连接，从而减少开销并避免竞争和上下文切换[31]。MySQL 线程池将用户连接与线程分离。每个用户连接不再有专用的操作系统线程。相反，线程池由线程组组成，默认为
+    *n* 个组。用户连接以轮询方式分配到线程组。每个线程组管理连接的子集，一个或多个线程从这些连接中执行查询。
 - en: '![](../Images/42168ccda380f9de8185193fd8f98a16.png)'
+  id: totrans-124
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/42168ccda380f9de8185193fd8f98a16.png)'
 - en: Figure 5-8\. Thread pool model borrowed from the MySQL blog.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 5-8. 从 MySQL 博客借用的线程池模型。
 - en: The Percona thread pool was widely used in MySQL 5.7, but with MySQL 8.0’s improved
     scalability, its role has diminished. MySQL 8.0 introduced new thread pool modes
     designed to prevent performance degradation as user connections increase. The
@@ -650,87 +912,122 @@
     which improves overall throughput by reducing data locks and deadlocks on heavily
     loaded systems [31]. Thus, controlling user thread entry into the InnoDB storage
     engine is key to alleviating MySQL scalability problems.
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: Percona 线程池在 MySQL 5.7 中被广泛使用，但随着 MySQL 8.0 的改进可伸缩性，其作用已经减弱。MySQL 8.0 引入了新的线程池模式，旨在防止随着用户连接的增加而导致的性能下降。"最大事务限制"功能限制了同时执行的事务数量，通过减少在高度负载系统上的数据锁和死锁来提高整体吞吐量[31]。因此，控制用户线程进入
+    InnoDB 存储引擎是缓解 MySQL 可伸缩性问题关键。
 - en: 5.17 Traditional Cluster
+  id: totrans-127
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.17 传统集群
 - en: Traditional MySQL cluster relies on asynchronous and semisynchronous replication,
     which are straightforward and easy for maintenance personnel to manage.
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统的 MySQL 集群依赖于异步和半同步复制，这对维护人员来说简单且易于管理。
 - en: 5.17.1 Asynchronous Replication
+  id: totrans-129
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.17.1 异步复制
 - en: Traditional MySQL replication uses a simple source to replica approach, with
     the primary applying transactions and then asynchronously sending them to the
     secondaries to be applied. This shared-nothing system ensures all servers have
     a full copy of the data by default [13].
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统的MySQL复制采用简单的源到副本方法，主节点应用事务，然后异步地将它们发送到副本节点以进行应用。这个无共享系统默认确保所有服务器都有数据的完整副本[13]。
 - en: Asynchronous replication offers better write scalability but at the cost of
     lower data coherence. The following figure is the flowchart of asynchronous replication
     [13]. The primary continues executing without waiting for acknowledgment from
     the secondary, resulting in user SQL query response times comparable to a single
     server. However, this can lead to data loss if the primary fails before the secondary
     has received the latest data.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 异步复制提供了更好的写可伸缩性，但以牺牲较低的数据一致性为代价。以下图是异步复制的流程图[13]。主节点继续执行，而不等待从节点的确认，导致用户SQL查询响应时间与单个服务器相当。然而，如果主节点在从节点收到最新数据之前失败，这可能导致数据丢失。
 - en: '![](../Images/5463731060c48d28007534db3ccc580a.png)'
+  id: totrans-132
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/5463731060c48d28007534db3ccc580a.png)'
 - en: Figure 5-9\. MySQL asynchronous replication borrowed from the official MySQL
     documentation.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 图5-9\. MySQL异步复制，借用自官方MySQL文档。
 - en: When asynchronous replication is used, if the primary fails and a new leader
     is chosen, unreplicated writes from the old leader may be lost. This can cause
     conflicts and durability problems. Often, the solution is to discard the old leader’s
     unreplicated writes, which may not meet clients’ durability expectations. If both
     leaders accept writes without conflict resolution, there’s a risk of both nodes
     shutting down if not properly managed [28].
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 当使用异步复制时，如果主节点失败并选择了一个新的领导者，旧领导者的未复制写操作可能会丢失。这可能导致冲突和持久性问题。通常，解决方案是丢弃旧领导者的未复制写操作，这可能与客户端的持久性期望不符。如果两个领导者都接受写操作而不进行冲突解决，那么如果不妥善管理，存在两个节点同时关闭的风险[28]。
 - en: 5.17.2 Semisynchronous Replication
+  id: totrans-135
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.17.2 半同步复制
 - en: To address data loss in asynchronous replication, MySQL introduced semisynchronous
     replication. With semisynchronous replication, a transaction commit requires the
     corresponding binlog to be delivered to at least one MySQL secondary before proceeding.
     This ensures that at least one secondary has the most recent data.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决异步复制中的数据丢失问题，MySQL引入了半同步复制。在半同步复制中，事务提交需要相应的binlog至少被发送到至少一个MySQL副本节点，然后才能继续。这确保至少有一个副本节点拥有最新的数据。
 - en: In MySQL semisynchronous replication, the secondary sends an ACK reply to the
     primary only after the relay log is written to disk. The primary waits for at
     least one ACK reply before continuing the transaction. This introduces extra latency
     from network time, as well as the secondary processing binlog events and writing
     them to disk.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 在MySQL的半同步复制中，副本节点仅在将中继日志写入磁盘后才会向主节点发送ACK回复。主节点在继续事务之前至少等待一个ACK回复。这引入了来自网络时间的额外延迟，以及从节点处理binlog事件并将它们写入磁盘。
 - en: In traditional high availability setups, semisynchronous replication can be
     cumbersome and complex. Meta, for instance, has highlighted these problems in
     their implementation of high availability based on the Raft protocol [38].
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 在传统的可用性设置中，半同步复制可能会很繁琐且复杂。例如，Meta在其基于Raft协议的高可用性实现中已经强调了这些问题[38]。
 - en: Since semisynchronous replication alone doesn’t fully address high availability
     problems, many third-party tools have emerged, and MySQL has introduced Group
     Replication.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于仅半同步复制并不能完全解决高可用性问题，因此出现了许多第三方工具，MySQL也引入了组复制。
 - en: 5.17.3 How Scalable is Semisynchronous Replication?
+  id: totrans-140
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.17.3 半同步复制的可伸缩性如何？
 - en: 'Here is the relevant code showing the process semisynchronous replication goes
     through before sending an ACK response:'
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是显示在发送ACK响应之前半同步复制所经过过程的相应代码：
 - en: '[PRE1]'
+  id: totrans-142
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: In the binlog file, a transaction consists of multiple events. For a TPC-C transaction,
     it is normal to have dozens of events. Each event goes through processes like
     *read event*, *after_read_event*, *queue event*, and *after_queue_event*. The
@@ -738,45 +1035,64 @@
     events are processed by a single thread. This limitation in single-threaded processing,
     coupled with event-based handling, means that semisynchronous replication has
     limited computational capacity and poor scalability.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 binlog 文件中，一个事务由多个事件组成。对于 TPC-C 事务，有数十个事件是正常的。每个事件都要经过如 *read event*（读取事件）、*after_read_event*（读取后事件）、*queue
+    event*（队列事件）和 *after_queue_event*（队列后事件）等过程。事务包含的事件越多，处理时间越长，所有这些事件都由单个线程处理。这种单线程处理限制，加上基于事件的处理，意味着半同步复制具有有限的计算能力和较差的可扩展性。
 - en: The following figure shows the TPC-C throughput versus concurrency testing for
     semisynchronous replication. It can be observed that the scalability of semisynchronous
     replication is very weak, far inferior to that of refactored Group Replication.
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图显示了半同步复制的 TPC-C 吞吐量与并发测试。可以观察到，半同步复制的可扩展性非常弱，远低于重构后的组复制。
 - en: '![image-20240829091539440](../Images/73326d43429f2d13ece98746845a6a15.png)'
+  id: totrans-145
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829091539440](../Images/73326d43429f2d13ece98746845a6a15.png)'
 - en: Figure 5-10\. Performance comparison between Group Replication with Paxos log
     persistence and semisynchronous replication.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 5-10\. 带 Paxos 日志持久性的组复制与半同步复制的性能比较。
 - en: 5.18 Group Replication
+  id: totrans-147
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.18 组复制
 - en: For continuous operation, a business requires high availability of its databases.
     To ensure continuous availability, a database must be fault-tolerant and robust
     to withstand failures. These qualities are achieved by Group Replication [13].
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了持续运行，业务需要其数据库的高可用性。为了确保持续可用性，数据库必须具有容错性和健壮性，能够承受故障。这些特性是通过组复制 [13] 实现的。
 - en: 5.18.1 Why Implement Group Replication?
+  id: totrans-149
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.18.1 为什么实现组复制？
 - en: Asynchronous and semisynchronous replication cannot fully address high availability
     complexities. To achieve high availability, MySQL uses state machine replication
     based on the Paxos algorithm, known as Group Replication. This method theoretically
     solves the high availability problems that other replication methods cannot. Despite
     its potential, Group Replication faces numerous challenges, which is why it hasn’t
     gained widespread popularity.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 异步和半同步复制无法完全解决高可用性的复杂性。为了实现高可用性，MySQL 使用基于 Paxos 算法的状态机复制，称为组复制。这种方法从理论上解决了其他复制方法无法解决的高可用性问题。尽管具有潜力，但组复制面临着众多挑战，这也是它没有获得广泛普及的原因。
 - en: 5.18.2 Why Was Mencius Initially Adopted?
+  id: totrans-151
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.18.2 为什么最初采用孟子？
 - en: Mencius is a multi-leader state machine replication protocol derived from Paxos
     [32]. It is designed to achieve high throughput under high client load and low
     latency under low client load, adapting to changing network and client environments.
@@ -786,44 +1102,64 @@
     local server as the leader. Due to these advantages, Mencius aligns with the multi-primary
     mode design of Group Replication, where each MySQL node can perform write operations
     at any time, and was initially adopted by MySQL.
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 孟子是一种基于 Paxos [32] 的多主状态机复制协议。它旨在在高客户端负载下实现高吞吐量，在低客户端负载下实现低延迟，适应不断变化的网络和客户端环境。孟子将共识协议实例的序列分割到服务器之间，分摊领导者负载，并在
+    CPU 密集型操作时提高吞吐量。它还通过允许客户端使用本地服务器作为领导者，充分利用可用带宽并降低延迟。由于这些优势，孟子与组复制的多主模式设计相一致，其中每个
+    MySQL 节点都可以在任何时候执行写操作，并且最初被 MySQL 采用。
 - en: 5.18.3 Why Introduce the Single-Leader Multi-Paxos Algorithm?
+  id: totrans-153
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.18.3 为什么引入单主多 Paxos 算法？
 - en: 'The single leader Multi-Paxos algorithm has the following characteristics [13]:'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 单主多 Paxos 算法具有以下特性 [13]：
 - en: It relies on a single leader to choose the request sequence.
+  id: totrans-155
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 它依赖于单个领导者来选择请求序列。
 - en: This simplicity results in high throughput and low latency for clients near
     the leader but higher latency for clients further away.
+  id: totrans-156
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 这种简单性导致领导者附近的客户端具有高吞吐量和低延迟，但远离领导者的客户端具有更高的延迟。
 - en: The leader becomes a bottleneck, limiting throughput and creating an unbalanced
     communication pattern that underutilizes available network bandwidth.
+  id: totrans-157
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 领导者成为瓶颈，限制了吞吐量，并创建了一种不平衡的通信模式，导致可用网络带宽利用率低下。
 - en: MySQL introduced the single leader Multi-Paxos algorithm to improve performance
     and resilience in single-primary mode, especially when some secondary members
     are unreachable [13].
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL引入了单领导者多Paxos算法，以在单主模式下提高性能和弹性，尤其是在某些从节点不可达的情况下[13]。
 - en: Tests in cross-datacenter scenarios show that using the single leader Multi-Paxos
     algorithm significantly improves Group Replication performance in single-primary
     mode. However, it has the drawback of high latency for other nodes needing to
     send data, as they must obtain the request sequence from the leader.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 在跨数据中心场景的测试中，使用单领导者多Paxos算法显著提高了单主模式下的Group Replication性能。然而，它也有其他节点需要发送数据时的延迟高的缺点，因为它们必须从领导者获取请求序列号。
 - en: 5.18.4 Does Group Replication Lose Data?
+  id: totrans-160
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.18.4 Group Replication是否会丢失数据？
 - en: Group Replication implements state machine replication but does not inherently
     include durable state machine replication, meaning Paxos messages are not persisted.
     This design choice implies that while consensus can be reached within the cluster,
@@ -831,23 +1167,33 @@
     nodes crash simultaneously and the MySQL primary cannot be restarted, the cluster
     formed by the remaining nodes may lose transaction data that had not been written
     to disk.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: Group Replication实现了状态机复制，但并不固有地包含持久状态机复制，这意味着Paxos消息不会被持久化。这种设计选择意味着虽然集群内可以达成共识，但在极端情况下可能会发生数据丢失。例如，如果所有Group
+    Replication节点同时崩溃，并且MySQL主节点无法重启，剩余节点组成的集群可能会丢失尚未写入磁盘的事务数据。
 - en: 5.18.5 Will Group Replication Outperform Semisynchronous Replication?
+  id: totrans-162
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.18.5 Group Replication是否会优于半同步复制？
 - en: The Mencius algorithm theoretically enables Group Replication to reach in-memory
     consensus, bypassing the need to parse transaction events at the Paxos layer.
     Additionally, batching mechanisms can merge several transactions into a single
     message for Paxos communication. Based on this, the throughput of Group Replication
     is expected to surpass that of semisynchronous replication.
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 孟子算法从理论上使Group Replication能够达到内存共识，绕过了在Paxos层解析事务事件的需要。此外，批处理机制可以将多个事务合并为单个消息进行Paxos通信。基于此，预计Group
+    Replication的吞吐量将超过半同步复制。
 - en: 5.18.6 Is a Single Thread Sufficient for Underlying Paxos Communication?
+  id: totrans-164
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.18.6 单线程是否足够用于底层Paxos通信？
 - en: Paxos operates serially, but with pipelining and batching, it significantly
     improves throughput. Therefore, even with multi-threaded Paxos communication,
     Group Replication’s overall system throughput is generally unaffected. However,
@@ -855,146 +1201,209 @@
     to reduce wait times and speed up processing. In summary, while a single thread
     is sufficient for typical transactions, handling a large volume of large transactions
     may require multiple threads.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: Paxos是串行操作的，但通过管道化和批处理，它显著提高了吞吐量。因此，即使有多线程的Paxos通信，Group Replication的整体系统吞吐量通常不受影响。然而，大事务可能会压垮单个线程，因此需要多个线程来减少等待时间并加快处理速度。总之，虽然单个线程对于典型事务来说是足够的，但处理大量的大事务可能需要多个线程。
 - en: 5.18.7 Paxos Single Leader vs. Group Replication Single-Primary Mode
+  id: totrans-166
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.18.7 Paxos单领导者与Group Replication单主模式
 - en: 'Group Replication uses two Paxos variants: single leader Multi-Paxos and multiple
     leader Mencius. In single-primary mode, only one node handles transactional updates,
     while in multi-primary mode, all nodes can perform updates. The figure below illustrates
     the relationship between these algorithms and Group Replication’s application
     modes:'
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: Group Replication使用两种Paxos变体：单领导者多Paxos和多个领导者孟子。在单主模式中，只有一个节点处理事务更新，而在多主模式中，所有节点都可以执行更新。下面的图示说明了这些算法与Group
+    Replication的应用模式之间的关系：
 - en: '![](../Images/9bf645fd4a4e0bf58fc123a01672101b.png)'
+  id: totrans-168
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/9bf645fd4a4e0bf58fc123a01672101b.png)'
 - en: Figure 5-11\. Relationship between Paxos variant algorithms and Group Replication
     modes.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 图5-11. Paxos变体算法与Group Replication模式之间的关系。
 - en: In single-primary mode, both the Mencius algorithm and the single-leader Multi-Paxos
     algorithm can be used. However, in multi-primary mode, only the Mencius algorithm
     is applicable. This is because using the single-leader Multi-Paxos algorithm in
     multi-primary mode would severely degrade performance, as every non-leader node
     would need to request sequences from the leader node.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 在单主模式中，可以使用孟子算法和单领导者多Paxos算法。然而，在多主模式中，只有孟子算法适用。这是因为在使用单领导者多Paxos算法的多主模式中，每个非领导者节点都需要从领导者节点请求序列号，这会严重降低性能。
 - en: Group Replication in single-primary mode adopts the single-leader Multi-Paxos
     algorithm, assuming the leader node primarily sends messages while non-leader
     nodes have minimal roles. This allows efficient use of the single-leader Multi-Paxos
     algorithm, ensuring effective coordination and consensus among nodes.
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 单主模式下的 Group Replication 采用单领导者 Multi-Paxos 算法，假设领导者节点主要发送消息，而非领导者节点具有最小角色。这允许高效地使用单领导者
+    Multi-Paxos 算法，确保节点间有效协调和共识。
 - en: 5.18.8 Is Single Leader Multi-Paxos Universally Applicable in Single-Primary
     Mode?
+  id: totrans-172
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.18.8 单主模式下，单领导者 Multi-Paxos 是否普遍适用？
 - en: In Group Replication’s single-primary mode, consistent read operations require
     each MySQL node to send ‘before’ messages, while consistent write operations require
     ‘after’ messages. Using the single-leader Multi-Paxos algorithm in this context
     would significantly degrade performance.
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Group Replication 的单主模式下，一致的读操作需要每个 MySQL 节点发送‘before’消息，而一致的写操作需要‘after’消息。在这种情况下使用单领导者
+    Multi-Paxos 算法将显著降低性能。
 - en: The following figure illustrates SysBench’s throughput for 100 concurrent read/write
     operations over time, with MySQL configured for strong consistency writes using
     the “after” mechanism.
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图显示了 SysBench 随时间变化的 100 个并发读写操作的吞吐量，MySQL 配置为使用“after”机制进行强一致性写操作。
 - en: '![image-20240829091801038](../Images/02d2a52564001366c91b2e2912ec7623.png)'
+  id: totrans-175
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829091801038](../Images/02d2a52564001366c91b2e2912ec7623.png)'
 - en: Figure 5-12\. Performance of strong consistency writes using the “after” mechanism
     under single leader Paxos variant.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 5-12\. 在单领导者 Paxos 变体下使用“after”机制进行强一致性写操作的性能。
 - en: From the figure, it can be observed that after adopting the single leader Multi-Paxos,
     the throughput of MySQL’s primary with strong consistency writes is significantly
     low. The following figure shows a partial screenshot of SysBench test results,
     indicating an average response time of 73ms.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，采用单领导者 Multi-Paxos 后，MySQL 主节点进行强一致性写操作的吞吐量显著降低。下图显示了 SysBench 测试结果的局部截图，表明平均响应时间为
+    73ms。
 - en: '![](../Images/8738c0653ab343e2f6ad61e7c8e1dc8e.png)'
+  id: totrans-178
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/8738c0653ab343e2f6ad61e7c8e1dc8e.png)'
 - en: Figure 5-13\. Partial screenshot of SysBench test results using the “after”
     mechanism under single leader Paxos variant.
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 5-13\. 在单领导者 Paxos 变体下使用“after”机制进行 SysBench 测试结果的局部截图。
 - en: Users reading official documentation might assume that the single leader Multi-Paxos
     algorithm can accelerate access. However, in reality, this algorithm is not suitable
     for consistent read/write operations.
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 阅读官方文档的用户可能会认为单领导者 Multi-Paxos 算法可以加速访问。然而，实际上，此算法不适合一致的读写操作。
 - en: 5.19 MySQL Secondary Replay
+  id: totrans-181
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.19 MySQL 从节点重放
 - en: 5.19.1 Introduction to MySQL Secondary Replay
+  id: totrans-182
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.19.1 MySQL 从节点重放的介绍
 - en: MySQL supports primary/secondary replication, typically using log shipping.
     In this setup, a primary instance generates logs for transactions, which are then
     shipped to one or more secondary instances. The secondaries replay these logs
     to mirror the primary’s state, but may lag behind, affecting read-only queries’
     accuracy [16].
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 支持主/从复制，通常使用日志传输。在这种配置中，主实例生成事务日志，然后将其传输到一个或多个从实例。从实例回放这些日志以镜像主实例的状态，但可能会落后，影响只读查询的准确性
+    [16]。
 - en: As server failures become common, replication for high availability is crucial.
     However, the need for high concurrency in transaction processing on multicore
     systems conflicts with traditional replication methods. This tension can lead
     to secondaries falling behind under heavy primary loads, increasing the risk of
     data loss or requiring throttling of the primary, thus impacting performance.
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着服务器故障变得普遍，高可用性的复制至关重要。然而，在多核系统上事务处理的高并发需求与传统复制方法相冲突。这种紧张关系可能导致在主负载过重时从节点落后，增加数据丢失的风险或需要限制主节点的速度，从而影响性能。
 - en: 5.19.2 The Difference Between Replay and Transaction Execution
+  id: totrans-185
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.19.2 重放与事务执行之间的区别
 - en: In MySQL’s row-based logging, each operation is a log event. Row changes are
     recorded as insert, update, or delete events. These row events, along with transaction
     start and end events, define transaction boundaries. Insert events log new row
     images, update events log both before and after row images, and delete events
     log deleted row images.
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 MySQL 的行日志中，每个操作都是一个日志事件。行更改记录为插入、更新或删除事件。这些行事件，以及事务开始和结束事件，定义了事务边界。插入事件记录新的行图像，更新事件记录行图像的前后状态，删除事件记录已删除的行图像。
 - en: During transactions, the primary writes updates to the log, which the secondary
     then fetches and replays. Secondaries can handle more read requests than the primary
     because replaying updates incurs only about half the workload of executing the
     original query. Additionally, read queries on the primary can conflict with update
     transactions, causing slowdowns, which supports dispatching read requests to secondaries
     [16].
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 在事务过程中，主节点将更新写入日志，然后从节点获取并重放这些更新。从节点可以处理比主节点更多的读请求，因为重放更新仅需要执行原始查询工作量的一半左右。此外，主节点上的读查询可能与更新事务冲突，导致速度减慢，这支持将读请求调度到从节点[16]。
 - en: 5.19.3 The Role of Speeding Up MySQL Secondary Replay
+  id: totrans-188
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.19.3 加速MySQL二级重放的作用
 - en: The faster the MySQL secondary replay speed, the lower the likelihood of reading
     stale data from the MySQL secondary. For Group Replication, the speed of MySQL
     secondary replay is closely tied to high availability. If the MySQL secondary
     replay speed is fast enough, during a high availability switch, the new primary
     can immediately start serving new requests. Otherwise, it typically needs to wait
     until MySQL secondary replay is completed before it can serve new requests.
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL二级重放速度越快，从MySQL二级读取过时数据的可能性就越低。对于组复制，MySQL二级重放的速度与高可用性密切相关。如果MySQL二级重放速度足够快，在高可用切换期间，新主节点可以立即开始服务新请求。否则，通常需要等待MySQL二级重放完成后才能服务新请求。
 - en: 5.19.4 The Architecture of MySQL Secondary Replay
+  id: totrans-190
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.19.4 MySQL二级重放架构
 - en: 'The architecture of MySQL secondary replay is shown in the figure below:'
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的图中显示了MySQL二级重放的架构：
 - en: '![](../Images/e9f82de3372c656a2fa5eb5d124f5d0b.png)'
+  id: totrans-192
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/e9f82de3372c656a2fa5eb5d124f5d0b.png)'
 - en: Figure 5-14\. MySQL secondary replay architecture.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 图5-14\. MySQL二级重放架构。
 - en: Asynchronous and semisynchronous replication both utilize an IO thread to read
     and store transaction events into the relay log. When Group Replication operates
     normally, it uses the applier thread to store applier events into the relay log.
@@ -1002,327 +1411,454 @@
     events and scheduling them. During MySQL secondary replay, multiple workers handle
     the replay process, each with its own worker queue where the SQL thread places
     pending events.
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: 异步和半同步复制都使用IO线程来读取和存储事务事件到中继日志。当组复制正常运行时，它使用应用线程将应用事件存储到中继日志。SQL线程对于MySQL二级重放至关重要，负责解析事件和调度它们。在MySQL二级重放期间，多个工人处理重放过程，每个工人都有自己的工作队列，其中SQL线程放置挂起的事件。
 - en: 'For MySQL secondary replay, the SQL thread acts not only as the scheduler but
     also reads and parses transaction events from the relay log files. When the relay
     log volume is small, the SQL thread can manage, but as the relay log grows, the
     SQL thread becomes the primary bottleneck. It struggles to keep up with the workload
     of parsing events and managing scheduling tasks. Moreover, the SQL thread encounters
     waiting situations under the following conditions:'
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于MySQL二级重放，SQL线程不仅充当调度器，还从中继日志文件中读取和解析事务事件。当中继日志量较小时，SQL线程可以管理，但随着中继日志的增长，SQL线程成为主要的瓶颈。它难以跟上解析事件和管理调度任务的工作量。此外，SQL线程在以下情况下会遇到等待情况：
 - en: Each worker queue has a fixed size with no adjustable parameters. If a transaction
     contains numerous events (e.g., large transactions), the worker queue quickly
     fills up, causing the SQL thread to wait.
+  id: totrans-196
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 每个工作队列都有一个固定的大小，没有可调整的参数。如果一个事务包含大量事件（例如，大事务），工作队列会很快填满，导致SQL线程等待。
 - en: If there aren’t enough workers available, the SQL thread waits.
+  id: totrans-197
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 如果没有足够的工人可用，SQL线程会等待。
 - en: If the SQL thread finds a new transaction with a last committed value greater
     than the minimum logical timestamp (low-water-mark) of committed transactions
     (LWM value), it also needs to wait.
+  id: totrans-198
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 如果SQL线程发现一个新事务，其最后提交的值大于已提交事务的最小逻辑时间戳（低水位标记）值，它也需要等待。
 - en: For example, the following code snippet illustrates how the SQL thread enters
     a waiting state when the worker queue is full.
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，以下代码片段说明了当工作队列满时，SQL线程如何进入等待状态。
 - en: '[PRE2]'
+  id: totrans-200
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'Here is another example of code where the SQL thread needs to wait if it detects
     a newly started transaction with a last committed value greater than the currently
     calculated LWM value:'
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是另一个代码示例，其中如果SQL线程检测到一个新开始的事务，其最后提交的值大于当前计算的LWM值，则需要等待：
 - en: '[PRE3]'
+  id: totrans-202
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Therefore, the SQL thread is often busy and encounters many waiting situations,
     which is actually one of the main reasons for slow MySQL secondary replay.
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，SQL线程通常很忙，遇到许多等待情况，这实际上是慢速MySQL二级重放的主要原因之一。
 - en: 5.20 The Integration of AI with Databases
+  id: totrans-204
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.20 数据库与人工智能的集成
 - en: Traditional database design relies on empirical methods and specifications,
     requiring human involvement (e.g., DBAs) for tuning and maintenance. AI techniques
     alleviate these limitations by exploring more design space than humans and replacing
     heuristics to solve complex problems. The existing AI techniques for optimizing
     databases can be categorized as follows [55].
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统的数据库设计依赖于经验方法和规范，需要人类参与（例如，数据库管理员）进行调优和维护。AI技术通过探索比人类更广阔的设计空间并取代启发式方法来解决复杂问题来减轻这些限制。现有的数据库优化AI技术可以按以下方式分类
+    [55]。
 - en: 5.20.1 Learning-based Database Configuration
+  id: totrans-206
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.20.1 基于学习的数据库配置
 - en: '**Knob Tuning**'
+  id: totrans-207
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**旋钮调整**'
 - en: Databases have numerous knobs that need to be tuned by DBAs for different scenarios.
     This approach is not scalable for millions of cloud database instances. Recently,
     learning-based techniques have been used to automatically tune these knobs, exploring
     more combinations and recommending high-quality settings, often outperforming
     DBAs.
+  id: totrans-208
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 数据库有许多旋钮需要数据库管理员（DBAs）根据不同场景进行调整。这种方法对于数百万个云数据库实例来说不可扩展。最近，基于学习的技术被用来自动调整这些旋钮，探索更多组合并推荐高质量设置，通常优于数据库管理员。
 - en: '**Index/View Advisor**'
+  id: totrans-209
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**索引/视图顾问**'
 - en: Indexes and views are essential for high performance, traditionally managed
     by DBAs. Given the vast number of column/table combinations, recommending and
     building appropriate indexes/views is costly. Recently, learning-based approaches
     have emerged to automate the recommendation and maintenance of indexes and views.
+  id: totrans-210
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 索引和视图对于高性能至关重要，传统上由数据库管理员（DBAs）管理。鉴于列/表组合的数量庞大，推荐和构建适当的索引/视图成本高昂。最近，基于学习的方案出现，以自动化索引和视图的推荐和维护。
 - en: '**SQL Rewriter**'
+  id: totrans-211
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**SQL重写器**'
 - en: Many SQL programmers struggle to write high-quality queries, necessitating rewrites
     for performance improvement. For example, nested queries may be rewritten as joins
     for optimization. Existing methods use rule-based strategies, relying on predefined
     rules, which are limited by the quality and scalability of the rules. Deep reinforcement
     learning can be used to select and apply rules effectively.
+  id: totrans-212
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 许多SQL程序员难以编写高质量的查询，需要重写以提高性能。例如，嵌套查询可能被重写为连接以进行优化。现有方法使用基于规则的战略，依赖于预定义的规则，这些规则的质量和可扩展性有限。深度强化学习可用于有效地选择和应用规则。
 - en: 5.20.2 Learning-based Database Optimization
+  id: totrans-213
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.20.2 基于学习的数据库优化
 - en: '**Cardinality/Cost Estimation**'
+  id: totrans-214
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**基数/成本估计**'
 - en: Traditional database optimizers struggle to capture correlations between different
     columns/tables, leading to suboptimal cost and cardinality estimations. Recently,
     deep learning techniques have been proposed to improve these estimations by using
     neural networks to better capture correlations.
+  id: totrans-215
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 传统的数据库优化器难以捕捉不同列/表之间的相关性，导致成本和基数估计不佳。最近，深度学习技术被提出，通过使用神经网络更好地捕捉相关性来改进这些估计。
 - en: '**Join Order Selection**'
+  id: totrans-216
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**连接顺序选择**'
 - en: SQL queries can have millions or even billions of possible execution plans.
     Efficiently finding a good plan is crucial, but traditional optimizers struggle
     with large tables due to the high cost of exploring vast plan spaces. Deep reinforcement
     learning methods have been developed to automatically select efficient plans.
+  id: totrans-217
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: SQL查询可能有数百万甚至数十亿可能的执行计划。有效地找到一个好的计划至关重要，但传统的优化器由于探索广泛计划空间的高成本，在处理大型表时遇到困难。已经开发出深度强化学习方法来自动选择高效计划。
 - en: '**End-to-End Optimizer**'
+  id: totrans-218
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**端到端优化器**'
 - en: A comprehensive optimizer must consider cost/cardinality estimation, join order,
     indexes, and views. Learning-based optimizers use deep neural networks to optimize
     SQL queries holistically, improving overall query performance.
+  id: totrans-219
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: 一个全面的优化器必须考虑成本/基数估计、连接顺序、索引和视图。基于学习的优化器使用深度神经网络全面优化SQL查询，提高整体查询性能。
 - en: 5.20.3 Learning-based Database Design
+  id: totrans-220
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.20.3 基于学习的数据库设计
 - en: 'Traditional databases are designed by architects based on experience, which
     limits the exploration of design spaces. Recently, learning-based self-design
     techniques have emerged [55]:'
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统数据库是由建筑师根据经验设计的，这限制了设计空间的探索。最近，基于学习的自我设计技术已经出现 [55]：
 - en: '**Learned indexes**: These reduce index size and improve performance.'
+  id: totrans-222
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**学习到的索引**：这些减少了索引大小并提高了性能。'
 - en: '**Learned data structure design**: Different data structures suit different
     environments (e.g., hardware, read/write applications). Data structure alchemy
     creates an inference engine to recommend and design suitable structures.'
+  id: totrans-223
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**学习型数据结构设计**：不同的数据结构适用于不同的环境（例如，硬件、读写应用）。数据结构炼金术创建了一个推理引擎，以推荐和设计合适的结构。'
 - en: '**Learning-based Transaction Management**: Traditional techniques focus on
     protocols like OCC, PCC, MVCC, 2PC. New studies use AI to predict and schedule
     transactions, balancing conflict rates and concurrency by learning from data patterns
     and predicting future workload trends.'
+  id: totrans-224
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**基于学习的交易管理**：传统技术侧重于OCC、PCC、MVCC、2PC等协议。新的研究利用AI预测和调度交易，通过学习数据模式和预测未来工作负载趋势来平衡冲突率和并发性。'
 - en: 5.20.4 Learning-based Database Monitoring
+  id: totrans-225
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.20.4 基于学习的数据库监控
 - en: Database monitoring captures runtime metrics such as read/write latency and
     CPU/memory usage, alerting administrators to anomalies like performance slowdowns
     and attacks. Traditional methods rely on administrators to monitor activities
     and report problems, which is inefficient. Machine learning techniques optimize
     this process by determining when and how to monitor specific metrics.
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: 数据库监控捕获运行时指标，如读写延迟和CPU/内存使用情况，向管理员发出关于性能下降和攻击等异常的警报。传统方法依赖于管理员监控活动并报告问题，这效率低下。机器学习技术通过确定何时以及如何监控特定指标来优化这一过程。
 - en: 5.20.5 Learning-based Database Security
+  id: totrans-227
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.20.5 基于学习的数据库安全
 - en: 'Traditional database security techniques, such as data masking and auditing,
     rely on user-defined rules and cannot automatically detect unknown vulnerabilities.
     AI-based algorithms address this by:'
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统的数据库安全技术，如数据掩码和审计，依赖于用户定义的规则，无法自动检测未知漏洞。基于AI的算法通过以下方式解决这个问题：
 - en: '**Sensitive Data Discovery**: Automatically identifying sensitive data using
     machine learning.'
+  id: totrans-229
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**敏感数据发现**：使用机器学习自动识别敏感数据。'
 - en: '**Anomaly Detection**: Monitoring database activities to detect vulnerabilities.'
+  id: totrans-230
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**异常检测**：监控数据库活动以检测漏洞。'
 - en: '**Access Control**: Automatically estimating data access actions to prevent
     data leaks.'
+  id: totrans-231
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**访问控制**：自动估计数据访问动作以防止数据泄露。'
 - en: '**SQL Injection Prevention**: Using deep learning to analyze user behavior
     and identify SQL injection attacks.'
+  id: totrans-232
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**SQL注入预防**：使用深度学习分析用户行为并识别SQL注入攻击。'
 - en: 5.20.6 Performance Prediction
+  id: totrans-233
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.20.6 性能预测
 - en: Query performance prediction is crucial for meeting service level agreements
     (SLAs), especially for concurrent queries. Traditional methods focus only on logical
     I/O metrics, neglecting many resource-related features, leading to inaccurate
     results.
+  id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: 查询性能预测对于满足服务水平协议（SLAs）至关重要，尤其是对于并发查询。传统方法仅关注逻辑I/O指标，忽略了许多与资源相关的特征，导致结果不准确。
 - en: Marcus et al. used deep learning to predict query latency under concurrency,
     accounting for interactions between child/parent operators and parallel plans.
     However, their pipeline structure caused information loss and failed to capture
     operator-to-operator relations like data sharing and conflict features.
+  id: totrans-235
   prefs: []
   type: TYPE_NORMAL
+  zh: Marcus等人使用深度学习预测并发下的查询延迟，考虑了子/父操作符之间的交互和并行计划。然而，他们的管道结构导致了信息丢失，未能捕获操作符到操作符的关系，如数据共享和冲突特征。
 - en: To address this, Zhou et al. proposed a method using graph embedding. They modeled
     concurrent queries with a graph where vertices represent operators and edges capture
     operator correlations (e.g., data passing, access conflicts, resource competition).
     A graph convolution network was used to embed the workload graph, extract performance-related
     features, and predict performance based on these features [55].
+  id: totrans-236
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决这个问题，周等人提出了一种使用图嵌入的方法。他们使用一个图来模拟并发查询，其中顶点表示操作符，边捕获操作符之间的相关性（例如，数据传递、访问冲突、资源竞争）。使用图卷积网络将工作负载图嵌入，提取与性能相关的特征，并根据这些特征预测性能[55]。
 - en: 5.20.7 AI Challenges
+  id: totrans-237
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.20.7 AI挑战
 - en: AI models require large-scale, high-quality, diversified training data for optimal
     performance, but obtaining such data in AI4DB is challenging due to security concerns
     and reliance on DBAs. For instance, in database knob tuning, training samples
     depend on DBA experience, making it difficult to gather sufficient samples. Effective
     models also need data covering various scenarios, hardware environments, and workloads,
     necessitating methods that perform well with small training datasets.
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: 人工智能模型需要大规模、高质量、多样化的训练数据以实现最佳性能，但在AI4DB中由于安全问题和对数据库管理员（DBA）的依赖，获取此类数据具有挑战性。例如，在数据库旋钮调整中，训练样本依赖于DBA的经验，这使得收集足够的样本变得困难。有效的模型还需要涵盖各种场景、硬件环境和工作负载的数据，需要在小型训练数据集上表现良好的方法。
 - en: 'Adaptability is a major challenge, including adapting to dynamic data updates,
     different datasets, new hardware environments, and other database systems [55].
     Key questions include:'
+  id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: 适应性是一个主要挑战，包括适应动态数据更新、不同的数据集、新的硬件环境以及其他数据库系统[55]。关键问题包括：
 - en: How to adapt a trained model (e.g., optimizer, cost estimation) to other datasets?
+  id: totrans-240
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如何将训练好的模型（例如，优化器、成本估计）适应其他数据集？
 - en: How to adapt a model to different hardware environments?
+  id: totrans-241
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如何将模型适应不同的硬件环境？
 - en: How to adapt a model across different databases?
+  id: totrans-242
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如何将模型适应不同的数据库？
 - en: How to support dynamic data updates?
+  id: totrans-243
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如何支持动态数据更新？
 - en: Model convergence is crucial. If a model doesn’t converge, alternative solutions
     are needed to avoid delays and inaccuracies, such as in knob tuning where non-converged
     models can’t provide reliable online suggestions.
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: 模型收敛至关重要。如果一个模型没有收敛，就需要其他解决方案来避免延迟和不准确，例如在旋钮调整中，非收敛的模型无法提供可靠的在线建议。
 - en: Traditional OLAP focuses on relational data analytics, but big data introduces
     new types like graph, time-series, and spatial data. New techniques are required
     to analyze these multi-model data types and integrate AI with DB techniques for
     enhanced analytics, such as image analysis.
+  id: totrans-245
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统OLAP主要关注关系型数据分析，但大数据引入了新的类型，如图、时间序列和空间数据。需要新的技术来分析这些多模型数据类型，并将人工智能与数据库技术相结合以增强分析，例如图像分析。
 - en: Transaction modeling and scheduling are critical for OLTP systems due to potential
     conflicts between transactions. Learning techniques can optimize OLTP queries,
     like consistent snapshots. However, efficient models are needed to instantly model
     and schedule transactions across multiple cores and machines.
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于事务之间可能存在冲突，事务建模和调度对于OLTP系统至关重要。学习技术可以优化OLTP查询，如一致快照。然而，需要高效的模型来即时在多个核心和机器上建模和调度事务。
 - en: 5.20.8 AI Summary
+  id: totrans-247
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.20.8 AI总结
 - en: Integrating AI into MySQL offers many impactful opportunities and is one of
     the main focuses for future development.
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: 将人工智能集成到MySQL提供了许多有影响力的机会，并且是未来开发的主要焦点之一。
 - en: 5.21 How MySQL Internals Work in a Pipeline Fashion?
+  id: totrans-249
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.21 MySQL内部如何以管道方式工作？
 - en: Database engines like MySQL excel at medium concurrency, interleaving the execution
     of many transactions, most of which are idle at any given moment [3]. However,
     as the number of cores per chip increases with Moore’s law, MySQL must exploit
     high parallelism to benefit from new hardware. Despite high concurrency in workloads,
     internal bottlenecks often prevent MySQL from achieving the needed parallelism.
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: 类似MySQL这样的数据库引擎在中等并发性方面表现出色，交错执行许多事务，其中大多数在任何给定时刻都是空闲的[3]。然而，随着摩尔定律下每颗芯片核心数量的增加，MySQL必须利用高并行性来从新的硬件中获益。尽管工作负载具有高并发性，但内部瓶颈通常阻止MySQL达到所需的并行性。
 - en: MySQL’s internal operations follow a pipelining approach, where each component
     functions methodically. To ensure correctness, MySQL uses latches and locks to
     prevent interference between concurrent operations. For crash-safe recovery, MySQL
     employs mechanisms like redo log, undo log, idempotence, and double write.
+  id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL的内部操作遵循管道方法，其中每个组件都按部就班地工作。为了确保正确性，MySQL使用闩锁和锁来防止并发操作之间的干扰。为了实现崩溃安全恢复，MySQL采用诸如重做日志、回滚日志、幂等性和双重写入等机制。
 - en: To support concurrent read and write operations, MySQL implements transaction
     isolation levels and MVCC. These mechanisms enable efficient handling of concurrent
     operations.
+  id: totrans-252
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了支持并发读写操作，MySQL实现了事务隔离级别和MVCC。这些机制使得处理并发操作变得高效。
 - en: To mitigate single-server failure risks, MySQL uses clustering and high availability
     solutions. Some operations, such as redo log flushing and MVCC ReadView replication,
     are serialized. Fast execution of these processes supports high throughput, but
     slow serialization can hinder scalability.
+  id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了减轻单服务器故障风险，MySQL使用集群和高可用性解决方案。一些操作，如重做日志刷新和MVCC ReadView复制，是串行的。这些过程的快速执行支持高吞吐量，但慢速串行化可能会阻碍可伸缩性。
 - en: MySQL manages various processes, including SQL parsing, execution plan generation,
     redo log writing, transaction subsystem operations, lock subsystem operations,
     binlog group commit, and network interactions. Effective throughput is achieved
     when these processes are handled by different threads without overlap. However,
     thread aggregation in a serialized process can lead to conflicts and performance
     problems.
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL管理各种进程，包括SQL解析、执行计划生成、重做日志写入、事务子系统操作、锁定子系统操作、binlog组提交和网络交互。当这些过程由不同的线程处理且无重叠时，才能实现有效的吞吐量。然而，串行过程中的线程聚合可能导致冲突和性能问题。
 - en: Optimizing MySQL’s efficiency involves faster response times, reduced CPU consumption,
     and enhanced scalability.
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: 优化MySQL的效率涉及更快的响应时间、减少CPU消耗和增强可伸缩性。
 - en: 5.22 Why MySQL Needs to Support High Concurrency?
+  id: totrans-256
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.22 为什么MySQL需要支持高并发？
 - en: The inability to achieve high throughput is primarily due to the constraints
     of guaranteeing ACID. More cores lead to more concurrent transactions accessing
     the same contended data, requiring serialized access to ensure isolation. The
@@ -1333,258 +1869,376 @@
     Regardless, some operations will always require serialization, limiting throughput.
     Adding more processors only increases throughput if additional transactions do
     not conflict with existing ones [23].
+  id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: 无法实现高吞吐量主要是由于保证ACID的约束。更多的核心会导致更多并发事务访问相同竞争数据，需要串行访问以确保隔离。数据库系统的最大吞吐量取决于硬件和软件实现等因素。虽然更好的硬件和软件可以提高性能，但吞吐量本质上受限于竞争操作。竞争操作随着事务隔离级别、多版本化能力和操作交换性而变化。无论如何，一些操作始终需要串行化，这限制了吞吐量。只有当额外的交易不与现有的交易冲突时，增加更多的处理器才能提高吞吐量
+    [23]。
 - en: In high-conflict scenarios, linear scalability of throughput is unachievable.
     However, scalability improves in low conflict scenarios, as evidenced by TPC-C
     tests with numerous warehouses. In practical MySQL operations, short bursts of
     high concurrency are common. Supporting high concurrency helps maintain MySQL
     stability during runtime.
+  id: totrans-258
   prefs: []
   type: TYPE_NORMAL
+  zh: 在高冲突场景中，吞吐量的线性可伸缩性是无法实现的。然而，在低冲突场景中，可伸缩性会提高，如众多仓库的TPC-C测试所示。在实际的MySQL操作中，短时间的高并发爆发是常见的。支持高并发有助于在运行时保持MySQL的稳定性。
 - en: Subsequently, the significance of supporting high concurrency specifically for
     TPC-C testing is analyzed. The figure below illustrates the relationship between
     throughput and concurrency for MySQL 5.7.39 under a 1ms thinking time scenario.
     In this context, 1ms thinking time means the user waits 1ms before sending the
     next request after receiving the response from the previous one.
+  id: totrans-259
   prefs: []
   type: TYPE_NORMAL
+  zh: 随后，分析了支持高并发对于TPC-C测试的具体重要性。下图显示了在1毫秒思考时间场景下，MySQL 5.7.39的吞吐量与并发之间的关系。在此背景下，1毫秒思考时间意味着用户在收到前一个响应后等待1毫秒，然后发送下一个请求。
 - en: '![image-20240829092027870](../Images/c9d89222e3df75d3deee5f9946d3cd5c.png)'
+  id: totrans-260
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829092027870](../Images/c9d89222e3df75d3deee5f9946d3cd5c.png)'
 - en: Figure 5-15\. MySQL 5.7.39 poor scalability with 1ms thinking time.
+  id: totrans-261
   prefs: []
   type: TYPE_NORMAL
+  zh: 图5-15. MySQL 5.7.39在1毫秒思考时间下的较差可伸缩性。
 - en: From the figure, it can be observed that under a 1ms thinking time scenario,
     the throughput of MySQL 5.7.39 increases linearly at low concurrency levels. However,
     once it reaches 250 concurrency, the throughput sharply declines.
+  id: totrans-262
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在1毫秒思考时间场景下，MySQL 5.7.39的吞吐量在低并发级别时呈线性增长。然而，一旦达到250并发，吞吐量会急剧下降。
 - en: 'The following figure shows the relationship between throughput and concurrency
     for improved MySQL 8.0.27 under the same 1ms thinking time scenario:'
+  id: totrans-263
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图显示了在相同1毫秒思考时间场景下，改进后的MySQL 8.0.27的吞吐量与并发之间的关系：
 - en: '![image-20240829092050429](../Images/a473ac53eea5c13752d75acd2d5cb17f.png)'
+  id: totrans-264
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829092050429](../Images/a473ac53eea5c13752d75acd2d5cb17f.png)'
 - en: Figure 5-16\. Excellent scalability of improved MySQL 8.0.27 with 1ms thinking
     time.
+  id: totrans-265
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 5-16\. 改进的 MySQL 8.0.27 在 1ms 思考时间下的卓越可扩展性。
 - en: From the figure, it can be seen that the peak throughput is reached at 1000
     concurrency, and this peak significantly exceeds the peak of MySQL 5.7.39 version.
+  id: totrans-266
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，峰值吞吐量在 1000 并发时达到，并且这个峰值显著超过了 MySQL 5.7.39 版本的峰值。
 - en: High concurrency support in MySQL is not only crucial for scenarios with thinking
     time but also essential for deployments across multiple cities (geographically
     distributed deployments).
+  id: totrans-267
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 的高并发支持不仅对具有思考时间的场景至关重要，而且对于跨多个城市的部署（地理分布式部署）也是必不可少的。
 - en: The following figure illustrates the relationship between throughput and concurrency
     for improved MySQL 8.0.27 under different network latency scenarios.
+  id: totrans-268
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图展示了在不同网络延迟场景下改进的 MySQL 8.0.27 的吞吐量和并发性之间的关系。
 - en: '![image-20240829092158912](../Images/75166a109fb95f1d7b30306d383e286a.png)'
+  id: totrans-269
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829092158912](../Images/75166a109fb95f1d7b30306d383e286a.png)'
 - en: Figure 5-17\. Excellent scalability of improved MySQL 8.0.27 under different
     network latencies.
+  id: totrans-270
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 5-17\. 改进的 MySQL 8.0.27 在不同网络延迟下的卓越可扩展性。
 - en: In scenarios with network latency in the tens of microseconds range for localhost
     access, peak throughput is achieved at 250 concurrency. With a network latency
     of 5ms, peak throughput is reached at 500 concurrency, and with a 10ms latency,
     it requires 1000 concurrency.
+  id: totrans-271
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本地访问的延迟在几十微秒范围内的场景中，峰值吞吐量在 250 并发时达到。当网络延迟为 5ms 时，峰值吞吐量在 500 并发时达到，而在 10ms
+    延迟下，则需要 1000 并发。
 - en: Therefore, enhancing MySQL’s scalability is highly meaningful. In low-conflict
     scenarios, enhancing scalability significantly improves throughput and has profound
     implications across various application contexts. However, in high-conflict situations,
     transaction throttling strategies are necessary to mitigate scalability problems.
+  id: totrans-272
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，增强 MySQL 的可扩展性非常有意义。在低冲突场景中，显著增强可扩展性可以显著提高吞吐量，并在各种应用场景中产生深远的影响。然而，在高冲突情况下，需要采取事务节流策略来缓解可扩展性问题。
 - en: 5.23 Understanding MySQL Cluster Scalability
+  id: totrans-273
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.23 理解 MySQL 集群的可扩展性
 - en: First, let’s examine the scalability of asynchronous replication. The following
     figure illustrates the relationship between throughput and concurrency for both
     a standalone MySQL instance and asynchronous replication.
+  id: totrans-274
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，让我们来考察异步复制的可扩展性。下图展示了独立 MySQL 实例和异步复制之间的吞吐量和并发性关系。
 - en: '![image-20240829092329794](../Images/3289831e08c974081c7823ff94dfcfe8.png)'
+  id: totrans-275
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829092329794](../Images/3289831e08c974081c7823ff94dfcfe8.png)'
 - en: Figure 5-18\. Excellent scalability of MySQL asynchronous replication.
+  id: totrans-276
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 5-18\. MySQL 异步复制的卓越可扩展性。
 - en: From the figure, it can be seen that with asynchronous replication, the MySQL
     secondary does not significantly impact the throughput of the MySQL primary.
+  id: totrans-277
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在异步复制的情况下，MySQL 从节点对 MySQL 主节点的吞吐量没有显著影响。
 - en: Let’s now examine the scalability of semisynchronous replication. For example,
     the following figure illustrates the relationship between throughput and concurrency
     for semisynchronous replication.
+  id: totrans-278
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在让我们来考察半同步复制的可扩展性。例如，下图展示了半同步复制吞吐量和并发性之间的关系。
 - en: '![image-20240829092612681](../Images/21bfcc4378bea2e5241fdbdbfc835d1a.png)'
+  id: totrans-279
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829092612681](../Images/21bfcc4378bea2e5241fdbdbfc835d1a.png)'
 - en: Figure 5-19\. Poor scalability of MySQL semisynchronous replication.
+  id: totrans-280
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 5-19\. MySQL 半同步复制的可扩展性差。
 - en: From the figure, it is clear that the throughput of semisynchronous replication
     struggles to increase further. After reaching 100 concurrency, the throughput
     gradually declines, suggesting a barrier that limits additional scaling. For more
     details, please refer to section 5.17.3.
+  id: totrans-281
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，半同步复制的吞吐量难以进一步增加。在达到 100 并发后，吞吐量逐渐下降，表明存在一个限制额外扩展的障碍。更多详情请参阅 5.17.3
+    节。
 - en: 'Finally, let’s examine the scalability of Group Replication. Before delving
     into that, it’s important to understand the performance drawbacks of state machine
     replication [41], as explained below:'
+  id: totrans-282
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，让我们来考察 Group Replication 的可扩展性。在深入探讨之前，了解状态机复制的性能缺点[41]，如下所述是很重要的：
 - en: '*However, the communication and synchronization cost of agreement entails that
     state-machine replication adds a considerable overhead to the system’s performance,
     i.e., typical state-machine replication request rates are lower than the request
     rates of non-replicated systems.*'
+  id: totrans-283
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，一致性协议的通信和同步成本意味着状态机复制给系统的性能增加了相当大的开销，即典型的状态机复制请求速率低于非复制系统的请求速率。
 - en: Subsequently, the maximum scalability of Group Replication is tested, including
     the implementation of transaction throttling mechanisms to ensure that only a
     specified number of threads can access the transaction system.
+  id: totrans-284
   prefs: []
   type: TYPE_NORMAL
+  zh: 随后，测试了组复制的最大可伸缩性，包括实施事务节流机制以确保只有指定数量的线程可以访问事务系统。
 - en: 'The following figure shows the relationship between Group Replication throughput
     and concurrency:'
+  id: totrans-285
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图显示了组复制吞吐量与并发性之间的关系：
 - en: '![image-20240829092656320](../Images/77aac650c87a11b03ad5b089ab0e58a9.png)'
+  id: totrans-286
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829092656320](../Images/77aac650c87a11b03ad5b089ab0e58a9.png)'
 - en: Figure 5-20\. Excellent scalability of improved Group Replication with transaction
     throttling mechanisms.
+  id: totrans-287
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 5-20\. 带有事务节流机制的改进组复制的卓越可伸缩性。
 - en: When throughput peaks at 250 concurrency and then slowly declines, it clearly
     demonstrates that Group Replication exhibits excellent scalability under the transaction
     throttling mechanism. Compared to semisynchronous replication, Group Replication’s
     design is significantly superior.
+  id: totrans-288
   prefs: []
   type: TYPE_NORMAL
+  zh: 当吞吐量达到250并发并随后缓慢下降时，这清楚地表明在事务节流机制下，组复制表现出卓越的可伸缩性。与半同步复制相比，组复制的架构设计明显更优越。
 - en: It is important to note that transaction throttling is implemented to manage
     the broad range of concurrency. An excessive number of transactions entering the
     InnoDB storage engine can degrade performance and interfere with the evaluation
     of Group Replication’s scalability.
+  id: totrans-289
   prefs: []
   type: TYPE_NORMAL
+  zh: 重要的是要注意，事务节流被实施以管理广泛的并发性。过多的事务进入 InnoDB 存储引擎可能会降低性能并干扰对组复制可伸缩性的评估。
 - en: 5.24 MySQL Problem Diagnosis
+  id: totrans-290
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.24 MySQL 问题诊断
 - en: Bugs are an inevitable part of programming. Logical reasoning is crucial for
     identifying and fixing these bugs. It involves systematically analyzing the code,
     diagnosing the causes of problems, and devising a plan to address them based on
     logical deductions and inferences. This approach helps programmers debug and troubleshoot
     in a structured and effective manner [56].
+  id: totrans-291
   prefs: []
   type: TYPE_NORMAL
+  zh: 缺陷是编程的必然部分。逻辑推理对于识别和修复这些缺陷至关重要。这涉及到系统地分析代码、诊断问题的原因，并根据逻辑推理和推断制定解决方案的计划。这种方法有助于程序员以结构化和有效的方式进行调试和故障排除
+    [56]。
 - en: In addition to the commonly used GDB debugging, another approach is to use logging
     to assist in troubleshooting problems. There will be case studies introducing
     this method in the subsequent chapters.
+  id: totrans-292
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了常用的 GDB 调试之外，另一种方法是使用日志来协助故障排除。后续章节将介绍介绍这种方法的研究案例。
 - en: 'Besides the methods mentioned above, MySQL itself also provides several debugging
     solutions, which are described as follows:'
+  id: totrans-293
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了上述方法之外，MySQL 本身也提供了几种调试解决方案，具体描述如下：
 - en: 1）MySQL is compiled with debug mode enabled, and trace output can be added in
     the command terminal (refer to the example below).
+  id: totrans-294
   prefs: []
   type: TYPE_NORMAL
+  zh: 1）MySQL 以调试模式编译，可以在命令终端中添加跟踪输出（请参考以下示例）。
 - en: '[PRE4]'
+  id: totrans-295
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'Executing specific SQL statements will output MySQL’s internal function call
     relationships to the trace file, as shown in the example below:'
+  id: totrans-296
   prefs: []
   type: TYPE_NORMAL
+  zh: 执行特定的 SQL 语句会将 MySQL 的内部函数调用关系输出到跟踪文件中，如下例所示：
 - en: '![](../Images/61be4f1b34bbb1d35f8172fc03541d1a.png)'
+  id: totrans-297
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/61be4f1b34bbb1d35f8172fc03541d1a.png)'
 - en: Trace information is very helpful for understanding how MySQL operates, but
     this method is only suitable for scenarios with very low traffic volume.
+  id: totrans-298
   prefs: []
   type: TYPE_NORMAL
+  zh: 跟踪信息对于理解 MySQL 的工作方式非常有帮助，但这种方法仅适用于流量非常低的场景。
 - en: 2）The Performance Schema collects statistics on various types of information,
     including memory usage information, locks, and statistics on condition variables,
     among others.
+  id: totrans-299
   prefs: []
   type: TYPE_NORMAL
+  zh: 2）性能模式收集各种类型的信息的统计数据，包括内存使用信息、锁以及条件变量的统计数据等。
 - en: '![](../Images/9a42f61b4b93e9a9038bed67505e85fc.png)'
+  id: totrans-300
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/9a42f61b4b93e9a9038bed67505e85fc.png)'
 - en: The figure above uses Performance Schema to perform statistical analysis on
     mutexes and other elements, making it easy to identify which ones incur higher
     costs.
+  id: totrans-301
   prefs: []
   type: TYPE_NORMAL
+  zh: 上图使用性能模式对互斥锁和其他元素进行统计分析，使得识别哪些元素产生更高的成本变得容易。
 - en: 5.25 The Significant Differences Between BenchmarkSQL and SysBench
+  id: totrans-302
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5.25 BenchmarkSQL 和 SysBench 之间的显著差异
 - en: Using the case of optimizing lock-sys as an example, this section evaluates
     the significant differences between the SysBench tool and BenchmarkSQL in MySQL
     performance testing.
+  id: totrans-303
   prefs: []
   type: TYPE_NORMAL
+  zh: 以优化lock-sys为例，本节评估了SysBench工具和BenchmarkSQL在MySQL性能测试中的显著差异。
 - en: First, use SysBench’s standard read/write tests to evaluate the optimization
     of lock-sys.
+  id: totrans-304
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，使用SysBench的标准读写测试来评估lock-sys的优化。
 - en: '![image-20240829092940314](../Images/b29090872284cbdbfd1faed25b7a9c21.png)'
+  id: totrans-305
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829092940314](../Images/b29090872284cbdbfd1faed25b7a9c21.png)'
 - en: Figure 5-21\. Comparison of SysBench read-write tests before and after lock-sys
     optimization.
+  id: totrans-306
   prefs: []
   type: TYPE_NORMAL
+  zh: 图5-21\. 锁-sys优化前后SysBench读写测试的比较。
 - en: From the figure, it can be observed that after optimization, the overall performance
     of the SysBench tests has actually decreased.
+  id: totrans-307
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以观察到，经过优化后，SysBench测试的整体性能实际上有所下降。
 - en: Next, using BenchmarkSQL to test this optimization, the results are shown in
     the following figure.
+  id: totrans-308
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，使用BenchmarkSQL测试这个优化，结果如下图所示。
 - en: '![image-20240829092959775](../Images/ff3dbfa2caedb8fe8f1755edfda03f08.png)'
+  id: totrans-309
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829092959775](../Images/ff3dbfa2caedb8fe8f1755edfda03f08.png)'
 - en: Figure 5-22\. Comparison of BenchmarkSQL tests before and after lock-sys optimization.
+  id: totrans-310
   prefs: []
   type: TYPE_NORMAL
+  zh: 图5-22\. 锁-sys优化前后BenchmarkSQL测试的比较。
 - en: From the figure, it can be seen that the results of BenchmarkSQL’s TPC-C test
     indicate that the lock-sys optimization is effective. Why does such a significant
     difference occur? Let’s analyze the differences in characteristics between these
     testing tools to understand why their tests differ.
+  id: totrans-311
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，BenchmarkSQL的TPC-C测试结果表明lock-sys优化是有效的。为什么会出现如此显著的区别？让我们分析这些测试工具之间特性的差异，以了解为什么它们的测试结果不同。
 - en: SysBench RW testing is characterized by its speed and simplicity with SQL queries.
     Under the same concurrency conditions, SysBench typically handles fewer concurrent
     transactions compared to BenchmarkSQL. Therefore, in the face of latch queue bottlenecks
     like lock-sys, high concurrency in SysBench may equate to low concurrency in BenchmarkSQL.
     Consequently, lock-sys optimizations may not have a significant impact in scenarios
     where BenchmarkSQL operates at lower concurrency levels.
+  id: totrans-312
   prefs: []
   type: TYPE_NORMAL
+  zh: SysBench RW测试以其速度和简单性以及SQL查询为特点。在相同的并发条件下，SysBench通常处理的并发事务比BenchmarkSQL少。因此，面对如lock-sys这样的闩锁队列瓶颈，SysBench的高并发可能等同于BenchmarkSQL的低并发。因此，lock-sys优化可能不会在BenchmarkSQL运行在较低并发级别的情况下产生重大影响。
 - en: BenchmarkSQL, a widely used TPC-C testing tool, distributes user threads more
     evenly across various modules, reducing susceptibility to aggregation effects.
     In high-concurrency situations, optimizing lock-sys can significantly reduce latch
     conflicts and minimize impact on other queues, thereby improving throughput. BenchmarkSQL’s
     TPC-C testing is better suited for uncovering deeper concurrency problems in MySQL
     compared to SysBench.
+  id: totrans-313
   prefs: []
   type: TYPE_NORMAL
+  zh: BenchmarkSQL，一个广泛使用的TPC-C测试工具，将用户线程更均匀地分布在各个模块中，减少了聚合效应的敏感性。在高并发情况下，优化lock-sys可以显著减少闩锁冲突并最小化对其他队列的影响，从而提高吞吐量。与SysBench相比，BenchmarkSQL的TPC-C测试更适合揭示MySQL中的更深层次的并发问题。
 - en: This analysis uses deductive reasoning to explore the differences between SysBench
     and BenchmarkSQL. It demonstrates that poor performance in SysBench tests does
     not necessarily indicate poor performance in production environments, and vice
@@ -1592,21 +2246,31 @@
     significantly from real-world production environments. Consequently, SysBench
     test results should be used for scenario-specific performance comparisons rather
     than as comprehensive indicators of production capabilities.
+  id: totrans-314
   prefs: []
   type: TYPE_NORMAL
+  zh: 本分析采用演绎推理来探讨SysBench和BenchmarkSQL之间的差异。它表明，SysBench测试中的性能不佳并不一定意味着生产环境中的性能不佳，反之亦然。这种差异产生的原因是SysBench测试环境通常与实际生产环境存在显著差异。因此，SysBench测试结果应用于特定场景的性能比较，而不是作为生产能力的全面指标。
 - en: 'It is worth noting that the main basis for performance testing and comparison
     in this book, mainly based on TPC-C, is as follows [50]:'
+  id: totrans-315
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得注意的是，本书中性能测试和比较的主要依据，主要基于TPC-C，如下[50]：
 - en: '*TPC benchmark C also known as TPC-C which is the leading online transaction
     processing (OLTP) benchmark has been used to perform the comparison.*'
+  id: totrans-316
   prefs: []
   type: TYPE_NORMAL
+  zh: '*TPC基准C也称为TPC-C，是领先的在线事务处理（OLTP）基准，已被用于进行比较*。'
 - en: In this book, BenchmarkSQL is predominantly used for TPC-C testing. This choice
     is based not only on BenchmarkSQL’s representative TPC-C testing capabilities
     but also on its higher alignment with real-world online environments.
+  id: totrans-317
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这本书中，BenchmarkSQL 主要用于 TPC-C 测试。这个选择不仅基于 BenchmarkSQL 在 TPC-C 测试中的代表性能力，还因为它与实际在线环境的高度一致性。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter6.html)'
+  id: totrans-318
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一章](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter6.html)'

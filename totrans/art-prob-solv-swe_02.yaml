@@ -1,20 +1,30 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 软件工程中的问题解决艺术_如何让MySQL更佳
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part1.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part1.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part1.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part1.html)
 - en: Part1 Problems
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Part1 问题
 - en: This part focuses entirely on MySQL-related problems. Chapter 1 explores how
     users approach and solve challenging MySQL problems. Chapter 2 focuses on mysterious
     problems in MySQL 8.0.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 本部分完全专注于MySQL相关的问题。第一章探讨了用户如何接近和解决具有挑战性的MySQL问题。第二章专注于MySQL 8.0中的神秘问题。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter1.html)'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一节](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter1.html)'

@@ -1,77 +1,112 @@
 - en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 《软件工程中的问题解决艺术：如何让 MySQL 更好》
 - en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter8.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter8.html)
+  id: totrans-1
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter8.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter8.html)
 - en: 'Chapter 8: Refining MySQL 8.0: Next-Level Improvements'
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第8章：精炼 MySQL 8.0：下一级改进
 - en: This chapter examines optimization opportunities and solutions found in MySQL
     8.0 improvements, including SQL layer improvements, InnoDB storage engine enhancements,
     transaction throttling mechanisms, and improvements in read and write performance
     for low concurrency.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章探讨了 MySQL 8.0 改进中发现的优化机会和解决方案，包括 SQL 层的改进、InnoDB 存储引擎的增强、事务节流机制以及低并发读写性能的改进。
 - en: 8.1 Improvements at the SQL Layer
+  id: totrans-4
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 8.1 SQL 层的改进
 - en: The performance degradation problem in certain scenarios related to query execution
     plans was fixed. The mechanism activating user threads in binlog group commit
     was also improved, further improving efficiency.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 查询执行计划中某些场景的性能下降问题得到了解决。激活 binlog group commit 中的用户线程的机制也得到了改进，从而进一步提高了效率。
 - en: 8.1.1 Solved Performance Degradation in Query Execution Plans
+  id: totrans-6
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.1.1 解决了查询执行计划中的性能下降问题
 - en: During secondary development on MySQL 8.0.27, TPC-C tests with BenchmarkSQL
     became unstable. Throughput rapidly declined, complicating optimization. Trust
     in the official version led to initially overlooking this problem despite testing
     difficulties.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 在对 MySQL 8.0.27 进行二次开发期间，使用 BenchmarkSQL 的 TPC-C 测试变得不稳定。吞吐量迅速下降，使得优化变得复杂。尽管测试困难，但最初由于对官方版本的信任而忽略了这个问题。
 - en: Only after a user reported a significant performance drop following an upgrade
     did we begin to take it seriously. The reliable feedback from users indicated
     that while MySQL 8.0.25 performed well, upgrading to MySQL 8.0.29 led to a substantial
     decline. This crucial information indicated that there was a performance problem.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 只有在用户报告了在升级后性能显著下降之后，我们才开始认真对待这个问题。用户的可靠反馈表明，虽然 MySQL 8.0.25 的性能良好，但升级到 MySQL
+    8.0.29 导致了显著的性能下降。这一关键信息表明存在性能问题。
 - en: 'Simultaneously, it was confirmed that the performance degradation problem in
     MySQL 8.0.27 was the same as in MySQL 8.0.29\. MySQL 8.0.27 had undergone two
     scalability optimizations specifically for trx-sys, which theoretically should
     have increased throughput. Reviewing the impact of latch sharding in trx-sys on
     performance:'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 同时，确认 MySQL 8.0.27 中的性能下降问题与 MySQL 8.0.29 中的问题相同。MySQL 8.0.27 对 trx-sys 进行了两次针对可扩展性的优化，理论上应该会增加吞吐量。回顾
+    latch sharding 在 trx-sys 上的性能影响：
 - en: '![image-20240829102323261](../Images/4d71032cd37aa0881e0ffd416fa3f9de.png)'
+  id: totrans-10
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829102323261](../Images/4d71032cd37aa0881e0ffd416fa3f9de.png)'
 - en: Figure 8-1\. Impact of latch sharding in trx-sys under different concurrency
     levels.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-1\. 不同并发级别下 trx-sys 中 latch sharding 的影响。
 - en: 'Let’s continue examining the comparison of throughput and concurrency between
     trx-sys latch sharding optimization and the MySQL 8.0.27 release version. Specific
     details are shown in the following figure:'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们继续比较 trx-sys latch sharding 优化与 MySQL 8.0.27 发布版本之间的吞吐量和并发性。具体细节如下所示：
 - en: '![image-20240829102344815](../Images/e95bbab82b6fa4a743016fc885f2c7aa.png)'
+  id: totrans-13
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829102344815](../Images/e95bbab82b6fa4a743016fc885f2c7aa.png)'
 - en: Figure 8-2\. Performance degradation in MySQL 8.0.27 release version.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-2\. MySQL 8.0.27 发布版本中的性能下降。
 - en: From the figure, it is evident that the performance degradation of the MySQL
     8.0.27 release version is significant under low concurrency conditions, with a
     noticeable drop in peak performance. This aligns with user feedback regarding
     decreased throughput and is easily reproducible using BenchmarkSQL.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在低并发条件下，MySQL 8.0.27 发布版本的性能下降非常明显，峰值性能出现了明显下降。这与用户关于吞吐量下降的反馈一致，并且使用
+    BenchmarkSQL 很容易重现。
 - en: 'The MySQL 8.0.27 release version already had this problem, whereas the earlier
     MySQL 8.0.25 release version did not. Using this information, the goal was to
     identify the specific git commit that caused the performance degradation. Finding
@@ -82,37 +117,53 @@
     the problem. It was later discovered that this commit was a collective merge from
     a particular branch. This allowed for further breakdown and ultimately identifying
     the root cause of the problem in the following:'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 8.0.27发布版本已经存在这个问题，而早先的MySQL 8.0.25发布版本则没有。利用这个信息，目标是确定导致性能下降的具体git提交。找到导致性能下降的git提交是一个复杂的过程，通常涉及二分搜索。经过广泛的测试，最初缩小到特定的提交。然而，这个提交包含数万行代码，使得几乎不可能确定导致问题的确切代码段。后来发现，这个提交是从特定分支的一个合并。这允许进一步分解，并最终在以下方面确定了问题的根本原因：
 - en: '[PRE0]'
+  id: totrans-17
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: 'Using the commit information, two versions were compiled and SQL queries performing
     exceptionally slow in TPC-C tests were identified. The execution plans of these
     slow SQL queries were analyzed using *‘explain’*. Specific details are shown in
     the following figure:'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用提交信息，编译了两个版本，并识别出在TPC-C测试中执行特别缓慢的SQL查询。使用“*explain*”分析了这些慢速SQL查询的执行计划。具体细节如下图所示：
 - en: '![](../Images/c5a58f9e4c7f0722c97d2b126f5aa230.png)'
+  id: totrans-19
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/c5a58f9e4c7f0722c97d2b126f5aa230.png)'
 - en: Figure 8-3\. Abnormalities indicated by rows in *‘explain’*.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-3。“*explain*”中行数显示的异常。
 - en: 'From the figure, it can be seen that most of the execution plans are identical,
     except for the *‘rows’* column. In the normal version, the *‘rows’* column shows
     just over 200, whereas in the problematic version, it shows over 1,000,000\. After
     continuously simplifying the SQL, a highly representative SQL query was finally
     identified. Specific details are shown in the following figure:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，大多数执行计划是相同的，除了“*行数*”列。在正常版本中，“*行数*”列显示略超过200，而在有问题的版本中，它显示超过1,000,000。经过不断地简化SQL语句，最终确定了一个具有高度代表性的SQL查询。具体细节如下图所示：
 - en: '![](../Images/d9517156aa8e41eb66e105f7fe29e112.png)'
+  id: totrans-22
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/d9517156aa8e41eb66e105f7fe29e112.png)'
 - en: Figure 8-4\. Significant discrepancies between SQL execution results and *‘explain’*
     output.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-4。SQL执行结果与“*explain*”输出的显著差异。
 - en: Based on the *Filter* information obtained from ‘*explain*’, the last query
     shown in the figure was constructed. The figure reveals that while the last query
     returned only 193 rows, ‘*explain*’ displayed over 1.17 million rows for *‘rows’*.
@@ -122,172 +173,253 @@
     solving the problem. Although solving the problem was relatively straightforward
     with this information, analyzing the root cause from the SQL statement itself
     proved to be far more challenging.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据从“*explain*”获得的“*过滤*”信息，构建了图中所显示的最后一个查询。图显示，尽管最后一个查询只返回了193行，但“*explain*”显示“*行数*”超过1.17百万行。这种差异凸显了一个复杂问题，因为并非所有MySQL开发者都能完全理解执行计划。幸运的是，识别出导致性能下降的提交为解决问题提供了关键的基础。尽管有了这些信息解决问题相对直接，但分析SQL语句本身的根本原因证明要困难得多。
 - en: 'Let’s continue with an in-depth analysis of this problem. The following figure
     displays the ‘*explain*’ result for a specific SQL query:'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们继续深入分析这个问题。以下图显示了特定SQL查询的“*explain*”结果：
 - en: '![](../Images/e0c1b3f120ff1b645df8d3ecf211f60a.png)'
+  id: totrans-26
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/e0c1b3f120ff1b645df8d3ecf211f60a.png)'
 - en: Figure 8-5\. Sample SQL query representing the problem.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-5。表示问题的示例SQL查询。
 - en: From the figure, it can be seen that the number of rows is still large, indicating
     that this SQL query is representative.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，行数仍然很大，这表明这个SQL查询具有代表性。
 - en: 'Two different debug versions of MySQL were compiled: one with anomalies and
     one normal. Debug versions were used to capture useful function call relationships
     through debug traces. When executing the problematic SQL statement on the version
     with anomalies, the relevant debug trace information is as follows:'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 编译了两种不同的MySQL调试版本：一个包含异常，一个正常。使用调试版本通过调试跟踪捕获有用的函数调用关系。在异常版本上执行有问题的SQL语句时，相关的调试跟踪信息如下：
 - en: '![](../Images/d457871adfb51bb8dc45ef27b112ab96.png)'
+  id: totrans-30
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/d457871adfb51bb8dc45ef27b112ab96.png)'
 - en: Figure 8-6\. Debug trace information for the abnormal version.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-6。异常版本的调试跟踪信息。
 - en: 'Similarly, for the normal version, the relevant debug trace information is
     as follows:'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 类似地，对于正常版本，相关的调试跟踪信息如下：
 - en: '![](../Images/6bfe987a002ee9a829e58c5629c647ff.png)'
+  id: totrans-33
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/6bfe987a002ee9a829e58c5629c647ff.png)'
 - en: Figure 8-7\. Debug trace information for the normal version.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-7。正常版本的调试跟踪信息。
 - en: Comparing the two figures above, it is noticeable that the normal version includes
     additional content within the green box, indicating that conditions are applied
     in the normal version, whereas the abnormal version lacks these conditions. To
     understand why the abnormal version is missing these conditions, it is necessary
     to add additional trace information in the *get_full_func_mm_tree* function to
     capture specific details about the cause of this difference.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 比较上述两个图，可以注意到正常版本在绿色框内包含额外的内容，表明在正常版本中应用了条件，而异常版本缺少这些条件。为了理解为什么异常版本缺少这些条件，有必要在*get_full_func_mm_tree*函数中添加额外的跟踪信息，以捕获导致这种差异的具体细节。
 - en: 'After adding extra trace information, the debug trace result for the abnormal
     version is as follows:'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 添加额外的跟踪信息后，异常版本的调试跟踪结果如下：
 - en: '![](../Images/f23b53de0a2c47c64c3d55b9a296c85d.png)'
+  id: totrans-37
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/f23b53de0a2c47c64c3d55b9a296c85d.png)'
 - en: Figure 8-8\. Supplementary debug trace information for the abnormal version.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-8。异常版本的补充调试跟踪信息。
 - en: 'The debug trace result for the normal version is as follows:'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 正常版本的调试跟踪结果如下：
 - en: '![](../Images/3a02fc8312995d4e81a1a718fc0adaed.png)'
+  id: totrans-40
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/3a02fc8312995d4e81a1a718fc0adaed.png)'
 - en: Figure 8-9\. Supplementary debug trace information for the normal version.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-9。正常版本的补充调试跟踪信息。
 - en: 'Upon comparing the two figures above, significant differences are observed.
     In the normal version, the value of *param_comp* is 16140901064495857660, while
     in the abnormal version, it is 16140901064495857661, differing by 1\. To understand
     this discrepancy, let’s first examine how the *param_comp* value is calculated,
     as detailed in the following code snippet:'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 比较上述两个图，可以观察到显著的差异。在正常版本中，*param_comp*的值为16140901064495857660，而在异常版本中，它为16140901064495857661，相差1。为了理解这种差异，让我们首先检查*param_comp*值的计算方法，如下面的代码片段中详细说明：
 - en: '[PRE1]'
+  id: totrans-43
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: From the code, it’s evident that *param_comp* is calculated using a bitwise
     OR operation on three variables, followed by a bitwise NOT operation. The difference
     of 1 suggests that at least one of these variables differs, helping to narrow
     down the problem.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 从代码中可以看出，*param_comp*是通过三个变量的位或操作计算得出的，然后是位非操作。1的差值表明至少有一个这些变量不同，有助于缩小问题范围。
 - en: The calculation involves three *table_map* variables with lengthy values, making
     ordinary calculators insufficient and the process too complex to detail here.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 计算涉及三个具有长值的*table_map*变量，使得普通计算器不足，而且过程过于复杂，无法在此详细说明。
 - en: The key point is that debug tracing revealed critical differences. Coupled with
     the information provided by identifying the Git commit responsible for the performance
     discrepancy, analyzing the root cause is no longer difficult.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 关键点在于调试跟踪揭示了关键差异。结合识别出导致性能差异的Git提交信息，分析根本原因就不再困难。
 - en: 'Here is the final fix patch, detailed as follows:'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是最终的修复补丁，具体如下：
 - en: '![](../Images/347286e58d50ba1d185d866d32aa24d8.png)'
+  id: totrans-48
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/347286e58d50ba1d185d866d32aa24d8.png)'
 - en: Figure 8-10\. Final patch for solving performance degradation in query execution
     plans.
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-10。解决查询执行计划性能下降的最终补丁。
 - en: When calling the *test_quick_select* function, reintroduce the *const_table*
     and *read_tables* variables (related to the previously discussed variables). This
     ensures that filtering conditions in the execution plan are not overlooked.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 在调用*test_quick_select*函数时，重新引入*const_table*和*read_tables*变量（与之前讨论的变量相关）。这确保了执行计划中的过滤条件不会被忽略。
 - en: 'After applying the above patch to MySQL 8.0.27, the performance degradation
     problem was solved. A test comparing TPC-C throughput at various concurrency levels,
     both before and after applying the patch, was conducted. Specific details are
     shown in the following figure:'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 在将上述补丁应用到MySQL 8.0.27后，性能下降问题得到了解决。进行了比较补丁前后在不同并发级别下TPC-C吞吐量的测试。具体细节如图所示：
 - en: '![image-20240829102642856](../Images/4bbab050fca78f2a95f3426db6660cd0.png)'
+  id: totrans-52
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829102642856](../Images/4bbab050fca78f2a95f3426db6660cd0.png)'
 - en: Figure 8-11\. Effects of the patch on solving performance degradation.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-11. 补丁对解决性能下降的影响。
 - en: From the figure, it is evident that after applying the patch, throughput and
     peak performance have significantly improved under low concurrency conditions.
     However, under high concurrency conditions, throughput not only failed to increase
     but actually decreased, likely due to scalability bottlenecks in MVCC ReadView.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在低并发条件下，应用补丁后，吞吐量和峰值性能显著提高。然而，在高并发条件下，吞吐量不仅没有增加，反而实际上下降了，这很可能是由于MVCC
+    ReadView的可扩展性瓶颈造成的。
 - en: 'After addressing the MVCC ReadView scalability problem, reassess the impact
     of this patch, as detailed in the figure below:'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 在解决MVCC ReadView的可扩展性问题后，重新评估该补丁的影响，具体如图所示：
 - en: '![image-20240829102703396](../Images/d70207a29b6daa2efb165543cfd1fcd8.png)'
+  id: totrans-56
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829102703396](../Images/d70207a29b6daa2efb165543cfd1fcd8.png)'
 - en: Figure 8-12\. Actual effects of the patch after addressing the MVCC ReadView
     scalability problem.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-12. 解决MVCC ReadView可扩展性问题后的补丁实际效果。
 - en: From the figure, it is evident that this patch has significantly improved MySQL’s
     throughput. This case demonstrates that scalability problems can disrupt certain
     optimizations. To scientifically assess the effectiveness of an optimization,
     it is essential to address most scalability problems beforehand to achieve a more
     accurate evaluation.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，这个补丁显著提高了MySQL的吞吐量。这个案例表明，可扩展性问题可能会破坏某些优化。为了科学地评估优化的有效性，在评估之前解决大多数可扩展性问题至关重要，以实现更准确的评估。
 - en: Finally, let’s examine the results of the long-term stability testing for TPC-C.
     The following figure shows the results of an 8-hour test under 100 concurrency,
     with throughput captured at various hours (where 1 ≤ n ≤ 8).
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，让我们检查TPC-C长期稳定性测试的结果。以下图显示了在100并发情况下进行的8小时测试结果，吞吐量在各个小时被捕获（其中1 ≤ n ≤ 8）。
 - en: '![image-degrade4](../Images/75ac3f88fa5adeef6835bc836b6eb8be.png)'
+  id: totrans-60
   prefs: []
   type: TYPE_IMG
+  zh: '![image-degrade4](../Images/75ac3f88fa5adeef6835bc836b6eb8be.png)'
 - en: 'Figure 8-13\. Comparison of stability tests: MySQL 8.0.27 vs. improved MySQL
     8.0.27.'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-13. 稳定性测试比较：MySQL 8.0.27与改进后的MySQL 8.0.27。
 - en: From the figure, it is evident that after applying the patch, the rate of throughput
     decline has been significantly mitigated. The MySQL 8.0.27 version experienced
     a dramatic throughput decline, failing to meet the stability requirements of TPC-C
     testing. However, after applying the patch, MySQL’s performance returned to normal.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，应用补丁后，吞吐量下降的速度显著减缓。MySQL 8.0.27版本经历了显著的吞吐量下降，未能满足TPC-C测试的稳定性要求。然而，应用补丁后，MySQL的性能恢复了正常。
 - en: Addressing this problem directly presents considerable challenges, particularly
     for MySQL developers unfamiliar with query execution plans. Using logical reasoning
     and a systematic approach to identify and address code differences before and
     after the problem arose is a more elegant problem-solving method, though it is
     complex.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 直接解决这个问题带来了相当大的挑战，尤其是对于不熟悉查询执行计划的MySQL开发者来说。使用逻辑推理和系统性的方法来识别和解决问题出现前后的代码差异是一种更优雅的解决问题的方法，尽管它很复杂。
 - en: It is noteworthy that no regression testing problems were encountered after
     applying the patch, demonstrating high stability and providing a solid foundation
     for future performance improvements. Currently, MySQL 8.0.40 still hasn’t solved
@@ -295,31 +427,46 @@
     the complexity of MySQL databases, users should exercise caution when upgrading
     and consider using tools like TCPCopy [65] to avoid potential regression testing
     problems.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得注意的是，在应用补丁后没有遇到回归测试问题，这表明了高度的稳定性，并为未来的性能改进提供了坚实的基础。目前，MySQL 8.0.40仍未解决这个问题，这表明MySQL测试系统可能存在潜在缺陷。鉴于MySQL数据库的复杂性，用户在升级时应谨慎，并考虑使用TCPCopy
+    [65]等工具来避免潜在的回归测试问题。
 - en: 8.1.2 Improving Binlog Group Commit Scalability
+  id: totrans-65
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.1.2 提高Binlog Group Commit的可扩展性
 - en: The binlog group commit mechanism is quite complex, and this complexity makes
     it challenging to identify its inherent performance problems.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: binlog组提交机制相当复杂，这种复杂性使得识别其固有的性能问题变得具有挑战性。
 - en: 'First, capture performance problems during the TPC-C test with 500 concurrency
     using the *perf* tool, as shown in the following figure:'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，使用*perf*工具在TPC-C测试中捕获500并发性能问题，如图所示：
 - en: '![](../Images/ab128d40d411ca9a7e2059f7d33fe130.png)'
+  id: totrans-68
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/ab128d40d411ca9a7e2059f7d33fe130.png)'
 - en: Figure 8-14\. *_pthread_mutex_cond_lock* bottleneck reveals performance problems.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-14. *_pthread_mutex_cond_lock*瓶颈揭示了性能问题。
 - en: It is evident that *_pthread_mutex_cond_lock* is a significant bottleneck, accounting
     for approximately 9.5% of the overhead. Although *perf* does not directly pinpoint
     the exact problem, it indicates the presence of this bottleneck.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 显然，*_pthread_mutex_cond_lock*是一个重要的瓶颈，占大约9.5%的开销。尽管*perf*没有直接指出确切的问题，但它表明了这种瓶颈的存在。
 - en: To address the problem, an in-depth exploration of MySQL internals was conducted
     to uncover the factors contributing to this performance bottleneck. A conventional
     binary search approach with minimal logging was used to identify functions or
@@ -328,132 +475,192 @@
     cause of the problem. Excessive logging can disrupt performance analysis, and
     while some may use MySQL’s internal mechanisms for troubleshooting, these often
     introduce substantial performance overhead themselves.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决这个问题，对MySQL内部进行了深入探索，以揭示导致这种性能瓶颈的因素。使用了一种传统的二分搜索方法，并尽量减少日志记录，以确定在执行过程中产生重大开销的函数或代码段。选择最小化日志记录方法是为了在诊断问题的根本原因时减少性能干扰。过多的日志记录可能会干扰性能分析，尽管有些人可能使用MySQL的内部机制进行故障排除，但这些通常会引入大量的性能开销。
 - en: After thorough investigation, the bottleneck was identified within the following
     code segment.
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 经过彻底的调查，瓶颈被确定在以下代码段中。
 - en: '[PRE2]'
+  id: totrans-73
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'Numerous occurrences of ‘wait too long’ output indicate that the bottleneck
     has been exposed. To investigate why ‘wait too long’ is being reported, the logs
     were added and modified accordingly. See the specific code below:'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: “等待时间过长”输出的多次出现表明瓶颈已被暴露。为了调查为什么会出现“等待时间过长”，日志被添加和相应修改。请参见以下具体代码：
 - en: '[PRE3]'
+  id: totrans-75
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'After another round of testing, a peculiar phenomenon was observed: when ‘wait
     too long’ messages appeared, the ‘wake up thread’ logs showed that many user threads
     were awakened multiple times.'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 在另一轮测试后，观察到一种奇特的现象：当出现“等待时间过长”消息时，“唤醒线程”日志显示许多用户线程被唤醒多次。
 - en: 'The problem was traced to the *thd->tx_commit_pending* value not changing,
     causing threads to repeatedly re-enter the wait process. Further inspection reveals
     the conditions under which this variable becomes false, as illustrated in the
     following code:'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 问题追踪到*thd->tx_commit_pending*值没有变化，导致线程反复重新进入等待过程。进一步检查揭示了该变量变为false的条件，如下面的代码所示：
 - en: '[PRE4]'
+  id: totrans-78
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: From the code, it is evident that *thd->tx_commit_pending* is set to false in
     the *signal_done* function. The *mysql_cond_broadcast* function then activates
     all waiting threads, leading to a situation similar to a thundering herd problem.
     When all previously waiting user threads are activated, they check if tx_commit_pending
     has been set to false. If it has, they proceed with processing; otherwise, they
     continue waiting.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 从代码中可以看出，在*signal_done*函数中，*thd->tx_commit_pending*被设置为false。随后，*mysql_cond_broadcast*函数激活所有等待的线程，导致类似暴风群问题的情况。当所有之前等待的用户线程被激活后，它们会检查tx_commit_pending是否被设置为false。如果是，它们将继续处理；否则，它们将继续等待。
 - en: 'Despite the complexity of the binlog group commit mechanism, a straightforward
     analysis identifies the root cause: threads that should not be activated are being
     triggered, leading to unnecessary context switches with each activation.'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管binlog组提交机制很复杂，但简单的分析就能确定根本原因：应该不被激活的线程被触发，导致每次激活都产生不必要的上下文切换。
 - en: 'During one test, additional statistics were collected on the number of times
     user threads entered the wait state. The details are shown in the following figure:'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 在一次测试中，收集了用户线程进入等待状态的次数的额外统计信息。详细信息如下所示：
 - en: '![image-20240829103131857](../Images/7c5a76690408559fc34b6c40d72bb8b5.png)'
+  id: totrans-82
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829103131857](../Images/7c5a76690408559fc34b6c40d72bb8b5.png)'
 - en: Figure 8-15\. Statistics of threads activated 1, 2, 3 times.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-15. 激活1次、2次、3次的线程统计。
 - en: Waiting once is normal and indicates 100% efficiency. Waiting twice suggests
     50% efficiency, and waiting three times indicates 33.3% efficiency. Based on the
     figure, the overall activation efficiency is calculated to be 52.7%.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 等待一次是正常的，表示100%的效率。等待两次表明50%的效率，而等待三次则表示33.3%的效率。根据图表，整体激活效率计算为52.7%。
 - en: To solve this problem, an ideal solution would be a multicast activation mechanism
     with 100% efficiency, where user threads with tx_commit_pending set to false are
     activated together. However, implementing this requires a deep understanding of
     the complex logic behind binlog group commit.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决这个问题，一个理想的解决方案是具有100%效率的多播激活机制，其中将tx_commit_pending设置为false的用户线程一起激活。然而，实现这一点需要深入理解binlog组提交背后的复杂逻辑。
 - en: In this case, a point-to-point activation mechanism is used, achieving 100%
     efficiency but introducing significant system call overhead. The following figure
     illustrates the relationship between TPC-C throughput and concurrency before and
     after optimization.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这种情况下，使用了点对点激活机制，实现了100%的效率，但引入了显著的系统调用开销。以下图表展示了优化前后TPC-C吞吐量和并发的变化关系。
 - en: '![image-20240829103236734](../Images/d48990eaef9215af54c8cc0e1fed399a.png)'
+  id: totrans-87
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829103236734](../Images/d48990eaef9215af54c8cc0e1fed399a.png)'
 - en: Figure 8-16\. Impact of group commit optimization with innodb_thread_concurrency=128.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-16. 使用innodb_thread_concurrency=128的组提交优化的影响。
 - en: From the figure, it is evident that with innodb_thread_concurrency=128, the
     optimization of binlog group commit significantly improves throughput under high
     concurrency.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图表中可以看出，当innodb_thread_concurrency=128时，binlog组提交的优化在高并发下显著提高了吞吐量。
 - en: It’s important to note that this optimization’s effectiveness can vary depending
     on factors such as configuration settings and specific scenarios. However, overall,
     it notably improves throughput, especially in high concurrency conditions.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 重要的是要注意，这种优化的有效性可能因配置设置和特定场景等因素而异。然而，总的来说，它在高并发条件下显著提高了吞吐量。
 - en: 'Below is the comparison of TPC-C throughput and concurrency before and after
     optimization using standard configurations:'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面是使用标准配置在优化前后TPC-C吞吐量和并发的比较：
 - en: '![image-20240829103259992](../Images/011494781b05f76ddf3a5377482bd79f.png)'
+  id: totrans-92
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829103259992](../Images/011494781b05f76ddf3a5377482bd79f.png)'
 - en: Figure 8-17\. Impact of group commit optimization using standard configurations.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-17. 使用标准配置进行组提交优化的影响。
 - en: From the figure, it is clear that this optimization is less pronounced compared
     to the previous one, but it still shows overall improvement. Extensive testing
     indicates that the worse the scalability of MySQL, the more significant the effectiveness
     of binlog group commit optimization.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图表中可以看出，这次优化与之前的优化相比不那么明显，但仍然显示出整体上的改进。广泛的测试表明，MySQL的可扩展性越差，binlog组提交优化的效果就越显著。
 - en: 'At the same time, the previously identified bottleneck of *_pthread_mutex_cond_lock*
     has been significantly alleviated after optimization, as shown in the following
     figure:'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 同时，之前识别出的*b pthread_mutex_cond_lock*瓶颈在优化后得到了显著缓解，如下面的图表所示：
 - en: '![](../Images/b2b0c08856a0f3b019c50ffc1df2720a.png)'
+  id: totrans-96
   prefs: []
   type: TYPE_IMG
+  zh: '![图片](../Images/b2b0c08856a0f3b019c50ffc1df2720a.png)'
 - en: Figure 8-18\. Mitigation of *_pthread_mutex_cond_lock* bottleneck.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-18. *b pthread_mutex_cond_lock*瓶颈的缓解。
 - en: In summary, this optimization helps address scalability problems associated
     with binlog group commit.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结来说，这次优化有助于解决与binlog组提交相关的可扩展性问题。
 - en: 8.2 Enhancing the InnoDB Storage Engine
+  id: totrans-99
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 8.2 增强InnoDB存储引擎
 - en: '8.2.1 MVCC ReadView: Identified Problems'
+  id: totrans-100
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.2.1 MVCC ReadView：识别出的问题
 - en: A key component of any MVCC scheme is the mechanism for quickly determining
     which tuples are visible to which transactions. A transaction’s snapshot is created
     by building a ReadView (RV) vector that holds the TXIDs of all concurrent transactions
@@ -461,105 +668,152 @@
     linearly with the number of concurrent transactions, even if the transaction only
     reads tuples written by a single committed transaction, highlighting a known scalability
     limitation [7].
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 任何MVCC方案的关键组成部分是快速确定哪些元组对哪些事务可见的机制。事务的快照是通过构建一个包含所有小于事务TXID的并发事务TXID的ReadView
+    (RV)向量来创建的。获取快照的成本会随着并发事务数量的增加而线性增加，即使事务只读取单个已提交事务写入的元组也是如此，这突显了一个已知的可扩展性限制[7]。
 - en: 'After understanding the scalability problems with the MVCC ReadView mechanism,
     let’s examine how MySQL implements MVCC ReadView. Under the Read Committed isolation
     level, during the process of reading data, the InnoDB storage engine triggers
     the acquisition of the ReadView. A screenshot of part of the ReadView data structure
     is shown below:'
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 在理解了MVCC ReadView机制的伸缩性问题之后，让我们来看看MySQL是如何实现MVCC ReadView的。在可重复读隔离级别下，在读取数据的过程中，InnoDB存储引擎触发获取ReadView。下面是ReadView数据结构的一部分截图：
 - en: '[PRE5]'
+  id: totrans-103
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'Here, *m_ids* is a data structure of type *ids_t*, which closely resembles
     *std::vector*. See the specific explanation below:'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，*m_ids* 是一个类型为 *ids_t* 的数据结构，它非常类似于 *std::vector*。具体解释如下：
 - en: '[PRE6]'
+  id: totrans-105
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'Algorithm for MVCC ReadView visibility determination, specifically refer to
     the *changes_visible* function below:'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: MVCC ReadView可见性确定算法，具体参考下面的 *changes_visible* 函数：
 - en: '[PRE7]'
+  id: totrans-107
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: From the code, it can be seen that the visibility algorithm works efficiently
     when concurrency is low. However, as concurrency increases, the efficiency of
     using binary search to determine visibility significantly decreases, particularly
     in NUMA environments.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 从代码中可以看出，当并发性低时，可见性算法效率很高。然而，随着并发性的增加，使用二分查找来确定可见性的效率显著降低，尤其是在NUMA环境中。
 - en: 8.2.2 Solutions for Enhancing MVCC ReadView Scalability
+  id: totrans-109
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.2.2 提高MVCC ReadView伸缩性的解决方案
 - en: 'There are two fundamental approaches to improving scalability here [58]:'
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，提高可伸缩性有两种基本方法 [58]：
 - en: '*First, finding an algorithm that improves the complexity, so that each additional
     connection does not increase the snapshot computation costs linearly.*'
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: '*首先，找到一个提高复杂度的算法，这样每个额外的连接都不会线性增加快照计算成本。*'
 - en: '*Second, perform less work for each connection, hopefully reducing the total
     time taken so much that even at high connection counts the total time is still
     small enough to not matter much (i.e. reduce the constant factor).*'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: '*其次，为每个连接做更少的工作，希望这样能大幅减少总时间，即使在高连接数的情况下，总时间也足够小，以至于不太重要（即减少常数因子）。*'
 - en: 'For the first solution, adopting a multi-version visibility algorithm based
     on Commit Sequence Numbers (CSN) offers benefits [7]: *the cost of taking snapshots
     can be reduced by converting snapshots into CSNs instead of maintaining a transaction
     ID list.* Specifically, under the Read Committed isolation level, there’s no need
     to replicate an active transaction list for each read operation, thereby improving
     scalability.'
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于第一个解决方案，采用基于提交序列号（CSN）的多版本可见性算法提供了以下好处 [7]：*通过将快照转换为CSN而不是维护事务ID列表，可以降低获取快照的成本。*具体来说，在可重复读隔离级别下，不需要为每次读取操作复制一个活动事务列表，从而提高可伸缩性。
 - en: Considering the complexity of implementation, this book opts for the second
     solution, which directly modifies the MVCC ReadView data structure to mitigate
     MVCC ReadView scalability problems.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑到实现的复杂性，本书选择了第二种解决方案，即直接修改MVCC ReadView数据结构以缓解MVCC ReadView的伸缩性问题。
 - en: 8.2.3 Improvements to the MVCC ReadView Data Structure
+  id: totrans-115
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.2.3 MVCC ReadView数据结构的改进
 - en: 'In the ReadView structure, the original approach used a vector to store the
     list of active transactions. Now, it has been changed to the following data structure:'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 在ReadView结构中，最初的方法使用向量来存储活动事务列表。现在，它已经改为以下数据结构：
 - en: '[PRE8]'
+  id: totrans-117
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: Furthermore, corresponding code modifications were made in the related interface
     functions, as changes to the data structure necessitate adjustments to the internal
     code within these functions.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，在相关的接口函数中进行了相应的代码修改，因为数据结构的更改需要调整这些函数内部的内部代码。
 - en: This new MVCC ReadView data structure can be seen as a hybrid data structure,
     as shown in the following figure.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种新的MVCC ReadView数据结构可以看作是一种混合数据结构，如下面的图所示。
 - en: '![](../Images/6a14b720b152505bef3bc6d0d0ace923.png)'
+  id: totrans-120
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/6a14b720b152505bef3bc6d0d0ace923.png)'
 - en: Figure 8-19\. A new hybrid data structure suitable for active transaction list
     in MVCC ReadView.
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-19。适用于MVCC ReadView活动事务列表的新混合数据结构。
 - en: For a more detailed explanation, please refer to Chapter 4.2.8 on hybrid data
     structures.
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于更详细的解释，请参阅第4.2.8章关于混合数据结构的内容。
 - en: 'Typically, online transactions are short rather than long, and transaction
     IDs increase continuously. To leverage these characteristics, a hybrid data structure
     is used: a static array for consecutive short transaction IDs and a vector for
     long transactions. With a 2048-byte array, up to 16,384 consecutive active transaction
     IDs can be stored, each bit representing a transaction ID.'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常，在线事务是短事务而不是长事务，事务ID持续增加。为了利用这些特性，使用混合数据结构：一个静态数组用于连续的短事务ID，一个向量用于长事务。使用2048字节的数组可以存储多达16,384个连续的活跃事务ID，每个位代表一个事务ID。
 - en: The minimum short transaction ID is used to differentiate between short and
     long transactions. IDs smaller than this minimum go into the long transaction
     vector, while IDs equal to or greater than it are placed in the short transaction
@@ -570,22 +824,33 @@
     O(1), compared to the previous O(log n) complexity. This improvement enhances
     efficiency and reduces cache migration between NUMA nodes, as O(1) queries typically
     complete within a single CPU time slice.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 最小短事务ID用于区分短事务和长事务。小于此最小值的ID进入长事务向量，而等于或大于此值的ID则放置在短事务数组中。对于changes_visible中的ID，如果它低于最小短事务ID，则直接查询向量，由于长事务通常数量较少，因此这种方法效率较高。如果ID等于或高于最小短事务ID，则执行位查询，时间复杂度为O(1)，与之前的O(log
+    n)复杂度相比。这种改进提高了效率并减少了NUMA节点之间的缓存迁移，因为O(1)查询通常在单个CPU时间片中完成。
 - en: 'In addition to the previously mentioned transformation, similar modifications
     were applied to the global transaction active list. The original data structure
     used for this list is shown in the following code snippet:'
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了之前提到的转换外，类似的修改也应用于全局事务活跃列表。用于此列表的原始数据结构如下代码片段所示：
 - en: '[PRE9]'
+  id: totrans-126
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'Now it has been changed to the following data structure:'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在它已经改为以下数据结构：
 - en: '[PRE10]'
+  id: totrans-128
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 'In the *short_rw_trx_ids_bitmap* structure, *MAX_SHORT_ACTIVE_BYTES* is set
     to 65536, theoretically accommodating up to 524,288 consecutive short transaction
     IDs. If the limit is exceeded, the oldest short transaction IDs are converted
@@ -593,202 +858,298 @@
     transactions are distinguished by *min_short_valid_id*: IDs smaller than this
     value are treated as global long transactions, while IDs equal to or greater are
     considered global short transactions.'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 在*short_rw_trx_ids_bitmap*结构中，*MAX_SHORT_ACTIVE_BYTES*设置为65536，理论上可以容纳多达524,288个连续的短事务ID。如果超过此限制，最老的短事务ID将被转换为长事务并存储在*long_rw_trx_ids*中。全局长事务和短事务通过*min_short_valid_id*区分：小于此值的ID被视为全局长事务，而等于或大于此值的ID被视为全局短事务。
 - en: During the copying process from the global active transaction list, the *short_rw_trx_ids_bitmap*
     structure, which uses only one bit per transaction ID, allows for much higher
     copying efficiency compared to the native MySQL solution. For example, with 1000
     active transactions, the native MySQL version would require copying at least 8000
     bytes, whereas the optimized solution may only need a few hundred bytes. This
     results in a significant improvement in copying efficiency.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 在从全局活跃事务列表复制过程中，仅使用一个位表示每个事务ID的*short_rw_trx_ids_bitmap*结构，与原生的MySQL解决方案相比，允许实现更高的复制效率。例如，对于1000个活跃事务，原生MySQL版本至少需要复制8000字节，而优化后的解决方案可能只需要几百字节。这导致复制效率显著提高。
 - en: After implementing these modifications, performance comparison tests were conducted
     to evaluate the effectiveness of the MVCC ReadView optimization. The figure below
     shows a comparison of TPC-C throughput with varying concurrency levels, before
     and after modifying the MVCC ReadView data structure.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 在实施这些修改后，进行了性能比较测试，以评估MVCC ReadView优化的有效性。下面的图显示了修改MVCC ReadView数据结构前后，不同并发级别下的TPC-C吞吐量比较。
 - en: '![image-20240829104222478](../Images/8e5e58e393f312425315ec149a3e1708.png)'
+  id: totrans-132
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829104222478](../Images/8e5e58e393f312425315ec149a3e1708.png)'
 - en: Figure 8-20\. Performance comparison before and after adopting the new hybrid
     data structure in NUMA.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-20. 采用新的混合数据结构前后在NUMA中的性能比较。
 - en: 'From the figure, it is evident that this transformation primarily optimized
     scalability and improved MySQL’s peak throughput in NUMA environments. Further
     performance comparisons before and after optimization can be analyzed using tools
     like *perf*. Below is a screenshot from *perf* at 300 concurrency, prior to optimization:'
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以明显看出，这种转换主要优化了可扩展性，并提高了NUMA环境下的MySQL峰值吞吐量。可以使用*perf*等工具分析优化前后的性能比较。以下是优化前300并发下的*perf*截图：
 - en: '![](../Images/5d383d113a8a0b3178e71e6eceb047d5.png)'
+  id: totrans-135
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/5d383d113a8a0b3178e71e6eceb047d5.png)'
 - en: Figure 8-21\. Latch-related bottleneck observed in *perf* screenshot.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-21\. 在*perf*截图中观察到的与闩锁相关的瓶颈。
 - en: 'From the figure, it can be seen that the first two bottlenecks were significant,
     accounting for approximately 33% of the overhead. After optimization, the *perf*
     screenshot at 300 concurrency is as follows:'
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，前两个瓶颈非常显著，占大约33%的开销。优化后，300并发下的*perf*截图如下：
 - en: '![](../Images/b65f8f76e1a83e4082df6dcb03af4be4.png)'
+  id: totrans-138
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/b65f8f76e1a83e4082df6dcb03af4be4.png)'
 - en: Figure 8-22\. Significant alleviation of latch-related bottleneck.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-22\. 与闩锁相关的瓶颈显著缓解。
 - en: After optimization, as shown in the screenshot above, the proportions of the
     previous top two bottlenecks have been significantly reduced.
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 优化后，如上图所示，之前前两个瓶颈的比例已经显著降低。
 - en: Why does changing the MVCC ReadView data structure significantly enhance scalability?
     This is because accessing these structures involves acquiring a global latch.
     Optimizing the data structure accelerates access to critical resources, reducing
     concurrency conflicts and minimizing cache migration across NUMA nodes.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 为什么改变MVCC ReadView数据结构能显著提高可扩展性？这是因为访问这些结构涉及到获取全局闩锁。优化数据结构加速了对关键资源的访问，减少了并发冲突并最小化了NUMA节点间的缓存迁移。
 - en: 'The native MVCC ReadView uses a vector to store the list of active transactions.
     In high-concurrency scenarios, this list can become large, leading to a larger
     working set. In NUMA environments, both querying and replication can become slower,
     potentially causing a single CPU time slice to miss its deadline and resulting
     in significant context-switching costs. The theoretical basis for this aspect
     is as follows [21]:'
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 原生的MVCC ReadView使用一个向量来存储活动事务的列表。在高并发场景下，这个列表可能会变得很大，导致更大的工作集。在NUMA环境中，查询和复制都可能变慢，可能造成单个CPU时间片错过其截止时间，从而导致显著的上下文切换成本。这一方面的理论基础如下[21]：
 - en: '*Context-switches that occur in the middle of a logical operation evict a possibly
     larger working set from the cache. When the suspended thread resumes execution,
     it wastes time restoring the evicted working set.*'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: '*在逻辑操作过程中发生的上下文切换会将可能更大的工作集从缓存中驱逐出去。当挂起的线程恢复执行时，它会浪费时间去恢复被驱逐的工作集。*'
 - en: 'Throughput improvement under the ARM architecture is evaluated next. Details
     are shown in the following figure:'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来评估ARM架构下的吞吐量提升。详细信息如下图所示：
 - en: '![image-20240829104512068](../Images/7d6acf6b20bf936f3a027bc456e5fae2.png)'
+  id: totrans-145
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829104512068](../Images/7d6acf6b20bf936f3a027bc456e5fae2.png)'
 - en: Figure 8-23\. Throughput improvement under the ARM architecture.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-23\. ARM架构下的吞吐量提升。
 - en: From the figure, it is evident that there is also a significant improvement
     under the ARM architecture. Extensive test data confirms that the MVCC ReadView
     optimization yields clear benefits in NUMA environments, regardless of whether
     the architecture is ARM or x86.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，在ARM架构下也有显著的提升。大量的测试数据证实，无论架构是ARM还是x86，MVCC ReadView优化在NUMA环境中都能带来明显的收益。
 - en: How much improvement can this optimization achieve in a SMP environment?
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种优化在SMP环境中能实现多少提升？
 - en: '![image-20240829104533718](../Images/4bb8dae8ea938bd73dbd5cb04fc2ed9f.png)'
+  id: totrans-149
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829104533718](../Images/4bb8dae8ea938bd73dbd5cb04fc2ed9f.png)'
 - en: Figure 8-24\. Performance comparison before and after adopting the new hybrid
     data structure in SMP.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-24\. 采用新的混合数据结构前后SMP的性能比较。
 - en: From the figure, it can be observed that after binding to NUMA node 0, the improvement
     from the MVCC ReadView optimization is not significant. This suggests that the
     optimization primarily enhances scalability in NUMA architectures.
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，绑定到NUMA节点0之后，MVCC ReadView优化带来的提升并不显著。这表明优化主要增强了NUMA架构的可扩展性。
 - en: In practical MySQL usage, preventing excessive user threads from entering the
     InnoDB storage engine can significantly reduce the size of the global active transaction
     list. This transaction throttling mechanism complements the MVCC ReadView optimization
     effectively, improving overall performance. Combined with double latch avoidance,
     discussed in the next section, the TPC-C test results in the following figure
     clearly demonstrate these improvements.
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 在实际的MySQL使用中，防止过多的用户线程进入InnoDB存储引擎可以显著减少全局活动事务列表的大小。这种事务节流机制有效地补充了MVCC ReadView优化，提高了整体性能。结合下一节讨论的双重闩锁避免，以下图中的TPC-C测试结果清楚地展示了这些改进。
 - en: '![image-20240829104554155](../Images/b76ceb837bbfe2d9e92688d834f04658.png)'
+  id: totrans-153
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829104554155](../Images/b76ceb837bbfe2d9e92688d834f04658.png)'
 - en: Figure 8-25\. Maximum TPC-C throughput in BenchmarkSQL with transaction throttling
     mechanisms.
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-25\. 带事务节流机制的BenchmarkSQL中的最大TPC-C吞吐量。
 - en: 8.2.4 Avoiding Double Latch Problems
+  id: totrans-155
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.2.4 避免双重闩锁问题
 - en: 'During testing after the MVCC ReadView optimization, a noticeable decline in
     throughput was observed under extremely high concurrency conditions. The specific
     details are shown in the following figure:'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 在MVCC ReadView优化后的测试期间，在极高并发条件下观察到吞吐量明显下降。具体细节如下所示：
 - en: '![image-20240829104639402](../Images/2d5f5f538623a28aa1ddf03d6f16f853.png)'
+  id: totrans-157
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829104639402](../Images/2d5f5f538623a28aa1ddf03d6f16f853.png)'
 - en: Figure 8-26\. Performance degradation at concurrency Levels exceeding 500.
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-26\. 在并发级别超过500时的性能下降。
 - en: 'From the figure, it can be seen that throughput significantly decreases once
     concurrency exceeds 500\. The problem was traced to frequent acquisitions of the
     *trx-sys* latch, as shown in the code snippet below:'
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，一旦并发超过500，吞吐量会显著下降。问题追踪到频繁获取*trx-sys*闩锁，如下面的代码片段所示：
 - en: '[PRE11]'
+  id: totrans-160
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: 'The other code snippet is shown below:'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个代码片段如下所示：
 - en: '[PRE12]'
+  id: totrans-162
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'InnoDB introduces a global trx-sys latch during the view close process, impacting
     scalability under high concurrency. To address this, an attempt was made to remove
     the global latch. One of the modifications is shown in the code snippet below:'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: InnoDB在视图关闭过程中引入了一个全局trx-sys闩锁，在高并发下影响了可伸缩性。为了解决这个问题，尝试移除全局闩锁。以下是一个修改示例：
 - en: '[PRE13]'
+  id: totrans-164
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: 'The other modification is shown in the code snippet below:'
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 其他修改如下所示：
 - en: '[PRE14]'
+  id: totrans-166
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: 'Using the MVCC ReadView optimized version, compare TPC-C throughput before
     and after the modifications. Details are shown in the following figure:'
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用MVCC ReadView优化版本，比较修改前后的TPC-C吞吐量。具体细节如下所示：
 - en: '![image-20240829104851205](../Images/779c5517441e8d96cc3be821afab3742.png)'
+  id: totrans-168
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829104851205](../Images/779c5517441e8d96cc3be821afab3742.png)'
 - en: Figure 8-27\. Performance improvement after eliminating the double latch bottleneck.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-27\. 消除双重闩锁瓶颈后的性能提升。
 - en: 'From the figure, it is evident that the modifications significantly improved
     scalability under high-concurrency conditions. To understand the reasons for this
     improvement, let’s use the *perf* tool for further investigation. Below is the
     *perf* screenshot at 2000 concurrency before the modifications:'
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，修改显著提高了高并发条件下的可伸缩性。为了了解这种改进的原因，让我们使用*perf*工具进行进一步调查。以下是修改前的2000并发时的*perf*截图：
 - en: '![](../Images/b695cae35d943eedce4428ea53ddbc14.png)'
+  id: totrans-171
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/b695cae35d943eedce4428ea53ddbc14.png)'
 - en: Figure 8-28\. Latch-related bottleneck observed in *perf* screenshot.
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-28\. 在*perf*截图观察到的与闩锁相关的瓶颈。
 - en: 'From the figure, it is evident that the latch-related bottlenecks are quite
     pronounced. After the code modifications, here is the *perf* screenshot at 3000
     concurrency:'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，与闩锁相关的瓶颈相当明显。在代码修改后，以下是3000并发时的*perf*截图：
 - en: '![](../Images/61b5194615f9be3584a0c4db467ccbaa.png)'
+  id: totrans-174
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/61b5194615f9be3584a0c4db467ccbaa.png)'
 - en: Figure 8-29\. Significant alleviation of latch-related bottleneck.
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-29\. 与闩锁相关的瓶颈显著缓解。
 - en: Even with higher concurrency, such as 3000, the bottlenecks are not pronounced.
     This suggests that the optimizations have effectively alleviated the latch-related
     performance problems, improving scalability under extreme conditions.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使在高并发情况下，如3000，瓶颈并不明显。这表明优化有效地缓解了与闩锁相关的性能问题，在极端条件下提高了可伸缩性。
 - en: Excluding the global latch before and after the *view_close* function call improves
     scalability, while including it severely degrades scalability under high concurrency.
     Although the *view_close* function operates efficiently within its critical section,
@@ -797,513 +1158,746 @@
     issue, known as the ‘double latch’ problem, arises from both *view_open* and *view_close*
     requiring the global *trx-sys* latch. Notably, removing the latch from the final
     stage or using a new latch can significantly mitigate this problem.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 在*view_close*函数调用前后排除全局闩锁可以提高可伸缩性，而在高并发情况下包含它会严重降低可伸缩性。尽管*view_close*函数在其关键部分内运行效率很高，但频繁获取全局使用的*trx-sys*闩锁——在整个*trx-sys*子系统中使用——导致显著的竞争和头阻塞。这个问题被称为“双重闩锁”问题，它源于*view_open*和*view_close*都需要全局*trx-sys*闩锁。值得注意的是，从最终阶段移除闩锁或使用新的闩锁可以显著缓解这个问题。
 - en: 8.2.5 Explaining the Super-Linear Performance Phenomenon
+  id: totrans-178
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.2.5 解释超线性性能现象
 - en: 'Section 2.1 describes super-linear scaling in throughput observed during SysBench
     read-write tests in an x86 NUMA environment. Following improvements to the InnoDB
     storage engine, the current investigation examines whether this super-linear scaling
     effect remains. Tests were conducted in the same environment using the improved
     version of MySQL. The results of individual SysBench tests for MySQL instance
     1 and MySQL instance 2 are shown in the following figure:'
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 第2.1节描述了在x86 NUMA环境中进行SysBench读写测试时观察到的吞吐量超线性扩展。在改进InnoDB存储引擎之后，当前的研究考察了这种超线性扩展效应是否仍然存在。使用改进的MySQL版本在同一环境中进行了测试。以下图中显示了MySQL实例1和MySQL实例2的SysBench测试的个体结果：
 - en: '![image-20240829104924497](../Images/7323d9486156900a9a7b099201997433.png)'
+  id: totrans-180
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829104924497](../Images/7323d9486156900a9a7b099201997433.png)'
 - en: Figure 8-30\. Throughput of MySQL running separately after MVCC optimization.
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-30\. MVCC优化后MySQL独立运行的吞吐量。
 - en: The throughput for each instance has significantly improved, with MySQL instance
     1 achieving 524,381 QPS and MySQL instance 2 reaching 553,008 QPS. Combined, they
     deliver 1,077,389 QPS, substantially surpassing the previous 328,168 QPS.
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个实例的吞吐量都有显著提高，MySQL实例1实现了524,381 QPS，MySQL实例2达到了553,008 QPS。合并起来，它们提供了1,077,389
+    QPS，大幅超过了之前的328,168 QPS。
 - en: SysBench is used to simultaneously evaluate the read-write performance of these
     two instances, as illustrated in the figure below.
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: SysBench用于同时评估这两个实例的读写性能，如图下所示。
 - en: '![image-20240829104945257](../Images/a809a96686d28e7c97a28b3b4ecc16fb.png)'
+  id: totrans-184
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829104945257](../Images/a809a96686d28e7c97a28b3b4ecc16fb.png)'
 - en: Figure 8-31\. Throughput of MySQL running together after MVCC optimization.
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-31\. MVCC优化后MySQL一起运行的吞吐量。
 - en: From the figure, one instance achieves a throughput of 289,702 QPS while the
     other reaches 285,026 QPS. The combined throughput of both MySQL instances totals
     574,728 QPS, closely aligning with the 546,429 QPS observed with the MySQL release
     version. This illustrates the Linux operating system’s role in effectively scheduling
     multiple processes in NUMA environments.
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，一个实例实现了289,702 QPS的吞吐量，而另一个实例达到了285,026 QPS。两个MySQL实例的总吞吐量为574,728 QPS，与MySQL发布版本观察到的546,429
+    QPS非常接近。这说明了Linux操作系统在NUMA环境中有效调度多个进程的作用。
 - en: 'From the data, it’s evident that the total throughput of two MySQL instances
     running simultaneously is significantly lower than the throughput of each instance
     running individually. For detailed statistical comparisons, refer to the figure
     below:'
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 从数据中可以看出，同时运行的两个MySQL实例的总吞吐量明显低于每个实例单独运行的吞吐量。对于详细的统计比较，请参考以下图：
 - en: '![image-20240829105004347](../Images/1b95d5e8c2456dd67560f1341385874c.png)'
+  id: totrans-188
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829105004347](../Images/1b95d5e8c2456dd67560f1341385874c.png)'
 - en: Figure 8-32\. Total throughput of running separately vs. running together after
     MVCC optimization.
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-32\. MVCC优化后单独运行和一起运行的吞吐量总和。
 - en: After enhancements to the InnoDB storage engine, the super-linear scaling problem
     has been solved, revealing that the underlying cause in the MySQL release version
     was a poorly designed MVCC mechanism within InnoDB. This design flaw amplified
     problems in NUMA environments, resulting in the observed super-linear scaling
     effect.
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 在改进InnoDB存储引擎之后，超线性扩展问题得到了解决，揭示了MySQL发布版本中潜在的原因是InnoDB中设计不良的MVCC机制。这种设计缺陷放大了NUMA环境中的问题，导致了观察到的超线性扩展效应。
 - en: 8.3 Transaction Throttling Mechanism
+  id: totrans-191
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 8.3 事务节流机制
 - en: 'According to the paper “Staring into the Abyss: An Evaluation of Concurrency
     Control with One Thousand Cores” [22], centralized databases, including MySQL,
     struggle to fully utilize hundreds of CPU cores.'
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据“凝视深渊：对具有一千个核心的并发控制的评估” [22] 这篇论文，包括 MySQL 在内的集中式数据库由于事务系统的限制，难以充分利用数百个 CPU
+    核心。
 - en: To address scalability problems, traditional approaches use thread pools to
     restrict the number of CPU cores a database utilizes. This book introduces a transaction
     throttling mechanism that limits the number of threads accessing the transaction
     system, offering an alternative method to mitigate scalability challenges.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了解决可扩展性问题，传统方法使用线程池来限制数据库使用的 CPU 核心数量。本书介绍了一种事务节流机制，该机制限制访问事务系统的线程数量，提供了一种缓解可扩展性挑战的替代方法。
 - en: 8.3.1 Percona Thread Pool
+  id: totrans-194
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.3.1 Percona 线程池
 - en: 'In general, a thread pool in traditional MySQL serves two main purposes:'
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常，传统 MySQL 中的线程池有两个主要用途：
 - en: '**Mitigating Short Connection Storms**: By managing and reusing threads, the
     thread pool helps prevent system overload during sudden spikes in short-lived
     connections.'
+  id: totrans-196
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**缓解短连接风暴**：通过管理和重用线程，线程池有助于防止在短期连接突然激增时系统过载。'
 - en: '**Enhancing Scalability**: Thread pools improve scalability, particularly in
     high-contention scenarios, by enabling MySQL to more effectively utilize available
     CPU cores.'
+  id: totrans-197
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '**增强可扩展性**：线程池通过使 MySQL 更有效地利用可用的 CPU 核心来提高可扩展性，尤其是在高竞争场景中。'
 - en: Using Percona’s thread pool as a case study, let’s examine the cost-effectiveness
     of thread pools in improving MySQL scalability. The following figure compares
     throughput and concurrency before and after implementing a thread pool with the
     improved version of MySQL.
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 以 Percona 的线程池作为案例研究，让我们来考察线程池在提高 MySQL 可扩展性方面的成本效益。以下图表比较了实施线程池前后吞吐量和并发的变化。
 - en: '![image-20240829105130499](../Images/4170aa73f79f39dd66136a6331d2010b.png)'
+  id: totrans-199
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829105130499](../Images/4170aa73f79f39dd66136a6331d2010b.png)'
 - en: Figure 8-33\. Enabling the Percona thread pool led to a noticeable decrease
     in throughput.
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 8-33。启用 Percona 线程池导致吞吐量明显下降。
 - en: From the figure, it is evident that throughput decreases after adopting the
     thread pool. This decline is attributed to the high inherent cost of the Percona
     thread pool. Moreover, with the improved version of MySQL already achieving significant
     scalability improvements, the additional benefits of the Percona thread pool in
     improving scalability for TPC-C applications are limited.
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，采用线程池后，吞吐量有所下降。这种下降归因于 Percona 线程池的高固有成本。此外，由于改进版的 MySQL 已经实现了显著的可扩展性改进，Percona
+    线程池在提高 TPC-C 应用程序可扩展性方面的额外好处有限。
 - en: For MySQL versions with poor scalability, the thread pool remains valuable in
     addressing scalability problems. As demonstrated in Chapter 1, the use of the
     thread pool significantly alleviated scalability problems in MySQL 5.7.
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于可扩展性较差的 MySQL 版本，线程池在解决可扩展性问题方面仍然很有价值。正如第 1 章中所示，线程池的使用显著缓解了 MySQL 5.7 的可扩展性问题。
 - en: Based on extensive testing, after solving most of MySQL’s scalability problems,
     it was observed that while the Percona thread pool can still be effective in managing
     short-lived connections and high contention scenarios, its overall effectiveness
     diminishes and it may even hinder performance in other contexts.
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据广泛的测试，在解决 MySQL 大多数可扩展性问题之后，观察到虽然 Percona 线程池在管理短期连接和高竞争场景中仍然可以非常有效，但其整体有效性会降低，甚至可能在其他环境中阻碍性能。
 - en: 8.3.2 Transaction Throttling Mechanism
+  id: totrans-204
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.3.2 事务节流机制
 - en: Centralized databases struggle to fully utilize hundreds of CPU cores due to
     limitations in their transaction systems. To address this, transaction throttling
     mechanisms are becoming increasingly important.
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于事务系统的限制，集中式数据库难以充分利用数百个 CPU 核心的问题。为了解决这个问题，事务节流机制变得越来越重要。
 - en: MySQL has introduced a “Max Transaction Limit” feature in its thread pool to
     mitigate performance degradation [31]. This feature limits the number of concurrent
     transactions, improving throughput by reducing data locks and deadlocks on heavily
     loaded systems [64]. This approach can inspire similar mechanisms that increase
     throughput in high-concurrency scenarios without relying solely on traditional
     thread pools.
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL在其线程池中引入了“最大事务限制”功能，以减轻性能下降[31]。此功能限制了并发事务的数量，通过减少在重载系统上的数据锁和死锁来提高吞吐量[64]。这种方法可以启发类似的机制，在不完全依赖传统线程池的情况下，在高并发场景中提高吞吐量。
 - en: 'For MySQL, the specific process figure for transaction throttling is as follows:'
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于MySQL，事务节流的特定流程图如下：
 - en: '![](../Images/63a4b5f8a5215a183c98014d20f80cab.png)'
+  id: totrans-208
   prefs: []
   type: TYPE_IMG
+  zh: '![](../Images/63a4b5f8a5215a183c98014d20f80cab.png)'
 - en: Figure 8-34\. New transaction throttling mechanism In MySQL.
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-34\. MySQL中的新事务节流机制。
 - en: Before starting a new transaction, check if the number of concurrent transactions
     exceeds the limit. If it does, the transaction enters a waiting state. Otherwise,
     it proceeds into the transaction system. After a transaction completes execution,
     a user thread from the waiting list is activated to continue executing another
     transaction.
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: 在开始新事务之前，检查并发事务的数量是否超过限制。如果是，事务进入等待状态。否则，它将继续进入事务系统。事务完成后，从等待列表中激活一个用户线程以继续执行另一个事务。
 - en: After implementing this transaction throttling mechanism, MySQL’s scalability
     is validated. The following figure illustrates the relationship between TPC-C
     throughput and concurrency when using the throttling mechanism compared to using
     the Percona thread pool.
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 实施此事务节流机制后，MySQL的可扩展性得到了验证。以下图显示了使用节流机制与使用Percona线程池相比，TPC-C吞吐量与并发之间的关系。
 - en: '![image-20240829105242300](../Images/1c0e147423c310c208469e6c855764d1.png)'
+  id: totrans-212
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829105242300](../Images/1c0e147423c310c208469e6c855764d1.png)'
 - en: Figure 8-35\. Impact of the transaction throttling mechanism.
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-35\. 事务节流机制的影响。
 - en: From the figure, it can be seen that the throttling approach is superior to
     the Percona thread pool approach, and this superiority is comprehensive.
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，节流方法优于Percona线程池方法，并且这种优势是全面的。
 - en: The following figure depicts the TPC-C scalability stress test conducted after
     implementing transaction throttling. The test was performed in a scenario with
     NUMA BIOS disabled, limiting entry of up to 512 user threads into the transaction
     system.
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下图展示了实施事务节流后进行的TPC-C可扩展性压力测试。测试是在禁用NUMA BIOS的情况下进行的，限制最多512个用户线程进入事务系统。
 - en: '![image-20240829105258689](../Images/2f74bf5b55d5674c4eed2cc60720f9a6.png)'
+  id: totrans-216
   prefs: []
   type: TYPE_IMG
+  zh: '![image-20240829105258689](../Images/2f74bf5b55d5674c4eed2cc60720f9a6.png)'
 - en: Figure 8-36\. Maximum TPC-C throughput in BenchmarkSQL with transaction throttling
     mechanisms.
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-36\. 在BenchmarkSQL中使用事务节流机制的最大TPC-C吞吐量。
 - en: From the figure, it can be seen that throughput is more stable. This stability
     is primarily due to disabling NUMA in the BIOS, which improves memory access efficiency
     and enhances overall system stability.
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: 从图中可以看出，吞吐量更加稳定。这种稳定性主要归因于在BIOS中禁用NUMA，这提高了内存访问效率并增强了整体系统稳定性。
 - en: 'However, transaction throttling is not a panacea and has its limitations:'
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，事务节流并非万能，也有其局限性：
 - en: When the maximum number of transactions are executing concurrently, new transactions
     must wait until existing transactions are completed. If all concurrent transactions
     consist of long-running queries, it may appear as if the MySQL system is stalled
     [31].
+  id: totrans-220
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 当最大数量的交易同时执行时，新交易必须等待现有交易完成。如果所有并发交易都包含长时间运行的查询，可能会出现MySQL系统停滞[31]的情况。
 - en: It’s worth noting that the specifics of how transaction throttling is implemented,
     and its flexibility, are areas where AI can demonstrate its usefulness.
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得注意的是，事务节流的具体实现方式和其灵活性是AI可以展示其有用性的领域。
 - en: 8.4 Mitigating the Increasing Performance Decline
+  id: totrans-222
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 8.4 缓解性能下降
 - en: Users tend to notice a decline in low-concurrency performance more easily, while
     improvements in high-concurrency performance are often harder to perceive. Therefore,
     maintaining low-concurrency performance is crucial, as it directly affects user
     experience and the willingness to upgrade.
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: 用户往往更容易注意到低并发性能的下降，而高并发性能的提高通常更难察觉。因此，保持低并发性能至关重要，因为它直接影响用户体验和升级意愿。
 - en: According to extensive user feedback, after upgrading to MySQL 8.0, users have
     generally perceived a decline in performance, particularly in batch insert and
     join operations. This downward trend has become more evident in higher versions
     of MySQL. Additionally, some MySQL enthusiasts and testers have reported performance
     degradation in multiple sysbench tests after upgrading.
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据广泛的用户反馈，升级到MySQL 8.0后，用户普遍感觉到性能有所下降，尤其是在批量插入和连接操作中。这种下降趋势在MySQL更高版本中变得更加明显。此外，一些MySQL爱好者和技术测试人员报告称，在升级后多个sysbench测试中出现了性能下降。
 - en: Can these performance issues be avoided? Or, more specifically, how should we
     scientifically assess the ongoing trend of performance decline? These are important
     questions to consider.
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 能否避免这些性能问题？或者，更具体地说，我们应该如何科学地评估性能下降的持续趋势？这些问题都是需要考虑的重要问题。
 - en: Although the official team continues to optimize, the gradual deterioration
     of performance cannot be overlooked. In certain scenarios, there may appear to
     be improvements, but this does not mean that performance in all scenarios is equally
     optimized. Moreover, it’s also easy to optimize performance for specific scenarios
     at the cost of degrading performance in other areas.
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管官方团队持续优化，但性能的逐渐恶化不容忽视。在某些场景中，可能会出现改进的迹象，但这并不意味着所有场景的性能都得到了同等优化。此外，牺牲其他领域的性能来优化特定场景的性能也很容易。
 - en: 8.4.1 The Root Causes of MySQL Performance Decline
+  id: totrans-227
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.4.1 MySQL性能下降的根本原因
 - en: In general, as more features are added, the codebase grows, and with the continuous
     expansion of functionality, performance becomes increasingly difficult to control.
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常情况下，随着更多功能的添加，代码库增长，随着功能的持续扩展，性能变得越来越难以控制。
 - en: MySQL developers often fail to notice the decline in performance, as each addition
     to the codebase results in only a very small decrease in performance. However,
     over time, these small declines accumulate, leading to a significant cumulative
     effect, which causes users to perceive a noticeable performance degradation in
     newer versions of MySQL.
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL开发者往往未能注意到性能下降，因为代码库的每次增加只会导致性能非常小的下降。然而，随着时间的推移，这些小的下降累积起来，导致显著的累积效应，使用户在新版本的MySQL中感知到明显的性能下降。
 - en: 'For example, the following figure shows the performance of a simple single
     join operation, with MySQL 8.0.40 showing a performance decline compared to MySQL
     8.0.27:'
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，以下图显示了简单单连接操作的性能，与MySQL 8.0.27相比，MySQL 8.0.40显示出性能下降：
 - en: '![image-join-degrade](../Images/33ce04c643f3855aea7871e389914908.png)'
+  id: totrans-231
   prefs: []
   type: TYPE_IMG
+  zh: '![image-join-degrade](../Images/33ce04c643f3855aea7871e389914908.png)'
 - en: Figure 8-37\. Significant decline in join performance in MySQL 8.0.40.
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-37\. MySQL 8.0.40中连接性能的显著下降。
 - en: 'The following figure shows the batch insert performance test under single concurrency,
     with the performance decline of MySQL 8.0.40 compared to version 5.7.44:'
+  id: totrans-233
   prefs: []
   type: TYPE_NORMAL
+  zh: 下图显示了在单并发情况下的批量插入性能测试，与MySQL 5.7.44版本相比，MySQL 8.0.40的性能有所下降：
 - en: '![image-bulk-insert-degrade](../Images/56ffd9da7183234125d6a5ab8e0ee6f2.png)'
+  id: totrans-234
   prefs: []
   type: TYPE_IMG
+  zh: '![image-bulk-insert-degrade](../Images/56ffd9da7183234125d6a5ab8e0ee6f2.png)'
 - en: Figure 8-38\. Significant decline in bulk insert performance in MySQL 8.0.40.
+  id: totrans-235
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-38\. MySQL 8.0.40中批量插入性能的显著下降。
 - en: From the two graphs above, it can be seen that the performance of version 8.0.40
     is not good.
+  id: totrans-236
   prefs: []
   type: TYPE_NORMAL
+  zh: 从上面的两个图表中可以看出，8.0.40版本的性能并不好。
 - en: 'Next, let’s analyze the root cause of the performance degradation in MySQL
     from the code level. Below is the ***PT_insert_values_list::contextualize*** function
     in MySQL 8.0:'
+  id: totrans-237
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，让我们从代码层面分析MySQL性能下降的根本原因。以下是MySQL 8.0中的***PT_insert_values_list::contextualize***函数：
 - en: '[PRE15]'
+  id: totrans-238
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: 'The corresponding ***PT_insert_values_list::contextualize*** function in MySQL
     5.7 is as follows:'
+  id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 5.7中对应的***PT_insert_values_list::contextualize***函数如下：
 - en: '[PRE16]'
+  id: totrans-240
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: From the code comparison, MySQL 8.0 appears to have more elegant code, seemingly
     making progress.
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: 从代码比较来看，MySQL 8.0似乎有更优雅的代码，看起来有所进步。
 - en: 'Unfortunately, many times it is precisely the motivations behind these code
     improvements that lead to performance degradation. The MySQL official team replaced
     the previous ***List*** data structure with a ***deque***, which has become one
     of the root causes of the gradual performance degradation. Let’s take a look at
     the ***deque*** documentation:'
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: 不幸的是，很多时候，正是这些代码改进背后的动机导致了性能下降。MySQL官方团队将之前的***List***数据结构替换为***deque***，这已成为性能逐渐下降的根本原因之一。让我们看看***deque***的文档：
 - en: '[PRE17]'
+  id: totrans-243
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: As shown in the above description, in extreme cases, retaining a single element
     requires allocating the entire array, resulting in very low memory efficiency.
     For example, in bulk inserts, where a large number of records need to be inserted,
     the official implementation stores each record in a separate deque. Even if the
     record content is minimal, a deque must still be allocated. The MySQL deque implementation
     allocates 1KB of memory for each deque to support fast lookups.
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: 如上述描述所示，在极端情况下，保留单个元素需要分配整个数组，导致非常低的内存效率。例如，在批量插入中，需要插入大量记录，官方实现将每条记录存储在单独的
+    deque 中。即使记录内容很少，仍然需要分配 deque。MySQL deque 实现为每个 deque 分配 1KB 的内存以支持快速查找。
 - en: '[PRE18]'
+  id: totrans-245
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: The official implementation uses 1KB of memory to store index information, and
     even if the record length is not large but there are many records, the memory
     access addresses may become non-contiguous, leading to poor cache friendliness.
     This design was intended to improve cache friendliness, but it has not been fully
     effective.
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 官方实现使用 1KB 的内存来存储索引信息，即使记录长度不大但记录数量很多，内存访问地址可能变得不连续，导致缓存友好性差。这种设计旨在提高缓存友好性，但效果并不完全。
 - en: It is worth noting that the original implementation used a List data structure,
     where memory was allocated through a memory pool, providing a certain level of
     cache friendliness. Although random access is less efficient, optimizing for sequential
     access to List elements significantly improves performance.
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得注意的是，原始实现使用 List 数据结构，内存通过内存池分配，提供了一定程度的缓存友好性。虽然随机访问效率较低，但优化 List 元素的顺序访问可以显著提高性能。
 - en: During the upgrade to MySQL 8.0, users observed a significant decline in batch
     insert performance, and one of the main causes was the substantial change in underlying
     data structures.
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: 在升级到 MySQL 8.0 的过程中，用户观察到批量插入性能显著下降，其中一个主要原因是底层数据结构的重大变化。
 - en: Additionally, while the official team improved the redo log mechanism, this
     also led to a decrease in MTR commit operation efficiency. Compared to MySQL 5.7,
     the added code significantly reduces the performance of individual commits, even
     though overall write throughput has been greatly improved.
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，尽管官方团队改进了重做日志机制，这也导致了 MTR 提交操作效率的降低。与 MySQL 5.7 相比，添加的代码显著降低了单个提交的性能，尽管整体写入吞吐量已经大幅提高。
 - en: 'Let’s examine the core ***execute*** operation of MTR commit in MySQL 5.7.44:'
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们分析 MySQL 5.7.44 中 MTR 提交的核心 ***execute*** 操作：
 - en: '[PRE19]'
+  id: totrans-251
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: 'Let’s examine the core ***execute*** operation of MTR commit in MySQL 8.0.40:'
+  id: totrans-252
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们分析 MySQL 8.0.40 中 MTR 提交的核心 ***execute*** 操作：
 - en: '[PRE20]'
+  id: totrans-253
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: By comparison, it is clear that in MySQL 8.0.40, the execute operation in MTR
     commit has become much more complex, with more steps involved. This complexity
     is one of the main causes of the decline in low-concurrency write performance.
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过比较，可以看出在 MySQL 8.0.40 中，MTR 提交中的执行操作变得更加复杂，涉及更多步骤。这种复杂性是低并发写性能下降的主要原因之一。
 - en: In particular, the operations ***m_impl->m_log.for_each_block(write_log)***
     and **log_wait_for_space_in_log_recent_closed(*log_sys, handle.start_lsn)** have
     significant overhead. These changes were made to enhance high-concurrency performance,
     but they came at the cost of low-concurrency performance.
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: 特别是，操作 ***m_impl->m_log.for_each_block(write_log)*** 和 **log_wait_for_space_in_log_recent_closed(*log_sys,
+    handle.start_lsn)** 具有显著的开销。这些更改是为了提高高并发性能，但它们以低并发性能为代价。
 - en: The redo log’s prioritization of high-concurrency mode results in poor performance
     for low-concurrency workloads. Although the introduction of ***innodb_log_writer_threads***
     was intended to mitigate low-concurrency performance issues, it does not affect
     the execution of the above functions. Since these operations have become more
     complex and require frequent MTR commits, performance has still dropped significantly.
+  id: totrans-256
   prefs: []
   type: TYPE_NORMAL
+  zh: 在高并发模式下，重做日志的优先级导致低并发工作负载的性能较差。尽管引入 ***innodb_log_writer_threads*** 的目的是为了缓解低并发性能问题，但它并不影响上述函数的执行。由于这些操作变得更加复杂且需要频繁的
+    MTR 提交，性能仍然显著下降。
 - en: 'Let’s take a look at the impact of the instant add/drop feature on performance.
     Below is the ***rec_init_offsets_comp_ordinary*** function in MySQL 5.7:'
+  id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们看看即时添加/删除功能对性能的影响。以下是 MySQL 5.7 中的 ***rec_init_offsets_comp_ordinary*** 函数：
 - en: '[PRE21]'
+  id: totrans-258
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: 'The ***rec_init_offsets_comp_ordinary*** function in MySQL 8.0.40 is as follows:'
+  id: totrans-259
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 8.0.40 中的 ***rec_init_offsets_comp_ordinary*** 函数如下：
 - en: '[PRE22]'
+  id: totrans-260
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: From the above code, it is clear that with the introduction of the instant add/drop
     column feature, the ***rec_init_offsets_comp_ordinary*** function has become noticeably
     more complex, introducing more function calls and adding a switch statement that
     severely impacts cache optimization. Since this function is called frequently,
     it directly impacts the performance of update index, batch inserts, and joins,
     resulting in a major performance hit.
+  id: totrans-261
   prefs: []
   type: TYPE_NORMAL
+  zh: 从上述代码中可以看出，随着即时添加/删除列功能的引入，`***rec_init_offsets_comp_ordinary***` 函数变得更加复杂，引入了更多的函数调用，并添加了一个影响缓存优化的开关语句。由于这个函数被频繁调用，它直接影响了更新索引、批量插入和连接的性能，导致性能大幅下降。
 - en: 'Moreover, the performance decline in MySQL 8.0 is not limited to the above;
     there are many other areas that contribute to the overall performance degradation,
     especially the impact on the expansion of inline functions. For example, the following
     code affects the expansion of inline functions:'
+  id: totrans-262
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，MySQL 8.0 的性能下降不仅限于上述问题；还有许多其他领域对整体性能下降做出了贡献，特别是对内联函数扩展的影响。例如，以下代码影响了内联函数的扩展：
 - en: '[PRE23]'
+  id: totrans-263
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: According to our tests, the ***ib::fatal*** statement severely interferes with
     inline optimization. For frequently accessed functions, it is advisable to avoid
     statements that interfere with inline optimization.
+  id: totrans-264
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据我们的测试，`***ib::fatal***` 语句严重干扰了内联优化。对于频繁访问的函数，建议避免干扰内联优化的语句。
 - en: 'Next, let’s look at a similar issue. The ***row_sel_store_mysql_field function***
     is called frequently, with ***row_sel_field_store_in_mysql_format*** being a hotspot
     function within it. The specific code is as follows:'
+  id: totrans-265
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，让我们看看一个类似的问题。`***row_sel_store_mysql_field function***` 被频繁调用，其中 `***row_sel_field_store_in_mysql_format***`
+    是其中的热点函数。具体代码如下：
 - en: '[PRE24]'
+  id: totrans-266
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: The ***row_sel_field_store_in_mysql_format*** function ultimately calls ***row_sel_field_store_in_mysql_format_func***.
+  id: totrans-267
   prefs: []
   type: TYPE_NORMAL
+  zh: '`***row_sel_field_store_in_mysql_format***` 函数最终调用 `***row_sel_field_store_in_mysql_format_func***`。'
 - en: '[PRE25]'
+  id: totrans-268
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: The ***row_sel_field_store_in_mysql_format_func*** function cannot be inlined
     due to the presence of the ***ib::fatal*** code.
+  id: totrans-269
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于存在 `***ib::fatal***` 代码，`***row_sel_field_store_in_mysql_format_func***` 函数不能内联。
 - en: '[PRE26]'
+  id: totrans-270
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: Frequently called inefficient functions, executing tens of millions of times
     per second, can severely impact join performance.
+  id: totrans-271
   prefs: []
   type: TYPE_NORMAL
+  zh: 频繁调用的低效函数，每秒执行数千万次，会严重影响连接性能。
 - en: Let’s continue to explore the reasons for performance decline. The following
     official performance optimization is, in fact, one of the root causes of the decline
     in join performance. Although certain queries may be improved, it is still one
     of the reasons for the performance degradation of ordinary join operations.
+  id: totrans-272
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们继续探讨性能下降的原因。以下官方性能优化实际上是一系列导致连接性能下降的根本原因之一。尽管某些查询可能得到改善，但它仍然是普通连接操作性能下降的原因之一。
 - en: '[PRE27]'
+  id: totrans-273
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: MySQL’s issues go beyond these. As shown in the analyses above, the performance
     decline in MySQL is not without cause. A series of small problems, when accumulated,
     can lead to noticeable performance degradation that users experience. However,
     these issues are often difficult to identify, making them even harder to resolve.
+  id: totrans-274
   prefs: []
   type: TYPE_NORMAL
+  zh: MySQL 的问题不仅限于此。如上述分析所示，MySQL 性能下降并非没有原因。一系列小问题积累起来，可能导致用户感受到的性能明显下降。然而，这些问题往往难以识别，使得它们更加难以解决。
 - en: The so-called ‘premature optimization’ is the root of all evil, and it does
     not apply in MySQL development. Database development is a complex process, and
     neglecting performance over time makes subsequent performance improvements significantly
     more challenging.
+  id: totrans-275
   prefs: []
   type: TYPE_NORMAL
+  zh: 所说的“过早优化”是万恶之源，在 MySQL 开发中并不适用。数据库开发是一个复杂的过程，忽视性能随着时间的推移会使后续的性能改进变得更加困难。
 - en: 8.4.2 Solutions to Mitigate MySQL Performance Decline
+  id: totrans-276
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.4.2 缓解 MySQL 性能下降的解决方案
 - en: The main reasons for the decline in write performance are related to MTR commit
     issues, instant add/drop column, and several other factors. These are difficult
     to optimize in traditional ways. However, users can compensate for the performance
     drop through PGO optimization. With a proper strategy, the performance can generally
     be kept stable.
+  id: totrans-277
   prefs: []
   type: TYPE_NORMAL
+  zh: 写性能下降的主要原因与 MTR 提交问题、即时添加/删除列以及几个其他因素有关。这些因素在传统方式下难以优化。然而，用户可以通过 PGO 优化来补偿性能下降。采用适当的策略，性能通常可以保持稳定。
 - en: For batch insert performance degradation, our open-source version [64] replaces
     the official deque with an improved list implementation. This primarily addresses
     memory efficiency issues and can partially alleviate performance decline. By combining
     PGO optimization with our open-source version, batch insert performance can approach
     that of MySQL 5.7.
+  id: totrans-278
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于批量插入性能下降的问题，我们的开源版本[64]用改进的列表实现替换了官方的deque。这主要解决了内存效率问题，并可以部分缓解性能下降。通过结合PGO优化和我们的开源版本，批量插入性能可以接近MySQL
+    5.7的水平。
 - en: '![image-bulk-insert-optimize.png](../Images/1293309958c11193c6ec32397c4297e2.png)'
+  id: totrans-279
   prefs: []
   type: TYPE_IMG
+  zh: '![image-bulk-insert-optimize.png](../Images/1293309958c11193c6ec32397c4297e2.png)'
 - en: Figure 8-39\. Optimized MySQL 8.0.40 with PGO performs roughly on par with version
     5.7.
+  id: totrans-280
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-39。使用PGO优化的MySQL 8.0.40版本与版本5.7的表现大致相当。
 - en: Users can also leverage multiple threads for concurrent batch processing, fully
     utilizing the improved concurrency of the redo log, which can significantly boost
     batch insert performance.
+  id: totrans-281
   prefs: []
   type: TYPE_NORMAL
+  zh: 用户还可以利用多线程进行并发批量处理，充分利用改进的重做日志并发性，这可以显著提高批量插入性能。
 - en: Regarding update index issues, due to the inevitable addition of new code, PGO
     optimization can help mitigate this problem. Our PGO version [64] can significantly
     alleviate this issue.
+  id: totrans-282
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于更新索引的问题，由于新代码的不可避免添加，PGO优化可以帮助缓解这个问题。我们的PGO版本[64]可以显著减轻这个问题。
 - en: For read performance, particularly join performance, we have made substantial
     improvements, including fixing inline issues and making other optimizations. With
     the addition of PGO, join performance can be increased by over 30% compared to
     the official version.
+  id: totrans-283
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于读取性能，尤其是连接性能，我们已经做出了重大改进，包括修复内联问题和其他优化。通过添加PGO，连接性能可以比官方版本提高超过30%。
 - en: '![image-join-improve.png](../Images/b385c9506ba11f9329562a3f07aa25f0.png)'
+  id: totrans-284
   prefs: []
   type: TYPE_IMG
+  zh: '![image-join-improve.png](../Images/b385c9506ba11f9329562a3f07aa25f0.png)'
 - en: Figure 8-40\. Join performance optimization with PGO leads to significant improvements.
+  id: totrans-285
   prefs: []
   type: TYPE_NORMAL
+  zh: 图8-40。使用PGO进行连接性能优化带来了显著的改进。
 - en: We will continue to invest time in optimizing low-concurrency performance. This
     process is long but involves numerous areas that need improvement.
+  id: totrans-286
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将继续投资时间优化低并发性能。这个过程虽然漫长，但涉及许多需要改进的领域。
 - en: The open-source version is available for testing, and efforts will persist to
     improve MySQL performance.
+  id: totrans-287
   prefs: []
   type: TYPE_NORMAL
+  zh: 开源版本可供测试，并且将持续努力提高MySQL的性能。
 - en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter9.html)'
+  id: totrans-288
   prefs: []
   type: TYPE_NORMAL
+  zh: '[下一节](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter9.html)'
