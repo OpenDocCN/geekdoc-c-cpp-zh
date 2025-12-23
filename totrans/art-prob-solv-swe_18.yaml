@@ -1,0 +1,214 @@
+- en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter12.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter12.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'Chapter 12: Future Directions'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: A solid foundation is essential for advancing MySQL towards more complex objectives.
+    Once scalability and high availability are resolved, the focus could shift to
+    the following development areas.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.1 Improvements to Hypergraph Algorithms
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The goal is to make hypergraph algorithms practical and enhance their performance,
+    with a focus on exploring parallel approaches.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.2 Practical Implementation of Paxos Log Persistence Functionality
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Currently, Paxos log persistence has been demonstrated to be feasible. Efforts
+    can be made to implement crash recovery based on Paxos logs, thereby making Paxos
+    log persistence truly practical.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.3 Addressing Concurrent View Change Challenges
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Currently, Group Replication faces challenging concurrent view change problems.
+    Although these issues occur infrequently, efforts can be made to solve them completely.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.4 Further Improving Scalability
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'MySQL scalability can be further improved in the following areas:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Eliminating additional latch bottlenecks, particularly in non-partitioned environments.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Improving the stability of long-term performance testing.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Improving MySQL’s NUMA-awareness in mainstream NUMA environments.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Addressing Performance Schema’s adverse impact on NUMA environments during MySQL
+    secondary replay processes.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 12.5 Further Improving SQL Performance Under Low Concurrency
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: MySQL 8.0’s performance under low concurrency is significantly worse compared
+    to 5.7, which needs to be corrected to avoid affecting users upgrading to 8.0.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.6 Further Enhancing Performance of Analytical SQL Queries
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Currently, MySQL processes individual SQL queries using a single-threaded mode,
+    which can result in excessively long processing times for some statistical queries
+    and significantly impact user experience. Future improvements will focus on implementing
+    multi-threaded processing for statistical SQL queries to reduce processing times
+    and enhance performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.7 Improving Binlog File Compression Efficiency and Operational Stability
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Reducing user storage costs is a key focus. Optimizing MySQL binlog compression
+    rates and operational stability presents significant potential for improvement,
+    which could lead to substantial benefits.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.8 Advancing MySQL’s Management of Large Transactions on the Primary Server
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In mainstream NUMA environments, MySQL’s primary server efficiency in handling
+    large transactions is suboptimal. This area has significant optimization potential
+    and could become one of the key points for future improvements.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.9 Further Exploring Better Memory Allocation Tools
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Currently, jemalloc 4.5 is the best-found memory allocation tool, but it has
+    high memory consumption and instability on ARM architecture. A key future focus
+    could be developing a more efficient and stable memory allocation tool.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.10 Integrating a High-Performance File System
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Enhancing MySQL with a better file system, especially improving the performance
+    of MySQL secondary replay.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.11 Introducing AI into MySQL Systems
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Integrating AI with MySQL for automated knob tuning and learning-based database
+    monitoring could be another key focus for the future.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.11.1 Knob Tuning
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Integrating AI for parameter optimization can significantly reduce DBA workload.
+    Key parameters suitable for AI-driven optimization include:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Buffer pool size
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Spin delay settings
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Dynamic transaction throttling limits based on environment
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Dynamic XCom cache size adjustment
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: MySQL secondary worker max queue size
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The number of Paxos pipelining instances and the size of batching
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Automatic parameter adjustments under heavy load to improve processing capability
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 12.11.2 Learning-based Database Monitoring
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: AI could optimize database monitoring by determining the optimal times and methods
+    for tracking various database metrics.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 12.12 Summary
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Programming demands strong logical reasoning skills, crucial for problem-solving,
+    algorithm design, debugging, code comprehension, performance optimization, and
+    testing. It helps in analyzing problems, creating solutions, correcting errors,
+    and ensuring software reliability. Developing logical reasoning is essential for
+    programmers to think systematically and build efficient, reliable software [56].
+  prefs: []
+  type: TYPE_NORMAL
+- en: MySQL development often focuses primarily on simple tests using testing tools,
+    which can miss opportunities to discover many problems. Testing MySQL itself is
+    a monumental task, and relying solely on testing tools is insufficient to expose
+    all problems. Optimization differs across projects and environments, and using
+    real online traffic makes it more targeted and effective. Thus, MySQL optimization
+    based on live traffic is highly valuable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: MySQL performance optimization heavily relies on mitigating scalability problems.
+    Enhanced versions of MySQL have addressed most scalability problems, establishing
+    a solid foundation for further optimizations. Profile-guided optimization (PGO)
+    is crucial for MySQL, and as scalability problems improve, its importance will
+    continue to grow. Utilizing better memory allocation tools can significantly improve
+    the performance of both the MySQL primary and secondary replay.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We firmly believe that high availability solutions based on Paxos log persistence
+    will be the future trend. Our extensive experience in the long-term transformation
+    of Group Replication has laid a solid foundation for achieving true high availability.
+    The speed of MySQL secondary replay determines the quality of MySQL’s high availability.
+    Achieving replay speeds in the range of millions of tpmC is possible but requires
+    persistent effort.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Although MySQL optimization is a long and winding process, we are confident
+    that MySQL will continue to improve over time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/References.html)'
+  prefs: []
+  type: TYPE_NORMAL

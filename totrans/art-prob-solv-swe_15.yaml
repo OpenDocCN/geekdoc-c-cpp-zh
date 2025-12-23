@@ -1,0 +1,19 @@
+- en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part4.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part4.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Part 4 Tuning
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This part primarily analyzes performance improvements from the perspective of
+    MySQL users.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter11.html)'
+  prefs: []
+  type: TYPE_NORMAL

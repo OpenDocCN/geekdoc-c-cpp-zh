@@ -1,0 +1,844 @@
+- en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter7.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter7.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'Chapter 7: Key Improvements of MySQL 8.0 Over MySQL 5.7'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: MySQL 8.0 has introduced substantial improvements over MySQL 5.7\. It not only
+    enhances functionality and adds support for hash joins in execution plans but,
+    more importantly, greatly improves scalability. These advancements lay a solid
+    foundation for future improvements.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '7.1 Scaling Up: InnoDB Improvements'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Early open-source DBMS code often used a coarse-grained latch for the entire
+    kernel. In contrast, InnoDB has adopted a more refined approach, employing separate
+    latches for different kernel components, such as the lock manager and buffer pool
+    [19].
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'MySQL 8.0 introduced additional improvements to enhance the scalability of
+    the InnoDB storage engine. Here are the related improvements:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Redo Log Optimization:** Enhancements to the redo log have facilitated subsequent
+    performance improvements.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**Lock-sys Latch Sharding:** The lock-sys latch has been sharded, akin to read-write
+    locks, to improve transactional locking.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**Trx-sys Latch Splitting and Sharding:** While contention for latches persists,
+    optimizations in trx-sys lay a strong foundation for future improvements in MVCC
+    ReadView.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: These significant scalability improvements will be discussed in detail below.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.1.1 Redo Log Optimization
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Write-ahead logging is a fundamental, omnipresent component in ARIES-style
+    concurrency and recovery, and it represents a significant potential bottleneck,
+    especially in OLTP workloads making frequent small changes to data. Two logging-related
+    impediments to database system scalability are identified, each challenging different
+    levels of the software architecture [3]:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The high volume of small-sized I/O requests may saturate the disk.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Contention arises as transactions serialize access to in-memory log data structures.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The above potential bottlenecks are reflected in MySQL 5.7\. Detailed information
+    on redo log optimization can be found in “*MySQL 8.0: New Lock-Free, Scalable
+    WAL Design*”, where the complexity lies in how the sequential order of Log Sequence
+    Numbers (LSN) is ensured in the new design. The article also highlights the following
+    improvements [27]:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*We have introduced dedicated threads for particular tasks related to the redo
+    log writes. User threads no longer do writes to the redo files themselves. They
+    simply wait when they need redo flushed to disk and it is not flushed yet.*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This improvement completely changed the previous mechanism and laid a solid
+    foundation for scalability. The following git log details the specific optimizations
+    made to the redo log.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The new mechanism employs dedicated threads to flush redo log files, supports
+    concurrent writes to the log buffer, removes global latches in the code, and introduces
+    latch-free processing, significantly enhancing scalability.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A test comparing TPC-C throughput with different levels of concurrency before
+    and after optimization was conducted. Specific details are shown in the following
+    figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829094221268](../Images/d7f66e43157014e054a21f9e87f38918.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-1\. Impact of redo log optimization under different concurrency levels.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The results in the figure show a significant improvement in throughput at a
+    concurrency level of 100 but a decrease at high concurrency levels. This decrease
+    can be attributed to two potential reasons:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Unsolved Foundational Flaws:** During the transformation process, foundational
+    problems may not have been fully addressed.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**Interference from Multiple Queue Bottlenecks:** Problems similar to multi-queue
+    bottlenecks interfering with each other may arise. Although performance in some
+    areas has improved, other bottlenecks have worsened under high concurrency.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Extensive research suggests that the optimization should theoretically enhance
+    throughput. The redo log optimization uses a group commit-like mechanism to reduce
+    I/O overhead. Instead of immediately flushing redo log contents, user threads
+    write to a log buffer and wait, while a dedicated thread batches and flushes the
+    log to disk, notifying user threads when the process is complete. This approach
+    is expected to significantly decrease I/O operations under high concurrency. Therefore,
+    the most likely cause of performance problems is exacerbated bottlenecks in other
+    queues.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Implementing redo log optimization is highly challenging, and without it, achieving
+    throughput levels in the millions of tpmC would be nearly impossible.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Extensive testing revealed that the optimizations performed well under low
+    concurrency conditions and significantly accelerated the TPC-C data loading process.
+    Specific details are shown in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829095452552](../Images/075bced720bbbdf5c2a4e2331c6f2079.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-2\. Impact of redo log optimization for TPC-C data loading time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The TPC-C data loading process involves large transactions of up to 100MB. Previously,
+    loading 1000 warehouses took 77 minutes, but with the optimization, it now takes
+    only 16 minutes. This demonstrates that redo log optimization is highly effective
+    for handling large transactions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To assess the true value of this optimization, scalability enhancements were
+    applied to MySQL 5.7.36\. This process involved first applying the trx-sys patch,
+    followed by the lock-sys patch, to evaluate the extent of throughput improvement.
+    Specific details are shown in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829100209917](../Images/df038ca81523ec4f6d21b7b7763c1a57.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-3\. Indirect impact of redo log optimization.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it can be seen that after applying the trx-sys and lock-sys
+    scalability patches, MySQL 5.7.36 experienced an improvement in throughput. However,
+    it did not fundamentally solve scalability problems, especially when compared
+    to the improved MySQL 8.0.27 version. The gap remains significant. To identify
+    the bottleneck at 250 concurrency, the following screenshot from the *perf* tool
+    can be examined.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](../Images/4990fe18db5d697cf145e29c175acd0c.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-4\. Screenshot from the *perf* tool at 250 concurrency.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it is evident that the bottleneck is **prepare_write**, which
+    precisely corresponds to the bottleneck of writing redo log buffer in MySQL 5.7.36
+    version.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Let’s analyze this function by examining its call stack relationship.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](../Images/5eabfef4a07c9d88d726c35feff2c693.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-5\. Call stack relationship revealing bottleneck in redo log writing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The figure clearly shows that the bottleneck lies in redo log writing. Without
+    the redo log optimization patch, the scalability problems in MySQL 5.7.36 cannot
+    be fundamentally solved, underscoring the significant impact of redo log optimization.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Does redo log optimization currently have any side effects? Test data indicates
+    that under low concurrency conditions, the number of flush operations increases
+    significantly. Using SysBench read-write tests, the relationship between the average
+    number of I/O flushes per transaction and concurrency was statistically analyzed.
+    Specific details are shown in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829100245272](../Images/95ab89db6fe71f566fc5987d2c79171b.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Figure 7-6\. Side effects of redo log optimization at low concurrency: more
+    I/O flushes.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'From the figure, it can be observed that with 3 concurrent read-write operations,
+    each transaction averages over 9 flushes, while at 200 concurrency, it decreases
+    to around 1 flush per transaction. These average flush counts can be further optimized,
+    but it requires finding a balance: timely flushing activates user threads more
+    quickly but incurs higher I/O overhead, whereas delaying flushing reduces I/O
+    costs but may increase user response times.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: It is important to note that the Redo log improvements are primarily focused
+    on enhancing overall performance in high-concurrency environments, but they perform
+    poorly in scenarios with fewer than 50 concurrent connections. Many users have
+    complained that MySQL 8.0’s performance falls short of expectations, and this
+    is one of the fundamental reasons.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.1.2 Optimizing Lock-Sys Through Latch Sharding
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In MySQL 5.7, the lock system experienced significant latch contention problems,
+    which severely impacted throughput under high concurrency. During transaction
+    execution, frequent locking and unlocking operations require acquiring a global
+    latch. When many user threads compete for this global latch, MySQL’s scalability
+    becomes a major concern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Lock-sys optimization is the second major improvement made in MySQL 8.0\. The
+    following git log describes the specific details of the lock-sys optimization.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Sharding the global latch theoretically can significantly improve scalability
+    under high concurrency situations. Based on the program before and after optimizing
+    with lock-sys, using BenchmarkSQL to compare TPC-C throughput with concurrency,
+    the specific results are as shown in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829100432417](../Images/3c0335016408372c44248e78157f2f26.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-7\. Impact of lock-sys optimization under different concurrency levels.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it can be seen that optimizing lock-sys significantly improves
+    throughput under high concurrency conditions, while the effect is less pronounced
+    under low concurrency due to fewer conflicts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.1.3 Latch Splitting in trx-sys
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The trx-sys subsystem in MySQL, closely related to MVCC, primarily involves
+    read operations. Improvements to redo log and lock-sys are mainly associated with
+    write operations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: MySQL 5.7 utilized a global latch to synchronize various operations within trx-sys.
+    To enhance read capabilities, it was crucial to address this latch bottleneck.
+    However, the intertwined logic made modification challenging.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In MySQL 8.0, the global latch was initially split. A new latch was introduced
+    for the *serialization_list*, allowing bypass of the global latch and reducing
+    the contention pressure on it. The following git log describes the specific details
+    of these optimizations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Based on this optimization before and after, using BenchmarkSQL to compare
+    TPC-C throughput with concurrency, the specific results are shown in the following
+    figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829100937477](../Images/54b11e2a4a28e3dfd6fc6cc426074998.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-8\. Impact of latch splitting in trx-sys under different concurrency
+    levels.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it can be seen that the optimization is effective at 150 concurrency.
+    However, beyond 200 concurrency, throughput not only fails to increase but actually
+    decreases. This decline at high concurrency levels is primarily due to interference
+    from other queue bottlenecks.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.1.4 Latch Sharding for trx-sys
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In MySQL 8.0, further scalability improvements are made to the trx-sys subsystem.
+    The *rw_trx_set* has been divided into shards, each with its own latch. This significantly
+    reduces global latch contention for read operations. The following git log describes
+    the specific details of these optimizations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Based on these optimizations before and after, using BenchmarkSQL to compare
+    TPC-C throughput with concurrency, the specific results are as shown in the following
+    figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101111288](../Images/ea3541b32aff0ad79f8cb9fa1ee9d0e2.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-9\. Impact of latch sharding in trx-sys under different concurrency
+    levels.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it can be seen that this improvement significantly enhances
+    TPC-C throughput, reaching its peak at 200 concurrency. It is worth noting that
+    the impact diminishes at 300 concurrency, primarily due to ongoing scalability
+    problems in the trx-sys subsystem related to MVCC ReadView. This problem will
+    be discussed further in the next chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.1.5 Summary
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The series of scalability improvements mentioned above have laid a solid foundation
+    for achieving high throughput in MySQL. Without these changes, subsequent improvements
+    would lose their significance. Therefore, MySQL 8.0 has made significant advancements
+    in scalability.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.2 Evaluating Performance Gains in MySQL Lock Scheduling Algorithms
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Scheduling is crucial in computer system design. The right policy can significantly
+    reduce mean response time without needing faster machines, effectively improving
+    performance for free. Scheduling also optimizes other metrics, such as user fairness
+    and differentiated service levels, ensuring some job classes have lower mean delays
+    than others [24].
+  prefs: []
+  type: TYPE_NORMAL
+- en: MySQL 8.0 uses the Contention-Aware Transaction Scheduling (CATS) algorithm
+    to prioritize transactions waiting for locks. When multiple transactions compete
+    for the same lock, CATS determines the priority based on scheduling weight, calculated
+    by the number of transactions a given transaction blocks. The transaction blocking
+    the most others gets higher priority; if weights are equal, the longest waiting
+    transaction goes first.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A deadlock occurs when multiple transactions cannot proceed because each holds
+    a lock needed by another, causing all involved to wait indefinitely without releasing
+    their locks.
+  prefs: []
+  type: TYPE_NORMAL
+- en: After understanding the MySQL lock scheduling algorithm, let’s examine how this
+    algorithm affects throughput. Before testing, it is necessary to understand the
+    previous FIFO algorithm and how to restore it. For relevant details, refer to
+    the git log explanations provided below.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Based on the above prompt, restoring the FIFO lock scheduling algorithm in MySQL
+    is straightforward. Subsequently, throughput was tested using SysBench Pareto
+    distribution scenarios with varying concurrency levels in the improved MySQL 8.0.32\.
+    Details are provided in the following figure.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101222447](../Images/e2bbab0a50484c4512cada95e23cd4b0.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-10\. Impact of CATS on throughput at various concurrency levels.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it can be seen that the throughput of the CATS algorithm significantly
+    exceeds that of the FIFO algorithm. To compare these two algorithms in terms of
+    user response time, refer to the following figure.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101254601](../Images/3a5c4d81f6a6083c92db92ad1a70f122.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-11\. Impact of CATS on response time at various concurrency levels.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it can be seen that the CATS algorithm provides significantly
+    better user response times.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Furthermore, comparing deadlock error statistics during the Pareto distribution
+    test process, details can be found in the following figure.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101332034](../Images/b52da62952ddc961d2ce63deb40ef462.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-12\. Impact of CATS on ignored errors at various concurrency levels.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Comparative analysis shows that the CATS algorithm significantly reduces deadlocks.
+    This reduction in deadlocks likely plays a key role in improving performance.
+    The theoretical basis for this correlation is as follows [8]:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Under a high-contention setting, the throughput of the target system will
+    be determined by the concurrency control mechanism of the target system: systems
+    which can release locks earlier or reduce the number of aborts will have advantages
+    in such a setting.*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The above test results align closely with MySQL’s official findings. The following
+    two figures, based on official tests [57], demonstrate the significant effectiveness
+    of the CATS algorithm.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](../Images/b310997cccf5a47e469129246583f04c.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: 'Figure 7-13\. Comparison of CATS and FIFO in TPS and mean latency: insights
+    from the MySQL blog.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Additionally, MySQL’s official requirements for implementing the CATS algorithm
+    are stringent. Specific details are provided in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](../Images/0ead65693f0a60f349e4ef7d6a9651e3.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-14\. Requirements of the official worklog for CATS.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Therefore, with the adoption of the CATS algorithm, performance degradation
+    should be absent in all scenarios. It seems like things end here, but the summary
+    in the CATS algorithm’s paper [24] raises some doubts. Details are provided in
+    the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](../Images/bba749fc0c5101cc3cf32f0d089bf3ae.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-15\. Doubts about the CATS paper.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'From the information above, it can be inferred that either the industry has
+    overlooked potential flaws in FIFO, or the paper’s assessment is flawed, and FIFO
+    does not have the serious problems suggested. This contradiction highlights a
+    critical problem: one of these conclusions must be flawed; both cannot be correct.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Contradictions often present valuable opportunities for in-depth problem analysis
+    and resolution. They highlight areas where existing understanding may be challenged
+    or where new insights can be gained.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This time, testing on the improved MySQL 8.0.27 revealed a large number of
+    error logs in the MySQL error log file. Below is a partial screenshot:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](../Images/f5362a8c9da0af6746edab7bd9ab8ac0.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-16\. Partial screenshot of numerous error logs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Continuing the analysis of the corresponding code, the specifics are as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: From the code analysis, it’s clear that deadlocks lead to a substantial amount
+    of log output. The ignored errors observed during testing are connected to these
+    deadlocks. The CATS algorithm helps reduce the number of ignored errors, resulting
+    in fewer log outputs. This problem can be consistently reproduced.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Given this context, several considerations emerge:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Impact on Performance Testing:** The extensive error logs and the resulting
+    disruptions could potentially skew the performance evaluation, leading to inaccurate
+    assessments of the system’s capabilities.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**Effectiveness of the CATS Algorithm:** The performance improvement of the
+    CATS algorithm may need re-evaluation. If the extensive output of error logs significantly
+    impacts performance, its actual effectiveness may not be as high as initially
+    believed.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Set `innodb_print_all_deadlocks=OFF` or remove all logging from the `Deadlock_notifier::notify`
+    function, recompile MySQL, and run SysBench read-write tests with a Pareto distribution.
+    Details are provided in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101534550](../Images/a5a0464e2d8f6cff94fc7cd6f711f19d.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-17\. Impact of CATS on throughput at various concurrency levels for
+    improved MySQL 8.0.27 after eliminating interference.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it is evident that there has been a significant change in throughput
+    comparison. In scenarios with severe conflicts, the CATS algorithm slightly outperforms
+    the FIFO algorithm, but the difference is minimal and much less pronounced than
+    in previous tests. Note that these tests were conducted on the improved MySQL
+    8.0.27.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s conduct performance comparison tests on the improved MySQL 8.0.32, with
+    deadlock log interference removed, using Pareto distribution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101612063](../Images/1fc0c4040379dabf2ad2a13add5c5b75.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-18\. Impact of CATS on throughput at various concurrency levels for
+    improved MySQL 8.0.32 after eliminating interference.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it is evident that removing the interference results in only
+    a slight performance difference. This small variation makes it understandable
+    why the severity of FIFO scheduling problems may be difficult to notice. The perceived
+    bias from the CATS author and MySQL officials is likely due to interference from
+    extensive deadlock log output.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using the same 32 warehouses as in the CATS algorithm paper, TPC-C tests were
+    conducted at various concurrency levels. MySQL was based on the improved MySQL
+    8.0.27, and BenchmarkSQL was modified to support 100 concurrent transactions per
+    warehouse.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101632142](../Images/9fb06ba2573f47a3467fcdcbbadabde2.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-19\. Impact of CATS on throughput at different concurrency levels under
+    NUMA after eliminating interference, according to the CATS paper.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it’s evident that the CATS algorithm performs worse than the
+    FIFO algorithm. To avoid NUMA-related interference, MySQL was bound to NUMA node
+    0 for a new round of throughput versus concurrency tests.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101650730](../Images/1e3bff5182c8fa0e7e51cc41ad13514c.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-20\. Impact of CATS on throughput at different concurrency levels under
+    SMP after eliminating interference, according to the CATS paper.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In this round of testing, the FIFO algorithm continued to outperform the CATS
+    algorithm. The decline in performance of the CATS algorithm in BenchmarkSQL TPC-C
+    testing compared to improvements in SysBench Pareto testing can be attributed
+    to the following reasons:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**Additional Overhead**: The CATS algorithm inherently introduces some extra
+    overhead.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**NUMA Environment Problems**: The CATS algorithm may not perform optimally
+    in NUMA environments.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**Conflict Severity**: The conflict severity in TPC-C testing is less pronounced
+    than in SysBench Pareto testing.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '**Different Concurrency Scenarios**: SysBench creates concurrency scenarios
+    that differ significantly from those in BenchmarkSQL.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Finally, standard TPC-C testing was performed again with 1000 warehouses at
+    varying concurrency levels. Specific details are shown in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101712694](../Images/07d1e1ce7058308849d128242880cc42.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-21\. Impact of CATS on BenchmarkSQL throughput after eliminating interference.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it is evident that there is little difference between the two
+    algorithms in low-conflict scenarios. In other words, the CATS algorithm does
+    not offer significant benefits in situations with fewer conflicts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Overall, while CATS shows some improvement in Pareto testing, it is less pronounced
+    than expected. The CATS algorithm significantly reduces transaction deadlocks,
+    potentially resulting in less performance degradation than the FIFO algorithm.
+    When deadlock logs are suppressed, the difference between these algorithms is
+    minimal, clarifying the confusion surrounding the CATS algorithm’s performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Database performance testing is inherently complex and error-prone [9]. It cannot
+    be judged by data alone and requires thorough investigation to ensure logical
+    consistency.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.3 Enhancements in MySQL Execution Plans
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 7.3.1 Hash Join Implementation in MySQL
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: As the name suggests, hashing is central to the hash join algorithm. It builds
+    a hash table from one input table and then processes the other table row by row,
+    using the hash table for lookups.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Hash joins are typically faster and are preferred over the block nested loop
+    algorithm used in earlier MySQL versions. The benefits are substantial, as demonstrated
+    by the practical case below.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In MySQL 5.7, which lacks hash join support, the SQL query relies on traditional
+    join methods, resulting in a longer execution time of 3.82 seconds.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](../Images/ed154c5e7e4a64453b3fb80f1b81b841.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-22\. Non-hash join performance in MySQL 5.7.
+  prefs: []
+  type: TYPE_NORMAL
+- en: MySQL 8.0 introduced hash join. For the same SQL query, using hash join with
+    hints reduced the execution time to 1.22 seconds, a significant improvement over
+    the 3.82 seconds with traditional methods.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](../Images/81e30c9f88dac4a4f7c0447c16d9c2ec.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-23\. Hash join performance in MySQL 8.0.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Notably, hash join in MySQL 8.0 enhances join performance under the following
+    conditions [13]:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: No index is available
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The query is I/O-bound
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: A large portion of a table is accessed
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: There are selective conditions across multiple tables
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Increasing join_buffer_size can further improve performance
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The introduction of hash join is a significant feature in MySQL 8.0, offering
+    a promising solution for reducing response times.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.3.2 Introduction of Hypergraph Algorithm in MySQL
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The hypergraph algorithm was introduced in MySQL 8.0 but is currently only available
+    in debug mode. The following git log provides specific implementation details
+    of the hypergraph algorithm.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: From the above, it can be seen that the theoretical foundation for the hypergraph
+    algorithm’s implementation is detailed in the paper “Dynamic Programming Strikes
+    Back” [35]. This highlights the high level of complexity involved in its implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A cost-based query optimizer is crucial for the overall performance of a database
+    management system, particularly in finding the optimal join order. Building on
+    the efficient *DPccp* algorithm, which uses dynamic programming, a new algorithm,
+    *DPhyp*, is introduced to handle complex join predicates effectively. By modeling
+    the query graph as a hypergraph and analyzing its connected subgraphs, *DPhyp*
+    improves the optimization of non-inner joins, offering substantial performance
+    gains over previous methods.
+  prefs: []
+  type: TYPE_NORMAL
+- en: With advances in hardware, high-complexity algorithms are becoming practical.
+    Even though some algorithms may not run in polynomial time, modern computers can
+    handle large NP-complete problems efficiently. Dynamic programming techniques,
+    while still exponential, are increasingly viable for moderate instance sizes,
+    often achieving time complexities of O(2^n).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Nevertheless, when using the hypergraph algorithm, the number of tables involved
+    in joins should be kept within reasonable limits to avoid potential performance
+    problems. Performance comparisons were conducted for complex join operations in
+    TPC-C, with and without hypergraph optimization enabled. Detailed results are
+    shown in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](../Images/479d19e7baca5f40961422c966334bcb.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-24\. Effects of hypergraph algorithms on typical TPC-C SQL workloads.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it is evident that enabling the hypergraph algorithm results
+    in an execution time of 0.88 seconds, whereas disabling it reduces the time to
+    0.03 seconds. This demonstrates the significant performance impact of using the
+    hypergraph algorithm. In many cases, the overhead of the hypergraph can be substantial.
+    If MySQL’s default execution plan leads to slow performance, the hypergraph algorithm
+    might offer valuable improvements.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s further analyze the performance of the hypergraph algorithm by examining
+    the *perf* flame graph in the following figure.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![](../Images/016861ff478ed8cbf861ab045a71f3fb.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-25\. A typical flame graph of hypergraph algorithm.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it is evident that the hypergraph algorithm (hypergraph*) consumes
+    a significant amount of computation. Currently operating in single-threaded mode,
+    there is substantial potential for optimizing the hypergraph algorithm.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Due to MySQL’s absence of query plan caching, constructing optimal execution
+    plans with the hypergraph algorithm is time-consuming, posing challenges for its
+    effective use in production environments.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Notably, AI can also be utilized for optimizing execution plans, as discussed
+    in section 5.20.2.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.4 Cost Savings with Binlog Compression
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Starting with MySQL 8.0.20, binlog compression is supported but disabled by
+    default. It can be enabled with the *binlog_transaction_compression* parameter,
+    and the *zstd* compression level can be adjusted using the *binlog_transaction_compression_level_zstd*
+    parameter, with a default level of 3.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Using a Group Replication cluster within the same data center, the impact of
+    binlog compression on TPC-C throughput and concurrency was examined using BenchmarkSQL.
+    Both primary and secondary nodes were configured with the *binlog_transaction_compression*
+    parameter. Specific test results are shown in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101915930](../Images/3f5357ee2ff758a709d1e16c5a40f1a7.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-26\. Impact of binlog compression on BenchmarkSQL performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it is evident that enabling binlog compression significantly
+    affects throughput, with noticeable fluctuations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The next step is to compare binlog sizes before and after compression. Specific
+    details are shown in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101936734](../Images/61ff7db622e36ed0918e0509e044333e.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-27\. Effects of binlog compression after BenchmarkSQL testing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'From the figure, it is evident that binlog compression has a notable positive
+    effect on TPC-C testing. It’s worth noting that setting *binlog_row_image=minimal*
+    can significantly reduce binlog size, but it has less impact on performance. Specific
+    details are shown in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829101956608](../Images/cd7718f0c275f3cde86b00d06d4b0b1e.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-28\. Impact of *binlog_row_image=minimal* on BenchmarkSQL performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Finally, let’s examine the comparison of binlog sizes between *binlog_row_image=minimal*
+    and *binlog_row_image=full*. Specific details are shown in the following figure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![image-20240829102020166](../Images/d64733af5ac5decd5731b014911e152b.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 7-29\. Effects of *binlog_row_image=minimal* after BenchmarkSQL testing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the figure, it can be seen that setting *binlog_row_image=minimal* can
+    also significantly reduce the size of binlogs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Overall, MySQL 8.0 offers effective solutions to address the problem of binlogs
+    consuming substantial I/O space. Users can leverage binlog compression and, where
+    feasible, further reduce binlog size by using *binlog_row_image=minimal* to save
+    on storage costs. It’s important to note that the compression ratio can vary across
+    different applications.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter8.html)'
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,20 @@
+- en: The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 原文：[https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part1.html](https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part1.html)
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Part1 Problems
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This part focuses entirely on MySQL-related problems. Chapter 1 explores how
+    users approach and solve challenging MySQL problems. Chapter 2 focuses on mysterious
+    problems in MySQL 8.0.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Next](/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter1.html)'
+  prefs: []
+  type: TYPE_NORMAL
