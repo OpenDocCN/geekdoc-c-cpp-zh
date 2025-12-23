@@ -1,6 +1,7 @@
 +   [《100 个 gcc 小技巧》](docs/100-gcc-tip/README.md)
 +   [《100 个 gdb 小技巧》](docs/100-gdb-tip/README.md)
 +   [ANSI C 面向对象编程（前五章）](docs/ansic-oop/README.md)
++   [软件工程中的问题解决艺术：如何让 MySQL 更佳](docs/art-prob-solv-swe/README.md)
 +   [Boost C++ 库](docs/boost-cpp-lib/README.md)
 +   [Beyond the C++ Standard Library 中文版](docs/byd-cpp-stdlib/README.md)
 +   [C 语言编程透视](docs/c-prog-toushi/README.md)
