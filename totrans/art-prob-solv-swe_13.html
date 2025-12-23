@@ -1,0 +1,954 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better</title>
+<link href="../Styles/Style.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<h1>The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better</h1>
+<blockquote>原文：<a href="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter9.html">https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter9.html</a></blockquote>
+      
+      
+      
+
+      <h1 id="chapter-9-major-enhancements-in-group-replication">Chapter 9: Major Enhancements in Group Replication</h1>
+
+<h2 id="91-major-design-flaws-in-group-replication">9.1 Major Design Flaws in Group Replication</h2>
+
+<p>Group Replication was initially designed before SSDs became widely adopted. Introducing I/O operations at the Paxos layer could significantly impact performance, so the initial design did not consider persisting Paxos logs to disk.</p>
+
+<p>Group Replication adopted a conflict detection method based on certification databases to achieve concurrent control in distributed environments, aiming to support write operations on any MySQL node. This approach overlooked the inherent characteristics of single-node writes in MySQL, resulting in Group Replication’s single-primary throughput being inferior to semisynchronous replication.</p>
+
+<p>In designing Group Replication for multi-primary scenarios, strict adherence to the principles of state machine replication, where the operation sequence should be consistent across all nodes, was not strictly followed. This led to eventual inconsistency problems in some scenarios with Group Replication’s multi-primary setup.</p>
+
+<p>When a MySQL secondary replay gets stuck or its I/O storage fills up, eventually all Group Replication nodes will be affected, with the possibility of most nodes experiencing Out Of Memory (OOM) problems. While Group Replication aims to solve high availability problems, it should also ensure its own high availability, preventing the entire cluster from becoming unavailable due to problems with a single MySQL secondary.</p>
+
+<p>These design flaws are typically only effectively discovered through exposure to problems. Group Replication’s logic is highly complex, making it challenging to directly identify problems from the code alone.</p>
+
+<h3 id="911-lack-of-durability-paxos-not-committed-to-disk">9.1.1 Lack of Durability: Paxos Not Committed to Disk</h3>
+
+<p>Below is Meta company engineers’ view on Group Replication [42]:</p>
+
+<p><em>Another significant and deliberate choice was to not use Group Replication offered by MySQL 5.7 onwards. While there are significant advancements offered by the protocol (such as the multi-primary mode), using Group Replication in our deployment presented significant challenges. It is based on a variant of Paxos which does not use a persistent log. Entries are written to the log only after they are considered committed via in-memory consensus rounds. The leader election algorithm is local and deterministic. It also doesn’t consider lag when choosing a new leader and brief network blips trigger a computationally expensive recovery algorithm. This option could have worked but not without excessive engineering effort to fix the drawbacks.</em></p>
+
+<p>The main problem with Group Replication, as outlined in the above content, is the lack of persistence in Paxos messages. The initial design background includes:</p>
+
+<ol>
+  <li>
+    <p>Suboptimal SSD hardware performance.</p>
+  </li>
+  <li>
+    <p>Paxos log persistence not meeting the requirements for Group Replication with multiple primaries.</p>
+
+    <p>Without persistent storage in certification databases, Group Replication with multiple primaries cannot use Paxos message persistence for crash recovery. After MySQL restarts, there is no corresponding certification database, making continued processing of persisted Paxos messages prone to inconsistent states.</p>
+  </li>
+</ol>
+
+<p>Based on Group Replication single-primary mode using NVMe SSDs, SysBench write-only tests were used to examine the impact of adding Paxos persistence on throughput. Please refer to the specific figure below:</p>
+
+<p><img src="../Images/f1ee371ce00d02e40e60cf9b38c2dd43.png" alt="image-20240829105418671" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829105418671.png"/></p>
+
+<p>Figure 9-1. Performance overhead of Paxos log persistence in SysBench write-only tests.</p>
+
+<p>From the figure, it can be seen that after adding Paxos persistence, there is a slight decrease in performance under low concurrency, which is an expected result. However, under high concurrency, the difference is not significant. This is because, under high concurrency, Paxos uses a batching mechanism that allows multiple transaction records to be logged into the Paxos instance together, thereby reducing I/O pressure.</p>
+
+<p>Next, let’s examine the comparative response times.</p>
+
+<p><img src="../Images/82872f4e38668eec4f87d03fd5af05a9.png" alt="image-20240829105441723" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829105441723.png"/></p>
+
+<p>Figure 9-2. After adding Paxos log persistence, the average response time in SysBench write-only tests increased.</p>
+
+<p>The figure shows response times for 50 to 200 concurrent scenarios. The increase in average response time with Paxos log persistence is acceptable. SysBench write-only tests stress Group Replication significantly, while TPC-C tests, due to their read operations, reduce the write pressure on Group Replication. For comparisons based on Group Replication in single-primary mode, using SSDs, and BenchmarkSQL for TPC-C throughput at various concurrency levels, please refer to the figure below.</p>
+
+<p><img src="../Images/84a5018427c0b59922490399a795cd57.png" alt="image-20240829105506722" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829105506722.png"/></p>
+
+<p>Figure 9-3. Performance overhead of Paxos log persistence in BenchmarkSQL tests.</p>
+
+<p>The figure shows that, at low concurrency levels, the version with Paxos log persistence has slightly lower throughput, though the impact is much smaller compared to SysBench write-only tests. Based on the results of the various tests, it can be concluded that, under current SSD hardware conditions, employing Paxos log persistence is a viable solution.</p>
+
+<h3 id="912-applying-the-barrel-principle-to-certification-databases">9.1.2 Applying the Barrel Principle to Certification Databases</h3>
+
+<p>Conflict detection using the certification database is part of Optimistic Concurrency Control (OCC). OCC allows multiple transactions to read and update data concurrently without blocking, by maintaining transaction histories and checking for conflicts before committing. If conflicts are detected, one of the transactions is rolled back. While OCC avoids lock waits, it can incur significant penalties during actual conflicts, similar to two-phase locking (2PL), but with rollbacks instead of lock waits. OCC performs well with infrequent conflicts but suffers from excessive rollbacks and retries when conflicts are frequent, making it less effective in such scenarios [59].</p>
+
+<p>In multi-primary Group Replication, each MySQL node can write independently, necessitating global concurrency control. MySQL uses the certification database for this, implementing OCC to decide transaction commits or rollbacks. However, in cases of severe write conflicts, OCC may result in numerous rollbacks, indicating its ineffectiveness in high-conflict scenarios.</p>
+
+<p>Let’s continue by examining the data structure used by the MySQL certification database:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">Gtid_set_ref</span> <span class="o">*</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">hash</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">equal_to</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="n">Malloc_allocator</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">Gtid_set_ref</span> <span class="o">*&gt;&gt;&gt;</span>
+      <span class="n">Certification_info</span><span class="p">;</span>
+  <span class="p">...</span>
+  <span class="cm">/**
+    Certification database.
+  */</span>
+  <span class="n">Certification_info</span> <span class="n">certification_info</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>The certification database uses an <em>unordered_map</em> from the C++ Standard Template Library (STD), which is a hash table. This database stores information about transaction write operations, where each key is a base64-encoded string representing a row, and each value contains the GTID and related information used for replay calculations. The following code demonstrates how to insert a row into the certification database.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">bool</span> <span class="n">Certifier</span><span class="o">::</span><span class="n">add_item</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">item</span><span class="p">,</span> <span class="n">Gtid_set_ref</span> <span class="o">*</span><span class="n">snapshot_version</span><span class="p">,</span>
+                         <span class="n">int64</span> <span class="o">*</span><span class="n">item_previous_sequence_number</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">DBUG_TRACE</span><span class="p">;</span>
+  <span class="n">mysql_mutex_assert_owner</span><span class="p">(</span><span class="o">&amp;</span><span class="n">LOCK_certification_info</span><span class="p">);</span>
+  <span class="kt">bool</span> <span class="n">error</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">key</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+  <span class="n">Certification_info</span><span class="o">::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">certification_info</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+  <span class="n">snapshot_version</span><span class="o">-&gt;</span><span class="n">link</span><span class="p">();</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">==</span> <span class="n">certification_info</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">Certification_info</span><span class="o">::</span><span class="n">iterator</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">ret</span> <span class="o">=</span>
+        <span class="n">certification_info</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">Gtid_set_ref</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">snapshot_version</span><span class="p">));</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="o">!</span><span class="n">ret</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="o">*</span><span class="n">item_previous_sequence_number</span> <span class="o">=</span>
+        <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="o">-&gt;</span><span class="n">get_parallel_applier_sequence_number</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="o">-&gt;</span><span class="n">unlink</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">delete</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
+    <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">=</span> <span class="n">snapshot_version</span><span class="p">;</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="p">...</span>
+  <span class="k">return</span> <span class="n">error</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>As updates become more frequent, the certification database grows larger. To promptly clean up outdated information, Group Replication uses a barrel principle. For instance, if the slowest node’s executed GTID is A, then information in the certification database with GTIDs less than or equal to A can be cleaned up.</p>
+
+<p>Next, review the <em>perf</em> screenshots taken during Group Replication operation below.</p>
+
+<p><img src="../Images/42774f7bdba2a6c3bdcece5670911787.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/5bab13cb8c49573cfda4fcad2222fe57.png"/></p>
+
+<p>Figure 9-4. A bottleneck revealed in hash table operations.</p>
+
+<p>The figure reveals a bottleneck in operating the hash table. Cleaning the certification database is akin to garbage collection; transactions must wait while this cleaning occurs, involving extensive memory deallocation. Queueing theory indicates that this latency significantly impacts transaction processing speed. The figure below illustrates the relationship between throughput and concurrency for Group Replication and semisynchronous replication.</p>
+
+<p><img src="../Images/c1bc1f06b3103429a6ef4798799fd044.png" alt="image-20240829105659262" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829105659262.png"/></p>
+
+<p>Figure 9-5. Performance comparison between semisynchronous replication and Group Replication.</p>
+
+<p>The figure shows that the peak throughput of Group Replication is lower than that of semisynchronous replication.</p>
+
+<p>What kind of Group Replication do users need? Given that Group Replication is designed for high availability services, its high availability features should not significantly impact performance. Users expect Group Replication to provide true high availability while also offering better performance compared to semisynchronous replication.</p>
+
+<h3 id="913-lack-of-strict-adherence-to-state-machine-replication-mechanisms">9.1.3 Lack of Strict Adherence to State Machine Replication Mechanisms</h3>
+
+<p>A well-known method for implementing fault-tolerant distributed systems with strong consistency is state-machine replication. This technique orders and propagates operations to all servers, which then execute them sequentially. All copies of the state machine start from the same initial state, transition through the same succession of states, and produce the same sequence of outputs. State-machine replication ensures strong consistency among replicas, enabling a distributed service to appear as a coherent, centralized service while retaining distributed advantages.</p>
+
+<p>The key to state-machine replication is that all copies start from the same initial state, transition through the same states, and produce the same outputs [41]. Any deviation from this rule is non-compliant and difficult to detect, often only revealing problems in corner cases. All nodes must execute in the same sequence, with identical transactions and underlying data.</p>
+
+<p>In the Group Replication multi-primary architecture, a rule violation occurs: <em>CT_CERTIFICATION_MESSAGE</em> messages are not placed into the applier queue, leading to a non-uniform processing order. Below is the function <em>handle_certifier_data</em> that prematurely processes <em>CT_CERTIFICATION_MESSAGE</em> messages.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="n">Plugin_gcs_events_handler</span><span class="o">::</span><span class="n">handle_certifier_message</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">Gcs_message</span> <span class="o">&amp;</span><span class="n">message</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">applier_module</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">LogPluginErr</span><span class="p">(</span><span class="n">ERROR_LEVEL</span><span class="p">,</span>
+                 <span class="n">ER_GRP_RPL_MISSING_GRP_RPL_APPLIER</span><span class="p">);</span> <span class="cm">/* purecov: inspected */</span>
+    <span class="k">return</span><span class="p">;</span>                                           <span class="cm">/* purecov: inspected */</span>
+  <span class="p">}</span>
+  <span class="n">Certifier_interface</span> <span class="o">*</span><span class="n">certifier</span> <span class="o">=</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">applier_module</span><span class="o">-&gt;</span><span class="n">get_certification_handler</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">get_certifier</span><span class="p">();</span>
+  <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">payload_data</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+  <span class="kt">size_t</span> <span class="n">payload_size</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">Plugin_gcs_message</span><span class="o">::</span><span class="n">get_first_payload_item_raw_data</span><span class="p">(</span>
+      <span class="n">message</span><span class="p">.</span><span class="n">get_message_data</span><span class="p">().</span><span class="n">get_payload</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">payload_data</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">payload_size</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">certifier</span><span class="o">-&gt;</span><span class="n">handle_certifier_data</span><span class="p">(</span><span class="n">payload_data</span><span class="p">,</span>
+                                       <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">ulong</span><span class="o">&gt;</span><span class="p">(</span><span class="n">payload_size</span><span class="p">),</span>
+                                       <span class="n">message</span><span class="p">.</span><span class="n">get_origin</span><span class="p">()))</span> <span class="p">{</span>
+    <span class="n">LogPluginErr</span><span class="p">(</span>
+        <span class="n">ERROR_LEVEL</span><span class="p">,</span>
+        <span class="n">ER_GRP_RPL_CERTIFIER_MSSG_PROCESS_ERROR</span><span class="p">);</span> <span class="cm">/* purecov: inspected */</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Handling <em>CT_CERTIFICATION_MESSAGE</em> messages prematurely can lead to inconsistencies in the certification database data that different nodes’ OCC rely on, potentially resulting in eventual data inconsistencies. While this problem may not be easy to detect, it is relatively straightforward to reproduce under specific conditions.</p>
+
+<p>The specific details of reproduction are as follows: in a Group Replication multi-primary scenario, distribute write pressure evenly across all MySQL nodes using a load balancer (such as LVS). Given sufficient write conflicts, it is possible to reproduce inconsistencies in the final state of state machine replication.</p>
+
+<p>Based on extensive testing, placing certification messages into the applier queue for unified processing can eliminate the aforementioned data inconsistency problem.</p>
+
+<h3 id="914-group-replication-lacks-built-in-high-availability">9.1.4 Group Replication Lacks Built-in High Availability</h3>
+
+<p>Group Replication can face collective failure scenarios in the following situations:</p>
+
+<ol>
+  <li>If the I/O space of a MySQL secondary becomes full, causing replay to block, it can trigger a cascade effect across the cluster.</li>
+  <li>If replay stops on a MySQL secondary for any reason, effectively reducing its throughput to zero, the overall throughput of the cluster eventually drops to zero, according to the barrel principle.</li>
+</ol>
+
+<p>Group Replication is designed for high availability, but these problems can make the entire cluster system unavailable. Therefore, addressing the high availability problems inherent to Group Replication is essential to provide users with better high availability.</p>
+
+<h2 id="92-the-problems-with-paxos-variant-algorithms">9.2 The Problems with Paxos Variant Algorithms</h2>
+
+<h3 id="921-why-hasnt-the-raft-protocol-been-adopted">9.2.1 Why Hasn’t the Raft Protocol Been Adopted?</h3>
+
+<p>Raft is a consensus algorithm equivalent to Multi-Paxos in fault tolerance and performance. Designed to improve understandability, Raft is described in detail to meet practical system needs. Unlike Paxos, Raft reduces state space and divides consensus into leader election, log replication, and safety phases. It achieves consensus through an elected leader and is not Byzantine fault-tolerant. Only servers with the most up-to-date data can become leaders, and it includes a mechanism for changing cluster membership using overlapping majorities to ensure safety [42].</p>
+
+<p>When designing Group Replication, the goal was to support both single-primary and multi-primary modes. Adopting Raft or Multi-Paxos protocols wouldn’t effectively support Group Replication’s multi-primary mode. Hence, a variant of Paxos with multiple leaders, the Mencius algorithm, was chosen.</p>
+
+<h3 id="922-the-problems-with-implementing-mencius-in-group-replication">9.2.2 The Problems with Implementing Mencius in Group Replication</h3>
+
+<p>Group Replication employs Mencius, a multi-leader state machine replication protocol derived from Paxos, at its core. Mencius is novel in that it not only partitions sequence numbers but also addresses key performance problems like adapting to changing client loads and asymmetric network bandwidth.</p>
+
+<p>Mencius achieves this by using a simplified version of consensus called simple consensus. This allows servers with low client load to skip their turns without needing majority agreement. By opportunistically piggybacking SKIP messages on other messages, Mencius enables servers to skip turns with minimal communication and computation overhead, allowing it to efficiently adapt to client and network load variance [32].</p>
+
+<p>Unfortunately, Group Replication did not adhere to the above design. The cost of waiting for SKIP information remains significant, leading to Group Replication experiencing potential throughput fluctuations and longer-than-expected response times, especially in cross-datacenter deployment scenarios.</p>
+
+<h3 id="923-why-add-its-own-implementation-of-multi-paxos">9.2.3 Why Add Its Own Implementation of Multi-Paxos?</h3>
+
+<p>Given that MySQL introduced a new Multi-Paxos algorithm in addition to the existing Mencius algorithm, this indicates either an inadequacy in the Mencius implementation or inherent problems with the Mencius algorithm itself.</p>
+
+<p>Regarding the Mencius algorithm, the following aspects are particularly noteworthy [32]:</p>
+
+<p><em>By opportunistically piggybacking SKIP messages on other messages, Mencius allows servers to skip turns with little or no communication and computation overhead. This allows Mencius to adapt inexpensively to client and network load variance.</em></p>
+
+<p>It can be inferred that the Mencius algorithm performs well even under severe leader imbalance, as both theoretical validation and practical evidence support this. Therefore, the problems are likely due to an inadequate implementation of the Mencius algorithm.</p>
+
+<p>When there are no theoretical problems with the Mencius algorithm, introducing a new Multi-Paxos algorithm is not an elegant solution and brings several challenges:</p>
+
+<ol>
+  <li><strong>High Maintenance Cost</strong>: Maintaining and testing two sets of codebases doubles the workload for this part.</li>
+  <li><strong>Regression Testing Challenges</strong>: In practice, the new algorithm has led to several regression problems, some of which are difficult to address.</li>
+  <li><strong>Partial Problem-Solving</strong>: The new algorithm may only partially address the requirements. In Group Replication’s single-primary mode, it might not be universally applicable, as consistent read and write operations require all nodes to continuously communicate information.</li>
+</ol>
+
+<h2 id="93-the-specific-implementation-of-paxos-skip-optimization">9.3 The Specific Implementation of Paxos Skip Optimization</h2>
+
+<p>First, let’s investigate the performance problems of the MySQL Mencius algorithm implementation. The following figure illustrates the network interaction status when the Mencius algorithm operates stably with a network delay of 10ms:</p>
+
+<p><img src="../Images/334f1a98f2ad894e5ae310e1c22f753b.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/77d0c0bdc5ce8574c6ad319864abb032.gif"/></p>
+
+<p>Figure 9-6. Insights into the Mencius protocol from packet capture data.</p>
+
+<p>The green box in the figure indicates that the time interval between two consecutive Paxos instances reached 24ms. This suggests that the Mencius algorithm in MySQL is not aligned with a single Round-trip Time (RTT) in its implementation.</p>
+
+<p>Next, let’s refer to the Mencius algorithm paper <em>“State Machine Replication for Wide Area Networks”</em> [54]. The specific details of the network testing environment are as follows:</p>
+
+<p><img src="../Images/cbe4e4adb97b899200839947ea896e2d.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/185beb2c6e0524d93abde3b25ecedc61.png"/></p>
+
+<p>From the green box, it is evident that the network latency tested in the paper is RTT=100ms. Let’s now examine the relevant information on Paxos processing provided in the paper.</p>
+
+<p><img src="../Images/5c9d12dd2e53d6afeed38d23df4aa3d0.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/f67a3249ad8b040417f195c3ca11f795.png"/></p>
+
+<p>Figure 9-7. Consensus mechanism of the Mencius protocol as indicated in the Mencius paper.</p>
+
+<p>Based on the figure, it can be inferred that if only one node generates a request, the Mencius protocol consensus requires 100ms, equivalent to one round-trip time (RTT). This indicates that from the Group Replication primary node’s perspective, Mencius consensus can be achieved within a single RTT. With the theoretical feasibility clarified, the following discussion will focus on optimizing Group Replication’s Mencius communication.</p>
+
+<p>The theoretical basis for optimizing Mencius includes [32]:</p>
+
+<p><em>Skipping is the core technique that makes Mencius efficient.</em></p>
+
+<p><a href="[Paxos Visualization](https://enhancedformysql.github.io/animation/paxos_app.html)">The specific Paxos network interaction</a> diagram after Paxos skip optimization is shown in the following figure:</p>
+
+<p><img src="../Images/805bceb1e414dde5b613a552e9286dd4.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/55787cfe149ebf1c574aa1da4eea678c.png"/></p>
+
+<p>Figure 9-8. Mechanism of Paxos skip optimization.</p>
+
+<p>When a Paxos node receives an <em>accept_op</em> message from the Paxos leader and has no messages to propose itself, it can include skip information when sending the <em>ack_accept_op</em> message. This informs other nodes that the current node will not propose any messages in this round. During normal stable operation, every <em>accept_op</em> message can be handled this way by Paxos nodes.</p>
+
+<p>In the specific implementation, the impact of pipelining must also be considered. During the Paxos skip optimization process, it is necessary to record these skip actions to avoid interference between communications of different Paxos instances.</p>
+
+<p>Finally, under a network delay scenario of 10ms, evaluating the effectiveness of Paxos skip optimization shows significant benefits. Here is a comparison of TPC-C throughput at different concurrency levels before and after Paxos skip optimization:</p>
+
+<p><img src="../Images/1546101a40988042c5ee0078b9e51dab.png" alt="image-20240829110009589" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829110009589.png"/></p>
+
+<p>Figure 9-9. Impact of Paxos skip optimization on BenchmarkSQL tests with 10ms latency.</p>
+
+<p>From the figure, it’s clear that Paxos skip optimization significantly improves performance with a 10ms network latency. Extensive TPC-C testing confirms that this optimization improves performance for Group Replication, whether using a single primary or multiple primaries, and supports consistent reads and writes.</p>
+
+<p>Paxos skip optimization reduces code complexity by an order of magnitude compared to Multi-Paxos implementations with a single leader. It also minimizes regression testing problems and simplifies maintenance.</p>
+
+<p>Overall, leveraging theoretical and logical solutions elegantly addresses this problem more effectively than the current native MySQL implementation.</p>
+
+<h2 id="94-optimized-design-for-using-group-replication-in-single-primary-mode">9.4 Optimized Design for Using Group Replication in Single-Primary Mode</h2>
+
+<p>Based on the feasibility of Paxos log persistence, a design architecture for Group Replication single-primary mode could be structured as follows:</p>
+
+<p><img src="../Images/b890d032b12d1fa05f6909c23451273a.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/09cc60d64a306229adf9c4848d348c48.png"/></p>
+
+<p>Figure 9-10. Redesigned Group Replication single-primary mode with Paxos log persistence.</p>
+
+<p>When a transaction is committed, it undergoes Paxos communication, achieving consensus only after being persisted in the Paxos log. Once consensus is reached, the primary server proceeds with operations such as writing the transaction to the binary log and performing the commit. Meanwhile, secondary servers handle tasks like calculating the last_committed value for replay, writing transaction events to the relay log, and replaying transactions.</p>
+
+<p>The need for secondary servers to calculate the last_committed value in Group Replication arises because the primary server has not reached the binlog stage before engaging in low-level Paxos communication. Thus, the last_committed value is not yet available. Secondary servers calculate the last_committed value from writeset information in the certification database, allowing Group Replication to achieve high parallel replay.</p>
+
+<p>After MySQL secondaries calculate last_committed, the next step is to write transaction events to the relay log. To speed up writing to disk, batching technology should be used, with careful planning required for its implementation.</p>
+
+<p>Enhancing replay speed is crucial for:</p>
+
+<ul>
+  <li><strong>Rapid Failover</strong>: Faster replay ensures quicker failover.</li>
+  <li><strong>Improved Data Freshness</strong>: Faster replay increases the chances of accessing the most current data.</li>
+</ul>
+
+<p>With these aspects addressed, the design for Group Replication in single-primary mode is complete, laying the groundwork for a high-performance, highly available system with rapid failover and efficient state machine replication.</p>
+
+<h3 id="941-paxos-log-persistence">9.4.1 Paxos Log Persistence</h3>
+
+<p>The most critical foundation for Paxos log persistence feasibility [30]:</p>
+
+<p><em>In order to get additional throughput in a concurrent system, it is possible to batch a collection of values submitted by different application threads into a single Paxos instance.</em></p>
+
+<p>By using batching technology, multiple transactions can be grouped into a single Paxos instance. After reaching consensus, the transaction data can be written to disk together, significantly reducing I/O pressure. With advances in SSD technology, achieving state machine replication without data loss is entirely feasible.</p>
+
+<h3 id="942-bypass-conflict-detection">9.4.2 Bypass Conflict Detection</h3>
+
+<p>Traditional certification databases use a lot of memory, especially when there is a speed mismatch between the primary and secondaries, leading to increased queue wait times due to extensive memory allocation and deallocation. In NUMA environments, frequent cross-NUMA memory allocation worsens performance.</p>
+
+<p>In Group Replication single-primary mode, it is feasible to bypass conflict detection in the certification database. Conflict detection is mainly used in:</p>
+
+<ol>
+  <li>Group Replication multi-primary mode.</li>
+  <li>During a Group Replication single-primary switchover when the new primary is still replaying transactions while receiving new user requests.</li>
+</ol>
+
+<p>For Group Replication in single-primary mode, only the second scenario needs to be considered, while mechanisms like ‘before on primary failover’ ensure the new primary completes transaction replay before accepting new requests. Accelerating the replay process on MySQL secondaries can help reduce user wait times.</p>
+
+<h3 id="943-quickly-calculate-the-required-last_committed-value-for-replay">9.4.3 Quickly Calculate the Required last_committed Value for Replay</h3>
+
+<p>First, let’s clarify the terms “<em>sequence_number</em>” and “<em>last_committed</em>”:</p>
+
+<ul>
+  <li><strong>sequence_number</strong>: This is an automatically incremented value used to track the order of transactions during Group Replication operation. Each transaction is assigned a unique <em>sequence_number</em> during operation.</li>
+  <li><strong>last_committed</strong>: This value indicates the sequence number of the last committed transaction that a new transaction depends on. For a transaction to proceed during replay on a MySQL secondary, the transaction must wait until the one with a <em>sequence_number</em> equal to <em>last_committed</em> has been fully replayed.</li>
+</ul>
+
+<p>For example, in the transaction highlighted in the green box below, with <em>sequence_number=12759</em> and <em>last_committed=12757</em>, the <em>last_committed=12757</em> indicates that the transaction with <em>sequence_number=12759</em> must wait until the transaction with <em>sequence_number=12757</em> has been fully replayed before it can proceed.</p>
+
+<p><img src="../Images/1faa09f4129ccaa7660fb538fa241f7f.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/9aa41ee1e12bb8a72dd240dc42b44ba5.gif"/></p>
+
+<p>Figure 9-11. Typical examples of <em>sequence_number</em> and <em>last_committed</em>.</p>
+
+<p>Once <em>sequence_number</em> and <em>last_committed</em> are understood, the calculation of the <em>last_committed</em> value can be explored. Typically, this value is derived from the transaction’s writeset, which details the rows modified by the transaction. Each row in the writeset is represented by a key corresponding to a table row. In the writeset:</p>
+
+<ul>
+  <li>For update operations, there are two elements with the same key.</li>
+  <li>For insert and delete operations, there is one element.</li>
+  <li>The writeset for DDL transactions is empty, indicating that DDL operations must be replayed serially.</li>
+</ul>
+
+<p>In Group Replication, when processing a transaction’s writeset, the applier thread examines the certification database for transactions that have modified the same records as those in the writeset. If such transactions are found, the applier thread determines the latest <em>sequence_number</em> that is smaller than the current transaction’s <em>sequence_number</em>, which becomes the transaction’s <em>last_committed</em> value. This ensures transactions are replayed in the correct order to maintain data consistency.</p>
+
+<p>Before diving deeper into the analysis, let’s review what the applier thread does:</p>
+
+<ol>
+  <li>Calculating <em>last_committed</em> based on the certification database.</li>
+  <li>Writing transaction events to the relay log file.</li>
+</ol>
+
+<p>Below is a flame graph generated from capturing performance data of the applier thread:</p>
+
+<p><img src="../Images/72d19cff3e522ea9b0af9c722cf86e7a.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/6a6091b51c602923e5fe8b33e4422882.png"/></p>
+
+<p>Figure 9-12. Flame graph of performance data for the applier thread.</p>
+
+<p>From the flame graph, it is evident that the <em>‘add_item’</em> operation in the certification database consumes 29.80% of the computation time, with half of this time spent on hash table operations. The inefficiency of the hash table results in high CPU resource consumption for calculating last_committed, and delays in writing transaction events to disk.</p>
+
+<p>To address this bottleneck and improve disk write performance, the hash table’s overhead must be reduced. Since direct improvements to the hash table are challenging, a new data structure is necessary.</p>
+
+<p>Based on the design of Group Replication in single-primary mode, a redesigned data structure has been developed to replace the previous hash table approach in the certification database. This new structure aims to eliminate delays in calculating last_committed and ensure timely writing of transaction events to disk. See the specific code below for the new data structure:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#define REPLAY_CAL_HASH_ITEMS (REPLAY_CAL_HASH_ITEM / 8)
+#define MAX_RELATIVE_SEQUENCE_NUMBER 65535
+#define REPLAY_CAL_ARRAY 65536
+#define REPLAY_CAL_HASH_ITEM 4088
+</span><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">number</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">size</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">values</span><span class="p">[</span><span class="n">REPLAY_CAL_HASH_ITEM</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">replay_cal_hash_item</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">Certifier</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Certifier_interface</span> <span class="p">{</span>
+ <span class="p">...</span>
+ <span class="nl">private:</span>
+  <span class="n">replay_cal_hash_item</span> <span class="n">replayed_cal_array</span><span class="p">[</span><span class="n">REPLAY_CAL_ARRAY</span><span class="p">];</span>
+ <span class="p">...</span>
+</code></pre></div></div>
+
+<p>To store the information necessary for calculating <em>last_committed</em>, a static array named <em>replayed_cal_array</em> is used. This array contains 65,536 elements, each representing a bucket slot with a <em>replay_cal_hash_item</em>. The <em>replay_cal_hash_item</em> structure includes:</p>
+
+<ul>
+  <li><strong>number</strong>: Indicates the current count of elements within the <em>replay_cal_hash_item</em>, tracking how many elements are in use.</li>
+  <li><strong>size</strong>: Specifies the maximum capacity of the <em>replay_cal_hash_item</em>, defining the upper limit of elements it can accommodate.</li>
+  <li><strong>values</strong>: An array of 4,088 unsigned char elements that stores data.</li>
+</ul>
+
+<p>The <strong>values</strong> member is used to store 511 entries, with each entry occupying 8 bytes. Each entry consists of:</p>
+
+<ul>
+  <li><strong>Key Value</strong>: 6 byte.</li>
+  <li><strong>Relative Sequence Number</strong>: 2 bytes.</li>
+</ul>
+
+<p>For specific details, refer to the figure below:</p>
+
+<p><img src="../Images/3ac535473c3ec2377419f26271cb5362.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/68eb47a320bce3bb717a2b690da4573d.png"/></p>
+
+<p>Figure 9-13. A new data structure suitable for calculating last_committed.</p>
+
+<p>The <em>key</em> undergoes base64 conversion into an 8-byte integer. This 8-byte integer is divided as follows:</p>
+
+<ul>
+  <li><strong>Index for replayed_cal_array</strong>: The first two bytes serve as an index for the <em>replayed_cal_array</em>.</li>
+  <li><strong>Value</strong>: The remaining six bytes are stored in the first six bytes of each 8-byte entry.</li>
+</ul>
+
+<p>Regarding the storage of <em>sequence_number</em>:</p>
+
+<ul>
+  <li>Only the relative value of the <em>sequence_number</em> is stored, calculated as the current <em>sequence_number</em> minus a base sequence value.</li>
+  <li>Instead of requiring 8 bytes, this relative <em>sequence_number</em> needs only 2 bytes.</li>
+  <li>This 2-byte relative <em>sequence_number</em> is stored in the last two bytes of each 8-byte entry.</li>
+</ul>
+
+<p>This setup optimizes storage by using a compact representation of the <em>key</em> and storing only the necessary relative <em>sequence_number</em>, ensuring efficient memory use within the <em>replay_cal_hash_item</em> structure.</p>
+
+<p>The algorithm based on the new data structure is illustrated in the figure below, highlighting the following key points:</p>
+
+<ol>
+  <li>Fully utilizes the characteristics of <em>keys</em> and the monotonic increase of <em>sequence</em> numbers, compressing storage space effectively, resulting in very high memory usage efficiency for the new data structure.</li>
+  <li>Sets an upper limit on the stored information. Once the threshold is exceeded, a process similar to checkpointing is triggered, and the current transaction is set for serial replay.</li>
+  <li>The content of the new data structure is relatively small, with a high cache hit rate. Moreover, within <em>replay_cal_hash_item</em>, the <em>values</em> are stored contiguously, making it very cache-friendly.</li>
+</ol>
+
+<p><img src="../Images/5f180f1b2f5adae2d0f328ddec77e287.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/b5a20f07b4812ea9f34ffb8e8783b73a.png"/></p>
+
+<p>Figure 9-14. A new algorithm suitable for calculating last_committed.</p>
+
+<p>It should be noted that the new data structure occupies a memory footprint of 256MB (65536 * 4096 bytes), which is significantly smaller compared to the several gigabytes or even tens of gigabytes typically required by traditional certification databases during benchmarking. This modest memory usage lays a solid foundation for optimizing the performance of the entire applier thread.</p>
+
+<p>After optimization, the applier thread has significantly accelerated its computation of the last_committed value, resulting in a considerable improvement in the overall processing speed of the applier thread. The following is a flame graph generated by capturing <em>perf</em> data of the applier thread using the improved version.</p>
+
+<p><img src="../Images/210e8f04ed9acd718c1ad6ca81e0c9f4.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/290e969038561faf1ace6e108945b2d6.png"/></p>
+
+<p>Figure 9-15. Flame graph of performance data for the applier thread after optimization.</p>
+
+<p>From the graph, it can be observed that the CPU processing overhead for <em>Certifier::certify</em> has significantly reduced. Specifically, <em>quick_add_item</em> now accounts for only 12.85% of the overhead, whereas previously, when throughput was lower, <em>add_item</em> consumed 29.80%. This highlights a significant performance improvement achieved by adopting the new data structure.</p>
+
+<p>Based on extensive TPC-C testing statistics, the following optimization conclusions can be drawn: Before optimization, the applier thread’s disk throughput supported approximately 500,000 tpmC. After optimization, with more CPU time available to process disk writes, the applier thread’s disk throughput now supports approximately 1,000,000 tpmC.</p>
+
+<p>This improvement not only enhances the overall processing capability of the applier thread but also accelerates the cleaning of outdated writeset information. According to tests, each cleaning operation now takes milliseconds. As a result, it effectively mitigates the performance fluctuations inherent in native Group Replication, further improving stability.</p>
+
+<p>From this case study, the reasons for performance improvement can be summarized as follows:</p>
+
+<ol>
+  <li><strong>Static Array for Values</strong>: Using a static array for <em>values</em> in <em>replay_cal_hash_item</em> enhances search efficiency due to contiguous memory access, making it very cache-friendly.</li>
+  <li><strong>Reduced Data Storage</strong>: The amount of stored data has been significantly reduced. Previously, it might have required gigabytes of storage, whereas now it only requires 256MB. Smaller memory footprints generally lead to higher efficiency.</li>
+  <li><strong>Fixed Memory Space</strong>: The allocated memory space is fixed and does not require dynamic allocation. Previous frequent memory allocations and deallocations were detrimental to high performance due to the synchronous nature of memory operations.</li>
+  <li><strong>Efficient Certification Cleanup</strong>: Certification cleanup can achieve millisecond-level performance. During certification cleanup, only zeroing operations are needed for the <em>number</em> values among the 65,536 <em>replay_cal_hash_item</em> items.</li>
+</ol>
+
+<p>By implementing a better data structure based on Group Replication’s single-primary mode to achieve the same last_committed calculation functionality, the applier thread’s maximum processing capability can be significantly enhanced, and performance fluctuations can be eliminated.</p>
+
+<h3 id="944-batch-write-mechanism-for-relay-logs">9.4.4 Batch Write Mechanism for Relay logs</h3>
+
+<p>The transactional event logging to disk is one of the two main tasks of the applier thread. The efficiency of this logging directly impacts the usability of Group Replication. If the logging process is inefficient, the applier queue size will continuously increase according to queueing theory. Let’s examine the optimized main process of the applier thread, as shown in the figure below:</p>
+
+<p><img src="../Images/c321b866b039feec17ab62ce6f387b18.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/331f4d2fe9b0d5939e8882a770592c94.png"/></p>
+
+<p>Figure 9-16. The optimized main process of the applier thread.</p>
+
+<p>The batch write mechanism refers to an improvement over the native MySQL version, where events were flushed to disk individually. Now, events from at least the same transaction are flushed together, significantly reducing the number of I/O flush operations. If the apply queue size exceeds a specified threshold, events from a batch of transactions are flushed together, further reducing the frequency of I/O flush calls.</p>
+
+<p>The batch write mechanism, tested with TPC-C benchmarks, initially improved disk write speed from just over 200,000 tpmC to 500,000 tpmC. With further enhancements in last_committed replay calculations from the previous section, this speed can be pushed to around 1,000,000 tpmC, effectively solving problems related to excessive applier queue growth caused by delays in disk writes.</p>
+
+<h3 id="945-comparing-performance-with-traditional-group-replication">9.4.5 Comparing Performance with Traditional Group Replication</h3>
+
+<p>The figure below compares TPC-C throughput against concurrency levels in different modes. The deployment setup is as follows: Both MySQL primary and secondary are deployed on the same machine, with NUMA binding isolation to prevent computational interference. Separate NVMe SSDs are used for the primary and secondary to ensure no I/O operation interference.</p>
+
+<p><img src="../Images/0c8729295ff8c25d1d78357bc323ed92.png" alt="image-20240829110334937" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829110334937.png"/></p>
+
+<p>Figure 9-17. Effects of the new Group Replication single-primary mode design.</p>
+
+<p>From the figure, it is evident that the new Group Replication single-primary mode design comprehensively outperforms the traditional mode of Group Replication.</p>
+
+<h2 id="95-how-to-mitigate-performance-fluctuations-in-group-replication">9.5 How to Mitigate Performance Fluctuations in Group Replication?</h2>
+
+<h3 id="951-enhancing-the-fail-detection-mechanism">9.5.1 Enhancing the Fail Detection Mechanism</h3>
+
+<p>Accurately detecting node failure is challenging due to the FLP impossibility result, which states that consensus is impossible in a purely asynchronous system if even one process can fail. The difficulty arises because a server can’t distinguish if another server has failed or is just “very slow” when it receives no messages [32]. Fortunately, most practical systems are not purely asynchronous, so the FLP result doesn’t apply. To circumvent this, additional assumptions about system synchrony are made, allowing for the design of protocols that maintain safety and provide liveness under certain conditions. One common method is to use an inaccurate local failure detector.</p>
+
+<p><img src="../Images/b29e9986d6515dba4b2b715e0324ca7c.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/e2554f0ea244f337c0e66ea34bf53edf.gif"/></p>
+
+<p>Figure 9-18. The asynchronous message passing model borrowed from the Mencius paper.</p>
+
+<p>The figure above illustrates the asynchronous message passing model. Each failure detector monitors servers and maintains a list of suspected faulty servers. These detectors can make mistakes, such as suspecting a running server has crashed. If later corrected, the server can be removed from the suspected list. Protocols using failure detectors must always ensure safety despite these errors and guarantee progress when the detectors remain accurate for long periods.</p>
+
+<p>Group Replication’s failure detection mechanism identifies and expels non-communicating members. This increases the likelihood of the group containing a majority of functioning members, ensuring correct client request processing. All group members regularly exchange messages. If a member doesn’t receive messages from another for 5 seconds, it suspects that member. If suspicion is not solved, the member is expelled. The expelled member remains unaware of its status and sees other members as unreachable. If it reconnects, it learns of its expulsion through an updated membership view.</p>
+
+<p>After understanding the above content, let’s analyze common types of view change events:</p>
+
+<ol>
+  <li>
+    <p><strong>Node is Killed</strong></p>
+
+    <p>In a Linux system, when a node is killed, the TCP layer typically sends a reset (RST) packet to notify other nodes of the connection problem. Paxos communication can use this RST packet to identify the node’s termination. However, MySQL does not handle this specifically and relies on the standard timeout mechanism.</p>
+  </li>
+  <li>
+    <p><strong>Node is Network-Partitioned</strong></p>
+
+    <p>Detecting whether a node is network-partitioned or simply slow is challenging. In such cases, timeout mechanisms are used, as it is difficult to definitively distinguish between these situations.</p>
+  </li>
+  <li>
+    <p><strong>Node is Gracefully Taken Offline</strong></p>
+
+    <p>Normally, informing other nodes by sending a command should be straightforward. However, MySQL has not managed this aspect well.</p>
+  </li>
+  <li>
+    <p><strong>Adding a new node to the cluster</strong></p>
+
+    <p>Adding a new node requires consensus and involves a final installation view synchronization. Although some performance fluctuations are expected, severe fluctuations indicate poor handling of the node addition process.</p>
+  </li>
+</ol>
+
+<p>Whenever a change that needs replication occurs, the group must achieve consensus. This applies to regular transactions, group membership changes, and certain internal messaging to maintain group consistency. Consensus requires a majority of group members to agree on a decision. Without a majority, the group cannot progress and blocks because it cannot secure a quorum.</p>
+
+<p>Quorum may be lost due to multiple involuntary failures, causing a majority of servers to be abruptly removed. In a group of 5 servers, if 3 servers become unresponsive simultaneously, the majority is lost, which prevents reaching quorum.</p>
+
+<p>Conversely, if servers exit the group voluntarily, they can instruct the group to reconfigure itself. A server leaving the group notifies others, allowing proper reconfiguration. This maintains membership consistency and recalculates the majority. For example, if 3 out of 5 servers leave one by one, informing the group, the membership can adjust from 5 to 2 while securing quorum during the process [13].</p>
+
+<p>After understanding the working mechanism of view change, one can then examine how MySQL handles it.</p>
+
+<p>In cases of node failure or network partitioning, MySQL’s handling approach is similar. Testing was conducted with one MySQL secondary killed. Details of the test can be seen in the following figure.</p>
+
+<p><img src="../Images/0efb171eaf7028055fc2967a9a48db2f.png" alt="image-20240829110513812" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829110513812.png"/></p>
+
+<p>Figure 9-19. Significant throughput fluctuations when a node is killed.</p>
+
+<p>From the figure, it is evident that when the MySQL secondary is killed, the MySQL primary’s throughput fluctuates significantly, with a drop to zero lasting over 20 seconds. Ideally, in a three-node cluster, if one node is killed, the remaining two nodes should still form a majority, preventing a prolonged zero-throughput problem. This suggests that MySQL may not effectively manage the majority quorum and fail detection mechanisms.</p>
+
+<p>When a MySQL secondary is gracefully taken offline, the throughput typically behaves as follows:</p>
+
+<p><img src="../Images/7ae76184c2df5c2f3fb8c51aec58af1d.png" alt="image-20240829110533157" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829110533157.png"/></p>
+
+<p>Figure 9-20. Throughput drops to zero at intervals when a node is shut down.</p>
+
+<p>The figure shows that allowing a MySQL node to be gracefully taken offline causes throughput to drop to zero at several points, indicating problems with the fail detection mechanism.</p>
+
+<p>What will happen when adding a MySQL node in Group Replication?</p>
+
+<p><img src="../Images/18286b5c2abbd7a5186b13eb9e3f7301.png" alt="image-20240829110551420" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829110551420.png"/></p>
+
+<p>Figure 9-21. Throughput drop of approximately 10 seconds when a node is added.</p>
+
+<p>From the figure, it is evident that the node addition process resulted in a throughput drop of approximately 10 seconds. This indicates that MySQL did not handle the node addition process effectively.</p>
+
+<p>To address these problems in Group Replication, improving the probing mechanism is crucial for enhancing fault detection accuracy. Without this improvement, throughput can be significantly disrupted, making further performance enhancements challenging.</p>
+
+<p>Regarding the probe mechanism, the following improvements have been made.</p>
+
+<ol>
+  <li>
+    <p><strong>Ensure Fair Execution for Probe Coroutines</strong></p>
+
+    <p>During the processing of large transactions, the Paxos protocol handles substantial writeset data, monopolizing the processing resources of the single-threaded coroutine model. This leaves limited opportunities for the probe detection coroutine to update critical information. As a result, outdated probe data can lead to incorrect judgments, as observed in section 1.2.5.</p>
+
+    <p>To address this, the solution is to amortize data processing by splitting large transactions into multiple stages. This approach ensures that the probe detection coroutine gets more equitable opportunities to execute and update information promptly, enhancing the accuracy of fault detection.</p>
+  </li>
+  <li>
+    <p><strong>Improved Wakeup Delay Function</strong></p>
+
+    <p>Check the <strong>wakeup_delay</strong> function in MySQL, as shown in the code below:</p>
+
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="kt">double</span> <span class="nf">wakeup_delay</span><span class="p">(</span><span class="kt">double</span> <span class="n">old</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">double</span> <span class="k">const</span> <span class="n">minimum_threshold</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">;</span>
+<span class="cp">#ifdef EXECUTOR_TASK_AGGRESSIVE_NO_OP  
+</span>  <span class="kt">double</span> <span class="k">const</span> <span class="n">maximum_threshold</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+<span class="cp">#else   
+</span>  <span class="kt">double</span> <span class="k">const</span> <span class="n">maximum_threshold</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">;</span>
+<span class="cp">#endif </span><span class="cm">/* EXECUTOR_TASK_AGGRESSIVE_NO_OP */</span><span class="cp">
+</span>  <span class="kt">double</span> <span class="n">retval</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">==</span> <span class="n">old</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">double</span> <span class="n">m</span> <span class="o">=</span> <span class="n">median_time</span><span class="p">();</span>
+    <span class="kt">double</span> <span class="k">const</span> <span class="n">fuzz</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">;</span>
+    <span class="n">IFDBG</span><span class="p">(</span><span class="n">D_BUG</span><span class="p">,</span> <span class="n">FN</span><span class="p">;</span> <span class="n">NDBG</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">f</span><span class="p">));</span>
+    <span class="c1">// Guard against unreasonable estimates of median consensus time</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">m</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="n">m</span> <span class="o">=</span> <span class="n">minimum_threshold</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">m</span> <span class="o">&gt;</span> <span class="n">maximum_threshold</span> <span class="o">/</span> <span class="n">fuzz</span><span class="p">)</span> <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="n">maximum_threshold</span> <span class="o">/</span> <span class="n">fuzz</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">;</span>
+    <span class="n">retval</span> <span class="o">=</span> <span class="n">minimum_threshold</span> <span class="o">+</span> <span class="n">fuzz</span> <span class="o">*</span> <span class="n">m</span> <span class="o">+</span> <span class="n">m</span> <span class="o">*</span> <span class="n">xcom_drand48</span><span class="p">();</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">retval</span> <span class="o">=</span> <span class="n">old</span> <span class="o">*</span> <span class="mf">1.4142136</span><span class="p">;</span> <span class="cm">/* Exponential backoff */</span>
+  <span class="p">}</span> 
+  <span class="cm">/* If we exceed maximum, choose a random value in the max/2..max interval */</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">retval</span> <span class="o">&gt;</span> <span class="n">maximum_threshold</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">double</span> <span class="k">const</span> <span class="n">low</span> <span class="o">=</span> <span class="n">maximum_threshold</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">;</span>
+    <span class="n">retval</span> <span class="o">=</span> <span class="n">low</span> <span class="o">+</span> <span class="n">xcom_drand48</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">maximum_threshold</span> <span class="o">-</span> <span class="n">low</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">IFDBG</span><span class="p">(</span><span class="n">D_BUG</span><span class="p">,</span> <span class="n">FN</span><span class="p">;</span> <span class="n">NDBG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="n">f</span><span class="p">));</span>
+  <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+
+    <p>From the code, it is evident that the calculated delay time is too rigid. This inflexibility is a key reason for performance fluctuations, as the primary may wait too long after a node exits. To address this, adjusting the relevant constants based on the environment is essential for adapting to complex and variable network conditions.</p>
+  </li>
+  <li>
+    <p><strong>Split the wakeup_delay function to adapt to different environments</strong></p>
+
+    <p>For example, when checking if propose messages have been accepted, utilize the original <em>wakeup_delay</em> function, as shown in the code below:</p>
+
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">finished</span><span class="p">(</span><span class="n">ep</span><span class="o">-&gt;</span><span class="n">p</span><span class="p">))</span> <span class="p">{</span> <span class="cm">/* Try to get a value accepted */</span>
+        <span class="cm">/* We will wake up periodically, and whenever a message arrives */</span>
+        <span class="n">TIMED_TASK_WAIT</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ep</span><span class="o">-&gt;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">rv</span><span class="p">,</span> <span class="n">ep</span><span class="o">-&gt;</span><span class="n">delay</span> <span class="o">=</span> <span class="n">wakeup_delay</span><span class="p">(</span><span class="n">ep</span><span class="o">-&gt;</span><span class="n">delay</span><span class="p">));</span>
+        <span class="p">...</span>
+</code></pre></div>    </div>
+
+    <p>In the function <em>get_xcom_message</em>, the <em>wakeup_delay_for_perf</em> function is used, as shown in the code below:</p>
+
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">DECL_ENV</span>
+  <span class="p">...</span>
+  <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">finished</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">))</span> <span class="p">{</span>
+    <span class="p">...</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">((</span><span class="o">*</span><span class="n">p</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">force_delivery</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">ep</span><span class="o">-&gt;</span><span class="n">delay</span> <span class="o">=</span> <span class="n">wakeup_delay_for_perf</span><span class="p">(</span><span class="n">ep</span><span class="o">-&gt;</span><span class="n">delay</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">ep</span><span class="o">-&gt;</span><span class="n">delay</span> <span class="o">=</span> <span class="n">wakeup_delay_for_perf</span><span class="p">(</span><span class="n">ep</span><span class="o">-&gt;</span><span class="n">delay</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">IFDBG</span><span class="p">(</span><span class="n">D_NONE</span><span class="p">,</span> <span class="n">FN</span><span class="p">;</span> <span class="n">NDBG</span><span class="p">(</span><span class="n">ep</span><span class="o">-&gt;</span><span class="n">delay</span><span class="p">,</span> <span class="n">f</span><span class="p">));</span>
+    <span class="n">TIMED_TASK_WAIT</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">rv</span><span class="p">,</span> <span class="n">ep</span><span class="o">-&gt;</span><span class="n">delay</span><span class="p">);</span>
+    <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">get_cache</span><span class="p">(</span><span class="n">msgno</span><span class="p">);</span>
+    <span class="n">dump_debug_exec_state</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="n">FINALLY</span>
+  <span class="n">IFDBG</span><span class="p">(</span><span class="n">D_NONE</span><span class="p">,</span> <span class="n">FN</span><span class="p">;</span> <span class="n">SYCEXP</span><span class="p">(</span><span class="n">msgno</span><span class="p">);</span> <span class="n">PTREXP</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">);</span> <span class="n">NDBG</span><span class="p">(</span><span class="n">ep</span><span class="o">-&gt;</span><span class="n">wait</span><span class="p">,</span> <span class="n">u</span><span class="p">);</span>
+        <span class="n">SYCEXP</span><span class="p">(</span><span class="n">msgno</span><span class="p">));</span>
+  <span class="n">TASK_END</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+
+    <p>In the <em>wakeup_delay_for_perf</em> function, a more aggressive strategy can be employed, such as reducing the waiting time further.</p>
+  </li>
+  <li>
+    <p>Incorporate the Round-trip time (RTT) from the network into the wakeup_delay.</p>
+
+    <p>The purpose of this is to enhance the accuracy of network probing activities.</p>
+  </li>
+  <li>
+    <p>Distinguish between node being killed and network partition.</p>
+
+    <p>In Linux systems, when a node is killed, TCP sends reset packets to the other nodes in the cluster, helping distinguish between node terminations and network partition faults. Integrating information about abnormal node terminations into Paxos’ decision-making logic allows for more accurate judgments, addressing the problem of prolonged throughput drops experienced during abrupt node terminations.</p>
+  </li>
+</ol>
+
+<p>With the implementation of the above mechanism, probing accuracy has been significantly enhanced. Combined with the forthcoming degradation mechanism, this ensures relatively stable throughput even under abnormal conditions.</p>
+
+<h3 id="952-leverage-the-degradation-mechanism-to-address-prolonged-waiting-problems">9.5.2 Leverage the Degradation Mechanism to Address Prolonged Waiting Problems</h3>
+
+<p>The degradation mechanism employs a majority-based approach to make decisions when a node becomes unresponsive after a short delay. While this mechanism is not new and is already part of Mencius interaction, MySQL has not effectively leveraged it to handle exceptional situations.</p>
+
+<p>One drawback of the degradation mechanism is that it increases network interactions, including the prepare phase, leading to a performance decrease. However, its advantage lies in significantly improving throughput compared to how MySQL handles faults. In theory, as long as network latency between majority nodes is low, the degradation mechanism can be highly effective.</p>
+
+<p>The following figure compares the throughput of SysBench read-write tests before and after improvements, following node being killed.</p>
+
+<p><img src="../Images/57f2d0ce7b2145f5be82feeeb44bffc9.png" alt="image-20240829110903709" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829110903709.png"/></p>
+
+<p>Figure 9-22. Significant throughput improvement observed when a node is killed.</p>
+
+<p>From the figure, it’s evident that the native Group Replication experiences prolonged throughput drops, which are unacceptable to users. In the improved Group Replication, throughput decreases from 20,000 to 14,000 transactions per second due to the degradation process. Although this decrease is noticeable, users consider it acceptable as it represents a significant improvement over the native Group Replication.</p>
+
+<p>Let’s continue to examine the throughput comparison over time before and after improvements following the normal shutdown of a particular node, as shown in the following figure:</p>
+
+<p><img src="../Images/95f103f824216e76c563afafddd06acf.png" alt="image-20240829110922449" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829110922449.png"/></p>
+
+<p>Figure 9-23. Significant throughput improvement observed when a node is closed.</p>
+
+<p>From the figure, it’s clear that the improved Group Replication provides much more stable throughput compared to the native version. Although minor fluctuations occur during view changes due to internal synchronization, the improved Group Replication’s throughput performance is deemed acceptable by users. In contrast, the frequent throughput drops in the native Group Replication are considered unacceptable.</p>
+
+<p>Once again, comparing the throughput over time before and after improvements in the scenario of adding a MySQL secondary to the cluster, as shown in the following figure:</p>
+
+<p><img src="../Images/676267176ff217ac1990003102da2f6a.png" alt="image-20240829110943245" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829110943245.png"/></p>
+
+<p>Figure 9-24. Significant throughput improvement observed when adding a node to cluster.</p>
+
+<p>From the figure, it is evident that the native Group Replication experiences throughput drops of around 10 seconds, whereas the improved Group Replication shows only a slight decrease in throughput with minimal impact on performance.</p>
+
+<p>Overall, the problems with native Group Replication in abnormal scenarios can be effectively solved.</p>
+
+<h3 id="953-mitigating-performance-fluctuations-in-the-xcom-cache">9.5.3 Mitigating Performance Fluctuations in the XCom Cache</h3>
+
+<p>The Mencius algorithm uses a catch-up mechanism for lagging replicas. If a process detects an undecided instance from the past and the leader’s correctness is confirmed via heartbeats, it should query other processes to learn the decision.</p>
+
+<p>XCom, the group communication engine for Group Replication, includes a cache for storing Paxos instance messages and metadata. This cache aids in recovering missed messages for nodes that rejoin after communication failures. If messages are no longer in the cache, nodes must exit the cluster and undergo a costly traditional recovery. Thus, the XCom cache should be large enough to optimize recovery efficiency while considering memory constraints [13].</p>
+
+<p>MySQL uses dynamic memory allocation to adjust the XCom cache size. While this approach appears advantageous, testing revealed that the XCom cache led to performance fluctuations.</p>
+
+<p>Let’s examine the expand_lru function responsible for XCom cache memory allocation, as detailed in the code below:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="kt">void</span> <span class="nf">expand_lru</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">uint64_t</span> <span class="n">i</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">BUCKETS</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span> 
+    <span class="n">lru_machine</span> <span class="o">*</span><span class="n">l</span> <span class="o">=</span> <span class="p">(</span><span class="n">lru_machine</span> <span class="o">*</span><span class="p">)</span><span class="n">xcom_calloc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">lru_machine</span><span class="p">));</span>
+    <span class="n">link_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">l</span><span class="o">-&gt;</span><span class="n">lru_link</span><span class="p">,</span> <span class="n">TYPE_HASH</span><span class="p">(</span><span class="s">"lru_machine"</span><span class="p">));</span>
+    <span class="n">link_into</span><span class="p">(</span><span class="o">&amp;</span><span class="n">l</span><span class="o">-&gt;</span><span class="n">lru_link</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">probation_lru</span><span class="p">);</span>
+    <span class="n">init_pax_machine</span><span class="p">(</span><span class="o">&amp;</span><span class="n">l</span><span class="o">-&gt;</span><span class="n">pax</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">null_synode</span><span class="p">);</span>
+    <span class="n">cache_length</span><span class="o">++</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <em>expand_lru</em> function allocates memory based on the number of <em>BUCKETS</em>. A large number of <em>BUCKETS</em> can lead to significant overhead. Next, let’s determine the specific size of <em>BUCKETS</em>.</p>
+
+<p>The definition of <em>BUCKETS</em> is as follows.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="kt">size_t</span> <span class="n">length_increment</span> <span class="o">=</span> <span class="n">INCREMENT</span><span class="p">;</span>
+<span class="k">static</span> <span class="kt">size_t</span> <span class="n">size_decrement</span> <span class="o">=</span> <span class="n">INCREMENT</span> <span class="o">/</span> <span class="mi">10</span><span class="p">;</span>
+<span class="cp">#define BUCKETS length_increment
+</span></code></pre></div></div>
+
+<p><em>BUCKETS</em> corresponds to <em>length_increment</em>, which is defined by <em>INCREMENT</em>. Let’s proceed to examine the definition of <em>INCREMENT</em>.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#define MIN_LENGTH MIN_CACHE_SIZE </span><span class="cm">/* Also Default value */</span><span class="cp">
+#define INCREMENT MIN_LENGTH      </span><span class="cm">/* Total number of slots to add/remove */</span><span class="cp">
+</span></code></pre></div></div>
+
+<p><em>INCREMENT</em> is equivalent to <em>MIN_LENGTH</em>, and <em>MIN_LENGTH</em> is defined by <em>MIN_CACHE_SIZE</em>. Finally, the definition of <em>MIN_CACHE_SIZE</em> is located as follows:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">enum</span> <span class="p">{</span>
+  <span class="n">EVENT_HORIZON_MIN</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> 
+  <span class="n">EVENT_HORIZON_MAX</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+  <span class="n">MAX_BATCH_SIZE</span> <span class="o">=</span> <span class="mh">0x3fffffff</span><span class="p">,</span> <span class="cm">/* Limit batch size to sensible ? amount */</span>
+  <span class="n">MAX_BATCH_APP_DATA</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>   <span class="cm">/* Limit nr. of batched elements */</span>
+  <span class="n">MAX_DEAD</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> 
+  <span class="n">PROPOSERS</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>              <span class="cm">/* The number of proposers on one node */</span>
+  <span class="n">MIN_CACHE_SIZE</span> <span class="o">=</span> <span class="mi">250000</span><span class="p">,</span>     <span class="cm">/* Minimum cache size */</span>
+  <span class="n">DEFAULT_CACHE_LIMIT</span> <span class="o">=</span> <span class="mi">1000000000UL</span> <span class="cm">/* Reasonable initial cache limit */</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p><em>MIN_CACHE_SIZE</em> is set to 250,000, making <em>BUCKETS</em> 250,000 as well. Consequently, the <em>expand_lru</em> function performs 250,000 memory allocation calls. Given that memory allocation is a blocking system call, this extensive number of calls can introduce delays ranging from tens to hundreds of milliseconds. Log analysis was previously conducted to assess the overhead of performing 250,000 memory allocation calls, as illustrated in the figure below.</p>
+
+<p><img src="../Images/7d8b9dd842dc35e980947e287104296e.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/c3ab348e58c5eb81b71284b3807943e4.png"/></p>
+
+<p>Figure 9-25. Overhead of 250,000 memory allocation calls on a typical machine.</p>
+
+<p>The 250,000 memory allocation calls took 112ms. Additionally, the XCom cache experiences batch memory release problems, which can also cause performance delays. While the duration of these delays varies with machine performance, delays of tens of milliseconds are typical. Such fluctuations can lead to unexpected blocking of many user commits for tens of milliseconds, significantly impacting the user experience.</p>
+
+<p>To address this problem, various configuration options—high-end, mid-range, and low-end—have been provided. These options involve selecting appropriate sizes for fixed static arrays, which eliminate the problems associated with batch memory allocation and release. The benefits of this new mechanism include:</p>
+
+<ol>
+  <li>Cache-friendly with high performance.</li>
+  <li>Elimination of performance fluctuations on the XCom cache side.</li>
+</ol>
+
+<h3 id="954--a-new-strategy-for-multi-primary-certification-database-cleanup">9.5.4  A New Strategy for Multi-Primary Certification Database cleanup</h3>
+
+<p>In Group Replication’s single-primary mode, a mechanism was implemented to quickly calculate the <em>last_committed</em> value during replay, reducing significant performance fluctuations caused by certification database cleanup. However, in multi-primary Group Replication, conflict detection via the certification database is unavoidable, limiting flexibility in managing performance fluctuations. To address these challenges, a load-spreading strategy was adopted to mitigate the impact of significant performance variations.</p>
+
+<p>The following figure shows the relationship between the throughput of SysBench read/write tests over time in a Group Replication multi-primary scenario.</p>
+
+<p><img src="../Images/4e2e69e70bb8c0d0d52f63e1eace79cd.png" alt="image-20240829111514798" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829111514798.png"/></p>
+
+<p>Figure 9-26. Performance fluctuation in Group Replication.</p>
+
+<p>The figure demonstrates a notable throughput fluctuation every 60 seconds, reflecting instability. This instability arises from the need to clean the certification database at regular intervals, which necessitates acquiring a global latch. This process causes the MySQL primary to pause, resulting in sudden performance drops.</p>
+
+<p>The certification database consumes significant memory, and prolonged cleaning processes lead to stalls. Reducing the cleaning cycle period from 60 seconds to 10 seconds isn’t a one-size-fits-all solution. In environments with large transaction processing, a 10-second cycle might be insufficient, causing overlapping cleaning cycles that worsen performance problems.</p>
+
+<p>Based on extensive practice and experience, addressing the problem effectively involves:</p>
+
+<ol>
+  <li><strong>Strict Adherence to State Machine Replication</strong>: Following the state machine replication mechanism closely, as outlined in section 9.1.3, ensures consistency in handling transactions.</li>
+  <li><strong>Reducing GTID Broadcast Interval</strong>: Decreasing the interval of GTID (Global Transaction Identifier) broadcast to sub-second levels.</li>
+  <li><strong>Enhancing Transaction Parallel Replay</strong>: Improving the efficiency of parallel transaction replay on MySQL secondaries, especially for large transactions, reduces memory consumption and mitigates the effects of the ‘barrel principle,’ leading to better performance and reduced impact of performance fluctuations.</li>
+</ol>
+
+<p>By implementing these steps, it becomes feasible to reduce the cleaning cycle from 60 seconds to sub-second intervals. This approach enables each cleaning operation to manage smaller data volumes, thereby reducing sudden performance drops and stabilizing throughput. The following figure shows the relationship between SysBench read/write test throughput over time after applying the amortization approach.</p>
+
+<p><img src="../Images/610541c563aaab837488ef4606b2eb1f.png" alt="image-20240829111542163" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829111542163.png"/></p>
+
+<p>Figure 9-27. Eliminated performance fluctuations in improved Group Replication.</p>
+
+<p>From the figure, it is evident that after optimizing this part of the logic, sudden performance drops have been eliminated. Overall, the solution implemented here exemplifies the application of the amortization principle, effectively distributing and reducing the impact of the cleaning operations.</p>
+
+<h3 id="955-flow-control-avoidance-in-group-replication-single-primary-mode">9.5.5 Flow Control Avoidance in Group Replication Single-Primary Mode</h3>
+
+<p>In Group Replication, the flow control mechanism synchronizes MySQL secondaries with the primary node’s pace, preventing the primary from outpacing the secondaries and avoiding performance problems like Out-Of-Memory (OOM) situations.</p>
+
+<p>To avoid the impact of Group Replication flow control in a single-primary setup, consider the following strategies:</p>
+
+<ol>
+  <li><strong>Accelerate MySQL Secondary Replay Speed</strong>: Improve the replay speed of transactions on MySQL secondaries, especially for large transactions. This helps ensure that secondaries can keep up with the primary node, reducing the need for flow control interventions.</li>
+  <li><strong>Increase Relay Log Writing Speed</strong>: Speed up the process of writing to the relay log to prevent the applier queue from growing excessively due to delays in writing to disk. This prevents a surge in memory usage, which can trigger flow control mechanisms.</li>
+</ol>
+
+<p>By implementing these two strategies in a single-primary Group Replication setup, the flow control mechanism imposed by Group Replication can be effectively avoided.</p>
+
+<h2 id="96-the-complexity-problem-of-view-change">9.6 The Complexity Problem of View Change</h2>
+
+<p>When there are changes in the membership of nodes within a Group Replication cluster, corresponding view change events occur. These view change events also require consensus among a majority of Paxos participants.</p>
+
+<h3 id="961-theoretical-foundation">9.6.1 Theoretical Foundation</h3>
+
+<p>To achieve high availability, incoming payloads should be replicated to multiple nodes in the same order. This distribution reduces the burden on the primary secondary, allowing another secondary to quickly take over if the primary fails, while preserving the original log order even after recovery [43].</p>
+
+<p>Each reign of different members is assigned a unique view number, establishing a total ordering. The system progresses through a series of views, with view changes occurring whenever members change. Multiple proposals from different views are ordered by their view numbers, with a lower view number indicating an earlier occurrence.</p>
+
+<p>In Group Replication, view change is a synchronous process that helps address the FLP impossibility problem but introduces new performance jitter problems.</p>
+
+<h3 id="962-the-problem-of-simultaneous-multiple-view-changes">9.6.2 The Problem of Simultaneous Multiple View Changes</h3>
+
+<p>The following figure shows the situations of different network partition failures [6]:</p>
+
+<p><img src="../Images/cd60ab86f65abe78e88fd74acc1db26a.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/6d6657768e47e86b6522f6dd41a56ac2.png"/></p>
+
+<p>Figure 9-28. The types of network partitions.</p>
+
+<p>Network partitions can be categorized into complete, partial, and simplex types. When these partitions intersect with other failures or commands triggering view changes, it creates complex concurrency challenges. Currently, Group Replication lacks effective isolation measures to handle these problems.</p>
+
+<p>Here are some common concurrent view change problems:</p>
+
+<ol>
+  <li><strong>force_members Command</strong>: This command is incompatible with view changes triggered by network jitter. Use it cautiously, especially during severe network instability.</li>
+  <li><strong>Rapid Node Restarts</strong>: Nodes restarting too quickly can cause view confusion if they rejoin before being fully removed. Group Replication attempts to address this, but the problem persists.</li>
+  <li><strong>Simultaneous Node Additions</strong>: Adding multiple nodes at once can lead to view problems.</li>
+  <li><strong>Install View Process Failures</strong>: New failures during the Install view process can freeze the entire cluster.</li>
+</ol>
+
+<p>Some view change problems are challenging to mitigate and require significant effort to solve, especially due to the lack of theoretical support in this area.</p>
+
+<p>For the problem where a MySQL node attempts to rejoin the Group Replication cluster before its information is fully removed, potentially causing view inconsistencies, a solution involves measures similar to TCP’s timewait mechanism:</p>
+
+<ol>
+  <li>When the Group Replication cluster detects that a node is about to be removed (using remove_node_type), it informs the Paxos layer to temporarily prevent the node from rejoining.</li>
+  <li>After the node removal process is complete, typically following the install view operation, the Paxos layer is notified that the node can proceed with reapplying to join the cluster.</li>
+</ol>
+
+<p>This careful process helps minimize view-related problems from premature node reentry.</p>
+
+<p>Currently, problems related to concurrent view changes (problems 2 and 3) have been addressed, but problems 1 and 4 remain complex and are planned for future resolution.</p>
+
+<h3 id="963-synchronization-problems-with-the-install-view">9.6.3 Synchronization Problems with the Install View</h3>
+
+<p>The view change process is more complex than typical Paxos interactions. Once consensus is reached on a view change within the Group Replication cluster, the cluster must undergo a synchronous “install view” process. This strong synchronization can cause the entire cluster to freeze if problems arise during the installation.</p>
+
+<h2 id="97-consistency-problems-in-group-replication">9.7 Consistency Problems in Group Replication</h2>
+
+<h3 id="971-read-consistency-during-primary-switch-in-group-replication">9.7.1 Read Consistency During Primary Switch in Group Replication</h3>
+
+<p>In a single-primary group, in the event of a primary failover when a secondary is promoted to primary, the new primary can either be made available to application traffic immediately, regardless of how large the replication backlog is, or alternatively access to it can be restricted until the backlog has been applied [13].</p>
+
+<p>Consistency during failover includes:</p>
+
+<ul>
+  <li><strong>RW Transactions</strong>: Wait for all preceding transactions to complete before being applied.</li>
+  <li><strong>RO Transactions</strong>: Wait for preceding transactions to complete before execution, ensuring they read the latest data.</li>
+</ul>
+
+<p>New transactions on a newly elected primary are held until the backlog is applied, guaranteeing that clients see the latest values. This approach prioritizes consistency but may introduce delays depending on the backlog size.</p>
+
+<p>To elegantly solve the problem of reading dirty data during the primary switch process, the following measures can be implemented:</p>
+
+<ol>
+  <li><strong>Accelerate Replay Speed</strong>: Enhance the replay speed of MySQL secondaries to ensure they catch up with the primary as quickly as possible. This minimizes the window during which stale data might be read.</li>
+  <li><strong>Optimized Leader Election</strong>: During leader election, choose the node with the fastest replay progress among MySQL secondaries. This reduces the waiting time for the primary switch, ensuring a quicker transition and more up-to-date data availability.</li>
+</ol>
+
+<h3 id="972-consistency-problems-in-write-operations">9.7.2 Consistency Problems in Write Operations</h3>
+
+<p>The ‘after’ mechanism in Group Replication aims for near-complete synchronization between the MySQL primary and secondaries, achieving strong synchronization. This requires synchronization at both the Paxos and replay levels, leading to longer user response times. Users opting for this strong synchronization should be aware of the following risks:</p>
+
+<ol>
+  <li>Performance fluctuations.</li>
+  <li>User commit response times may not meet performance requirements.</li>
+</ol>
+
+<p>The ‘after’ mechanism is currently immature; during testing, many instances have shown MySQL nodes remaining in a recovering state for extended periods. The root cause lies in the adoption of a new ticket mechanism to address the ‘after’ problem, which is overly complex and insufficiently effective.</p>
+
+<p>In practical applications, it is not recommended to use strong consistency writes based on the ‘after’ mechanism. Although this mechanism ensures no data loss, the CAP theorem dictates that such mechanisms do not guarantee availability.</p>
+
+<p>This book prefers and recommends mechanisms based on Paxos log persistence. These mechanisms not only offer lower and more predictable response times but also far surpass the scalability of the ‘after’ mechanism. The following figure compares the throughput of TPC-C with concurrency levels between the strong synchronization mechanism based on ‘after’ and the Paxos log persistence mechanism.</p>
+
+<p><img src="../Images/44b640125b9afe49973ceda3c84f357a.png" alt="image-20240829111619905" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829111619905.png"/></p>
+
+<p>Figure 9-29. Group Replication with Paxos Log Persistence vs. Strong Synchronization Mechanism.</p>
+
+<p>From the figure, it can be seen that the mechanism based on Paxos log persistence significantly outperforms the strong synchronization mechanism based on ‘after’.</p>
+
+<h2 id="98-comparison-of-group-replication-with-other-replication-mechanisms">9.8 Comparison of Group Replication with Other Replication Mechanisms</h2>
+
+<h3 id="981-comparison-tests-under-different-network-latency-conditions">9.8.1 Comparison Tests Under Different Network Latency Conditions</h3>
+
+<p>A MySQL cluster can be deployed in various environments, and understanding the pros and cons of each helps in making informed decisions. Performance comparisons under different network latency conditions were conducted for four solutions: asynchronous replication, semisynchronous replication, Group Replication, and Group Replication with Paxos log persistence, using an improved version of MySQL.</p>
+
+<p>The following figure compares the throughput of SysBench read/write tests with varying concurrency levels under different replication schemes in a 1ms network latency scenario:</p>
+
+<p><img src="../Images/93f772e933205d22920937fc1e93c56a.png" alt="image-20240829111645952" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829111645952.png"/></p>
+
+<p>Figure 9-30. Throughput comparison of SysBench Read/Write tests with varying concurrency levels under different replication schemes at 1ms network latency.</p>
+
+<p>Asynchronous replication offers the best throughput since it does not require MySQL secondary ACK confirmation, but it cannot guarantee high availability. Group Replication, by achieving consensus at the in-memory Paxos layer and ensuring transaction batch consensus, provides significant advantages and demonstrates much better performance compared to semisynchronous mechanisms. Group Replication with Paxos log persistence shows similar performance to Group Replication, benefiting from batch processing of Paxos entries and enhanced SSD hardware performance.</p>
+
+<p>Semisynchronous replication, on the other hand, processes events sequentially. Since a transaction involves multiple events, it leads to high CPU processing delays. According to queueing theory, the wait time in semisynchronous replication is significantly higher compared to other solutions, resulting in poorer throughput.</p>
+
+<p>The following figure illustrates the comparison of response times for the 4 solutions across different concurrency levels.</p>
+
+<p><img src="../Images/cf6cc54f64e74f7ea3bd5630f07ff3f0.png" alt="image-20240829111711642" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829111711642.png"/></p>
+
+<p>Figure 9-31. Response time comparison of SysBench Read/Write tests with varying concurrency levels under different replication schemes at 1ms network latency.</p>
+
+<p>From the figure, it is clear that semisynchronous replication exhibits the worst response time, while asynchronous replication shows the best performance, which is consistent with expectations.</p>
+
+<p>When network latency is increased to 10ms, the following figure illustrates the specific performance comparisons:</p>
+
+<p><img src="../Images/16815385309ec89b5ff7d92a52167bd3.png" alt="image-20240829111732678" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829111732678.png"/></p>
+
+<p>Figure 9-32. Throughput comparison of SysBench Read/Write tests with varying concurrency levels under different replication schemes at 10ms network latency.</p>
+
+<p>From the figure, it is clear that asynchronous replication offers the best throughput. It achieves significantly higher throughput and maintains relatively stable response times despite network latency, making it a preferred choice for deployments across cities or regions.</p>
+
+<p>In scenarios with long network latencies (10ms), the processing delay of MySQL secondaries is less of a bottleneck for both semisynchronous replication and Group Replication. However, semisynchronous replication lags behind Group Replication in throughput due to its less efficient event processing mechanism.</p>
+
+<p>At the same time, a comparison was made among the 4 different solutions in terms of response time.</p>
+
+<p><img src="../Images/dbdfe1490b5ef27330131c66b81872a7.png" alt="image-20240829111753566" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829111753566.png"/></p>
+
+<p>Figure 9-33. Response time comparison of SysBench Read/Write tests with varying concurrency levels under different replication schemes at 10ms network latency.</p>
+
+<p>From the figure, it is clear that at low concurrency levels, asynchronous replication has the lowest response time. However, as concurrency increases, the performance gap between asynchronous replication and Group Replication narrows. Semisynchronous replication consistently shows the highest response times among all solutions. Theoretically, Group Replication with Paxos log persistence could fully replace semisynchronous replication, offering improved performance while retaining the high availability benefits of Group Replication.</p>
+
+<h3 id="982-group-replication-with-paxos-log-persistence-vs-other-replication-methods">9.8.2 Group Replication with Paxos Log Persistence vs. Other Replication Methods</h3>
+
+<p>In the same data center environment, TPC-C tests using BenchmarkSQL were performed to compare the throughput against concurrency levels for semisynchronous replication, Group Replication with Paxos log persistence, and asynchronous replication. Specific details are illustrated in the following figure:</p>
+
+<p><img src="../Images/af1c2e76b6edf491f822846859a8ee10.png" alt="image-20240829111911455" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829111911455.png"/></p>
+
+<p>Figure 9-34. Throughput comparison of BenchmarkSQL tests with varying concurrency levels under different replication schemes.</p>
+
+<p>From the figure, it is evident that in the same data center environment, asynchronous replication achieves the highest throughput, though the difference compared to Group Replication is not substantial. The trade-off of some performance for higher availability with Group Replication is often worthwhile. Compared to Group Replication with Paxos log persistence, semisynchronous replication significantly lags in performance.</p>
+
+<p>In terms of ease of use, semisynchronous replication is simpler, especially with fewer MySQL instances. However, as the number of instances increases, managing semisynchronous replication becomes more complex due to the potential for more corner cases and failures.</p>
+
+<h2 id="99-scalability-of-group-replication">9.9 Scalability of Group Replication</h2>
+
+<p>The Paxos algorithm’s dependence on majority agreement slows decision-making, as each decision requires round trips to many participants [29]. This communication and synchronization cost introduces significant overhead, resulting in lower request rates for state-machine replication compared to non-replicated systems.</p>
+
+<p>After reviewing the content, use the modified tpcc-mysql tool to compare the throughput between a standalone server and a Group Replication setup. This comparison will help assess the limits of Group Replication’s capabilities.</p>
+
+<p><img src="../Images/acf349e428ec423e658596f19f92a93a.png" alt="image-20240829111935904" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829111935904.png"/></p>
+
+<p>Figure 9-35. The limits of Group Replication’s capabilities.</p>
+
+<p>From the figure, it is clear that there is still potential for improving the throughput of a standalone MySQL instance. Group Replication adds extra queue delays, with throughput peaking at 200 concurrency. Further increases in throughput are challenging given the current hardware environment.</p>
+
+<p>Group Replication faces a throughput ceiling influenced by hardware capabilities, the synchronization cost of Paxos, and the single-threaded processing limits of XCom. In contrast, standalone MySQL shows better scalability and achieves higher throughput.</p>
+
+<p>Involving most participants in each decision places a high load on the network between participants and the leader. As a result, systems are often limited to five or seven participants, as each additional participant substantially decreases overall performance [29].</p>
+
+<p>How does Group Replication’s scalability fare with increasing numbers of nodes? Due to the underlying Paxos communication being based on a single-threaded model, adding more nodes theoretically weakens processing capability. In the same data center environment, cluster tests were conducted with 3 nodes, 5 nodes, 7 nodes, and 9 nodes as shown in the figure below:</p>
+
+<p><img src="../Images/256c5a444d90f9bba30e8cb9193dc8ee.png" alt="image-20240829111959287" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829111959287.png"/></p>
+
+<p>Figure 9-36. Scalability of Group Replication across different node configurations.</p>
+
+<p>From the figure, it can be seen that the throughput of the 7-node cluster is still acceptable, but there is a significant drop in throughput with 9 nodes compared to 7 nodes. These tests were conducted in the same data center environment, which may not represent all scenarios. However, it highlights a concern: as the number of nodes increases, the scalability of Group Replication may be affected.</p>
+
+<p><a href="/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter10.html">Next</a></p>
+
+
+      
+        
+</body>
+</html>

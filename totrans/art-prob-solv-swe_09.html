@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better</title>
+<link href="../Styles/Style.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<h1>The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better</h1>
+<blockquote>原文：<a href="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter6.html">https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter6.html</a></blockquote>
+      
+      
+      
+
+      <h1 id="chapter-6-how-to-scientifically-test-mysql-performance">Chapter 6: How to Scientifically Test MySQL Performance?</h1>
+
+<p>Performance benchmarking is commonly used to compare different systems or algorithms in both scientific literature and industrial publications. Although performance measurements might seem objective, various factors can influence benchmark results, intentionally or accidentally, favoring one system over another. There is a fundamental conflict of interest in performance benchmarking, especially when evaluations are made against previous versions or competitors’ systems. Some results, often referred to as “benchmarketing”, misrepresent performance data. Fair performance benchmarking is challenging, and it’s easy to misrepresent data, either by accident or on purpose [9].</p>
+
+<p>This book explores common pitfalls in MySQL performance benchmarking and describes how to avoid them to ensure fair performance comparisons.</p>
+
+<h2 id="61-common-pitfalls">6.1 Common Pitfalls</h2>
+
+<p>This section discusses common pitfalls encountered when performing performance comparisons.</p>
+
+<h3 id="611-non-reproducibility">6.1.1 Non-Reproducibility</h3>
+
+<p>Reproducibility is a cornerstone of scientific research, allowing others to verify results and identify errors. Without reproducibility, claims and numbers in experiments cannot be validated. Conducting reproducible experiments is relatively straightforward and cost-effective compared to larger scientific studies. However, many database research papers lack reproducibility due to closed-source code, undisclosed data, or proprietary systems.</p>
+
+<p>To enable reproducibility, all configuration parameters must be provided, including minor details like the operating system, server installation, version, setup, and configuration flags. Additionally, source code for any algorithms or implementations should be made available [9].</p>
+
+<p>Most tests in this book will include source code, MySQL configuration files, testing tool details, hardware specifications, and OS versions to ensure reproducibility and verification of the test results.</p>
+
+<h3 id="612-failure-to-optimize">6.1.2 Failure To Optimize</h3>
+
+<p>Benchmarks are commonly used to compare systems or assess the effectiveness of new algorithms. Typically, experiments involve comparing a newly proposed system against an existing one to demonstrate superior performance.</p>
+
+<p>This setup, however, can disincentivize proper optimization of the existing system, as poor performance of the current system can make the new system appear better. This problem is significant for systems that depend on proper configuration, as an improperly configured system can perform much worse than a well-configured one.</p>
+
+<p>Optimizing a DBMS for a specific workload is complex and often requires expertise. Even minor optimizations can improve fairness in performance comparisons. Following optimization guidelines for benchmarks or involving representatives from the compared systems can also help achieve more accurate results [9].</p>
+
+<p>For performance testing in this book, the following strategies are applied:</p>
+
+<ol>
+  <li><strong>Conduct Pre- and Post-Optimization Comparisons:</strong> Where feasible, perform performance comparisons before and after optimization, aiming for minimal variation.</li>
+  <li><strong>Match Configuration Parameters:</strong> Align configuration parameters as closely as possible with the production environment.</li>
+  <li><strong>Conduct Performance Comparisons on Identical Hardware</strong>: Perform tests on the same x86 machine in a NUMA environment with identical configurations. Reinitialize MySQL data directories and clean SSDs (via TRIM) to avoid interference. Test across a range of concurrency levels to assess throughput and determine whether optimizations improve performance or scalability.</li>
+  <li><strong>Repeat Testing with NUMA Node Binding</strong>: After binding to NUMA node 0, repeat the tests to compare performance in an SMP environment.</li>
+  <li><strong>Test on x86 Machines with NUMA Disabled</strong>: Conduct comparative performance testing on x86 machines with identical hardware but with NUMA disabled (in the BIOS).</li>
+  <li><strong>Evaluate Performance on ARM Machines</strong>: Test comparative performance on ARM machines in a NUMA environment with similar MySQL configurations.</li>
+  <li><strong>Verify Consistency with Different Tools</strong>: Use various testing tools to compare results and ensure consistency. For example, employ BenchmarkSQL and modified versions of tpcc-mysql for TPC-C testing.</li>
+  <li><strong>Assess Performance Under Varying Network Latency</strong>: Examine performance effects under different network latency conditions.</li>
+  <li><strong>Test Performance with Different “Thinking Time” Scenarios</strong>: Evaluate how performance varies with different “thinking time” scenarios to gauge consistency.</li>
+  <li><strong>Perform Closed-Loop Testing</strong>: Ensure no interference during testing by repeating the initial tests and comparing results with the first round. Small differences in test results indicate that the environment is relatively stable.</li>
+  <li><strong>Verify Bottleneck Interference</strong>: Confirm whether interference from other bottlenecks under high concurrency has distorted the performance comparison.</li>
+  <li><strong>Analyze Theoretical Basis and Anomalies</strong>: Evaluate whether the performance optimization has a theoretical basis and if any anomalies can be explained. Analyze the type of optimization, its general applicability, and which environments benefit most. Investigate anomalies to determine their causes.</li>
+</ol>
+
+<h3 id="613-overly-specific-tuning">6.1.3 Overly-specific Tuning</h3>
+
+<p>These problems can be mitigated by conducting a range of experiments beyond standardized benchmarks. While standardized benchmarks provide a useful baseline, some systems may be heavily optimized for them, reducing their effectiveness for comparison. Thus, additional queries should be tested and measured [9].</p>
+
+<p>To address these problems, MySQL configuration should meet the following criteria:</p>
+
+<ol>
+  <li><strong>Minimize Impact of Configuration Parameters</strong>: Ensure parameters, like buffer pool size, do not hinder other optimizations.</li>
+  <li><strong>Use Default Configurations</strong>: Apply default settings for uncertain parameters, such as spin delay.</li>
+  <li><strong>Match Production Configurations</strong>: Align test settings with production configurations, e.g., sync_binlog=1 and innodb_flush_log_at_trx_commit=1.</li>
+</ol>
+
+<p>To overcome the limitations of single-type testing, employ a variety of test scenarios. For TPC-C, include tests with varying conflict severity, thinking time, and network latency. For SysBench, use tests with Pareto distributions, read/write, and write-only operations.</p>
+
+<p>These strategies ensure a comprehensive evaluation of MySQL performance optimizations under various conditions, resulting in more robust and reliable results.</p>
+
+<h3 id="614-cold-vs-hot-runs">6.1.4 Cold vs. Hot Runs</h3>
+
+<p>It’s crucial to differentiate between ‘hot’ and ‘cold’ runs. Cold runs, which occur when relevant data is being loaded from persistent storage and queries are being parsed, are typically slower than hot runs where data is already cached. Performance measurements for cold and hot runs should be recorded and reported separately due to these differences [9].</p>
+
+<p>For TPC-C testing, all test operations follow a standardized process to ensure consistency, and tests are conducted in an environment free from human interference. Additionally, to mitigate performance disturbances caused by different environments, closed-loop testing is employed to maximize the reliability of the test results as much as possible.</p>
+
+<h3 id="615-cold-vs-warm-runs">6.1.5 Cold vs. Warm Runs</h3>
+
+<p>Measuring cold runs requires caution to avoid accidentally recording warm runs. Proper measurement involves more than just restarting the database server and running a query, as operating systems may cache data in memory. The correct method is to stop the database server, clear all OS caches, restart the server, and then run the queries</p>
+
+<p>An evaluation test was conducted to assess these impacts. For instance, the following figure compares TPC-C throughput and concurrency before and after clearing the cache.</p>
+
+<p><img src="../Images/1e306547e04518e9f0bbbf57adef96cb.png" alt="image-20240830214738439" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240830214738439.png"/></p>
+
+<p>Figure 6-1. Comparison of BenchmarkSQL tests before and after clearing the cache.</p>
+
+<p>From the figure, it can be observed that the throughput after clearing the cache is indeed lower compared to the previous throughput.</p>
+
+<p>To mitigate such problems, closed-loop testing was employed, which effectively detects anomalies in the environment.</p>
+
+<h3 id="616-human-error">6.1.6 Human Error</h3>
+
+<p>When evaluating the performance of a newly designed algorithm, it is crucial to verify the correctness of the implementation to avoid overlooking bugs that may produce incorrect results. A bug might lead to performance metrics being based on faulty outcomes, potentially making the algorithm appear more efficient due to, for example, less data being processed. This problem is compounded if the benchmark is not reproducible, as incorrect implementations may be mistakenly accepted as valid.</p>
+
+<p>Additionally, a program might work correctly for specific datasets but fail in general cases due to problems like inadequate overflow handling or hardcoding dataset properties. Always verify that the program produces correct results by comparing outputs against reference answers from benchmark specifications and checking results with varying data [9].</p>
+
+<p>For performance testing, it’s essential to consider whether optimization results are influenced by other factors. For example, in MySQL 8.0 with the CATS lock scheduling algorithm, the performance evaluation could be impacted by extensive deadlock logs generated by MySQL.</p>
+
+<h2 id="62-comprehensive-testing">6.2 Comprehensive Testing</h2>
+
+<p>Performance testing is an extremely complex process. Only through comprehensive testing and analysis can errors during the testing process be minimized, allowing for a scientific assessment of the value of an optimization.</p>
+
+<h3 id="621-testing-with-multiple-tools">6.2.1 Testing with Multiple Tools</h3>
+
+<p>SysBench, BenchmarkSQL, and a modified tpcc-mysql tool are primarily used for testing. SysBench tests read/write, write-only, and Pareto distribution scenarios. BenchmarkSQL is used for TPC-C testing across various concurrency levels. The modified tpcc-mysql tool tests MySQL under extreme conditions.</p>
+
+<h3 id="622-identifying-contention-intensive-tests">6.2.2 Identifying Contention-Intensive Tests</h3>
+
+<p>The more concurrent threads accessing the same data, the greater the contention. SysBench Pareto distribution tests are considered high-contention, while SysBench uniform distribution tests are low-contention. In modified BenchmarkSQL, testing with 1000 warehouses represents low contention, while testing with 10 warehouses under the same concurrency level indicates high contention.</p>
+
+<h3 id="623-understanding-tpc-c-testing-characteristics">6.2.3 Understanding TPC-C Testing Characteristics</h3>
+
+<p>The TPC-C benchmark is the gold standard for database concurrency control in both research and industry [25].</p>
+
+<p>Experiment settings can significantly impact evaluation results. In TPC-C:</p>
+
+<ul>
+  <li>Introducing wait time makes experiments I/O intensive.</li>
+  <li>Removing wait time makes experiments CPU/memory intensive.</li>
+  <li>Reducing the number of warehouses makes experiments contention intensive.</li>
+</ul>
+
+<p>TPC-C can stress test almost every key component of a computer system, but this versatility poses challenges for fair comparisons between different systems [8].</p>
+
+<p>At a high level, the following factors reduce contention:</p>
+
+<ul>
+  <li>More warehouses</li>
+  <li>Fewer cross-warehouse transactions</li>
+  <li>Fewer workers/users per warehouse</li>
+  <li>Adding wait time</li>
+  <li>Short or no I/Os within a critical section</li>
+</ul>
+
+<p>In low-contention settings, throughput is limited by the system’s slowest component:</p>
+
+<ul>
+  <li>Disk I/O if data exceeds DRAM size</li>
+  <li>Network I/O if using traditional TCP stack and data fits in DRAM</li>
+  <li>Centralized sequencers or global dependency graphs may also cause scalability bottlenecks</li>
+</ul>
+
+<p>Conversely, the following factors increase contention:</p>
+
+<ul>
+  <li>Fewer warehouses</li>
+  <li>More cross-warehouse transactions</li>
+  <li>More workers/users per warehouse</li>
+  <li>No wait time</li>
+  <li>Long I/Os within a critical section</li>
+</ul>
+
+<p>In high-contention settings, throughput is determined by the concurrency control mechanism. Systems that can release locks earlier or reduce aborts will have advantages [8].</p>
+
+<p>The following figure shows the relationship between TPC-C throughput and concurrency for different numbers of warehouses. The dark blue curve represents 100 warehouses, while the deep red curve represents 1000 warehouses. The figure illustrates that throughput for 100 warehouses is significantly lower than for 1000 warehouses due to more severe contention in the former scenario.</p>
+
+<p><img src="../Images/b90704f2907b199feae2167e5982f62f.png" alt="image-20240829093518737" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829093518737.png"/></p>
+
+<p>Figure 6-2. More warehouses indicate less severe contention.</p>
+
+<h3 id="624-incorporating-thinking-time-in-testing">6.2.4 Incorporating Thinking Time in Testing</h3>
+
+<p>TPC-C includes a wait time, simulating user behavior with keying and think times before each transaction. Each warehouse has ten terminals, one per district, allowing a maximum of ten concurrent transactions per warehouse. The vanilla TPC-C does not allow tuning these parameters, except for the number of warehouses.</p>
+
+<p>Due to the wait time and the ten concurrent user limit per warehouse, the maximal throughput per warehouse is limited. To achieve higher throughput, many warehouses must be used, which is why systems like OceanBase and Oracle use millions of warehouses. For workloads storing large data with low throughput per GB, SSDs can meet throughput requirements more cost-effectively than DRAM, aligning with the hardware configurations of OceanBase and Oracle. Thus, vanilla TPC-C is an I/O intensive benchmark with low contention, as long wait times and limited concurrent users per warehouse mean low simultaneous access probability.</p>
+
+<p>Most research addresses contentions, necessitating the removal of wait time for higher throughput and contention levels per warehouse. Fewer warehouses are used to maintain contention. TPC-C numbers with and without wait time are not comparable due to stress testing different system components [8].</p>
+
+<p>TPC-C testing with a 1ms thinking time (pause before requests) is shown in the following figure, illustrating the throughput-concurrency relationship.</p>
+
+<p><img src="../Images/c92a376c76f525d036a15671951ee4c6.png" alt="image-20240829093552414" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829093552414.png"/></p>
+
+<p>Figure 6-3. Impact of 1ms thinking time on throughput.</p>
+
+<p>From the figure, it can be observed that with a 1ms thinking time, the peak throughput is achieved at 1000 concurrency, whereas in normal TPC-C testing, the peak is reached at 250 concurrency. Testing with thinking time introduces significant differences compared to regular BenchmarkSQL testing and also requires MySQL to have better scalability.</p>
+
+<h3 id="625-impact-of-io-on-testing">6.2.5 Impact of I/O on Testing</h3>
+
+<p>A fully-featured database system must handle network I/Os for protocols like 2PC, data replication, or Paxos, and disk I/Os for data persistence. Many studies omit these I/Os, raising questions about their impact.</p>
+
+<p>Results may vary with hardware and implementation, but generally, TCP alone can support millions of transactions per second if only one packet is needed per TPC-C transaction. However, adding protocols like 2PC and replication increases packet requirements significantly. For instance, standard Paxos replication to three replicas requires at least four packets per transaction, which can overwhelm the TCP stack and become a bottleneck for high transaction rates.</p>
+
+<p>Network and disk latency also impact throughput in contended workloads. Longer latencies in critical sections will reduce maximum throughput, with I/O latency having a more significant effect.</p>
+
+<p>However, no solution is perfect: RDMA, for example, involves costly hardware and complex software and does not significantly aid in geo-distributed environments [8].</p>
+
+<h3 id="626-long-term-stability-testing">6.2.6 Long-Term Stability Testing</h3>
+
+<p>According to the TPC-C benchmark, the database must operate in a steady state for eight hours and exceed two hours in the performance collection phase. Additionally, the benchmark requires the database to maintain less than 2% jitter over two hours of testing [14].</p>
+
+<p>To meet these stability requirements in MySQL testing, the following measures were implemented:</p>
+
+<ol>
+  <li>Regularly cleaning the binlog to prevent SSD performance degradation due to I/O space constraints.</li>
+  <li>Utilizing a larger number of warehouses.</li>
+  <li>Adding indexes.</li>
+  <li>Deploying multiple SSDs.</li>
+</ol>
+
+<p>Following these measures, TPC-C testing was performed using BenchmarkSQL. The figure below illustrates the stability test comparison between MySQL 8.0.27 and the improved MySQL 8.0.27.</p>
+
+<p><img src="../Images/953e08c777614e6a8a3a933c2a18ecd4.png" alt="image-degrade2" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-degrade2.png"/></p>
+
+<p>Figure 6-4. Comparison of stability tests: MySQL 8.0.27 vs. improved MySQL 8.0.27.</p>
+
+<p>From the figure, it is evident that although MySQL and the improved MySQL start with similar throughput, the throughput of MySQL decreases more rapidly over time than expected, while the improved MySQL remains significantly more stable.</p>
+
+<p>Additionally, comparisons were made for the improved MySQL at different concurrency levels. The figure below shows the throughput over time: the deep blue curve represents 100 concurrency, while the deep red curve represents 200 concurrency.</p>
+
+<p><img src="../Images/d8e605f1164a346eb42467b24a201b1c.png" alt="image-degrade3" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-degrade3.png"/></p>
+
+<p>Figure 6-5. Stability test comparison: 100 vs. 200 concurrency.</p>
+
+<p>From the figure, it can be observed that throughput is more stable at 100 concurrency. At 200 concurrency, the increased data processing leads to a faster decline in throughput, as the larger database scale on a single server results in slower access times.</p>
+
+<p>The following figure compares the size of MySQL database files after completing an 8-hour test at 100 and 200 concurrency levels.</p>
+
+<p><img src="../Images/b8be1f192ca5d9f3cc9a01bc3f02f97e.png" alt="image-20240829093934212" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829093934212.png"/></p>
+
+<p>Figure 6-6. Database size comparison: 100 vs. 200 concurrency after 8 hours.</p>
+
+<p>From the figure, it is evident that at 200 concurrency, the database size is significantly larger than at 100 concurrency. Generally, higher throughput tends to reduce stability, and various factors influence stability testing, making broad generalizations challenging.</p>
+
+<h3 id="627-online-traffic-testing">6.2.7 Online Traffic Testing</h3>
+
+<p>Performance testing often fails to reflect real-world use cases and is typically reported with insufficient detail for replication or drawing accurate conclusions [39].</p>
+
+<p>TCPCopy [60] can capture a production workload and replay it on a test system, preserving the exact timing, concurrency, and transaction characteristics of the original workload. This allows for testing the impact of system changes without affecting the production environment.</p>
+
+<p>The following figure illustrates the mechanism of replicating MySQL traffic from the online system to the MySQL testing system.</p>
+
+<p><img src="../Images/de38944f68de14ac8d1542d2cb1c3bda.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/3103134e2713f196cd4bd4242ef79f8e.png"/></p>
+
+<p>Figure 6-7. Mechanism for replicating MySQL traffic from production to testing systems.</p>
+
+<p>Testing real-world online traffic is crucial for MySQL, as it effectively reveals potential problems such as performance stability, memory leaks, and the robustness of new MySQL versions.</p>
+
+<p><a href="/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part3.html">Next</a></p>
+
+
+      
+        
+</body>
+</html>

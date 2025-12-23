@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better</title>
+<link href="../Styles/Style.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<h1>The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better</h1>
+<blockquote>原文：<a href="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter11.html">https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Chapter11.html</a></blockquote>
+      
+      
+      
+
+      <h1 id="chapter-11-performance-tuning">Chapter 11: Performance Tuning</h1>
+
+<p>This chapter primarily addresses methods for improving MySQL application performance without altering the MySQL source code.</p>
+
+<h2 id="111-pgo">11.1 PGO</h2>
+
+<p>Profile-guided optimization (PGO) typically improves program execution efficiency. The following figure illustrates how PGO improves the throughput of a standalone MySQL instance under various concurrency levels, following the resolution of MySQL MVCC ReadView scalability problems.</p>
+
+<p><img src="../Images/64908cc891a314429011e7b7819a1162.png" alt="image-20240829113916829" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829113916829.png"/></p>
+
+<p>Figure 11-1. Impact of PGO after solving MVCC ReadView scalability problems.</p>
+
+<p>From the figure, it is evident that PGO has a notable impact.</p>
+
+<p>For MySQL 8.0.27 with PGO, throughput decreases under high concurrency conditions. The specific details are shown in the figure below:</p>
+
+<p><img src="../Images/d73bbbf5f2a1d23c4b239abb2372f451.png" alt="image-20240829113948830" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829113948830.png"/></p>
+
+<p>Figure 11-2. Performance comparison tests before and after using PGO in MySQL 8.0.27.</p>
+
+<p>The test results above indicate that PGO for MySQL’s improvement requires addressing scalability problems before its full potential can be realized. It should be noted that both comparative tests above were conducted in mainstream NUMA environments. When MySQL is bound to a single NUMA node, creating an SMP environment, the following figure shows the relationship between TPC-C throughput and concurrency levels before and after PGO.</p>
+
+<p><img src="../Images/b5e536cbe6211ce3585e62105caf7b20.png" alt="image-20240829114017540" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829114017540.png"/></p>
+
+<p>Figure 11-3. Performance comparison tests before and after using PGO in MySQL 8.0.27 under SMP.</p>
+
+<p>From the figure, it can be seen that PGO consistently improves throughput in SMP environments, without decreasing as concurrency levels increase. The following figure compares the performance improvement of PGO between NUMA and SMP environments.</p>
+
+<p><img src="../Images/ad8301738e16e1ae14d2ef01d6b46987.png" alt="image-20240829114037360" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829114037360.png"/></p>
+
+<p>Figure 11-4. Performance of PGO optimization in different environments.</p>
+
+<p>From the figure, it is evident that PGO achieves a maximum performance improvement of up to 30% in SMP environments, whereas in NUMA environments, the performance improvement decreases as concurrency increases. This suggests that PGO has greater potential in SMP environments.</p>
+
+<p>Continuing the analysis, the performance of PGO in a Group Replication cluster environment compared to a single MySQL instance is examined. The following diagram depicts a simplified queue model of Group Replication.</p>
+
+<p><img src="../Images/973f98c3a0023f2eab36f561fa26cdec.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/2eba13133f9eb007d89459cce5d4055b.png"/></p>
+
+<p>Figure 11-5. A simplified queue model of Group Replication.</p>
+
+<p>Because the network portion cannot be optimized by PGO, the MySQL primary consumes a lower proportion of time compared to a single MySQL instance. According to Amdahl’s Law, the performance gains from PGO will be less pronounced compared to those of a standalone MySQL instance. Generally, as network latency increases, the improvement from PGO tends to diminish.</p>
+
+<p>The following figure compares the throughput improvement of a standalone MySQL instance and Group Replication using PGO.</p>
+
+<p><img src="../Images/eb7c439fada64419f1e607d04eca6d9a.png" alt="image-20240829114100020" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829114100020.png"/></p>
+
+<p>Figure 11-6. PGO Performance Improvement in Group Replication vs. Standalone MySQL.</p>
+
+<p>From the figure, it can be observed that the performance improvement from PGO in a Group Replication cluster environment is generally less than that of a standalone MySQL instance.</p>
+
+<p>In conclusion, PGO can be summarized as follows:</p>
+
+<ol>
+  <li>For MySQL, PGO is a worthwhile optimization that theoretically improves performance comprehensively, especially in SMP environments.</li>
+  <li>In NUMA environments, addressing scalability problems is necessary to achieve significant benefits from PGO.</li>
+  <li>PGO is less effective in a Group Replication cluster compared to a standalone MySQL instance.</li>
+</ol>
+
+<h2 id="112-minimize-network-interactions">11.2 Minimize Network Interactions</h2>
+
+<p>To improve MySQL application performance without compromising the correctness of TPC-C testing, modify the SQL interaction method to reduce the number of network interactions between the client and MySQL. This optimization indirectly improves performance.</p>
+
+<p>The following example uses an optimized tpcc-mysql testing tool to determine the maximum throughput supported by Group Replication under specific software and hardware conditions.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> [warehouse]: 200
+[connection]: 200
+    [rampup]: 0 (sec.)
+   [measure]: 60 (sec.)
+RAMP-UP TIME.(0 sec.)
+MEASURING START.
+  10, trx: 179372, 95%: 7.134, 99%: 9.097, max_rt: 16.857, 178944|16.256, 17941|5.395, 17932|25.313, 17943|14.180
+  20, trx: 181215, 95%: 7.216, 99%: 9.228, max_rt: 20.587, 180703|433.405, 18123|4.086, 18122|29.192, 18124|4.922
+  30, trx: 180596, 95%: 7.410, 99%: 9.463, max_rt: 16.930, 180110|16.705, 18061|3.146, 18056|25.658, 18060|7.392
+  40, trx: 179032, 95%: 7.594, 99%: 10.575, max_rt: 18.047, 178513|16.862, 17906|3.861, 17900|27.482, 17904|5.724
+  50, trx: 173856, 95%: 8.199, 99%: 12.705, max_rt: 31.777, 173412|30.990, 17388|9.501, 17388|37.472, 17385|5.538
+  60, trx: 171950, 95%: 8.499, 99%: 13.721, max_rt: 31.584, 171546|31.808, 17200|9.185, 17188|35.098, 17202|13.781
+STOPPING THREADS........................................................................................................................................................................................................
+&lt;Raw Results&gt;
+  [0] sc:481189 lt:584832  rt:0  fl:0 avg_rt: 5.3 (5)
+  [1] sc:915412 lt:147816  rt:0  fl:0 avg_rt: 4.4 (5)
+  [2] sc:106614 lt:5  rt:0  fl:0 avg_rt: 0.8 (5)
+  [3] sc:106586 lt:0  rt:0  fl:0 avg_rt: 11.9 (80)
+  [4] sc:106619 lt:0  rt:0  fl:0 avg_rt: 2.1 (20)
+ in 60 sec.
+&lt;Raw Results2(sum ver.)&gt;
+  [0] sc:481239  lt:585014  rt:0  fl:0 
+  [1] sc:918008  lt:148245  rt:0  fl:0 
+  [2] sc:106622  lt:5  rt:0  fl:0 
+  [3] sc:106622  lt:0  rt:0  fl:0 
+  [4] sc:106628  lt:0  rt:0  fl:0 
+&lt;Constraint Check&gt; (all must be [OK])
+ [transaction percentage]
+        Payment: 43.41% (&gt;=43.0%) [OK]
+   Order-Status: 4.35% (&gt;= 4.0%) [OK]
+       Delivery: 4.35% (&gt;= 4.0%) [OK]
+    Stock-Level: 4.35% (&gt;= 4.0%) [OK]
+ [response time (at least 90% passed)]
+      New-Order: 45.14%  [NG] *
+        Payment: 86.10%  [NG] *
+   Order-Status: 100.00%  [OK]
+       Delivery: 100.00%  [OK]
+    Stock-Level: 100.00%  [OK]
+&lt;TpmC&gt;
+                 1066021.000 TpmC   
+</code></pre></div></div>
+
+<p>The data indicates that, in the given software and hardware testing environment, Group Replication achieved a peak throughput of 1.066 million tpmC, setting a new record.</p>
+
+<p>This highlights that reducing the number of network interactions with MySQL during application development can significantly improve performance.</p>
+
+<h2 id="113-utilize-advanced-memory-allocation-tools">11.3 Utilize Advanced Memory Allocation Tools</h2>
+
+<p>MySQL defaults to using the jemalloc memory allocation tool, specifically version 3.6. Test data indicates that jemalloc 3.6 is not optimal for performance. The following figure shows the throughput improvements of jemalloc 4.5 compared to jemalloc 3.6 on x86 architecture.</p>
+
+<p><img src="../Images/3a2d838f0d31ac77045ec3f98146c3bb.png" alt="image-20240829114526325" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829114526325.png"/></p>
+
+<p>Figure 11-7. Jemalloc 4.5 outperforms jemalloc 3.6 in terms of performance.</p>
+
+<p>From the figure, it is evident that jemalloc 4.5 outperforms jemalloc 3.6 in terms of performance.</p>
+
+<p>For MySQL secondary replay, please refer to the figure below:</p>
+
+<p><img src="../Images/1163b75fd7d7a4ad27438e3f2938c047.png" alt="image-20240829114557565" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829114557565.png"/></p>
+
+<p>Figure 11-8. Achieve better replay speed with jemalloc 4.5.</p>
+
+<p>Tests with optimized MySQL replay showed a notable difference between jemalloc 3.6 and jemalloc 4.5. The figure illustrates a significant improvement in balanced replay speed with jemalloc 4.5.</p>
+
+<p>An effective memory allocation tool not only boosts MySQL primary server performance but also improves the replay speed of MySQL secondaries.</p>
+
+<h2 id="114-indexes-and-performance">11.4 Indexes and Performance</h2>
+
+<p>Section 4.10.6 provides detailed information on this topic.</p>
+
+<h2 id="115-key-mysql-parameters-influencing-performance">11.5 Key MySQL Parameters Influencing Performance</h2>
+
+<p>Databases feature numerous tunable system parameters that control crucial aspects such as memory allocation, I/O management, and logging. The impact of these parameters can vary greatly depending on the configuration, ranging from significant to minimal effects. This variability is due to the multitude of factors influencing MySQL performance, which complicates the prediction of performance outcomes. However, it is possible to identify specific factors that lead to abnormal throughput. The following sections detail commonly used parameters that affect performance.</p>
+
+<h3 id="1151-impact-of-dual-one-on-performance">11.5.1 Impact of ‘Dual One’ on Performance</h3>
+
+<p>The ‘dual one’ configuration parameters include two parameters: <em>sync_binlog</em> and <em>innodb_flush_log_at_trx_commit</em>.</p>
+
+<p>The <em>sync_binlog</em> parameter is described as follows:</p>
+
+<p><img src="../Images/78880b6b0fe42a005212b84cdd618573.png" style="zoom:50%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/b58fa402bb2b4e16e53b0bda44a0e30e.png"/></p>
+
+<p>The following configuration controls how often the MySQL Server synchronizes the binary log to disk.</p>
+
+<p><img src="../Images/81c3390b4d9b179bfe2fb63d9150ffe1.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/cd74a05babfcb9f75a746c9e98f2789b.png"/></p>
+
+<p>The <em>innodb_flush_log_at_trx_commit</em> parameter is described as follows:</p>
+
+<p><img src="../Images/76233c60f51ffe40bd2c964a1e80040f.png" style="zoom:50%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/c59aebec0401c408755e8d427d973899.png"/></p>
+
+<p>The following configuration balances strict ACID compliance for commit operations with the higher performance achievable by rearranging and batching commit-related I/O operations. Adjusting the default value can improve performance but may result in transaction loss in the event of a crash.</p>
+
+<p><img src="../Images/c1ff7aaca0d4e09b2b1a33cf76cbcb35.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/a3767cf99551c83f2db7f46d52b340d3.png"/></p>
+
+<p>It’s important to note that with the improved scalability in MySQL 8.0 and optimizations in redo log handling, the effect of disabling ‘dual one’ settings on throughput for MySQL primary servers in high-concurrency test scenarios has diminished.</p>
+
+<p>Comparative tests were first conducted using MySQL 8.0.27. The figure below illustrates the relationship between throughput and concurrency with ‘dual one’ enabled and disabled.</p>
+
+<p><img src="../Images/ae58d9d8183bbbae82b503606a8a067d.png" alt="image-20240829114945572" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829114945572.png"/></p>
+
+<p>Figure 11-9. Achieve better performance with ‘dual one’ disabled.</p>
+
+<p>Based on the figure, it is evident that with MySQL 8.0.27, disabling ‘dual one’ significantly improves throughput. However, this performance gain diminishes as concurrency increases.</p>
+
+<p>Based on the improved version of MySQL with PGO, the performance improvement after disabling ‘dual one’ is less significant, as shown in the figure below:</p>
+
+<p><img src="../Images/b7875f96afc343d89d8a2329d46c54e9.png" alt="image-20240829115033197" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115033197.png"/></p>
+
+<p>Figure 11-10. Less performance gain with ‘dual one’ disabled after addressing scalability bottlenecks in MySQL.</p>
+
+<p>It can also be observed that the extent of performance improvement varies with throughput and is not constant. As scalability bottlenecks in MySQL are addressed, the impact of ‘dual one’ diminishes.</p>
+
+<p>The impact of ‘dual one’ on MySQL secondary replay is more pronounced due to mechanisms such as the re<em>plica_preserve_commit_order</em> queueing. The figure below compares the balanced replay speeds of MySQL secondaries before and after disabling ‘dual one’ using an optimized MySQL version.</p>
+
+<p><img src="../Images/ccc2fee17d2299f5a3d60635b417f751.png" alt="image-20240829115125819" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115125819.png"/></p>
+
+<p>Figure 11-11. Achieve better replay speed with ‘dual one’ closed.</p>
+
+<p>Under equivalent conditions, disabling  ‘dual one’ achieved a balanced replay speed of 810,000 tpmC for MySQL secondaries, while enabling ‘dual one’ reduced this speed to approximately 700,000 tpmC. Thus, disabling ‘dual one’ significantly improves the replay speed of MySQL secondaries.</p>
+
+<p>Note that the above test results were obtained in a high-performance SSD environment, and differences in SSD hardware performance can lead to varying results.</p>
+
+<h3 id="1152-performance-effects-of-disabling-binlog">11.5.2 Performance Effects of Disabling Binlog</h3>
+
+<p>With binary logging enabled, the server logs all statements that modify data to the binary log, which is utilized for backup and replication purposes. Disabling binlog can theoretically eliminate queue wait times, thereby improving throughput and reducing response times.</p>
+
+<p>The figure below compares TPC-C throughput at identical concurrency levels before and after disabling binlog, using BenchmarkSQL.</p>
+
+<p><img src="../Images/c9980275b579056f568f1a31f8744d33.png" alt="image-20240829115210707" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115210707.png"/></p>
+
+<p>Figure 11-12. Achieve better performance with binlog disabled</p>
+
+<p>From the figure, it is evident that disabling binlog noticeably impacts performance.</p>
+
+<h3 id="1153-understanding-the-spin-delay-parameters-effect-on-performance">11.5.3 Understanding the Spin Delay Parameter’s Effect on Performance</h3>
+
+<p>Contending threads must wait for a lock when it’s unavailable. Several waiting policies exist, with unbounded spinning (or busy waiting) being the simplest. In this approach, threads repeatedly check a memory location until the value changes. This method consumes resources and may lead to preemption in an oversubscribed system with more threads than CPUs [3].</p>
+
+<p><strong>Advantages of Spinning:</strong></p>
+
+<ul>
+  <li>In an unloaded system, spinning offers high performance with minimal overhead, as it avoids OS coordination and incurs only a few cache miss latencies per lock handoff. On chip multiprocessors with shared caches, lock acquisition and release latencies can be as low as 150 ns.</li>
+</ul>
+
+<p><strong>Disadvantages of Spinning:</strong></p>
+
+<ul>
+  <li>When the system is loaded, spinning can degrade performance as it reduces the number of processors available for useful work, leading to suboptimal performance when runnable threads exceed hardware contexts. Additionally, since spinning isn’t coordinated with the OS, it doesn’t account for lock holders or spinners in scheduling decisions.</li>
+</ul>
+
+<p>The spin delay parameter helps address NUMA (Non-Uniform Memory Access) compatibility problems. Generally, better MySQL scalability reduces the impact of the spin delay parameter. Conversely, in cases of poor scalability, the spin delay parameter noticeably affects performance, although its effectiveness has an upper limit.</p>
+
+<p>Based on the MySQL 8.0.21 version with lock-sys optimization, the figure below compares TPC-C throughput at various concurrency levels.</p>
+
+<p><img src="../Images/10075f1a30bed46090c12c614f1e79b8.png" alt="image-20240829115241352" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115241352.png"/></p>
+
+<p>Figure 11-13. Achieve better performance with spin delay 20 in MySQL 8.0.21.</p>
+
+<p>The figure shows that setting <em>spin_delay=20</em> significantly mitigates the scalability problems of MySQL 8.0.21 with lock-sys optimization. However, in high-concurrency scenarios, the spin delay parameter can substantially increase CPU overhead. According to the paper “Locking Made Easy”, simple spinlocks are very efficient under low contention but do not scale well [63].</p>
+
+<p>Further analysis of the spin delay parameter in MySQL versions prior to MVCC ReadView optimization, with PGO compilation, is detailed in the following figure.</p>
+
+<p><img src="../Images/64e6be03c702e70b1cca984aecf26bc0.png" alt="image-20240829115301443" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115301443.png"/></p>
+
+<p>Figure 11-14. Achieve better performance with spin delay 20 before MVCC ReadView optimization.</p>
+
+<p>From the figure, it’s evident that with the default <em>spin_delay</em> parameter set to 6, throughput sharply declines at 200 concurrency. However, setting <em>spin_delay=20</em> leads to a substantial improvement in throughput.</p>
+
+<p>Let’s continue with MVCC ReadView optimization to further enhance MySQL scalability. The figure below shows the comparison of throughput between MVCC ReadView optimization and <em>spin delay=20</em>:</p>
+
+<p><img src="../Images/30c9f2e56ccde931dfa67f97fa78615b.png" alt="image-20240829115320081" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115320081.png"/></p>
+
+<p>Figure 11-15. Comparison of throughput between MVCC ReadView optimization and spin delay 20.</p>
+
+<p>From the figure, it can be seen that while spin delay can mitigate scalability problems to some extent, its effect is noticeably less pronounced compared to the benefits of adopting MVCC ReadView optimization.</p>
+
+<p>After MVCC ReadView optimization, the impact of  <em>spin_delay</em> was tested again. See the specific results in the figure below:</p>
+
+<p><img src="../Images/3235b5dd1e9d15be286a642a7108ce9b.png" alt="image-20240829115410814" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115410814.png"/></p>
+
+<p>Figure 11-16. Spin delay 20 has no effect after addressing MVCC ReadView scalability problems.</p>
+
+<p>The figure shows that after addressing MVCC ReadView scalability problems, the impact of the <em>spin_delay</em> parameter is minimal.</p>
+
+<h3 id="1154-effect-of-binlog-commit-order-on-performance">11.5.4 Effect of Binlog Commit Order on Performance</h3>
+
+<p>Here’s a brief introduction to the <em>binlog_order_commits</em> parameter:</p>
+
+<p><img src="../Images/2f53695d773dca1dc91eb26e30fb018b.png" style="zoom:50%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/d4747b5b04d0887c1a49b974d187dc6f.png"/></p>
+
+<p>When this variable is enabled on a replication source server (default), transaction commit instructions to storage engines are serialized on a single thread, ensuring transactions commit in the same order as they are written to the binary log. Disabling this variable permits transaction commit instructions to be issued using multiple threads. Used in combination with binary log group commit, this prevents the commit rate of a single transaction being a bottleneck to throughput, and might therefore produce a performance improvement [13].</p>
+
+<p>Based on the MySQL 8.0.27 version, examining whether enabling the <em>binlog_order_commit</em> parameter affects TPC-C throughput. See the specific comparison in the figure below:</p>
+
+<p><img src="../Images/3f6bda30b8ced873fb70e00c012a0414.png" alt="image-20240829115454755" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115454755.png"/></p>
+
+<p>Figure 11-17. Achieve better performance with binlog_order_commits off before binlog group commit optimization.</p>
+
+<p>From the figure, it can be observed that disabling <em>binlog_order_commits</em> results in a noticeable improvement in TPC-C throughput under different concurrency levels.</p>
+
+<p>The following figure is based on the improved MySQL version, optimized with PGO settings. Disabling <em>binlog_order_commits</em> shows less pronounced improvement in TPC-C throughput. Addressing problems like the thundering herd problem caused by binlog group commit has improved MySQL efficiency and mitigated the performance degradation observed when <em>binlog_order_commits</em> is enabled.</p>
+
+<p><img src="../Images/a1df6e716da09499b62431a43a4b7824.png" alt="image-20240901095750255" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240901095750255.png"/></p>
+
+<p>Figure 11-18. Less performance gain with binlog_order_commits off after binlog group commit optimization.</p>
+
+<p>MySQL defaults to enabling <em>binlog_order_commits</em>. Notably, disabling <em>binlog_order_commits</em> will affect MySQL’s clone functionality.</p>
+
+<h3 id="1155-comprehensive-understanding-of-the-performance-schema-on-performance">11.5.5 Comprehensive Understanding of the Performance Schema on Performance</h3>
+
+<p>The Performance Schema helps DBAs tune performance by taking real measurements instead of making guesses. Unfortunately, in NUMA environments, enabling the Performance Schema impacts MySQL’s performance, especially affecting MySQL secondary replay. The figure below compares TPC-C throughput across different concurrency levels using BenchmarkSQL to analyze this impact.</p>
+
+<p><img src="../Images/3e7077449a4b64eb1c12bb7caecd96ca.png" alt="image-20240829115606145" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115606145.png"/></p>
+
+<p>Figure 11-19. Achieve better performance with performance_schema off.</p>
+
+<p>From the figure, it can be seen that the Performance Schema has a relatively minor impact on MySQL primary performance, which is generally acceptable to users. However, enabling the Performance Schema significantly affects the replay speed of MySQL secondaries. The following figure shows the change in the replay queue size of Group Replication after enabling the Performance Schema.</p>
+
+<p><img src="../Images/7fe5bbba0f8180613159487081e9fd0b.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/2e14f81ddb33dc7a1db1d7f41e69dcdd.png"/></p>
+
+<p>Figure 11-20. The replay queue size in Group Replication increases after enabling the Performance Schema.</p>
+
+<p>From the figure, it can be observed that the replay queue size is increasing, indicating that the MySQL secondary is unable to keep up with the processing speed of the MySQL primary. The throughput results after executing on the MySQL primary are as follows:</p>
+
+<p><img src="../Images/ea4010003fba7672c7497275b6d8a86a.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/42665a7506959bdefa1b451ce564a261.png"/></p>
+
+<p>After the MySQL primary completes execution, here are the performance screenshots captured during the replay process on the MySQL secondary:</p>
+
+<p><img src="../Images/a87f2152bd7c6fa0d71714ffc5711edb.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/9b468bff3f312fa70821da3a0a117f70.png"/></p>
+
+<p>Figure 11-21. Significant bottlenecks related to the Performance Schema.</p>
+
+<p>From the highlighted green box, it is apparent that there are significant bottlenecks related to the Performance Schema.</p>
+
+<p>To summarize the test results above: When the MySQL primary achieves a throughput of 500,000 tpmC, the MySQL secondary, with the Performance Schema enabled, shows clear bottlenecks. Additionally, the MySQL secondary cannot keep up with the speed of the MySQL primary during the replay process.</p>
+
+<p>Now, with the Performance Schema disabled, conduct the same concurrency test. See the specific results in the figure below:</p>
+
+<p><img src="../Images/7011d904c2a4b9d3de3c533579f814c3.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/74a2f4f519d0991c114aabf3318369b2.png"/></p>
+
+<p>Figure 11-22. The replay queue size in Group Replication does not increase after disabling the Performance Schema.</p>
+
+<p>The figure indicates that the number of transactions awaiting replay did not increase significantly over time. The throughput results after MySQL primary completes execution are as follows:</p>
+
+<p><img src="../Images/4208feaaa6443284b38bb656499ebbc3.png" alt="" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/468b1638646ec6ce6ae997ec6e52f152.png"/></p>
+
+<p>When MySQL primary testing completes, the MySQL secondary also finishes replay nearly simultaneously. This indicates that in mainstream NUMA environments, Performance Schema is highly detrimental to MySQL secondary replay. The NUMA compatibility problems with Performance Schema remain unsolved and will be a focus for future optimization.</p>
+
+<h3 id="1156-effect-of-doublewrite-on-performance">11.5.6 Effect of Doublewrite on Performance</h3>
+
+<p>Here’s a brief introduction to the <em>innodb_doublewrite</em> parameter:</p>
+
+<p><img src="../Images/53dc807f22f22fed43ef0996624eddb2.png" style="zoom:50%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/5dc2c211205677ed7ae1528cd1911685.png"/></p>
+
+<p>The doublewrite buffer is a storage area where InnoDB writes pages from the buffer pool before committing them to the data files. This mechanism ensures data integrity during crash recovery by providing a reliable page copy in case of failures. However, since the default InnoDB page size is 16 KB while file systems can only guarantee atomicity up to 4 KB, only part of the page may be recoverable. Enabling doublewrite helps InnoDB recover the full page by writing it twice.</p>
+
+<p>The impact of enabling doublewrite on performance is assessed using the improved MySQL 8.0.27 with PGO. The figure below shows the effect of disabling doublewrite on TPC-C throughput across different concurrency levels.</p>
+
+<p><img src="../Images/0794264e1dc288cefcc970feadc743b2.png" alt="image-20240829115642934" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115642934.png"/></p>
+
+<p>Figure 11-23. Achieve higher peak throughput with doublewrite disabled.</p>
+
+<p>From the figure, it is evident that disabling the doublewrite parameter can increase peak throughput. While extensive testing and statistical analysis indicate that this parameter has a limited overall impact on performance, it does help to improve peak throughput. However, disabling doublewrite may compromise recovery safety in the event of a database crash, so it should be used with caution.</p>
+
+<h3 id="1157-effect-of-binlog-row-image-format-on-performance">11.5.7 Effect of Binlog Row Image Format on Performance</h3>
+
+<p>Here’s a brief introduction to the <em>binlog_row_image</em> parameter:</p>
+
+<p><img src="../Images/2f97131bbc241bbcfd152546ac133f52.png" style="zoom:50%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/90962de7267c4d56e20456f01796ac29.png"/></p>
+
+<p>For MySQL row-based replication, this variable controls how row images are recorded in the binary log [13]. Each row change event consists of two images: a “before” image, which represents the row’s state before the change, and an “after” image, which reflects the updated state. Typically, MySQL logs all columns for both images. However, it is possible to log only the necessary columns, which can reduce disk, memory, and network usage.</p>
+
+<p>Based on the improved version of MySQL 8.0.27 with PGO, the impact of the <em>binlog_row_image</em> parameter on TPC-C throughput at various concurrency levels is analyzed. See the figure below:</p>
+
+<p><img src="../Images/56b6479dbd97992f5adfa2b8d1a20175.png" alt="image-20240829115703081" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115703081.png"/></p>
+
+<p>Figure 11-24. Achieve improved throughput with minimal logging.</p>
+
+<p>From the figure, it can be observed that using <em>binlog_row_image=minimal</em> provides a moderate improvement in throughput for the MySQL primary, but the increase is not substantial. Regarding MySQL secondary replay, specific details can be found in section 10.3.7.</p>
+
+<h3 id="1158-understanding-the-effect-of-binlog-compression-settings-on-performance">11.5.8 Understanding the Effect of Binlog Compression Settings on Performance</h3>
+
+<p>Here’s a brief introduction to the <em>binlog_transaction_compression</em> parameter:</p>
+
+<p><img src="../Images/6e5b68ee03115af9625ec1368cdd8dd7.png" style="zoom:50%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/f621d8dd39147a621753b36d643cf42f.png"/></p>
+
+<p>When binary log transaction compression is enabled, transaction payloads are compressed and written to the binary log as a single event. These compressed payloads remain compressed in the replication stream and relay logs, reducing storage requirements and saving network bandwidth for both the originator and recipients of the transactions [13].</p>
+
+<p>In a Group Replication cluster within the same data center, with <em>binlog_transaction_compression</em> enabled for MySQL primary and secondaries, let’s analyze the effect of binary log compression on TPC-C throughput. Refer to the figure below for detailed results:</p>
+
+<p><img src="../Images/c85358845f93c8b9a920bba9aac88a91.png" alt="image-20240829115724267" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240829115724267.png"/></p>
+
+<p>Figure 11-25. Binlog compression may negatively impact performance in LAN environments.</p>
+
+<p>From the figure, it is evident that enabling binlog compression results in a significant decrease in throughput for the Group Replication cluster, particularly under high concurrency. This decline occurs when the network benefits from compression are outweighed by the computational costs involved.</p>
+
+<p>To investigate whether increasing network latency could improve throughput after compression, a simulated network latency of 10ms was used. The comparison of TPC-C throughput versus concurrency levels, before and after binlog compression, is shown in the following figure.</p>
+
+<p><img src="../Images/67872737f3eef310026eba4f69d2de20.png" alt="image-20240901103231333" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240901103231333.png"/></p>
+
+<p>Figure 11-26. Binlog compression does not affect performance in WAN environments.</p>
+
+<p>From the figure, it is evident that with a 10ms network latency, the throughput after compression is similar to that before compression. This suggests that increased network latency can help alleviate the performance degradation associated with MySQL compression.</p>
+
+<p>Users should weigh the trade-off between storage cost reduction and performance improvement based on their specific needs.</p>
+
+<h3 id="1159-understanding-the-effect-of-innodb-buffer-pool-size-on-performance">11.5.9 Understanding the Effect of InnoDB Buffer Pool Size on Performance</h3>
+
+<p>Here’s a brief introduction to the <em>innodb_buffer_pool_size</em> parameter:</p>
+
+<p><img src="../Images/d2f280b0b3a24308facdfb1b3dc0ce7a.png" style="zoom: 40%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/c649a1a7c43cffd86e55f28aeb8ff607.png"/></p>
+
+<p>The larger buffer pool retains more data in memory, reducing page evictions, I/O operations, and contention within the buffer pool [13].</p>
+
+<p>Based on the improved MySQL 8.0.27 version with PGO, the impact of the <em>innodb_buffer_pool_size</em> parameter on TPC-C throughput at various concurrency levels is analyzed. The results, with a warehouse count of 1000, are shown in the figure below.</p>
+
+<p><img src="../Images/f411e5be1fcf1261dd5a8bf88e01b6b7.png" alt="image-20240901104239714" style="zoom:150%;" data-original-src="https://enhancedformysql.github.io/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/media/image-20240901104239714.png"/></p>
+
+<p>Figure 11-27. innodb_buffer_pool_size: optimal size is key to performance, not just larger.</p>
+
+<p>From the figure, it is evident that increasing the buffer pool size does not always lead to higher throughput. For 1000 warehouses, occupying around 92GB of I/O space in the test, setting <em>innodb_buffer_pool_size</em> to 92GB performs better than setting it to 192GB.</p>
+
+<p>Notably, the <em>innodb_buffer_pool_size</em> parameter is well-suited for dynamic adaptive tuning using AI.</p>
+
+<h2 id="116-summary">11.6 Summary</h2>
+
+<p>This chapter focuses on optimizing MySQL application performance without modifying MySQL source code. Key methods include using PGO, minimizing network interactions, employing advanced memory allocation tools, and improving indexing and parameter configurations.</p>
+
+<p>The effectiveness of these optimization methods varies depending on the MySQL version, configuration parameters, hardware environment, and specific application characteristics. While a parameter might significantly impact performance in one scenario, its effectiveness may decrease in another. This variability arises from the complex interactions between multiple performance-affecting queues and potential bottlenecks, making performance testing particularly challenging.</p>
+
+<p><a href="/The-Art-of-Problem-Solving-in-Software-Engineering_How-to-Make-MySQL-Better/Part5.html">Next</a></p>
+
+
+      
+        
+</body>
+</html>
