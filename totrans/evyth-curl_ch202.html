@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch202.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__easyhandle__md-_-_-easy-handle" class="level1" data-number="201">
+<h1 data-number="201">Easy handle</h1>
+<p>The fundamentals you need to learn with libcurl:</p>
+<p>First you create an “easy handle”, which is your handle to a transfer, really:</p>
+<pre><code>CURL *easy_handle = curl_easy_init();</code></pre>
+<p>You then set options in that handle to control the upcoming transfer. This example sets the URL:</p>
+<pre><code>/* set URL to operate on */
+res = curl_easy_setopt(easy_handle, CURLOPT_URL, &quot;http://example.com/&quot;);</code></pre>
+<p>If <code>curl_easy_setopt()</code> returns <code>CURLE_OK</code>, we know it stored the option fine.</p>
+<p>Creating the easy handle and setting options on it does not make any transfer happen, and usually do not even make much more happen other than libcurl storing your wish to be used later when the transfer actually occurs. Lots of syntax checking and validation of the input may also be postponed, so just because <code>curl_easy_setopt</code> did not complain, it does not mean that the input was correct and valid; you may get an error returned later.</p>
+<p>Read more on <a href="options/">easy options</a> in its separate section.</p>
+<p>When you are done setting options to your easy handle, you can fire off the actual transfer.</p>
+<p>The actual performing of the transfer can be done using different methods and function calls, depending on what kind of behavior you want in your application and how libcurl is best integrated into your architecture. Those are further described later in this chapter.</p>
+<p>While the transfer is ongoing, libcurl calls your specified functions—known as <em><a href="callbacks/">callbacks</a></em> — to deliver data, to read data and to do a variety of things.</p>
+<p>After the transfer has completed, you can figure out if it succeeded or not and you can extract statistics and other information that libcurl gathered during the transfer from the easy handle. See <a href="ch243.xhtml#transfers__getinfo__md">Post transfer information</a>.</p>
+<section id="transfers__easyhandle__md-_-_-reuse" class="level2" data-number="201.1">
+<h2 data-number="201.1">Reuse</h2>
+<p>Easy handles are meant and designed to be reused. When you have done a single transfer with the easy handle, you can immediately use it again for your next transfer. There are lots of gains to be had by this.</p>
+<p>All options are “sticky”. If you make a second transfer with the same handle, the same options are used. They remain set in the handle until you change them again, or call <code>curl_easy_reset()</code> on the handle.</p>
+</section>
+<section id="transfers__easyhandle__md-_-_-reset" class="level2" data-number="201.2">
+<h2 data-number="201.2">Reset</h2>
+<p>By calling <code>curl_easy_reset()</code>, all options for the given easy handle are reset and restored to their default values. The same values the options had when the handle was initially created. The caches remain intact.</p>
+</section>
+<section id="transfers__easyhandle__md-_-_-duplicate" class="level2" data-number="201.3">
+<h2 data-number="201.3">Duplicate</h2>
+<p>An easy handle, with all its currently set options, can be duplicated using <code>curl_easy_duphandle()</code>. It returns a copy of the handle passed in to it.</p>
+<p>The caches and other state information are not carried over.</p>
+<p><span id="transfers__options__README__md"></span></p>
+</section>
+</section>
+</body>
+</html>

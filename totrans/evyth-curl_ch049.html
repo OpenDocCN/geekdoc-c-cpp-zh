@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch049.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="build__tls__md-_-_-tls-libraries" class="level1" data-number="48">
+<h1 data-number="48">TLS libraries</h1>
+<p>To make curl support TLS based protocols, such as HTTPS, FTPS, SMTPS, POP3S, IMAPS and more, you need to build with a third-party TLS library since curl does not implement the TLS protocol itself.</p>
+<p>curl is written to work with a large number of TLS libraries:</p>
+<ul>
+<li>AmiSSL</li>
+<li>AWS-LC</li>
+<li>BearSSL</li>
+<li>BoringSSL</li>
+<li>GnuTLS</li>
+<li>libressl</li>
+<li>mbedTLS</li>
+<li>OpenSSL</li>
+<li>rustls</li>
+<li>Schannel (native Windows)</li>
+<li>Secure Transport (native macOS)</li>
+<li>WolfSSL</li>
+</ul>
+<p>When you build curl and libcurl to use one of these libraries, it is important that you have the library and its include headers installed on your build machine.</p>
+<section id="build__tls__md-_-_-configure" class="level2" data-number="48.1">
+<h2 data-number="48.1">configure</h2>
+<p>Below, you learn how to tell configure to use the different libraries. The configure script does not select any TLS library by default. You must select one, or instruct configure that you want to build without TLS support using <code>--without-ssl</code>.</p>
+<section id="build__tls__md-_-_-openssl-boringssl-libressl" class="level3" data-number="48.1.1">
+<h3 data-number="48.1.1">OpenSSL, BoringSSL, libressl</h3>
+<pre><code>./configure --with-openssl</code></pre>
+<p>configure detects OpenSSL in its default path by default. You can optionally point configure to a custom install path prefix where it can find OpenSSL:</p>
+<pre><code>./configure --with-openssl=/home/user/installed/openssl</code></pre>
+<p>The alternatives <a href="ch049.xhtml#build__boringssl__md">BoringSSL</a> and libressl look similar enough that configure detects them the same way as OpenSSL. It then uses additional measures to figure out which of the particular flavors it is using.</p>
+</section>
+<section id="build__tls__md-_-_-gnutls" class="level3" data-number="48.1.2">
+<h3 data-number="48.1.2">GnuTLS</h3>
+<pre><code>./configure --with-gnutls</code></pre>
+<p>configure detects GnuTLS in its default path by default. You can optionally point configure to a custom install path prefix where it can find gnutls:</p>
+<pre><code>./configure --with-gnutls=/home/user/installed/gnutls</code></pre>
+</section>
+<section id="build__tls__md-_-_-wolfssl" class="level3" data-number="48.1.3">
+<h3 data-number="48.1.3">WolfSSL</h3>
+<pre><code>./configure --with-wolfssl</code></pre>
+<p>configure detects WolfSSL in its default path by default. You can optionally point configure to a custom install path prefix where it can find WolfSSL:</p>
+<pre><code>./configure --with-wolfssl=/home/user/installed/wolfssl</code></pre>
+</section>
+<section id="build__tls__md-_-_-mbedtls" class="level3" data-number="48.1.4">
+<h3 data-number="48.1.4">mbedTLS</h3>
+<pre><code>./configure --with-mbedtls</code></pre>
+<p>configure detects mbedTLS in its default path by default. You can optionally point configure to a custom install path prefix where it can find mbedTLS:</p>
+<pre><code>./configure --with-mbedtls=/home/user/installed/mbedtls</code></pre>
+</section>
+<section id="build__tls__md-_-_-secure-transport" class="level3" data-number="48.1.5">
+<h3 data-number="48.1.5">Secure Transport</h3>
+<pre><code>./configure --with-secure-transport</code></pre>
+<p>configure detects Secure Transport in its default path by default. You can optionally point configure to a custom install path prefix where it can find Secure Transport:</p>
+<pre><code>./configure --with-secure-transport=/home/user/installed/darwinssl</code></pre>
+</section>
+<section id="build__tls__md-_-_-schannel" class="level3" data-number="48.1.6">
+<h3 data-number="48.1.6">Schannel</h3>
+<pre><code>./configure --with-schannel</code></pre>
+<p>configure detects Schannel in its default path by default.</p>
+<p>(WinSSL was previously an alternative name for Schannel, and earlier curl versions instead needed <code>--with-winssl</code>)</p>
+</section>
+<section id="build__tls__md-_-_-bearssl" class="level3" data-number="48.1.7">
+<h3 data-number="48.1.7">BearSSL</h3>
+<pre><code>./configure --with-bearssl</code></pre>
+<p>configure detects BearSSL in its default path by default. You can optionally point configure to a custom install path prefix where it can find BearSSL:</p>
+<pre><code>./configure --with-bearssl=/home/user/installed/bearssl</code></pre>
+</section>
+<section id="build__tls__md-_-_-rustls" class="level3" data-number="48.1.8">
+<h3 data-number="48.1.8">Rustls</h3>
+<pre><code>./configure --with-rustls</code></pre>
+<p>When told to use rustls, curl is actually trying to find and use the rustls-ffi library - the C API for the rustls library. configure detects rustls-ffi in its default path by default. You can optionally point configure to a custom install path prefix where it can find rustls-ffi:</p>
+<pre><code>./configure --with-rustls=/home/user/installed/rustls-ffi</code></pre>
+<p><span id="build__boringssl__md"></span></p>
+</section>
+</section>
+</section>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch303.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__tests__file-format__md-_-_-test-file-format" class="level1" data-number="302">
+<h1 data-number="302">Test file format</h1>
+<p>Each curl test is designed in a single text file using an XML-like format.</p>
+<p>Labels mark the beginning and the end of all sections, and each label must be written in its own line. Comments are either XML-style (enclosed with <code>&lt;!--</code> and <code>--&gt;</code>) or shell script style (beginning with <code>#</code>) and must appear on their own lines and not alongside actual test data. Most test data files are syntactically valid XML, although a few files are not (lack of support for character entities and the preservation of carriage return and linefeed characters at the end of lines are the biggest differences).</p>
+<p>All tests must begin with a <code>&lt;testcase&gt;</code> tag, which encompasses the remainder of the file. See below for other tags.</p>
+<p>Each test file is called <code>tests/data/testNUMBER</code> where <code>NUMBER</code> is a unique numerical test identifier. Each test has to use its own dedicated number. The number has no meaning other than identifying the test.</p>
+<p>The test file defines exactly what command line or tool to run, what test servers to invoke and how they should respond, exactly what protocol exchange that should happen, what output and return code to expect and much more.</p>
+<p>Everything is written within their dedicated tags like this when the name is set:</p>
+<pre><code>&lt;name&gt;
+HTTP with host name written backwards
+&lt;/name&gt;</code></pre>
+<section id="internals__tests__file-format__md-_-_-keywords" class="level2" data-number="302.1">
+<h2 data-number="302.1">keywords</h2>
+<p>Every test has one or more <code>&lt;keywords&gt;</code> set in the top of the file. They are meant to be “tags” that identify features and protocols that are tested by this test case. <code>runtests.pl</code> can be made to run only tests that match (or do not match) such keywords.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-preprocessed" class="level2" data-number="302.2">
+<h2 data-number="302.2">Preprocessed</h2>
+<p>Under the hood, each test input file is <em>preprocessed</em> at startup by <code>runtests.pl</code>. This means that variables, macros and keywords are expanded and a temporary version of the file is stored in <code>tests/log/testNUMBER</code> - and <em>that</em> file is then used by all the test servers etc.</p>
+<p>This processing allows the test format to offer features like <code>%repeat</code> to create really big test files without bloating the input files correspondingly.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-base64-encoding" class="level2" data-number="302.3">
+<h2 data-number="302.3">Base64 Encoding</h2>
+<p>In the preprocess stage, a special instruction can be used to have runtests.pl base64 encode a certain section and insert in the generated output file. This is in particular good for test cases where the test tool is expected to pass in base64 encoded content that might use dynamic information that is unique for this particular test invocation, like the server port number.</p>
+<p>To insert a base64 encoded string into the output, use this syntax:</p>
+<pre><code>%b64[ data to encode ]b64%</code></pre>
+<p>The data to encode can then use any of the existing variables mentioned below, or even percent-encoded individual bytes. As an example, insert the HTTP server’s port number (in ASCII) followed by a space and the hexadecimal byte 9a:</p>
+<pre><code>%b64[%HTTPPORT %9a]b64%</code></pre>
+</section>
+<section id="internals__tests__file-format__md-_-_-hexadecimal-decoding" class="level2" data-number="302.4">
+<h2 data-number="302.4">Hexadecimal decoding</h2>
+<p>In the preprocess stage, a special instruction can be used to have runtests.pl generate a sequence of binary bytes.</p>
+<p>To insert a sequence of bytes from a hex encoded string, use this syntax:</p>
+<pre><code>%hex[ %XX-encoded data to decode ]hex%</code></pre>
+<p>For example, to insert the binary octets 0, 1 and 255 into the test file:</p>
+<pre><code>%hex[ %00%01%FF ]hex%</code></pre>
+</section>
+<section id="internals__tests__file-format__md-_-_-repeat-content" class="level2" data-number="302.5">
+<h2 data-number="302.5">Repeat content</h2>
+<p>In the preprocess stage, a special instruction can be used to have runtests.pl generate a repetitive sequence of bytes.</p>
+<p>To insert a sequence of repeat bytes, use this syntax to make the <code>&lt;string&gt;</code> get repeated <code>&lt;number&gt;</code> of times. The number has to be 1 or larger and the string may contain <code>%HH</code> hexadecimal codes:</p>
+<pre><code>%repeat[&lt;number&gt; x &lt;string&gt;]%</code></pre>
+<p>For example, to insert the word hello a 100 times:</p>
+<pre><code>%repeat[100 x hello]%</code></pre>
+</section>
+<section id="internals__tests__file-format__md-_-_-conditional-lines" class="level2" data-number="302.6">
+<h2 data-number="302.6">Conditional lines</h2>
+<p>Lines in the test file can be made to appear conditionally on a specific feature (see the “features” section below) being set or not set. If the specific feature is present, the following lines are output, otherwise it outputs nothing, until a following <code>else</code> or <code>endif</code> clause. Like this:</p>
+<pre><code>%if brotli
+Accept-Encoding
+%endif</code></pre>
+<p>It can also check for the inverse condition, so if the feature is <em>not</em> set by the use of an exclamation mark:</p>
+<pre><code>%if !brotli
+Accept-Encoding: not-brotli
+%endif</code></pre>
+<p>You can also make an “else” clause to get output for the opposite condition, like:</p>
+<pre><code>%if brotli
+Accept-Encoding: brotli
+%else
+Accept-Encoding: nothing
+%endif</code></pre>
+<p><strong>Note</strong> that there can be no nested conditions. You can only do one conditional at a time and you can only check for a single feature in it.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-variables" class="level2" data-number="302.7">
+<h2 data-number="302.7">Variables</h2>
+<p>When the test is preprocessed, a range of variables in the test file are replaced by their content at that time.</p>
+<p>Available substitute variables include:</p>
+<ul>
+<li><code>%CLIENT6IP</code> - IPv6 address of the client running curl</li>
+<li><code>%CLIENTIP</code> - IPv4 address of the client running curl</li>
+<li><code>%CURL</code> - Path to the curl executable</li>
+<li><code>%FILE_PWD</code> - Current directory, on windows prefixed with a slash</li>
+<li><code>%FTP6PORT</code> - IPv6 port number of the FTP server</li>
+<li><code>%FTPPORT</code> - Port number of the FTP server</li>
+<li><code>%FTPSPORT</code> - Port number of the FTPS server</li>
+<li><code>%FTPTIME2</code> - Timeout in seconds that should be just sufficient to receive a response from the test FTP server</li>
+<li><code>%FTPTIME3</code> - Even longer than <code>%FTPTIME2</code></li>
+<li><code>%GOPHER6PORT</code> - IPv6 port number of the Gopher server</li>
+<li><code>%GOPHERPORT</code> - Port number of the Gopher server</li>
+<li><code>%GOPHERSPORT</code> - Port number of the Gophers server</li>
+<li><code>%HOST6IP</code> - IPv6 address of the host running this test</li>
+<li><code>%HOSTIP</code> - IPv4 address of the host running this test</li>
+<li><code>%HTTP6PORT</code> - IPv6 port number of the HTTP server</li>
+<li><code>%HTTPPORT</code> - Port number of the HTTP server</li>
+<li><code>%HTTP2PORT</code> - Port number of the HTTP/2 server</li>
+<li><code>%HTTPSPORT</code> - Port number of the HTTPS server</li>
+<li><code>%HTTPSPROXYPORT</code> - Port number of the HTTPS-proxy</li>
+<li><code>%HTTPTLS6PORT</code> - IPv6 port number of the HTTP TLS server</li>
+<li><code>%HTTPTLSPORT</code> - Port number of the HTTP TLS server</li>
+<li><code>%HTTPUNIXPATH</code> - Path to the Unix socket of the HTTP server</li>
+<li><code>%SOCKSUNIXPATH</code> - Absolute Path to the Unix socket of the SOCKS server</li>
+<li><code>%IMAP6PORT</code> - IPv6 port number of the IMAP server</li>
+<li><code>%IMAPPORT</code> - Port number of the IMAP server</li>
+<li><code>%MQTTPORT</code> - Port number of the MQTT server</li>
+<li><code>%TELNETPORT</code> - Port number of the telnet server</li>
+<li><code>%NOLISTENPORT</code> - Port number where no service is listening</li>
+<li><code>%POP36PORT</code> - IPv6 port number of the POP3 server</li>
+<li><code>%POP3PORT</code> - Port number of the POP3 server</li>
+<li><code>%POSIX_PWD</code> - Current directory somewhat mingw friendly</li>
+<li><code>%PROXYPORT</code> - Port number of the HTTP proxy</li>
+<li><code>%PWD</code> - Current directory</li>
+<li><code>%RTSP6PORT</code> - IPv6 port number of the RTSP server</li>
+<li><code>%RTSPPORT</code> - Port number of the RTSP server</li>
+<li><code>%SMBPORT</code> - Port number of the SMB server</li>
+<li><code>%SMBSPORT</code> - Port number of the SMBS server</li>
+<li><code>%SMTP6PORT</code> - IPv6 port number of the SMTP server</li>
+<li><code>%SMTPPORT</code> - Port number of the SMTP server</li>
+<li><code>%SOCKSPORT</code> - Port number of the SOCKS4/5 server</li>
+<li><code>%SRCDIR</code> - Full path to the source dir</li>
+<li><code>%SSHPORT</code> - Port number of the SCP/SFTP server</li>
+<li><code>%SSHSRVMD5</code> - MD5 of SSH server’s public key</li>
+<li><code>%SSHSRVSHA256</code> - SHA256 of SSH server’s public key</li>
+<li><code>%SSH_PWD</code> - Current directory friendly for the SSH server</li>
+<li><code>%TESTNUMBER</code> - Number of the test case</li>
+<li><code>%TFTP6PORT</code> - IPv6 port number of the TFTP server</li>
+<li><code>%TFTPPORT</code> - Port number of the TFTP server</li>
+<li><code>%USER</code> - Login ID of the user running the test</li>
+<li><code>%VERSION</code> - the full version number of the tested curl</li>
+</ul>
+</section>
+</section>
+</body>
+</html>

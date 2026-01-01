@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch126.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__tls__enable__md-_-_-enable-tls" class="level1" data-number="125">
+<h1 data-number="125">Enable TLS</h1>
+<p>curl supports the TLS version of many protocols. HTTP has HTTPS, FTP has FTPS, LDAP has LDAPS, POP3 has POP3S, IMAP has IMAPS and SMTP has SMTPS.</p>
+<p>If the server side supports it, you can use the TLS version of these protocols with curl.</p>
+<p>There are two general approaches to do TLS with protocols. One of them is to speak TLS already from the first connection handshake while the other is to upgrade the connection from plain-text to TLS using protocol specific instructions.</p>
+<p>With curl, if you explicitly specify the TLS version of the protocol (the one that has a name that ends with an ‘S’ character) in the URL, curl tries to connect with TLS from start, while if you specify the non-TLS version in the URL you can <em>usually</em> upgrade the connection to TLS-based with the <code>--ssl</code> option.</p>
+<p>The support table looks like this:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Clear</th>
+<th>TLS version</th>
+<th>–ssl</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>HTTP</td>
+<td>HTTPS</td>
+<td>no</td>
+</tr>
+<tr class="even">
+<td>LDAP</td>
+<td>LDAPS</td>
+<td>no</td>
+</tr>
+<tr class="odd">
+<td>FTP</td>
+<td>FTPS</td>
+<td><strong>yes</strong></td>
+</tr>
+<tr class="even">
+<td>POP3</td>
+<td>POP3S</td>
+<td><strong>yes</strong></td>
+</tr>
+<tr class="odd">
+<td>IMAP</td>
+<td>IMAPS</td>
+<td><strong>yes</strong></td>
+</tr>
+<tr class="even">
+<td>SMTP</td>
+<td>SMTPS</td>
+<td><strong>yes</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The protocols that <em>can</em> do <code>--ssl</code> all favor that method. Using <code>--ssl</code> means that curl <em>attempts</em> to upgrade the connection to TLS but if that fails, it still continues with the transfer using the plain-text version of the protocol. To make the <code>--ssl</code> option <strong>require</strong> TLS to continue, there is instead the <code>--ssl-reqd</code> option which makes the transfer fail if curl cannot successfully negotiate TLS.</p>
+<p>Require TLS security for your FTP transfer:</p>
+<pre><code>curl --ssl-reqd ftp://ftp.example.com/file.txt</code></pre>
+<p>Suggest TLS to be used for your FTP transfer:</p>
+<pre><code>curl --ssl ftp://ftp.example.com/file.txt</code></pre>
+<p>Connecting directly with TLS (to <code>HTTPS://</code>, <code>LDAPS://</code>, <code>FTPS://</code> etc) means that TLS is mandatory and curl returns an error if TLS is not negotiated.</p>
+<p>Get a file over HTTPS:</p>
+<pre><code>curl https://www.example.com/</code></pre>
+<p><span id="usingcurl__tls__versions__md"></span></p>
+</section>
+</body>
+</html>

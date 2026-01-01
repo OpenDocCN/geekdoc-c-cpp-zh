@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch093.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__downloads__max-filesize__md-_-_-maximum-filesize" class="level1" data-number="92">
+<h1 data-number="92">Maximum filesize</h1>
+<p>When you want to make sure your curl command line does not download a too-large file, instruct curl to stop before doing that, if it knows the size before the transfer starts. Maybe that would use too much bandwidth, take too long time or you do not have enough space on your hard drive:</p>
+<pre><code>curl --max-filesize 100000 https://example.com/</code></pre>
+<p>Give curl the largest download you can accept in number of bytes and if curl can figure out the size before the transfer starts it aborts before trying to download something larger.</p>
+<p>There are many situations in which curl cannot figure out the size at the time the transfer starts. Such transfers thus are then aborted first when they actually reach that limit.</p>
+<p><span id="usingcurl__downloads__metadata-fs__md"></span></p>
+</section>
+</body>
+</html>

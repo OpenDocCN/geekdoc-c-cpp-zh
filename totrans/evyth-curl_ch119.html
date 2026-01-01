@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch119.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__proxies__auth__md-_-_-proxy-authentication" class="level1" data-number="118">
+<h1 data-number="118">Proxy authentication</h1>
+<p>HTTP and SOCKS proxies can require authentication, so curl then needs to provide the proper credentials to the proxy to be allowed to use it. Failing to do so (or providing the wrong credentials) makes the proxy return HTTP responses using code 407.</p>
+<p>Authentication for proxies is similar to “normal” HTTP authentication. It is separate from the server authentication to allow clients to independently use both normal host authentication as well as proxy authentication.</p>
+<p>With curl, you set the username and password for the proxy authentication with the <code>-U user:password</code> or <code>--proxy-user user:password</code> option:</p>
+<pre><code>curl -U daniel:secr3t -x myproxy:80 http://example.com</code></pre>
+<p>This example defaults to using the Basic authentication scheme. Some proxies requires other authentication schemes (and the headers that are returned when you get a 407 response tells you which) and then you can ask for a specific method with <code>--proxy-digest</code>, <code>--proxy-negotiate</code>, <code>--proxy-ntlm</code>. The above example command again, but asking for NTLM auth with the proxy:</p>
+<pre><code>curl -U daniel:secr3t -x myproxy:80 http://example.com --proxy-ntlm</code></pre>
+<p>There is also the option that asks curl to figure out which method the proxy wants and supports and then go with that (with the possible expense of extra round-trips) using <code>--proxy-anyauth</code>. Asking curl to use any method the proxy wants is then like this:</p>
+<pre><code>curl -U daniel:secr3t -x myproxy:80 http://example.com --proxy-anyauth</code></pre>
+<p><span id="usingcurl__proxies__https__md"></span></p>
+</section>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch233.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__conn__local__md-_-_-local-address-and-port-number" class="level1" data-number="232">
+<h1 data-number="232">Local address and port number</h1>
+<p>In almost all situations you want to let the system pick the default source IP address and local port number when setting up a connection.</p>
+<p>For the rare instances when that is not good enough, libcurl features overrides.</p>
+<section id="transfers__conn__local__md-_-_-local-address" class="level2" data-number="232.1">
+<h2 data-number="232.1">Local address</h2>
+<p>A connection created by libcurl needs to have a source IP that routes back to this host. An application can not just randomly pick whatever IP address it wants to use and expect that to work. A network interface in the machine needs to have the IP address assigned.</p>
+<p>You can ask libcurl to use a non-default IP address with <code>CURLOPT_INTERFACE</code>. As the name hints, it is designed to get a named network interface as input and it will then attempt to use that interface’s IP address for outgoing traffic.</p>
+<p>The name can however instead be an IP address or a hostname, even though <strong>we do not recommend using those versions</strong>.</p>
+<p>To prevent libcurl from guessing what kind of input that is provided, prefix the interface name with “if!”, to make sure the name is not mistaken for a hostname.</p>
+<p>Similarly, you prefix the provided name with “host!” to insist the address is a hostname or IP number.</p>
+</section>
+<section id="transfers__conn__local__md-_-_-local-port-number" class="level2" data-number="232.2">
+<h2 data-number="232.2">Local port number</h2>
+<p>By default, 16 bit random source local port numbers are used for connections, from the so called <em>ephemeral port</em> range. An application can ask for a specific port range to be used with the <code>CURLOPT_LOCALPORT</code> and <code>CURLOPT_LOCALPORTRANGE</code> options. Since port numbers are finite resources, narrowing the selection of ports to select from will increase the risk that the connection cannot be setup if none of the attempted port numbers are currently available to be used.</p>
+<p><span id="transfers__conn__reuse__md"></span></p>
+</section>
+</section>
+</body>
+</html>

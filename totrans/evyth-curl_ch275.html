@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch275.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="helpers__ws__read__md-_-_-read" class="level1" data-number="274">
+<h1 data-number="274">Read</h1>
+<p>An application receives and reads incoming WebSocket traffic using one of these two methods:</p>
+<section id="helpers__ws__read__md-_-_-write-callback" class="level2" data-number="274.1">
+<h2 data-number="274.1">Write callback</h2>
+<p>When the <code>CURLOPT_CONNECT_ONLY</code> option is <strong>not</strong> set, WebSocket data is delivered to the write callback.</p>
+<p>In the default frame mode (as opposed to raw mode), libcurl delivers parts of WebSocket fragments to the callback as data arrives. The application can then call <code>curl_ws_meta()</code> to get information about the specific frame that was passed to the callback.</p>
+<p>libcurl can deliver full fragments or partial ones, depending on what comes over the wire when. Each WebSocket fragment can be up to 63 bit in size.</p>
+</section>
+<section id="helpers__ws__read__md-_-_-curl_ws_recv" class="level2" data-number="274.2">
+<h2 data-number="274.2"><code>curl_ws_recv</code></h2>
+<p>If the connect-only option was set, the transfer ends after the WebSocket has been setup to the remote host and from that point the application needs to call <code>curl_ws_recv()</code> to read WebSocket data and <code>curl_ws_send()</code> to send it.</p>
+<p>The <code>curl_ws_recv</code> function has this prototype:</p>
+<pre><code>CURLcode curl_ws_recv(CURL *curl, void *buffer, size_t buflen,
+                      size_t *recv, struct curl_ws_frame **meta);</code></pre>
+<p><code>curl</code> - the handle to the transfer</p>
+<p><code>buffer</code> - pointer to a buffer to receive the WebSocket data in</p>
+<p><code>buflen</code> - the size in bytes of the <strong>buffer</strong></p>
+<p><code>recv</code> - the size in bytes of the data stored in the **buffer* on return</p>
+<p><code>meta</code> - gets a pointer to a struct with <a href="ch275.xhtml#helpers__ws__meta__md">information about the received frame</a>.</p>
+<p><span id="helpers__ws__meta__md"></span></p>
+</section>
+</section>
+</body>
+</html>

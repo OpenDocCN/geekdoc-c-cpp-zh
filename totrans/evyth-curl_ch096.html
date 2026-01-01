@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch096.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__downloads__retry__md-_-_-retry" class="level1" data-number="95">
+<h1 data-number="95">Retry</h1>
+<p>Normally curl only makes a single attempt to perform a transfer and returns an error if not successful. Using the <code>--retry</code> option you can tell curl to retry certain failed transfers.</p>
+<p>If a transient error is returned when curl tries to perform a transfer, it retries this number of times before giving up. Setting the number to 0 makes curl do no retries (which is the default). Transient error means either: a timeout, an FTP 4xx response code or an HTTP 5xx response code.</p>
+<section id="usingcurl__downloads__retry__md-_-_-tweak-your-retries" class="level2" data-number="95.1">
+<h2 data-number="95.1">Tweak your retries</h2>
+<p>When curl is about to retry a transfer, it first waits one second and then for all forthcoming retries it doubles the waiting time until it reaches 10 minutes which then is the delay between the rest of the retries. Using <code>--retry-delay</code> you can disable this exponential backoff algorithm and set your own delay between the attempts. With <code>--retry-max-time</code> you cap the total time allowed for retries. The <code>--max-time</code> option still specifies the longest time a single of these transfers is allowed to spend.</p>
+<p>Make curl retry up to 5 times, but no more than two minutes:</p>
+<pre><code>curl --retry 5 --retry-max-time 120 https://example.com</code></pre>
+</section>
+<section id="usingcurl__downloads__retry__md-_-_-connection-refused" class="level2" data-number="95.2">
+<h2 data-number="95.2">Connection refused</h2>
+<p>The default retry mechanism only retries transfers for what are considered transient errors. Those are errors that the server itself hints and qualifies as being there right now but that might be gone at a later time.</p>
+<p>Sometimes you as a user know more about the situation and you can then help out curl to do better retries. For starters, you can tell curl to consider “connection refused” to be a transient error. Maybe you know that the server you communicate with is a flaky one or maybe you know that you sometimes try to download from it when it reboots or similar. You use <code>--retry-connrefused</code> for this.</p>
+<p>For example: retry up to 5 times and consider <code>ECONNREFUSED</code> a reason for retry:</p>
+<pre><code>curl --retry 5 --retry-connrefused https://example.com</code></pre>
+</section>
+<section id="usingcurl__downloads__retry__md-_-_-retry-on-any-and-all-errors" class="level2" data-number="95.3">
+<h2 data-number="95.3">Retry on any and all errors</h2>
+<p>The most aggressive form of retry is for the cases where you <strong>know</strong> that the URL is supposed to work and you do not tolerate any failures. Using <code>--retry-all-errors</code> makes curl treat all transfers failures as reason for retry.</p>
+<p>For example: retry up to 12 times for all errors:</p>
+<pre><code>curl --retry 12 --retry-all-errors https://example.com</code></pre>
+<p><span id="usingcurl__downloads__resume__md"></span></p>
+</section>
+</section>
+</body>
+</html>

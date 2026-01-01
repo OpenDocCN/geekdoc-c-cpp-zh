@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch250.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="libcurl-http__auth__md-_-_-authentication" class="level1" data-number="249">
+<h1 data-number="249">Authentication</h1>
+<p>libcurl supports a wide variety of HTTP authentication schemes.</p>
+<p>Note that this way of authentication is different than the otherwise widely used scheme on the web today where authentication is performed by an HTTP POST and then keeping state in cookies. See <a href="ch250.xhtml#libcurl-http__cookies__md">Cookies with libcurl</a> for details on how to do that.</p>
+<section id="libcurl-http__auth__md-_-_-username-and-password" class="level2" data-number="249.1">
+<h2 data-number="249.1">Username and password</h2>
+<p>libcurl does not try any HTTP authentication without a given username. Set one like:</p>
+<pre><code>curl_easy_setopt(curl, CURLOPT_USERNAME, &quot;joe&quot;);</code></pre>
+<p>and of course most authentications also require a set password that you set separately:</p>
+<pre><code>curl_easy_setopt(curl, CURLOPT_PASSWORD, &quot;secret&quot;);</code></pre>
+<p>That is all you need. This makes libcurl switch on its default authentication method for this transfer: <em>HTTP Basic</em>.</p>
+</section>
+<section id="libcurl-http__auth__md-_-_-authentication-required" class="level2" data-number="249.2">
+<h2 data-number="249.2">Authentication required</h2>
+<p>A client does not itself decide that it wants to send an authenticated request. It is something the server requires. When the server has a resource that is protected and requires authentication, it responds with a 401 HTTP response and a <code>WWW-Authenticate:</code> header. The header includes details about what specific authentication methods it accepts for that resource.</p>
+</section>
+<section id="libcurl-http__auth__md-_-_-basic" class="level2" data-number="249.3">
+<h2 data-number="249.3">Basic</h2>
+<p>Basic is the default HTTP authentication method and as its name suggests, it is indeed basic. It takes the name and the password, separates them with a colon and base64 encodes that string before it puts the entire thing into a <code>Authorization:</code> HTTP header in the request.</p>
+<p>If the name and password is set like the examples shown above, the exact outgoing header looks like this:</p>
+<pre><code>Authorization: Basic am9lOnNlY3JldA==</code></pre>
+<p>This authentication method is totally insecure over HTTP as the credentials are sent in plain-text over the network.</p>
+<p>You can explicitly tell libcurl to use Basic method for a specific transfer like this:</p>
+<pre><code>curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);</code></pre>
+</section>
+<section id="libcurl-http__auth__md-_-_-digest" class="level2" data-number="249.4">
+<h2 data-number="249.4">Digest</h2>
+<p>Another HTTP authentication method is called Digest. One advantage this method has compared to Basic, is that it does not send the password over the wire in plain text. This is however an authentication method that is rarely spoken by browsers and consequently is not a frequently used one.</p>
+<p>You can explicitly tell libcurl to use the Digest method for a specific transfer like this (it still needs username and password set as well):</p>
+<pre><code>curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);</code></pre>
+</section>
+<section id="libcurl-http__auth__md-_-_-ntlm" class="level2" data-number="249.5">
+<h2 data-number="249.5">NTLM</h2>
+<p>Another HTTP authentication method is called NTLM.</p>
+<p>You can explicitly tell libcurl to use the NTLM method for a specific transfer like this (it still needs username and password set as well):</p>
+<pre><code>curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_NTLM);</code></pre>
+</section>
+<section id="libcurl-http__auth__md-_-_-negotiate" class="level2" data-number="249.6">
+<h2 data-number="249.6">Negotiate</h2>
+<p>Another HTTP authentication method is called Negotiate.</p>
+<p>You can explicitly tell libcurl to use the Negotiate method for a specific transfer like this (it still needs username and password set as well):</p>
+<pre><code>curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_NEGOTIATE);</code></pre>
+</section>
+<section id="libcurl-http__auth__md-_-_-bearer" class="level2" data-number="249.7">
+<h2 data-number="249.7">Bearer</h2>
+<p>To pass on an OAuth 2.0 Bearer Access Token in a request, use <code>CURLOPT_XOAUTH2_BEARER</code> for example:</p>
+<pre><code>CURL *curl = curl_easy_init();
+if(curl) {
+  curl_easy_setopt(curl, CURLOPT_URL, &quot;pop3://example.com/&quot;);
+  curl_easy_setopt(curl, CURLOPT_XOAUTH2_BEARER, &quot;1ab9cb22ba269a7&quot;);
+  ret = curl_easy_perform(curl);
+  curl_easy_cleanup(curl);
+}</code></pre>
+</section>
+<section id="libcurl-http__auth__md-_-_-try-first" class="level2" data-number="249.8">
+<h2 data-number="249.8">Try-first</h2>
+<p>Some HTTP servers allow one out of several authentication methods, in some cases you find yourself in a position where you as a client does not want or is not able to select a single specific method before-hand and for yet another subset of cases your application does not know if the requested URL even require authentication or not.</p>
+<p>libcurl covers all these situations as well.</p>
+<p>You can ask libcurl to use more than one method, and when doing so, you imply that curl first tries the request without any authentication at all and then based on the HTTP response coming back, it selects one of the methods that both the server and your application allow. If more than one would work, curl picks them in a order based on how secure the methods are considered to be, picking the safest of the available methods.</p>
+<p>Tell libcurl to accept multiple method by bitwise ORing them like this:</p>
+<pre><code>curl_easy_setopt(curl, CURLOPT_HTTPAUTH,
+                 CURLAUTH_BASIC | CURLAUTH_DIGEST);</code></pre>
+<p>If you want libcurl to only allow a single specific method but still want it to probe first to check if it can possibly still make the request without the use of authentication, you can force that behavior by adding <code>CURLAUTH_ONLY</code> to the bitmask.</p>
+<p>Ask to use digest, but nothing else but digest, and only if proven really necessary:</p>
+<pre><code>curl_easy_setopt(curl, CURLOPT_HTTPAUTH,
+                 CURLAUTH_DIGEST | CURLAUTH_ONLY);</code></pre>
+<p><span id="libcurl-http__cookies__md"></span></p>
+</section>
+</section>
+</body>
+</html>

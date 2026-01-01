@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch221.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__callbacks__seek__md-_-_-seek-and-ioctl" class="level1" data-number="220">
+<h1 data-number="220">Seek and ioctl</h1>
+<p>This callback is set with <code>CURLOPT_SEEKFUNCTION</code>.</p>
+<p>The callback gets called by libcurl to seek to a certain position in the input stream and can be used to fast forward a file in a resumed upload (instead of reading all uploaded bytes with the normal read function/callback). It is also called to rewind a stream when data has already been sent to the server and needs to be sent again. This may happen when doing an HTTP PUT or POST with a multi-pass authentication method, or when an existing HTTP connection is reused too late and the server closes the connection. The function shall work like fseek(3) or lseek(3) and it gets <code>SEEK_SET</code>, <code>SEEK_CUR</code> or <code>SEEK_END</code> as argument for origin, although libcurl currently only passes <code>SEEK_SET</code>.</p>
+<p>The custom <code>userp</code> sent to the callback is the pointer you set with <code>CURLOPT_SEEKDATA</code>.</p>
+<p>The callback function must return <code>CURL_SEEKFUNC_OK</code> on success, <code>CURL_SEEKFUNC_FAIL</code> to cause the upload operation to fail or <code>CURL_SEEKFUNC_CANTSEEK</code> to indicate that while the seek failed, libcurl is free to work around the problem if possible. The latter can sometimes be done by instead reading from the input or similar.</p>
+<p>If you forward the input arguments directly to fseek(3) or lseek(3), note that the data type for offset is not the same as defined for <code>curl_off_t</code> on many systems.</p>
+<p><span id="transfers__callbacks__conversions__md"></span></p>
+</section>
+</body>
+</html>

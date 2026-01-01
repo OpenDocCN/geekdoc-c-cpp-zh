@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch104.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__connections__name__md-_-_-name-resolve-tricks" class="level1" data-number="103">
+<h1 data-number="103">Name resolve tricks</h1>
+<p>curl offers many ways to make it use another host than the one it normally would connect to.</p>
+<section id="usingcurl__connections__name__md-_-_-edit-the-hosts-file" class="level2" data-number="103.1">
+<h2 data-number="103.1">Edit the hosts file</h2>
+<p>Maybe you want the command <code>curl http://example.com</code> to connect to your local server instead of the actual server.</p>
+<p>You can normally and easily do that by editing your <code>hosts</code> file (<code>/etc/hosts</code> on Linux and Unix-like systems) and adding, for example, <code>127.0.0.1 example.com</code> to redirect the host to your localhost. However this edit requires admin access and it has the downside that it affects all other applications at the same time.</p>
+</section>
+<section id="usingcurl__connections__name__md-_-_-change-the-host-header" class="level2" data-number="103.2">
+<h2 data-number="103.2">Change the Host: header</h2>
+<p>The <code>Host:</code> header is the normal way an HTTP client tells the HTTP server which server it speaks to, as typically an HTTP server serves many different names using the same software instance.</p>
+<p>So, by passing in a custom modified <code>Host:</code> header you can have the server respond with the contents of the site even when you did not actually connect to that hostname.</p>
+<p>For example, you run a test instance of your main site <code>www.example.com</code> on your local machine and you want to have curl ask for the index html:</p>
+<pre><code>curl -H &quot;Host: www.example.com&quot; http://localhost/</code></pre>
+<p>When setting a custom <code>Host:</code> header and using cookies, curl extracts the custom name and uses that as host when matching cookies to send off.</p>
+<p>The <code>Host:</code> header is not enough when communicating with an HTTPS server. With HTTPS there is a separate extension field in the TLS protocol called SNI (Server Name Indication) that lets the client tell the server the name of the server it wants to talk to. curl only extracts the SNI name to send from the given URL.</p>
+</section>
+<section id="usingcurl__connections__name__md-_-_-provide-a-custom-ip-address-for-a-name" class="level2" data-number="103.3">
+<h2 data-number="103.3">Provide a custom IP address for a name</h2>
+<p>Do you know better than the name resolver where curl should go? Then you can give an IP address to curl yourself. If you want to redirect port 80 access for <code>example.com</code> to instead reach your localhost:</p>
+<pre><code>curl --resolve example.com:80:127.0.0.1 http://example.com/</code></pre>
+<p>You can even specify multiple <code>--resolve</code> switches to provide multiple redirects of this sort, which can be handy if the URL you work with uses HTTP redirects or if you just want to have your command line work with multiple URLs.</p>
+<p><code>--resolve</code> inserts the address into curl’s DNS cache, so it effectively makes curl believe that is the address it got when it resolved the name.</p>
+<p>When talking HTTPS, this sends SNI for the name in the URL and curl verifies the server’s response to make sure it serves for the name in the URL.</p>
+<p>The pattern you specify in the option needs to be a hostname and its corresponding port number and only if that exact pair is used in the URL is the address substituted. For example, if you want to replace a hostname in an HTTPS URL on its default port number, you need to tell curl it is for port 443, like:</p>
+<pre><code>curl --resolve example.com:443:192.168.0.1 https://example.com/</code></pre>
+</section>
+<section id="usingcurl__connections__name__md-_-_-provide-a-replacement-name" class="level2" data-number="103.4">
+<h2 data-number="103.4">Provide a replacement name</h2>
+<p>As a close relative to the <code>--resolve</code> option, the <code>--connect-to</code> option provides a minor variation. It allows you to specify a replacement name and port number for curl to use under the hood when a specific name and port number is used to connect.</p>
+<p>For example, suppose you have a single site called <code>www.example.com</code> that in turn is actually served by three different individual HTTP servers: load1, load2 and load3, for load balancing purposes. In a typical normal procedure, curl resolves the main site and gets to speak to one of the load balanced servers (as it gets a list back and just picks one of them) and all is well. If you want to send a test request to one specific server out of the load balanced set (<code>load1.example.com</code> for example) you can instruct curl to do that.</p>
+<p>You <em>can</em> still use <code>--resolve</code> to accomplish this if you know the specific IP address of load1. But without having to first resolve and fix the IP address separately, you can tell curl:</p>
+<pre><code>curl --connect-to www.example.com:80:load1.example.com:80 \
+  http://www.example.com</code></pre>
+<p>It redirects from a SOURCE NAME + SOURCE PORT to a DESTINATION NAME + DESTINATION PORT. curl then resolves the <code>load1.example.com</code> name and connects, but in all other ways still assumes it is talking to <code>www.example.com</code>.</p>
+</section>
+<section id="usingcurl__connections__name__md-_-_-name-resolve-tricks-with-c-ares" class="level2" data-number="103.5">
+<h2 data-number="103.5">Name resolve tricks with c-ares</h2>
+<p>As should be detailed elsewhere in this book, curl may be built with several different name resolving backends. One of those backends is powered by the c-ares library and when curl is built to use c-ares, it gets a few extra superpowers that curl built to use other name resolve backends do not get. Namely, it gains the ability to more specifically instruct what DNS servers to use and how that DNS traffic is using the network.</p>
+<p>With <code>--dns-servers</code>, you can specify exactly which DNS server curl should use instead of the default one. This lets you run your own experimental server that answers differently, or use a backup one if your regular one is unreliable or dead.</p>
+<p>With <code>--dns-ipv4-addr</code> and <code>--dns-ipv6-addr</code> you ask curl to “bind” its local end of the DNS communication to a specific IP address and with <code>--dns-interface</code> you can instruct curl to use a specific network interface to use for its DNS requests.</p>
+<p>These <code>--dns-*</code> options are advanced and are only meant for people who know what they are doing and understand what these options do. But they offer customizable DNS name resolution operations.</p>
+<p><span id="usingcurl__connections__timeout__md"></span></p>
+</section>
+</section>
+</body>
+</html>

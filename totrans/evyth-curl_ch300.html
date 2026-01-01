@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch300.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__structs__md-_-_-structs" class="level1" data-number="299">
+<h1 data-number="299">Structs</h1>
+<p>This section documents internal structs. Since they are truly internal, we change them occasionally which might make this section slightly out of date at times.</p>
+<section id="internals__structs__md-_-_-curl_easy" class="level2" data-number="299.1">
+<h2 data-number="299.1">Curl_easy</h2>
+<p>The <code>Curl_easy</code> struct is the one returned to the outside in the external API as an opaque <code>CURL *</code>. This pointer is usually known as an easy handle in API documentations and examples.</p>
+<p>Information and state that is related to the actual connection is in the <code>connectdata</code> struct. When a transfer is about to be made, libcurl either creates a new connection or re-uses an existing one. The current connectdata that is used by this handle is pointed out by <code>Curl_easy-&gt;conn</code>.</p>
+<p>Data and information that regard this particular single transfer is put in the <code>SingleRequest</code> sub-struct.</p>
+<p>When the <code>Curl_easy</code> struct is added to a multi handle, as it must be in order to do any transfer, the <code>-&gt;multi</code> member points to the <code>Curl_multi</code> struct it belongs to. The <code>-&gt;prev</code> and <code>-&gt;next</code> members are then used by the multi code to keep a linked list of <code>Curl_easy</code> structs that are added to that same multi handle. libcurl always uses multi so <code>-&gt;multi</code> points to a <code>Curl_multi</code> when a transfer is in progress.</p>
+<p><code>-&gt;mstate</code> is the multi state of this particular <code>Curl_easy</code>. When <code>multi_runsingle()</code> is called, it acts on this handle according to which state it is in. The mstate is also what tells which sockets to return for a specific <code>Curl_easy</code> when [<code>curl_multi_fdset()</code>][12] is called etc.</p>
+<p>The libcurl source code generally use the name <code>data</code> everywhere for the local variable that points to the <code>Curl_easy</code> struct.</p>
+<p>When doing multiplexed HTTP/2 transfers, each <code>Curl_easy</code> is associated with an individual stream, sharing the same connectdata struct. Multiplexing makes it even more important to keep things associated with the right thing.</p>
+</section>
+<section id="internals__structs__md-_-_-connectdata" class="level2" data-number="299.2">
+<h2 data-number="299.2">connectdata</h2>
+<p>A general idea in libcurl is to keep connections around in a connection cache after they have been used in case they are used again and then re-use an existing one instead of creating a new one as it creates a significant performance boost.</p>
+<p>Each <code>connectdata</code> struct identifies a single physical connection to a server. If the connection cannot be kept alive, the connection is closed after use and then this struct can be removed from the cache and freed.</p>
+<p>Thus, the same <code>Curl_easy</code> can be used multiple times and each time select another <code>connectdata</code> struct to use for the connection. Keep this in mind, as it is then important to consider if options or choices are based on the connection or the <code>Curl_easy</code>.</p>
+<p>As a special complexity, some protocols supported by libcurl require a special disconnect procedure that is more than just shutting down the socket. It can involve sending one or more commands to the server before doing so. Since connections are kept in the connection cache after use, the original <code>Curl_easy</code> may no longer be around when the time comes to shut down a particular connection. For this purpose, libcurl holds a special dummy <code>closure_handle</code> <code>Curl_easy</code> in the <code>Curl_multi</code> struct to use when needed.</p>
+<p>FTP uses two TCP connections for a typical transfer but it keeps both in this single struct and thus can be considered a single connection for most internal concerns.</p>
+<p>The libcurl source code generally uses the name <code>conn</code> for the local variable that points to the connectdata.</p>
+</section>
+<section id="internals__structs__md-_-_-curl_multi" class="level2" data-number="299.3">
+<h2 data-number="299.3">Curl_multi</h2>
+<p>Internally, the easy interface is implemented as a wrapper around multi interface functions. This makes everything multi interface.</p>
+<p><code>Curl_multi</code> is the multi handle struct exposed as the opaque <code>CURLM *</code> in external APIs.</p>
+<p>This struct holds a list of <code>Curl_easy</code> structs that have been added to this handle with [<code>curl_multi_add_handle()</code>][13]. The start of the list is <code>-&gt;easyp</code> and <code>-&gt;num_easy</code> is a counter of added <code>Curl_easy</code>s.</p>
+<p><code>-&gt;msglist</code> is a linked list of messages to send back when [<code>curl_multi_info_read()</code>][14] is called. Basically a node is added to that list when an individual <code>Curl_easy</code>’s transfer has completed.</p>
+<p><code>-&gt;hostcache</code> points to the name cache. It is a hash table for looking up name to IP. The nodes have a limited lifetime in there and this cache is meant to reduce the time for when the same name is wanted within a short period of time.</p>
+<p><code>-&gt;timetree</code> points to a tree of <code>Curl_easy</code>s, sorted by the remaining time until it should be checked - normally some sort of timeout. Each <code>Curl_easy</code> has one node in the tree.</p>
+<p><code>-&gt;sockhash</code> is a hash table to allow fast lookups of socket descriptor for which <code>Curl_easy</code> uses that descriptor. This is necessary for the <code>multi_socket</code> API.</p>
+<p><code>-&gt;conn_cache</code> points to the connection cache. It keeps track of all connections that are kept after use. The cache has a maximum size.</p>
+<p><code>-&gt;closure_handle</code> is described in the <code>connectdata</code> section.</p>
+<p>The libcurl source code generally uses the name <code>multi</code> for the variable that points to the <code>Curl_multi</code> struct.</p>
+</section>
+<section id="internals__structs__md-_-_-curl_handler" class="level2" data-number="299.4">
+<h2 data-number="299.4">Curl_handler</h2>
+<p>Each unique protocol that is supported by libcurl needs to provide at least one <code>Curl_handler</code> struct. It defines what the protocol is called and what functions the main code should call to deal with protocol specific issues. In general, there is a source file named <code>[protocol].c</code> in which there is a <code>struct Curl_handler Curl_handler_[protocol]</code> declared. In <code>url.c</code> there is then the main array with all individual <code>Curl_handler</code> structs pointed to from a single array which is scanned through when a URL is given to libcurl to work with.</p>
+<p>The concrete function pointer prototypes can be found in <code>lib/urldata.h</code>.</p>
+<ul>
+<li><p><code>-&gt;scheme</code> is the URL scheme name, usually spelled out in uppercase. That is HTTP or FTP etc. SSL versions of the protocol need their own <code>Curl_handler</code> setup so HTTPS separate from HTTP.</p></li>
+<li><p><code>-&gt;setup_connection</code> is called to allow the protocol code to allocate protocol specific data that then gets associated with that <code>Curl_easy</code> for the rest of this transfer. It gets freed again at the end of the transfer. It gets called before the <code>connectdata</code> for the transfer has been selected/created. Most protocols allocate its private <code>struct [PROTOCOL]</code> here and assign <code>Curl_easy-&gt;req.p.[protocol]</code> to it.</p></li>
+<li><p><code>-&gt;connect_it</code> allows a protocol to do some specific actions after the TCP connect is done, that can still be considered part of the connection phase. Some protocols alter the <code>connectdata-&gt;recv[]</code> and <code>connectdata-&gt;send[]</code> function pointers in this function.</p></li>
+<li><p><code>-&gt;connecting</code> is similarly a function that keeps getting called as long as the protocol considers itself still in the connecting phase.</p></li>
+<li><p><code>-&gt;do_it</code> is the function called to issue the transfer request. What we call the DO action internally. If the DO is not enough and things need to be kept getting done for the entire DO sequence to complete, <code>-&gt;doing</code> is then usually also provided. Each protocol that needs to do multiple commands or similar for do/doing needs to implement their own state machines (see SCP, SFTP, FTP). Some protocols (only FTP and only due to historical reasons) have a separate piece of the DO state called <code>DO_MORE</code>.</p></li>
+<li><p><code>-&gt;doing</code> keeps getting called while issuing the transfer request command(s)</p></li>
+<li><p><code>-&gt;done</code> gets called when the transfer is complete and DONE. That is after the main data has been transferred.</p></li>
+<li><p><code>-&gt;do_more</code> gets called during the <code>DO_MORE</code> state. The FTP protocol uses this state when setting up the second connection.</p></li>
+<li><p><code>-&gt;proto_getsock</code>, <code>-&gt;doing_getsock</code>, <code>-&gt;domore_getsock</code>, <code>-&gt;perform_getsock</code> Functions that return socket information. Which socket(s) to wait for which I/O action(s) during the particular multi state.</p></li>
+<li><p><code>-&gt;disconnect</code> is called immediately before the TCP connection is shutdown.</p></li>
+<li><p><code>-&gt;readwrite</code> gets called during transfer to allow the protocol to do extra reads/writes</p></li>
+<li><p><code>-&gt;attach</code> attaches a transfer to the connection.</p></li>
+<li><p><code>-&gt;defport</code> is the default report TCP or UDP port this protocol uses</p></li>
+<li><p><code>-&gt;protocol</code> is one or more bits in the <code>CURLPROTO_*</code> set. The SSL versions have their base protocol set and then the SSL variation. Like <code>HTTP|HTTPS</code>.</p></li>
+<li><p><code>-&gt;flags</code> is a bitmask with additional information about the protocol that makes it get treated differently by the generic engine:</p>
+<ul>
+<li><code>PROTOPT_SSL</code> - makes it connect and negotiate SSL</li>
+<li><code>PROTOPT_DUAL</code> - this protocol uses two connections</li>
+<li><code>PROTOPT_CLOSEACTION</code> - this protocol has actions to do before closing the connection. This flag is no longer used by code, yet still set for a bunch of protocol handlers.</li>
+<li><code>PROTOPT_DIRLOCK</code> - direction lock. The SSH protocols set this bit to limit which direction of socket actions that the main engine concerns itself with.</li>
+<li><code>PROTOPT_NONETWORK</code> - a protocol that does not use the network (read <code>file:</code>)</li>
+<li><code>PROTOPT_NEEDSPWD</code> - this protocol needs a password and uses a default one unless one is provided</li>
+<li><code>PROTOPT_NOURLQUERY</code> - this protocol cannot handle a query part on the URL (?foo=bar)</li>
+</ul></li>
+</ul>
+</section>
+<section id="internals__structs__md-_-_-conncache" class="level2" data-number="299.5">
+<h2 data-number="299.5">conncache</h2>
+<p>Is a hash table with connections for later re-use. Each <code>Curl_easy</code> has a pointer to its connection cache. Each multi handle sets up a connection cache that all added <code>Curl_easy</code>s share by default.</p>
+</section>
+<section id="internals__structs__md-_-_-curl_share" class="level2" data-number="299.6">
+<h2 data-number="299.6">Curl_share</h2>
+<p>The libcurl share API allocates a <code>Curl_share</code> struct, exposed to the external API as <code>CURLSH *</code>.</p>
+<p>The idea is that the struct can have a set of its own versions of caches and pools and then by providing this struct in the <code>CURLOPT_SHARE</code> option, those specific <code>Curl_easy</code>s use the caches/pools that this share handle holds.</p>
+<p>Then individual <code>Curl_easy</code> structs can be made to share specific things that they otherwise would not, such as cookies.</p>
+<p>The <code>Curl_share</code> struct can currently hold cookies, DNS cache and the SSL session cache.</p>
+</section>
+<section id="internals__structs__md-_-_-cookieinfo" class="level2" data-number="299.7">
+<h2 data-number="299.7">CookieInfo</h2>
+<p>This is the main cookie struct. It holds all known cookies and related information. Each <code>Curl_easy</code> has its own private <code>CookieInfo</code> even when they are added to a multi handle. They can be made to share cookies by using the share API.</p>
+<p><span id="internals__resolving__md"></span></p>
+</section>
+</section>
+</body>
+</html>

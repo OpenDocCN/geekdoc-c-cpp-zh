@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch022.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="protocols__network__md-_-_-networking-simplified" class="level1" data-number="21">
+<h1 data-number="21">Networking simplified</h1>
+<p>Networking means communicating between two endpoints on the Internet. The Internet is just a bunch of interconnected machines (computers really), each using its own individual addresses (called <a href="https://en.wikipedia.org/wiki/IP_address">IP addresses</a>). The addresses each machine has can be of different types and machines can even have temporary addresses. These computers are also called hosts.</p>
+<section id="protocols__network__md-_-_-client-and-server" class="level2" data-number="21.1">
+<h2 data-number="21.1">Client and server</h2>
+<p>The computer, tablet or phone you sit in front of is usually called <em>the client</em> and the machine out there somewhere that you want to exchange data with is called <em>the server</em>. The main difference between the client and the server is in the roles they play. There is nothing that prevents the roles from being reversed in a subsequent operation.</p>
+<p>A transfer initiative is always taken by the client, as the server cannot contact the client but the client can contact the server.</p>
+</section>
+<section id="protocols__network__md-_-_-which-machine" class="level2" data-number="21.2">
+<h2 data-number="21.2">Which machine</h2>
+<p>When we as a client want to initiate a transfer from or to one of the machines out there (a server), we usually do not know its IP addresses but instead we usually know its name. The name of the machine to communicate with is typically embedded in the URL that we work with when we use tools like curl or a browser.</p>
+<p>We might use a URL like <code>http://example.com/index.html</code>, which means the client connects to and communicates with the host named example.com.</p>
+</section>
+<section id="protocols__network__md-_-_-hostname-resolving" class="level2" data-number="21.3">
+<h2 data-number="21.3">Hostname resolving</h2>
+<p>Once the client knows the hostname, it needs to figure out which IP addresses the host with that name has so that it can contact it.</p>
+<p>Converting the name to an IP address is called ‘name resolving’. The name is <em>resolved</em> to one or a set of addresses. This is usually done by a <em>DNS server</em>, DNS being like a big lookup table that can convert names to addresses—all the names on the Internet, really. The computer normally already knows the address of a computer that runs the DNS server as that is part of setting up the network.</p>
+<p>The network client therefore asks the DNS server, <em>Hello, please give me all the addresses for <code>example.com</code></em>. The DNS server responds with a list of addresses back. Or in case of spelling errors, it can answer back that the name does not exist.</p>
+</section>
+<section id="protocols__network__md-_-_-establish-a-connection" class="level2" data-number="21.4">
+<h2 data-number="21.4">Establish a connection</h2>
+<p>With one or more IP addresses for the host the client wants to contact, it sends a <em>connect request</em>. The connection it wants to establish is called a TCP (<a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">Transmission Control Protocol</a>) or <a href="https://en.wikipedia.org/wiki/QUIC">QUIC</a> connection, which is like connecting an invisible string between two computers. Once established, the string can be used to send a stream of data in both directions.</p>
+<p>If the client has received more than one address for the host, it traverses that list of addresses when connecting, and if one address fails it tries to connect to the next one, repeating until either one address works or they have all failed.</p>
+</section>
+<section id="protocols__network__md-_-_-connect-to-port-numbers" class="level2" data-number="21.5">
+<h2 data-number="21.5">Connect to port numbers</h2>
+<p>When connecting with TCP or QUIC to a remote server, a client selects which port number to do that on. A port number is just a dedicated place for a particular service, which allows that same server to listen to other services on other port numbers at the same time.</p>
+<p>Most common protocols have default port numbers that clients and servers use. For example, when using the <code>http://example.com/index.html</code> URL, that URL specifies a <em>scheme</em> called <code>HTTP</code> which tells the client that it should try TCP port number 80 on the server by default. If the URL uses <code>HTTPS</code> instead, the default port number is 443.</p>
+<p>The URL can include a custom port number. If a port number is not specified, the client uses the default port for the scheme used in the URL.</p>
+</section>
+<section id="protocols__network__md-_-_-security" class="level2" data-number="21.6">
+<h2 data-number="21.6">Security</h2>
+<p>After a TCP connection has been established, many transfers require that both sides negotiate a better security level before continuing (if for example <code>HTTPS</code> is used), which is done with TLS (<a href="https://en.wikipedia.org/wiki/Transport_Layer_Security">Transport Layer Security</a>). If so, the client and server do a TLS handshake first, and continue further only if that succeeds.</p>
+<p>If the connection is done using QUIC, the TLS handshake is done automatically in the connect phase.</p>
+</section>
+<section id="protocols__network__md-_-_-transfer-data" class="level2" data-number="21.7">
+<h2 data-number="21.7">Transfer data</h2>
+<p>When the connected metaphorical <em>string</em> is attached to the remote computer, there is a <em>connection</em> established between the two machines. This connection can then be used to exchange data. This exchange is done using a <em>protocol</em>, as discussed in the following chapter.</p>
+<p>Traditionally, a <em>download</em> is when data is transferred from a server to a client; conversely, an <em>upload</em> is when data is sent from the client to the server. The client is <em>down here</em>; the server is <em>up there</em>.</p>
+</section>
+<section id="protocols__network__md-_-_-disconnect" class="level2" data-number="21.8">
+<h2 data-number="21.8">Disconnect</h2>
+<p>When a single transfer is completed, the connection may have served its purpose. It can then either be reused for further transfers, or it can be disconnected and closed.</p>
+<p><span id="protocols__protocols__md"></span></p>
+</section>
+</section>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch215.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__callbacks__read__md-_-_-read-data" class="level1" data-number="214">
+<h1 data-number="214">Read data</h1>
+<p>The read callback is set with <code>CURLOPT_READFUNCTION</code>:</p>
+<pre><code>curl_easy_setopt(handle, CURLOPT_READFUNCTION, read_callback);</code></pre>
+<p>The <code>read_callback</code> function must match this prototype:</p>
+<pre><code>size_t read_callback(char *buffer, size_t size, size_t nitems,
+                     void *stream);</code></pre>
+<p>This callback function gets called by libcurl when it wants to send data to the server. This is a transfer that you have set up to upload data or otherwise send it off to the server. This callback is called over and over until all data has been delivered or the transfer failed.</p>
+<p>The <strong>stream</strong> pointer points to the private data set with <code>CURLOPT_READDATA</code>:</p>
+<pre><code>curl_easy_setopt(handle, CURLOPT_READDATA, custom_pointer);</code></pre>
+<p>If this callback is not set, libcurl instead uses ‘fread’ by default.</p>
+<p>The data area pointed at by the pointer <strong>buffer</strong> should be filled up with at most <strong>size</strong> multiplied with <strong>nitems</strong> number of bytes by your function. The callback should then return the number of bytes that it stored in that memory area, or 0 if we have reached the end of the data. The callback can also return a few “magic” return codes to cause libcurl to return failure immediately or to pause the particular transfer. See the <a href="https://curl.se/libcurl/c/CURLOPT_READFUNCTION.html">CURLOPT_READFUNCTION man page</a> for details.</p>
+<p><span id="transfers__callbacks__progress__md"></span></p>
+</section>
+</body>
+</html>

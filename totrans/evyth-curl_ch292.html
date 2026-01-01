@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch292.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__statemachines__md-_-_-state-machines" class="level1" data-number="291">
+<h1 data-number="291">State machines</h1>
+<p>To facilitate non-blocking behavior all through, the curl source is full of state machines. Work on as much data as there is and drive the state machine to where it can go based on what’s available and allow the functions to continue from that point later on when more data arrives that then might drive the state machine further.</p>
+<p>There are such states in many different levels for a given transfer and the code for each particular protocol may have its own set of state machines.</p>
+<section id="internals__statemachines__md-_-_-mstate" class="level2" data-number="291.1">
+<h2 data-number="291.1">mstate</h2>
+<p>One of the primary states is the main transfer “mode” the easy handle holds, which says if the current transfer is resolving, waiting for a resolve, connecting, waiting for a connect, issuing a request, doing a transfer etc (see the <code>CURLMstate</code> enum in <code>lib/multihandle.h</code>). Every transfer done with libcurl has an associated easy handle and every easy handle exercises that state machine.</p>
+<p>The image below shows all states and possible state transitions. See further explanation below.</p>
+<figure>
+<img src="../media/file13.jpg" alt="" /><figcaption>libcurl transfer state machine</figcaption>
+</figure>
+<p>All transfers start in <strong>INIT</strong> and they end in <strong>MSGSENT</strong></p>
+<p><strong>yellow</strong>: the initial setting-up states</p>
+<p><strong>blue</strong>: resolving names and setting up the connection</p>
+<p><strong>green</strong>: initiating and setting up the transfer</p>
+<p><strong>white</strong>: the transfer</p>
+<p><strong>red</strong>: post-transfer</p>
+<p>All states within the striped area have an associated connection.</p>
+<p><span id="internals__handler__md"></span></p>
+</section>
+</section>
+</body>
+</html>

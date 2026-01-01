@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="generator" content="pandoc"/>
+  <title>ch304.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css"/>
+</head>
+<body epub:type="bodymatter">
+<section id="internals__tests__file-format__md-_-_-tags" class="level1" data-number="303">
+<h1 data-number="303">Tags</h1>
+<p>Each test is always specified entirely within the <code>&lt;testcase&gt;</code> tag. Each test case is further split up into four main sections: <code>info</code>, <code>reply</code>, <code>client</code> and <code>verify</code>.</p>
+<ul>
+<li><p><strong>info</strong> provides information about the test case</p></li>
+<li><p><strong>reply</strong> is used for the server to know what to send as a reply for the requests curl sends</p></li>
+<li><p><strong>client</strong> defines how the client should behave</p></li>
+<li><p><strong>verify</strong> defines how to verify that the data stored after a command has been run ended up correctly</p></li>
+</ul>
+<p>Each main section supports a number of available <em>sub-tags</em> that can be specified, that are checked/used if specified.</p>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-info-greater-than" class="level2" data-number="303.1">
+<h2 data-number="303.1"><code>&lt;info&gt;</code></h2>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-keywords-greater-than" class="level3" data-number="303.1.1">
+<h3 data-number="303.1.1"><code>&lt;keywords&gt;</code></h3>
+<p>A newline-separated list of keywords describing what this test case uses and tests. Try to use already used keywords. These keywords are used for statistical/informational purposes and for choosing or skipping classes of tests. “Keywords” must begin with an alphabetic character, “-”, “[” or “{” and may consist of multiple words separated by spaces which are treated together as a single identifier.</p>
+<p>When using curl built with Hyper, the keywords must include HTTP or HTTPS for ‘hyper mode’ to kick in and make line ending checks work for tests.</p>
+</section>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-reply-greater-than" class="level2" data-number="303.2">
+<h2 data-number="303.2"><code>&lt;reply&gt;</code></h2>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-data--nocheck-yes---sendzero-yes---base64-yes---hex-yes---nonewline-yes--greater-than" class="level3" data-number="303.2.1">
+<h3 data-number="303.2.1"><code>&lt;data [nocheck="yes"] [sendzero="yes"] [base64="yes"] [hex="yes"] [nonewline="yes"]&gt;</code></h3>
+<p>data to be sent to the client on its request and later verified that it arrived safely. Set <code>nocheck="yes"</code> to prevent the test script from verifying the arrival of this data.</p>
+<p>If the data contains <code>swsclose</code> anywhere within the start and end tag, and this is an HTTP test, then the connection is closed by the server after this response is sent. If not, the connection is kept persistent.</p>
+<p>If the data contains <code>swsbounce</code> anywhere within the start and end tag, the HTTP server detects if this is a second request using the same test and part number and then increases the part number with one. This is useful for auth tests and similar.</p>
+<p><code>sendzero=yes</code> means that the (FTP) server “sends” the data even if the size is zero bytes. Used to verify curl’s behavior on zero bytes transfers.</p>
+<p><code>base64=yes</code> means that the data provided in the test-file is a chunk of data encoded with base64. It is the only way a test case can contain binary data. (This attribute can in fact be used on any section, but it does not make much sense for other sections than “data”).</p>
+<p><code>hex=yes</code> means that the data is a sequence of hex pairs. It gets decoded and used as “raw” data.</p>
+<p><code>nonewline=yes</code> means that the last byte (the trailing newline character) should be cut off from the data before sending or comparing it.</p>
+<p>For FTP file listings, the <code>&lt;data&gt;</code> section is used <em>only</em> if you make sure that there has been a CWD done first to a directory named <code>test-[number]</code> where <code>[number]</code> is the test case number. Otherwise the ftp server cannot know from which test file to load the list content.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-datanumber-greater-than" class="level3" data-number="303.2.2">
+<h3 data-number="303.2.2"><code>&lt;dataNUMBER&gt;</code></h3>
+<p>Send back this contents instead of the <data> one. The number <code>NUMBER</code> is set by:</data></p>
+<ul>
+<li>The test number in the request line is &gt;10000 and this is the remainder of [test case number]%10000.</li>
+<li>The request was HTTP and included digest details, which adds 1000 to the number</li>
+<li>If an HTTP request is NTLM type-1, it adds 1001 to the number</li>
+<li>If an HTTP request is NTLM type-3, it adds 1002 to the number</li>
+<li>If an HTTP request is Basic and the number is already &gt;=1000, it adds 1</li>
+<li>If an HTTP request is Negotiate, the number gets incremented by one for each request with Negotiate authorization header on the same test case.</li>
+</ul>
+<p>Dynamically changing the test number in this way allows the test harness to be used to test authentication negotiation where several different requests must be sent to complete a transfer. The response to each request is found in its own data section. Validating the entire negotiation sequence can be done by specifying a <code>datacheck</code> section.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-connect-greater-than" class="level3" data-number="303.2.3">
+<h3 data-number="303.2.3"><code>&lt;connect&gt;</code></h3>
+<p>The connect section is used instead of the ‘data’ for all CONNECT requests. The remainder of the rules for the data section then apply but with a connect prefix.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-socks-greater-than" class="level3" data-number="303.2.4">
+<h3 data-number="303.2.4"><code>&lt;socks&gt;</code></h3>
+<p>Address type and address details as logged by the SOCKS proxy.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-datacheck--mode-text---nonewline-yes--greater-than" class="level3" data-number="303.2.5">
+<h3 data-number="303.2.5"><code>&lt;datacheck [mode="text"] [nonewline="yes"]&gt;</code></h3>
+<p>if the data is sent but this is what should be checked afterwards. If <code>nonewline=yes</code> is set, runtests cuts off the trailing newline from the data before comparing with the one actually received by the client.</p>
+<p>Use the <code>mode="text"</code> attribute if the output is in text mode on platforms that have a text/binary difference.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-datachecknum--nonewline-yes---mode-text--greater-than" class="level3" data-number="303.2.6">
+<h3 data-number="303.2.6"><code>&lt;datacheckNUM [nonewline="yes"] [mode="text"]&gt;</code></h3>
+<p>The contents of numbered <code>datacheck</code> sections are appended to the non-numbered one.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-size-greater-than" class="level3" data-number="303.2.7">
+<h3 data-number="303.2.7"><code>&lt;size&gt;</code></h3>
+<p>number to return on an ftp SIZE command (set to -1 to make this command fail)</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-mdtm-greater-than" class="level3" data-number="303.2.8">
+<h3 data-number="303.2.8"><code>&lt;mdtm&gt;</code></h3>
+<p>what to send back if the client sends an FTP <code>MDTM</code> command, set to -1 to have it return that the file does not exist</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-postcmd-greater-than" class="level3" data-number="303.2.9">
+<h3 data-number="303.2.9"><code>&lt;postcmd&gt;</code></h3>
+<p>special purpose server-command to control its behavior <em>after</em> the reply is sent For HTTP/HTTPS, these are supported:</p>
+<p><code>wait [secs]</code> - Pause for the given time</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-servercmd-greater-than" class="level3" data-number="303.2.10">
+<h3 data-number="303.2.10"><code>&lt;servercmd&gt;</code></h3>
+<p>Special-commands for the server.</p>
+<p>The first line of this file is always set to <code>Testnum [number]</code> by the test script, to allow servers to read that to know what test the client is about to issue.</p>
+<section id="internals__tests__file-format__md-_-_-for-ftp-slash-smtp-slash-pop-slash-imap" class="level4" data-number="303.2.10.1">
+<h4 data-number="303.2.10.1">For FTP/SMTP/POP/IMAP</h4>
+<ul>
+<li><code>REPLY [command] [return value] [response string]</code> - Changes how the server responds to the [command]. [response string] is evaluated as a perl string, so it can contain embedded <code>\r\n</code>, for example. There is a special [command] named “welcome” (without quotes) which is the string sent immediately on connect as a welcome.</li>
+<li><code>REPLYLF</code> (like above but sends the response terminated with LF-only and not CRLF)</li>
+<li><code>COUNT [command] [number]</code> - Do the <code>REPLY</code> change for <code>[command]</code> only <code>[number]</code> times and then go back to the built-in approach</li>
+<li><code>DELAY [command] [secs]</code> - Delay responding to this command for the given time</li>
+<li><code>RETRWEIRDO</code> - Enable the “weirdo” RETR case when multiple response lines appear at once when a file is transferred</li>
+<li><code>RETRNOSIZE</code> - Make sure the RETR response does not contain the size of the file</li>
+<li><code>NOSAVE</code> - Do not save what is received</li>
+<li><code>SLOWDOWN</code> - Send FTP responses with 0.01 sec delay between each byte</li>
+<li><code>PASVBADIP</code> - makes PASV send back an illegal IP in its 227 response</li>
+<li><code>CAPA [capabilities]</code> - Enables support for and specifies a list of space separated capabilities to return to the client for the IMAP <code>CAPABILITY</code>, POP3 <code>CAPA</code> and SMTP <code>EHLO</code> commands</li>
+<li><code>AUTH [mechanisms]</code> - Enables support for SASL authentication and specifies a list of space separated mechanisms for IMAP, POP3 and SMTP</li>
+<li><code>STOR [msg]</code> respond with this instead of default after <code>STOR</code></li>
+</ul>
+</section>
+<section id="internals__tests__file-format__md-_-_-for-http-slash-https" class="level4" data-number="303.2.10.2">
+<h4 data-number="303.2.10.2">For HTTP/HTTPS</h4>
+<ul>
+<li><code>auth_required</code> if this is set and a POST/PUT is made without auth, the server does NOT wait for the full request body to get sent</li>
+<li><code>idle</code> - do nothing after receiving the request, just “sit idle”</li>
+<li><code>stream</code> - continuously send data to the client, never-ending</li>
+<li><code>writedelay: [msecs]</code> delay this amount between reply packets</li>
+<li><code>skip: [number]</code> - instructs the server to ignore reading this many bytes from a PUT or POST request</li>
+<li><code>rtp: part [num] channel [num] size [num]</code> - stream a fake RTP packet for the given part on a chosen channel with the given payload size</li>
+<li><code>connection-monitor</code> - When used, this logs <code>[DISCONNECT]</code> to the <code>server.input</code> log when the connection is disconnected.</li>
+<li><code>upgrade</code> - when an HTTP upgrade header is found, the server upgrades to http2</li>
+<li><code>swsclose</code> - instruct server to close connection after response</li>
+<li><code>no-expect</code> - do not read the request body if Expect: is present</li>
+</ul>
+</section>
+<section id="internals__tests__file-format__md-_-_-for-tftp" class="level4" data-number="303.2.10.3">
+<h4 data-number="303.2.10.3">For TFTP</h4>
+<p><code>writedelay: [secs]</code> delay this amount between reply packets (each packet being 512 bytes payload)</p>
+</section>
+</section>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-client-greater-than" class="level2" data-number="303.3">
+<h2 data-number="303.3"><code>&lt;client&gt;</code></h2>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-server-greater-than" class="level3" data-number="303.3.1">
+<h3 data-number="303.3.1"><code>&lt;server&gt;</code></h3>
+<p>What server(s) this test case requires/uses. Available servers:</p>
+<ul>
+<li><code>file</code></li>
+<li><code>ftp-ipv6</code></li>
+<li><code>ftp</code></li>
+<li><code>ftps</code></li>
+<li><code>gopher</code></li>
+<li><code>gophers</code></li>
+<li><code>http-ipv6</code></li>
+<li><code>http-proxy</code></li>
+<li><code>http-unix</code></li>
+<li><code>http/2</code></li>
+<li><code>http</code></li>
+<li><code>https</code></li>
+<li><code>httptls+srp-ipv6</code></li>
+<li><code>httptls+srp</code></li>
+<li><code>imap</code></li>
+<li><code>mqtt</code></li>
+<li><code>none</code></li>
+<li><code>pop3</code></li>
+<li><code>rtsp-ipv6</code></li>
+<li><code>rtsp</code></li>
+<li><code>scp</code></li>
+<li><code>sftp</code></li>
+<li><code>smtp</code></li>
+<li><code>socks4</code></li>
+<li><code>socks5</code></li>
+</ul>
+<p>Enter only one server per line. This subsection is mandatory.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-features-greater-than" class="level3" data-number="303.3.2">
+<h3 data-number="303.3.2"><code>&lt;features&gt;</code></h3>
+<p>A list of features that MUST be present in the client/library for this test to be able to run. If a required feature is not present then the test is SKIPPED.</p>
+<p>Alternatively a feature can be prefixed with an exclamation mark to indicate a feature is NOT required. If the feature is present then the test is SKIPPED.</p>
+<p>Features testable here are:</p>
+<ul>
+<li><code>alt-svc</code></li>
+<li><code>bearssl</code></li>
+<li><code>c-ares</code></li>
+<li><code>cookies</code></li>
+<li><code>crypto</code></li>
+<li><code>debug</code></li>
+<li><code>DoH</code></li>
+<li><code>getrlimit</code></li>
+<li><code>GnuTLS</code></li>
+<li><code>GSS-API</code></li>
+<li><code>h2c</code></li>
+<li><code>HSTS</code></li>
+<li><code>HTTP-auth</code></li>
+<li><code>http/2</code></li>
+<li><code>hyper</code></li>
+<li><code>idn</code></li>
+<li><code>ipv6</code></li>
+<li><code>Kerberos</code></li>
+<li><code>large_file</code></li>
+<li><code>ld_preload</code></li>
+<li><code>libssh2</code></li>
+<li><code>libssh</code></li>
+<li><code>oldlibssh</code> (versions before 0.9.4)</li>
+<li><code>libz</code></li>
+<li><code>manual</code></li>
+<li><code>Mime</code></li>
+<li><code>netrc</code></li>
+<li><code>NTLM</code></li>
+<li><code>OpenSSL</code></li>
+<li><code>parsedate</code></li>
+<li><code>proxy</code></li>
+<li><code>PSL</code></li>
+<li><code>rustls</code></li>
+<li><code>Schannel</code></li>
+<li><code>sectransp</code></li>
+<li><code>shuffle-dns</code></li>
+<li><code>socks</code></li>
+<li><code>SPNEGO</code></li>
+<li><code>SSL</code></li>
+<li><code>SSLpinning</code></li>
+<li><code>SSPI</code></li>
+<li><code>threaded-resolver</code></li>
+<li><code>TLS-SRP</code></li>
+<li><code>TrackMemory</code></li>
+<li><code>typecheck</code></li>
+<li><code>Unicode</code></li>
+<li><code>unittest</code></li>
+<li><code>unix-sockets</code></li>
+<li><code>verbose-strings</code></li>
+<li><code>wakeup</code></li>
+<li><code>win32</code></li>
+<li><code>wolfssh</code></li>
+<li><code>wolfssl</code></li>
+</ul>
+<p>in addition to all protocols that curl supports. A protocol only needs to be specified if it is different from the server (useful when the server is <code>none</code>).</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-killserver-greater-than" class="level3" data-number="303.3.3">
+<h3 data-number="303.3.3"><code>&lt;killserver&gt;</code></h3>
+<p>Using the same syntax as in <code>&lt;server&gt;</code> but when mentioned here these servers are explicitly KILLED when this test case is completed. Only use this if there is no other alternatives. Using this of course requires subsequent tests to restart servers.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-precheck-greater-than" class="level3" data-number="303.3.4">
+<h3 data-number="303.3.4"><code>&lt;precheck&gt;</code></h3>
+<p>A command line that if set gets run by the test script before the test. If an output is displayed by the command or if the return code is non-zero, the test gets skipped and the (single-line) output is displayed as reason for not running the test.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-postcheck-greater-than" class="level3" data-number="303.3.5">
+<h3 data-number="303.3.5"><code>&lt;postcheck&gt;</code></h3>
+<p>A command line that if set gets run by the test script after the test. If the command exists with a non-zero status code, the test is considered failed.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-tool-greater-than" class="level3" data-number="303.3.6">
+<h3 data-number="303.3.6"><code>&lt;tool&gt;</code></h3>
+<p>Name of tool to invoke instead of “curl”. This tool must be built and exist either in the <code>libtest/</code> directory (if the tool name starts with <code>lib</code>) or in the <code>unit/</code> directory (if the tool name starts with <code>unit</code>).</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-name-greater-than" class="level3" data-number="303.3.7">
+<h3 data-number="303.3.7"><code>&lt;name&gt;</code></h3>
+<p>Brief test case description, shown when the test runs.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-setenv-greater-than" class="level3" data-number="303.3.8">
+<h3 data-number="303.3.8"><code>&lt;setenv&gt;</code></h3>
+<pre><code>variable1=contents1
+variable2=contents2</code></pre>
+<p>Set the given environment variables to the specified value before the actual command is run. They are cleared again after the command has been run.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-command--option-no-output-slash-no-include-slash-force-output-slash-binary-trace---timeout-secs--delay-secs--type-perl-slash-shell--greater-than" class="level3" data-number="303.3.9">
+<h3 data-number="303.3.9"><code>&lt;command [option="no-output/no-include/force-output/binary-trace"] [timeout="secs"][delay="secs"][type="perl/shell"]&gt;</code></h3>
+<p>Command line to run.</p>
+<p>Note that the URL that gets passed to the server actually controls what data that is returned. The last slash in the URL must be followed by a number. That number (N) is used by the test-server to load test case N and return the data that is defined within the <code>&lt;reply&gt;&lt;data&gt;&lt;/data&gt;&lt;/reply&gt;</code> section.</p>
+<p>If there is no test number found above, the HTTP test server uses the number following the last dot in the given hostname (made so that a CONNECT can still pass on test number) so that “foo.bar.123” gets treated as test case 123. Alternatively, if an IPv6 address is provided to CONNECT, the last hexadecimal group in the address is used as the test number. For example the address “[1234::ff]” would be treated as test case 255.</p>
+<p>Set <code>type="perl"</code> to write the test case as a perl script. It implies that there is no memory debugging and valgrind gets shut off for this test.</p>
+<p>Set <code>type="shell"</code> to write the test case as a shell script. It implies that there is no memory debugging and valgrind gets shut off for this test.</p>
+<p>Set <code>option="no-output"</code> to prevent the test script to slap on the <code>--output</code> argument that directs the output to a file. The <code>--output</code> is also not added if the verify/stdout section is used.</p>
+<p>Set <code>option="force-output"</code> to make use of <code>--output</code> even when the test is otherwise written to verify stdout.</p>
+<p>Set <code>option="no-include"</code> to prevent the test script to slap on the <code>--include</code> argument.</p>
+<p>Set <code>option="binary-trace"</code> to use <code>--trace</code> instead of <code>--trace-ascii</code> for tracing. Suitable for binary-oriented protocols such as MQTT.</p>
+<p>Set <code>timeout="secs"</code> to override default server logs advisor read lock timeout. This timeout is used by the test harness, once that the command has completed execution, to wait for the test server to write out server side log files and remove the lock that advised not to read them. The “secs” parameter is the not negative integer number of seconds for the timeout. This <code>timeout</code> attribute is documented for completeness sake, but is deep test harness stuff and only needed for specific test cases. Avoid using it.</p>
+<p>Set <code>delay="secs"</code> to introduce a time delay once that the command has completed execution and before the <code>&lt;postcheck&gt;</code> section runs. The “secs” parameter is the not negative integer number of seconds for the delay. This ‘delay’ attribute is intended for specific test cases, and normally not needed.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-file-name-log-slash-filename--nonewline-yes--greater-than" class="level3" data-number="303.3.10">
+<h3 data-number="303.3.10"><code>&lt;file name="log/filename" [nonewline="yes"]&gt;</code></h3>
+<p>This creates the named file with this content before the test case is run, which is useful if the test case needs a file to act on.</p>
+<p>If <code>nonewline="yes"</code> is used, the created file gets the final newline stripped off.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-stdin--nonewline-yes--greater-than" class="level3" data-number="303.3.11">
+<h3 data-number="303.3.11"><code>&lt;stdin [nonewline="yes"]&gt;</code></h3>
+<p>Pass this given data on stdin to the tool.</p>
+<p>If <code>nonewline</code> is set, we cut off the trailing newline of this given data before comparing with the one actually received by the client</p>
+</section>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-verify-greater-than" class="level2" data-number="303.4">
+<h2 data-number="303.4"><code>&lt;verify&gt;</code></h2>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-errorcode-greater-than" class="level3" data-number="303.4.1">
+<h3 data-number="303.4.1"><code>&lt;errorcode&gt;</code></h3>
+<p>numerical error code curl is supposed to return. Specify a list of accepted error codes by separating multiple numbers with comma. See test 237 for an example.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-strip-greater-than" class="level3" data-number="303.4.2">
+<h3 data-number="303.4.2"><code>&lt;strip&gt;</code></h3>
+<p>One regex per line that is removed from the protocol dumps before the comparison is made. This is useful to remove dependencies on dynamically changing protocol data such as port numbers or user-agent strings.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-strippart-greater-than" class="level3" data-number="303.4.3">
+<h3 data-number="303.4.3"><code>&lt;strippart&gt;</code></h3>
+<p>One perl op per line that operates on the protocol dump. This is pretty advanced. Example: <code>s/^EPRT .*/EPRT stripped/</code>.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-protocol--nonewline-yes--greater-than" class="level3" data-number="303.4.4">
+<h3 data-number="303.4.4"><code>&lt;protocol [nonewline="yes"]&gt;</code></h3>
+<p>the protocol dump curl should transmit, if <code>nonewline</code> is set, we cut off the trailing newline of this given data before comparing with the one actually sent by the client The <code>&lt;strip&gt;</code> and <code>&lt;strippart&gt;</code> rules are applied before comparisons are made.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-proxy--nonewline-yes--greater-than" class="level3" data-number="303.4.5">
+<h3 data-number="303.4.5"><code>&lt;proxy [nonewline="yes"]&gt;</code></h3>
+<p>The protocol dump curl should transmit to an HTTP proxy (when the http-proxy server is used), if <code>nonewline</code> is set, we cut off the trailing newline of this given data before comparing with the one actually sent by the client The <code>&lt;strip&gt;</code> and <code>&lt;strippart&gt;</code> rules are applied before comparisons are made.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-stderr--mode-text---nonewline-yes--greater-than" class="level3" data-number="303.4.6">
+<h3 data-number="303.4.6"><code>&lt;stderr [mode="text"] [nonewline="yes"]&gt;</code></h3>
+<p>This verifies that this data was passed to stderr.</p>
+<p>Use the <code>mode="text"</code> attribute if the output is in text mode on platforms that have a text/binary difference.</p>
+<p>If <code>nonewline</code> is set, we cut off the trailing newline of this given data before comparing with the one actually received by the client</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-stdout--mode-text---nonewline-yes--greater-than" class="level3" data-number="303.4.7">
+<h3 data-number="303.4.7"><code>&lt;stdout [mode="text"] [nonewline="yes"]&gt;</code></h3>
+<p>This verifies that this data was passed to stdout.</p>
+<p>Use the <code>mode="text"</code> attribute if the output is in text mode on platforms that have a text/binary difference.</p>
+<p>If <code>nonewline</code> is set, we cut off the trailing newline of this given data before comparing with the one actually received by the client</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-file-name-log-slash-filename--mode-text--greater-than" class="level3" data-number="303.4.8">
+<h3 data-number="303.4.8"><code>&lt;file name="log/filename" [mode="text"]&gt;</code></h3>
+<p>The file’s contents must be identical to this after the test is complete. Use the <code>mode="text"</code> attribute if the output is in text mode on platforms that have a text/binary difference.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-file1-greater-than" class="level3" data-number="303.4.9">
+<h3 data-number="303.4.9"><code>&lt;file1&gt;</code></h3>
+<p>1 to 4 can be appended to ‘file’ to compare more files.</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-file2-greater-than" class="level3" data-number="303.4.10">
+<h3 data-number="303.4.10"><code>&lt;file2&gt;</code></h3>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-file3-greater-than" class="level3" data-number="303.4.11">
+<h3 data-number="303.4.11"><code>&lt;file3&gt;</code></h3>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-file4-greater-than" class="level3" data-number="303.4.12">
+<h3 data-number="303.4.12"><code>&lt;file4&gt;</code></h3>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-stripfile-greater-than" class="level3" data-number="303.4.13">
+<h3 data-number="303.4.13"><code>&lt;stripfile&gt;</code></h3>
+<p>One perl op per line that operates on the output file or stdout before being compared with what is stored in the test file. This is pretty advanced. Example: "s/^EPRT .*/EPRT stripped/"</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-stripfile1-greater-than" class="level3" data-number="303.4.14">
+<h3 data-number="303.4.14"><code>&lt;stripfile1&gt;</code></h3>
+<p>1 to 4 can be appended to <code>stripfile</code> to strip the corresponding <fileN> content</fileN></p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-stripfile2-greater-than" class="level3" data-number="303.4.15">
+<h3 data-number="303.4.15"><code>&lt;stripfile2&gt;</code></h3>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-stripfile3-greater-than" class="level3" data-number="303.4.16">
+<h3 data-number="303.4.16"><code>&lt;stripfile3&gt;</code></h3>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-stripfile4-greater-than" class="level3" data-number="303.4.17">
+<h3 data-number="303.4.17"><code>&lt;stripfile4&gt;</code></h3>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-upload-greater-than" class="level3" data-number="303.4.18">
+<h3 data-number="303.4.18"><code>&lt;upload&gt;</code></h3>
+<p>the contents of the upload data curl should have sent</p>
+</section>
+<section id="internals__tests__file-format__md-_-_-sect--less-than-valgrind-greater-than" class="level3" data-number="303.4.19">
+<h3 data-number="303.4.19"><code>&lt;valgrind&gt;</code></h3>
+<p>disable - disables the valgrind log check for this test</p>
+<p><span id="internals__tests__build__md"></span></p>
+</section>
+</section>
+</section>
+</body>
+</html>

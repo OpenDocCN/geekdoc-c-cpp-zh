@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch163.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__post__hiddenfields__md-_-_-hidden-form-fields" class="level1" data-number="162">
+<h1 data-number="162">Hidden form fields</h1>
+<p>Sending a post with <code>-d</code> is the equivalent of what a browser does when an HTML form is filled in and submitted.</p>
+<p>Submitting such forms is a common operation with curl; effectively, to have curl fill in a web form in an automated fashion.</p>
+<p>If you want to submit a form with curl and make it look as if it has been done with a browser, it is important to provide all the input fields from the form. A common method for webpages is to set a few hidden input fields to the form and have them assigned values directly in the HTML. A successful form submission, of course, also includes those fields and in order to do that automatically you may be forced to first download the HTML page that holds the form, parse it, and extract the hidden field values so that you can send them off with curl.</p>
+<p><span id="http__post__browsersends__md"></span></p>
+</section>
+</body>
+</html>

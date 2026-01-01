@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch113.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__proxies__pac__md-_-_-pac" class="level1" data-number="112">
+<h1 data-number="112">PAC</h1>
+<p>Some network environments provides several different proxies that should be used in different situations, and a customizable way to handle that is supported by the browsers. This is called “<a href="https://en.wikipedia.org/wiki/Proxy_auto-config">proxy auto-config</a>”, or PAC.</p>
+<p>A PAC file contains a JavaScript function that decides which proxy a given network connection (URL) should use, and even if it should not use a proxy at all. Browsers most typically read the PAC file off a URL on the local network.</p>
+<p>Since curl has no JavaScript capabilities, curl does not support PAC files. If your browser and network use PAC files, the easiest route forward is usually to read the PAC file manually and figure out the proxy you need to specify to run curl successfully.</p>
+<p><span id="usingcurl__proxies__captive__md"></span></p>
+</section>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch148.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__versions__README__md-_-_-http-versions" class="level1" data-number="147">
+<h1 data-number="147">HTTP versions</h1>
+<p>As any other Internet protocol, the HTTP protocol has kept evolving over the years and now there are clients and servers distributed over the world and over time that speak different versions with varying levels of success. In order to get curl to work with your URLs, curl offers ways for you to specify which HTTP version a request and transfer should use. curl is designed in a way so that it tries to use the most common, the most sensible if you want, default values first but sometimes that is not enough and then you may need to instruct curl on what to do.</p>
+<p>curl defaults to HTTP/1.1 for HTTP servers but if you connect to HTTPS and you have a curl that has HTTP/2 abilities built-in, it attempts to negotiate HTTP/2 automatically or falls back to 1.1 in case the negotiation failed. Non-HTTP/2 capable curls get 1.1 over HTTPS by default.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>–http1.0</td>
+<td>HTTP/1.0</td>
+</tr>
+<tr class="even">
+<td>–http1.1</td>
+<td>HTTP/1.1</td>
+</tr>
+<tr class="odd">
+<td>–http2</td>
+<td>HTTP/2</td>
+</tr>
+<tr class="even">
+<td>–http2-prior-knowledge</td>
+<td>HTTP/2</td>
+</tr>
+<tr class="odd">
+<td>–http3</td>
+<td>HTTP/3</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><a href="ch148.xhtml#http__versions__http09__md">HTTP/0.9</a></li>
+<li><a href="ch149.xhtml#http__versions__http2__md">HTTP/2</a></li>
+<li><a href="ch150.xhtml#http__versions__http3__md">HTTP/3</a></li>
+</ul>
+<p><span id="http__versions__http09__md"></span></p>
+</section>
+</body>
+</html>

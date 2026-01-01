@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch264.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="helpers__url__get__md-_-_-get-a-url" class="level1" data-number="263">
+<h1 data-number="263">Get a URL</h1>
+<p>The <code>CURLU *</code> handle represents a single URL and you can easily extract that full URL or its individual parts with <code>curl_url_get</code>:</p>
+<pre><code>char *url;
+rc = curl_url_get(h, CURLUPART_URL, &amp;url, CURLU_NO_DEFAULT_PORT);
+curl_free(url);</code></pre>
+<p>If the handle does not have enough information to return the part that is being asked for, it returns error.</p>
+<p>A returned string must be freed with <code>curl_free()</code> after you are done with it.</p>
+</section>
+</body>
+</html>

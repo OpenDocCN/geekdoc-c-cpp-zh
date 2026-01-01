@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch226.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__callbacks__ftpmatch__md-_-_-ftp-wildcard-matching" class="level1" data-number="225">
+<h1 data-number="225">FTP wildcard matching</h1>
+<p>libcurl supports FTP wildcard matching. You use this feature by setting <code>CURLOPT_WILDCARDMATCH</code> to <code>1L</code> and then use a “wildcard pattern” in the in the filename part of the URL.</p>
+<section id="transfers__callbacks__ftpmatch__md-_-_-wildcard-patterns" class="level2" data-number="225.1">
+<h2 data-number="225.1">Wildcard patterns</h2>
+<p>The default libcurl wildcard matching function supports:</p>
+<p><code>*</code> - ASTERISK</p>
+<pre><code>ftp://example.com/some/path/*.txt</code></pre>
+<p>To match all txt files in the directory <code>some/path</code>. Only two asterisks are allowed within the same pattern string.</p>
+<p><code>?</code> - QUESTION MARK"</p>
+<p>A question mark matches any (exactly one) character. Like if you have files called <code>photo1.jpeg</code> and <code>photo7.jpeg</code> this pattern could match them:</p>
+<pre><code>ftp://example.com/some/path/photo?.jpeg</code></pre>
+<p><code>[</code> - BRACKET EXPRESSION</p>
+<p>The left bracket opens a bracket expression. The question mark and asterisk have no special meaning in a bracket expression. Each bracket expression ends by the right bracket (<code>]</code>) and matches exactly one character. Some examples follow:</p>
+<p><code>[a-zA-Z0-9]</code> or <code>[f-gF-G]</code> - character intervals</p>
+<p><code>[abc]</code> - character enumeration</p>
+<p><code>[^abc]</code> or <code>[!abc]</code> - negation</p>
+<p><code>[[:name:]]</code> class expression. Supported classes are alnum, lower, space, alpha, digit, print, upper, blank, graph, xdigit.</p>
+<p><code>[][-!^]</code> - special case, matches only <code>\-</code>, <code>]</code>, <code>[</code>, <code>!</code> or <code>^</code>.</p>
+<p><code>[\\[\\]\\\\]</code> - escape syntax. Matches <code>[</code>, <code>]</code> or <code>\\</code>.</p>
+<p>Using the rules above, a filename pattern can be constructed:</p>
+<pre><code>ftp://example.com/some/path/[a-z[:upper:]\\\\].jpeg</code></pre>
+</section>
+<section id="transfers__callbacks__ftpmatch__md-_-_-ftp-chunk-callbacks" class="level2" data-number="225.2">
+<h2 data-number="225.2">FTP chunk callbacks</h2>
+<p>When FTP wildcard matching is used, the <code>CURLOPT_CHUNK_BGN_FUNCTION</code> callback is called before a transfer is initiated for a file that matches.</p>
+<p>The callback can then opt to return one of these return codes to tell libcurl what to do with the file:</p>
+<ul>
+<li><code>CURL_CHUNK_BGN_FUNC_OK</code> transfer the file</li>
+<li><code>CURL_CHUNK_BGN_FUNC_SKIP</code></li>
+<li><code>CURL_CHUNK_BGN_FUNC_FAIL</code> stop because of error</li>
+</ul>
+<p>After the matched file has been transferred or skipped, the <code>CURLOPT_CHUNK_END_FUNCTION</code> callback is called.</p>
+<p>The end chunk callback can only return success or error.</p>
+</section>
+<section id="transfers__callbacks__ftpmatch__md-_-_-ftp-matching-callback" class="level2" data-number="225.3">
+<h2 data-number="225.3">FTP matching callback</h2>
+<p>If the default pattern matching function is not to your liking, you can provide your own replacement function by setting the <code>CURLOPT_FNMATCH_FUNCTION</code> option to your alternative.</p>
+<p><span id="transfers__callbacks__resolver__md"></span></p>
+</section>
+</section>
+</body>
+</html>

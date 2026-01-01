@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch172.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__modify__target__md-_-_-request-target" class="level1" data-number="171">
+<h1 data-number="171">Request target</h1>
+<p>When given an input URL such as <code>http://example.com/file</code>, the path section of the URL gets extracted and is turned into <code>/file</code> in the HTTP request line. That item in the protocol is called the <em>request target</em> in HTTP. That is the resource this request interacts with. Normally this request target is extracted from the URL and then used in the request and as a user you do not need to think about it.</p>
+<p>In some rare circumstances, user may want to go creative and change this request target in ways that the URL does not really allow. For example, the HTTP OPTIONS method has a specially define request target for magic that concerns <em>the server</em> and not a specific path, and it uses <code>*</code> for that. Yes, a single asterisk. There is no way to specify a URL for this, so if you want to pass a single asterisk in the request target to a server, like for OPTIONS, you have to do it like this:</p>
+<pre><code>curl -X OPTIONS --request-target &quot;*&quot; http://example.com/</code></pre>
+<p>That example command line makes the first line of the outgoing HTTP request to look like this:</p>
+<pre><code>OPTIONS * HTTP/1.1</code></pre>
+<section id="http__modify__target__md-_-_-sect---path-as-is" class="level2" data-number="171.1">
+<h2 data-number="171.1">–path-as-is</h2>
+<p>The path part of the URL is the part that starts with the first slash after the hostname and ends either at the end of the URL or at a ‘?’ or ‘#’ (roughly speaking).</p>
+<p>If you include substrings including <code>/../</code> or <code>/./</code> in the path, curl automatically squashes them before the path is sent to the server, as is dictated by standards and how such strings tend to work in local file systems. The <code>/../</code> sequence removes the previous section so that <code>/hello/sir/../</code> ends up just <code>/hello/</code> and <code>/./</code> is simply removed so that <code>/hello/./sir/</code> becomes <code>/hello/sir/</code>.</p>
+<p>To <em>prevent</em> curl from squashing those magic sequences before they are sent to the server and thus allow them through, the <code>--path-as-is</code> option exists.</p>
+<p>Lame attempt to trick the server to deliver its <code>/etc/passwd</code> file:</p>
+<pre><code>curl --path-as-is https://example.com/../../etc/passwd</code></pre>
+<p><span id="http__modify__fragment__md"></span></p>
+</section>
+</section>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch116.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__proxies__http__md-_-_-http-proxy" class="level1" data-number="115">
+<h1 data-number="115">HTTP proxy</h1>
+<p>An HTTP proxy is a proxy that the client speaks HTTP with to get the transfer done. curl does by default, assume that a host you point out with <code>-x</code> or <code>--proxy</code> is an HTTP proxy, and unless you also specify a port number it defaults to port 1080 (and the reason for that particular port number is purely historical).</p>
+<p>If you want to request the example.com webpage using a proxy on 192.168.0.1 port 8080, a command line could look like:</p>
+<pre><code>curl -x 192.168.0.1:8080 http://example.com/</code></pre>
+<p>Recall that the proxy receives your request, forwards it to the real server, then reads the response from the server and then hands that back to the client.</p>
+<p>If you enable verbose mode with <code>-v</code> when talking to a proxy, it shows that curl connects to the proxy instead of the remote server, and might see that it uses a slightly different request line.</p>
+<section id="usingcurl__proxies__http__md-_-_-https-with-http-proxy" class="level2" data-number="115.1">
+<h2 data-number="115.1">HTTPS with HTTP proxy</h2>
+<p>HTTPS was designed to allow and provide secure and safe end-to-end privacy from the client to the server (and back). In order to provide that when speaking to an HTTP proxy, the HTTP protocol has a special request that curl uses to setup a tunnel through the proxy that it then can encrypt and verify. This HTTP method is known as <code>CONNECT</code>.</p>
+<p>When the proxy tunnels encrypted data through to the remote server after a CONNECT method sets it up, the proxy cannot see nor modify the traffic without breaking the encryption:</p>
+<pre><code>curl -x proxy.example.com:80 https://example.com/</code></pre>
+</section>
+<section id="usingcurl__proxies__http__md-_-_-non-http-protocols-over-an-http-proxy" class="level2" data-number="115.2">
+<h2 data-number="115.2">Non-HTTP protocols over an HTTP proxy</h2>
+<p>An HTTP proxy means the proxy itself speaks HTTP. HTTP proxies are primarily used to proxy HTTP but it is also fairly common that they support other protocols as well. In particular, FTP is fairly commonly supported.</p>
+<p>When talking FTP over an HTTP proxy, it is usually done by more or less pretending the other protocol works like HTTP and asking the proxy to get this URL even if the URL is not using HTTP. This distinction is important because it means that when sent over an HTTP proxy like this, curl does not really speak FTP even though given an FTP URL; thus FTP-specific features do not work:</p>
+<pre><code>curl -x http://proxy.example.com:80 ftp://ftp.example.com/file.txt</code></pre>
+<p>What you can do instead then, is to tunnel through the HTTP proxy.</p>
+</section>
+<section id="usingcurl__proxies__http__md-_-_-http-proxy-tunneling" class="level2" data-number="115.3">
+<h2 data-number="115.3">HTTP proxy tunneling</h2>
+<p>Most HTTP proxies allow clients to tunnel through it to a server on the other side. That is exactly what’s done every time you use HTTPS through the HTTP proxy.</p>
+<p>You tunnel through an HTTP proxy with curl using <code>-p</code> or <code>--proxytunnel</code>.</p>
+<p>When you do HTTPS through a proxy you normally connect through to the default HTTPS remote TCP port number 443. Most HTTP proxies white list and allow connections only to hosts on that port number and perhaps a few others. Most proxies deny clients from connecting to just any random port (for reasons only the proxy administrators know).</p>
+<p>Still, assuming that the HTTP proxy allows it, you can ask it to tunnel through to a remote server on any port number so you can do other protocols normally even when tunneling. You can do FTP tunneling like this:</p>
+<pre><code>curl -p -x http://proxy.example.com:80 ftp://ftp.example.com/file.txt</code></pre>
+<p>You can tell curl to use HTTP/1.0 in its CONNECT request issued to the HTTP proxy by using <code>--proxy1.0 [proxy]</code> instead of <code>-x</code>.</p>
+<p><span id="usingcurl__proxies__socks__md"></span></p>
+</section>
+</section>
+</body>
+</html>

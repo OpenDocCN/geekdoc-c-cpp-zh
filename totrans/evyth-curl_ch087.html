@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch087.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__downloads__content-disp__md-_-_-use-the-target-filename-from-the-server" class="level1" data-number="86">
+<h1 data-number="86">Use the target filename from the server</h1>
+<p>HTTP servers have the option to provide a header named <code>Content-Disposition:</code> in responses. That header may contain a suggested filename for the contents delivered, and curl can be told to use that hint to name its local file. The <code>-J / --remote-header-name</code> enables this. If you also use the <code>-O</code> option, it makes curl use the filename from the URL by default and only <em>if</em> there is actually a valid Content-Disposition header available, it switches to saving using that name.</p>
+<p><code>-J</code> has some problems and risks associated with it that users need to be aware of:</p>
+<ol type="1">
+<li><p>It only uses the rightmost part of the suggested filename, so any path or directories the server suggests are stripped out.</p></li>
+<li><p>Since the filename is entirely selected by the server, curl might overwrite any preexisting local file in your current directory if the server happens to provide such a filename (unless you use <code>--no-clobber</code>).</p></li>
+<li><p>filename encoding and character sets issues. curl does not decode the name in any way, so you may end up with a URL-encoded filename where a browser would otherwise decode it to something more readable using a sensible character set.</p></li>
+</ol>
+<p><span id="usingcurl__downloads__charsets__md"></span></p>
+</section>
+</body>
+</html>

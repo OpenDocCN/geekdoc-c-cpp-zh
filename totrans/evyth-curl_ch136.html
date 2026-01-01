@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch136.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__reademail__md-_-_-reading-email" class="level1" data-number="135">
+<h1 data-number="135">Reading email</h1>
+<p>There are two dominant protocols on the Internet for reading/downloading email from servers (at least if we do not count web based reading), and they are IMAP and POP3. The former being the slightly more modern alternative. curl supports both.</p>
+<section id="usingcurl__reademail__md-_-_-pop3" class="level2" data-number="135.1">
+<h2 data-number="135.1">POP3</h2>
+<p>To list message numbers and sizes:</p>
+<pre><code>curl pop3://mail.example.com/</code></pre>
+<p>To download message 1:</p>
+<pre><code>curl pop3://mail.example.com/1</code></pre>
+<p>To delete message 1:</p>
+<pre><code>curl --request DELE pop3://mail.example.com/1</code></pre>
+</section>
+<section id="usingcurl__reademail__md-_-_-imap" class="level2" data-number="135.2">
+<h2 data-number="135.2">IMAP</h2>
+<p>Get the mail using the UID 57 from mailbox ‘stuff’:</p>
+<pre><code>curl imap://server.example.com/stuff;UID=57</code></pre>
+<p>Instead, get the mail with index 57 from the mailbox ‘fun’:</p>
+<pre><code>curl imap://server.example.com/fun;MAILINDEX=57</code></pre>
+<p>List the mails in the mailbox ‘boring’:</p>
+<pre><code>curl imap://server.example.com/boring</code></pre>
+<p>List the mails in the mailbox ‘boring’ and provide user and password:</p>
+<pre><code>curl imap://server.example.com/boring -u user:password</code></pre>
+</section>
+<section id="usingcurl__reademail__md-_-_-tls-for-emails" class="level2" data-number="135.3">
+<h2 data-number="135.3">TLS for emails</h2>
+<p>POP3 and IMAP can both be done over a secure connection and both can be done using either explicit or implicit TLS. The “explicit” method is probably the most common approach and it means that the client connects to the server using an insecure connection and <em>upgrades</em> it to TLS as it goes, using the <code>STARTTLS</code> command. You tell curl to attempt this with <code>--ssl</code> or if you want to <em>insist</em> on a secure connection you use <code>--ssl-reqd</code>. Like this:</p>
+<pre><code>curl pop3://mail.example.com/ --ssl-reqd</code></pre>
+<p>or</p>
+<pre><code>curl --ssl imap://mail.example.com/inbox</code></pre>
+<p>“Implicit” SSL means that the connection gets secured already at first connect, which you make curl attempt by specifying a scheme in the URL that uses SSL. In this case either <code>pop3s://</code> or <code>imaps://</code>. For such connections, curl insists on connecting and negotiating a TLS connection already from the start, or it fails its operation.</p>
+<p>The previous explicit examples done with implicit SSL:</p>
+<pre><code>curl pop3s://mail.example.com/</code></pre>
+<p>or</p>
+<pre><code>curl imaps://mail.example.com/inbox</code></pre>
+<p><span id="usingcurl__smtp__md"></span></p>
+</section>
+</section>
+</body>
+</html>

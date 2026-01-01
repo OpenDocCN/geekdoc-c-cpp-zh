@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch308.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__tests__servers__md-_-_-test-servers" class="level1" data-number="307">
+<h1 data-number="307">Test servers</h1>
+<p>A large portion of the curl test suite actually runs curl command lines that interact with servers that are started on the local machine for testing purposes only during the test, and that are shut down again at the end of the test round.</p>
+<p>The test servers are custom servers written for this purpose that speak HTTP, FTP, IMAP, POP3, SMTP, TFTP, MQTT, SOCKS proxies and more.</p>
+<p>All test servers are controlled via the test file: which servers that each test case needs to have running to work, what they should return and how they are supposed to act for each test.</p>
+<p>The test servers typically log their actions in dedicated files in <code>tests/log</code>, and they can be useful to check out if your test does not act the way you want.</p>
+<p><span id="internals__tests__curl__md"></span></p>
+</section>
+</body>
+</html>

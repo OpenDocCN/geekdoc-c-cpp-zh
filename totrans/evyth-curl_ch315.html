@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch315.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__tests__torture__md-_-_-torture" class="level1" data-number="314">
+<h1 data-number="314">Torture</h1>
+<p>When curl is built <a href="ch306.xhtml#internals__tests__debug__md">debug enabled</a>, it offers a special kind of testing. The tests we call <strong>torture</strong> tests. Do not worry, it is not quite as grim as it may sound.</p>
+<p>They verify that libcurl and curl exit paths work without any crash or memory leak happening,</p>
+<p>The torture tests work like this:</p>
+<ul>
+<li>run the single test as-is first</li>
+<li>count the number of invoked <em>fallible</em> functions</li>
+<li>rerun the test once for every falling function call</li>
+<li>make each fallible function call return error, one by one</li>
+<li>verify that there is no leak or crash</li>
+<li>continue until all fallible functions have been made to fail</li>
+</ul>
+<p>This way of testing can take a seriously long time. I advise you to switch off <a href="ch311.xhtml#internals__tests__valgrind__md">valgrind</a> when trying this out.</p>
+<section id="internals__tests__torture__md-_-_-rerun-a-specific-failure" class="level2" data-number="314.1">
+<h2 data-number="314.1">Rerun a specific failure</h2>
+<p>If a single test fails, <code>runtests.pl</code> identifies exactly which “round” that triggered the problem and by using the <code>-t</code> as shown, you can run a command line that when invoked <em>only</em> fails that particular fallible function.</p>
+</section>
+<section id="internals__tests__torture__md-_-_-shallow" class="level2" data-number="314.2">
+<h2 data-number="314.2">Shallow</h2>
+<p>To make this way of testing a little more practical, the test suite also provides a <code>--shallow</code> option. This lets the user set a maximum number of fallible functions to fail per test case. If there are more invokes to fail than is set with this value, the script randomly selects which ones to fail.</p>
+<p>As a special feature, as randomizing things in tests can be uncomfortable, the script uses a random seed based on year + month, so it remains the same for each calendar month. Convenient, as if you rerun the same test with the same <code>--shallow</code> value it runs the same random tests.</p>
+<p>You can force a different seed with runtests’ <code>--seed</code> option.</p>
+<p><span id="bookindex__md"></span></p>
+</section>
+</section>
+</body>
+</html>

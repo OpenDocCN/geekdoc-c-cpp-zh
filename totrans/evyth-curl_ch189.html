@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch189.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="ftp__ftps__md-_-_-ftps" class="level1" data-number="188">
+<h1 data-number="188">FTPS</h1>
+<p>FTPS is FTP secure by TLS. It negotiates fully secured TLS connections where plain FTP uses clear text unsafe connections.</p>
+<p>There are two ways to do FTPS with curl. The <em>implicit</em> way and the <em>explicit</em> way. (These terms originate from the FTPS RFC). Usually the server you work with dictates which of these methods you can and shall use against it.</p>
+<section id="ftp__ftps__md-_-_-implicit-ftps" class="level2" data-number="188.1">
+<h2 data-number="188.1">Implicit FTPS</h2>
+<p>The <em>implicit</em> way is when you use <code>ftps://</code> in your URL. This makes curl connect to the host and do a TLS handshake immediately, without doing anything in the clear. If no port number is specified in the URL, curl uses port 990 for this. This is usually not how FTPS is done.</p>
+</section>
+<section id="ftp__ftps__md-_-_-explicit-ftps" class="level2" data-number="188.2">
+<h2 data-number="188.2">Explicit FTPS</h2>
+<p>The <em>explicit</em> way of doing FTPS is to keep using an <code>ftp://</code> URL, but instruct curl to upgrade the connection into a secure one using the <code>AUTH TLS</code> FTP command.</p>
+<p>You can tell curl to either <em>attempt</em> an upgrade and continue as usual if the upgrade fails with <code>--ssl</code>, or you can force curl to either upgrade or fail the whole thing hard if the upgrade fails by using <code>--ssl-reqd</code>. We strongly recommend using the latter, so that you can be sure that a secure transfer is done - if any.</p>
+</section>
+<section id="ftp__ftps__md-_-_-common-ftps-problems" class="level2" data-number="188.3">
+<h2 data-number="188.3">Common FTPS problems</h2>
+<p>The single most common problem with FTPS comes from the fact that the FTP protocol (that FTPS transfers lean on) uses a separate connection setup for the data transfer. This connection is done to another port and when FTP is done over clear text (non-FTPS), firewalls and network inspectors etc can figure out that this is FTP in progress and they can adapt things and rules for the new connection.</p>
+<p>When the FTP control channel is encrypted with TLS, firewalls cannot see what is going on and no outsider can dynamically adapt network rules or permission based on this.</p>
+<p><span id="libcurl__README__md"></span></p>
+</section>
+</section>
+</body>
+</html>

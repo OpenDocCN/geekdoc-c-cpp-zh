@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch078.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="cmdline__copyas__md-_-_-copy-as-curl" class="level1" data-number="77">
+<h1 data-number="77">Copy as curl</h1>
+<p>Using curl to reproduce an operation a user just managed to do with his or her browser is a common request and area people ask for help about.</p>
+<p>How do you get a curl command line to get a resource, just like the browser would get it, nice and easy? Chrome, Firefox, Edge and Safari all have this feature.</p>
+<section id="cmdline__copyas__md-_-_-from-firefox" class="level2" data-number="77.1">
+<h2 data-number="77.1">From Firefox</h2>
+<p>You get the site shown with Firefox’s network tools. You then right-click on the specific request you want to repeat in the “Web Developer-&gt;Network” tool when you see the HTTP traffic, and in the menu that appears you select “Copy as cURL”. Like this screenshot below shows. The operation then generates a curl command line to your clipboard and you can then paste that into your favorite shell window. This feature is available by default in all Firefox installations.</p>
+<figure>
+<img src="../media/file5.png" alt="" /><figcaption>copy as curl with Firefox</figcaption>
+</figure>
+</section>
+<section id="cmdline__copyas__md-_-_-from-chrome-and-edge" class="level2" data-number="77.2">
+<h2 data-number="77.2">From Chrome and Edge</h2>
+<p>When you pop up the More tools-&gt;Developer mode in Chrome or Edge, and you select the Network tab you see the HTTP traffic used to get the resources of the site. On the line of the specific resource you are interested in, you right-click with the mouse and you select “Copy as cURL” and it generates a command line for you in your clipboard. Paste that in a shell to get a curl command line that makes the transfer. This feature is available by default in all Chrome and Chromium installations. <em>(Note: Chromium browsers in Windows may generate an incorrect command line that is misquoted due to a</em> <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=1242803"><em>bug</em></a> <em>in Chromium).</em></p>
+<figure>
+<img src="../media/file6.png" alt="" /><figcaption>copy as curl with Chrome</figcaption>
+</figure>
+</section>
+<section id="cmdline__copyas__md-_-_-from-safari" class="level2" data-number="77.3">
+<h2 data-number="77.3">From Safari</h2>
+<p>In Safari, the “development” menu is not visible until you go into <strong>preferences-&gt;Advanced</strong> and enable it. But once you have done that, you can select <strong>Show web inspector</strong> in that development menu and get to see a new console pop up that is similar to the development tools of Firefox and Chrome.</p>
+<p>Select the network tab, reload the webpage and then you can right click the particular resources that you want to fetch with curl, as if you did it with Safari..</p>
+<figure>
+<img src="../media/file7.png" alt="" /><figcaption>copy as curl with Safari</figcaption>
+</figure>
+</section>
+<section id="cmdline__copyas__md-_-_-on-firefox-without-using-the-devtools" class="level2" data-number="77.4">
+<h2 data-number="77.4">On Firefox, without using the devtools</h2>
+<p>If this is something you would like to get done more often, you probably find using the developer tools a bit inconvenient and cumbersome to pop up just to get the command line copied. Then <a href="https://addons.mozilla.org/en-US/firefox/addon/cliget/">cliget</a> is the perfect add-on for you as it gives you a new option in the right-click menu, so you can get a quick command line generated really quickly, like this example when I right-click an image in Firefox:</p>
+<figure>
+<img src="../media/file8.png" alt="" /><figcaption>cliget with Firefox</figcaption>
+</figure>
+</section>
+<section id="cmdline__copyas__md-_-_-not-perfect" class="level2" data-number="77.5">
+<h2 data-number="77.5">Not perfect</h2>
+<p>These methods all give you a command line to reproduce their HTTP transfers. They are often not the perfect solution to your problems. Why? Well mostly because these tools are written to rerun the <em>exact</em> same request that you copied, while you often want to rerun the same logic but not send an exact copy of the same cookies and file contents etc.</p>
+<p>These tools give you command lines with static and fixed cookie contents to send in the request, because that is the contents of the cookies that were sent in the browser’s requests. You most likely want to rewrite the command line to dynamically adapt to whatever the content is in the cookie that the server told you in a previous response. Etc.</p>
+<p>The copy as curl functionality is also often notoriously bad at using <code>-F</code> and instead they provide handcrafted <code>--data-binary</code> solutions including the mime separator strings etc.</p>
+<p><span id="usingcurl__README__md"></span></p>
+</section>
+</section>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch220.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__callbacks__sslcontext__md-_-_-ssl-context" class="level1" data-number="219">
+<h1 data-number="219">SSL context</h1>
+<p>libcurl offers a special TLS related callback called <code>CURLOPT_SSL_CTX_FUNCTION</code>. This option only works for libcurl powered by OpenSSL, wolfSSL or mbedTLS and it does nothing if libcurl is built with another TLS backend.</p>
+<p>This callback gets called by libcurl just before the initialization of a TLS connection after having processed all other TLS related options to give a last chance to an application to modify the behavior of the TLS initialization. The <code>ssl_ctx parameter</code> passed to the callback in the second argument is actually a pointer to the SSL library’s <code>SSL_CTX</code> for OpenSSL or wolfSSL, and a pointer to <code>mbedtls_ssl_config</code> for mbedTLS. If an error is returned from the callback no attempt to establish a connection is made and the operation returns the callback’s error code. Set the <code>userptr</code> argument with the <code>CURLOPT_SSL_CTX_DATA</code> option.</p>
+<p>This function gets called on all new connections made to a server, during the TLS negotiation. The TLS context points to a newly initialized object each time.</p>
+<p><span id="transfers__callbacks__seek__md"></span></p>
+</section>
+</body>
+</html>

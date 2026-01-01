@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch249.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="libcurl-http__ranges__md-_-_-ranges" class="level1" data-number="248">
+<h1 data-number="248">Ranges</h1>
+<p>What if the client only wants the first 200 bytes out of a remote resource or perhaps 300 bytes somewhere in the middle? The HTTP protocol allows a client to ask for only a specific data range. The client asks the server for the specific range with a start offset and an end offset. It can even combine things and ask for several ranges in the same request by just listing a bunch of pieces next to each other. When a server sends back multiple independent pieces to answer such a request, you get them separated with mime boundary strings and it is up to the user application to handle that accordingly. curl does not further separate such a response.</p>
+<p>However, a byte range is only a request to the server. It does not have to respect the request and in many cases, like when the server automatically generates the contents on the fly when it is being asked, it simply refuses to do it and it then instead respond with the full contents anyway.</p>
+<p>You can make libcurl ask for a range with <code>CURLOPT_RANGE</code>. Like if you want the first 200 bytes out of something:</p>
+<pre><code>curl_easy_setopt(curl, CURLOPT_RANGE, &quot;0-199&quot;);</code></pre>
+<p>Or everything in the file starting from index 200:</p>
+<pre><code>curl_easy_setopt(curl, CURLOPT_RANGE, &quot;200-&quot;);</code></pre>
+<p>Get 200 bytes from index 0 <em>and</em> 200 bytes from index 1000:</p>
+<pre><code>curl_easy_setopt(curl, CURLOPT_RANGE, &quot;0-199,1000-199&quot;);</code></pre>
+<p><span id="libcurl-http__auth__md"></span></p>
+</section>
+</body>
+</html>

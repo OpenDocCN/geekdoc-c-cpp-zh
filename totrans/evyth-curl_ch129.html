@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch129.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__tls__pinning__md-_-_-certificate-pinning" class="level1" data-number="128">
+<h1 data-number="128">Certificate pinning</h1>
+<p>TLS certificate pinning is a way to verify that the public key used to sign the servers certificate has not changed. It is <em>pinned</em>.</p>
+<p>When negotiating a TLS or SSL connection, the server sends a certificate indicating its identity. A public key is extracted from this certificate and if it does not exactly match the public key provided to this option, curl aborts the connection before sending or receiving any data.</p>
+<p>You tell curl a filename to read the sha256 value from, or you specify the base64 encoded hash directly in the command line with a <code>sha256//</code> prefix. You can specify one or more hashes like that, separated with semicolons (;).</p>
+<pre><code>curl --pinnedpubkey &quot;sha256//83d34tasd3rt…&quot; https://example.com/</code></pre>
+<p>This feature is not supported by all TLS backends.</p>
+<p><span id="usingcurl__tls__stapling__md"></span></p>
+</section>
+</body>
+</html>

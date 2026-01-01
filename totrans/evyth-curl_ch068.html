@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch068.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="cmdline__urls__trurl__md-_-_-trurl" class="level1" data-number="67">
+<h1 data-number="67">trurl</h1>
+<p><em>trurl</em> is a separate command line tool with the sole purpose of parsing, manipulating and outputting URLs and parts of URLs. A companion tool to curl for your command lines and scripting needs.</p>
+<p>trurl uses libcurl’s URL parser. This ensures that curl and trurl always have the same opinion about URLs and that both tools parse them identically and consistently.</p>
+<section id="cmdline__urls__trurl__md-_-_-usage" class="level2" data-number="67.1">
+<h2 data-number="67.1">Usage</h2>
+<p>Typically you pass in one or more URLs to trurl and specify what components you want output. Possibly while modifying the URL(s) as well.</p>
+<p>trurl knows URLs and every URL consists of up to ten separate and independent <em>components</em>. These components can be extracted, removed and updated with trurl.</p>
+</section>
+<section id="cmdline__urls__trurl__md-_-_-trurl-example-command-lines" class="level2" data-number="67.2">
+<h2 data-number="67.2">trurl example command lines</h2>
+<p><strong>Replace the hostname of a URL:</strong></p>
+<pre><code>$ trurl --url https://curl.se --set host=example.com
+https://example.com/</code></pre>
+<p><strong>Create a URL by setting components:</strong></p>
+<pre><code>$ trurl --set host=example.com --set scheme=ftp
+ftp://example.com/</code></pre>
+<p><strong>Redirect a URL:</strong></p>
+<pre><code>$ trurl --url https://curl.se/we/are.html --redirect here.html
+https://curl.se/we/here.html</code></pre>
+<p><strong>Change port number:</strong></p>
+<pre><code>$ trurl --url https://curl.se/we/../are.html --set port=8080
+https://curl.se:8080/are.html</code></pre>
+<p><strong>Extract the path from a URL:</strong></p>
+<pre><code>$ trurl --url https://curl.se/we/are.html --get &#39;{path}&#39;
+/we/are.html</code></pre>
+<p><strong>Extract the port from a URL:</strong></p>
+<pre><code>$ trurl --url https://curl.se/we/are.html --get &#39;{port}&#39;
+443</code></pre>
+<p><strong>Append a path segment to a URL:</strong></p>
+<pre><code>$ trurl --url https://curl.se/hello --append path=you
+https://curl.se/hello/you</code></pre>
+<p><strong>Append a query segment to a URL:</strong></p>
+<pre><code>$ trurl --url &quot;https://curl.se?name=hello&quot; --append query=search=string
+https://curl.se/?name=hello&amp;search=string</code></pre>
+<p><strong>Read URLs from stdin:</strong></p>
+<pre><code>$ cat urllist.txt | trurl --url-file -
+...</code></pre>
+<p><strong>Output JSON:</strong></p>
+<pre><code>$ trurl &quot;https://fake.host/hello#frag&quot; --set user=::moo:: --json
+[
+  {
+    &quot;url&quot;: &quot;https://%3a%3amoo%3a%3a@fake.host/hello#frag&quot;,
+    &quot;parts&quot;: {
+      &quot;scheme&quot;: &quot;https&quot;,
+      &quot;user&quot;: &quot;::moo::&quot;,
+      &quot;host&quot;: &quot;fake.host&quot;,
+      &quot;path&quot;: &quot;/hello&quot;,
+      &quot;fragment&quot;: &quot;frag&quot;
+    }
+  }
+]</code></pre>
+<p><strong>Remove tracking tuples from query:</strong></p>
+<pre><code>$ trurl &quot;https://curl.se?search=hey&amp;utm_source=tracker&quot; \
+  --trim query=&quot;utm_*&quot;
+https://curl.se/?search=hey</code></pre>
+<p><strong>Show a specific query key value:</strong></p>
+<pre><code>$ trurl &quot;https://example.com?a=home&amp;here=now&amp;thisthen&quot; -g &#39;{query:a}&#39;
+home</code></pre>
+<p><strong>Sort the key/value pairs in the query component:</strong></p>
+<pre><code>$ trurl &quot;https://example.com?b=a&amp;c=b&amp;a=c&quot; --sort-query
+https://example.com?a=c&amp;b=a&amp;c=b</code></pre>
+<p><strong>Work with a query that uses a semicolon separator:</strong></p>
+<pre><code>$ trurl &quot;https://curl.se?search=fool;page=5&quot; --trim query=&quot;search&quot; \
+  --query-separator &quot;;&quot;
+https://curl.se?page=5</code></pre>
+<p><strong>Accept spaces in the URL path:</strong></p>
+<pre><code>$ trurl &quot;https://curl.se/this has space/index.html&quot; --accept-space
+https://curl.se/this%20has%20space/index.html</code></pre>
+</section>
+<section id="cmdline__urls__trurl__md-_-_-more" class="level2" data-number="67.3">
+<h2 data-number="67.3">More</h2>
+<p>Everything you want to know about trurl is found at <a href="https://curl.se/trurl" class="uri">https://curl.se/trurl</a>. It is probably already available for your Linux distribution of choice.</p>
+<p><span id="cmdline__globbing__md"></span></p>
+</section>
+</section>
+</body>
+</html>

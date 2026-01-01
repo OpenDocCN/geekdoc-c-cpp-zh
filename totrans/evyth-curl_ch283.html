@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch283.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="examples__get__md-_-_-get-a-simple-http-page" class="level1" data-number="282">
+<h1 data-number="282">Get a simple HTTP page</h1>
+<p>This example just fetches the HTML from a given URL and sends it to stdout. Possibly the simplest libcurl program you can write.</p>
+<p>By replacing the URL this is able to get contents over other supported protocols as well.</p>
+<p>Getting the output sent to stdout is a default behavior and usually not what you actually want. Most applications instead install a <a href="ch213.xhtml#transfers__callbacks__write__md">write callback</a> to have receive the data that arrives.</p>
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;curl/curl.h&gt;
+
+int main(void)
+{
+  CURL *curl;
+  CURLcode res;
+
+  curl = curl_easy_init();
+  if(curl) {
+    curl_easy_setopt(curl, CURLOPT_URL, &quot;http://example.com/&quot;);
+
+    /* Perform the request, &#39;res&#39; holds the return code */
+    res = curl_easy_perform(curl);
+    /* Check for errors */
+    if(res != CURLE_OK)
+      fprintf(stderr, &quot;curl_easy_perform() failed: %s\n&quot;,
+              curl_easy_strerror(res));
+
+    /* always cleanup */
+    curl_easy_cleanup(curl);
+  }
+  return 0;
+}</code></pre>
+<p><span id="examples__getinmem__md"></span></p>
+</section>
+</body>
+</html>

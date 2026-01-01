@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch200.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="libcurl__cplusplus__md-_-_-for-c---programmers" class="level1" data-number="199">
+<h1 data-number="199">for C++ programmers</h1>
+<p>libcurl provides a C API. C and C++ are similar but not the same. There are a few things to keep in mind when using libcurl in C++.</p>
+<section id="libcurl__cplusplus__md-_-_-strings-are-c-strings-not-c---string-objects" class="level2" data-number="199.1">
+<h2 data-number="199.1">Strings are C strings, not C++ string objects</h2>
+<p>When you pass strings to libcurl’s APIs that accept <code>char *</code> that means you cannot pass in C++ strings or objects to those functions.</p>
+<p>For example, if you build a string with C++ and then want that string used as a URL:</p>
+<pre><code>std::string url = &quot;https://example.com/foo.asp?name=&quot; + i;
+curl_easy_setopt(curl, CURLOPT_URL, url.c_str());</code></pre>
+</section>
+<section id="libcurl__cplusplus__md-_-_-callback-considerations" class="level2" data-number="199.2">
+<h2 data-number="199.2">Callback considerations</h2>
+<p>Since libcurl is a C library, it does not know anything about C++ member functions or objects. You can overcome this limitation with relative ease using for a static member function that is passed a pointer to the class.</p>
+<p>Here’s an example of a write callback using a C++ method as callback:</p>
+<pre><code>// f is the pointer to your object.
+static size_t YourClass::func(void *buffer, size_t sz, size_t n, void *f)
+{
+  // Call non-static member function.
+  static_cast&lt;YourClass*&gt;(f)-&gt;nonStaticFunction();
+}
+
+// This is how you pass pointer to the static function:
+curl_easy_setopt(hcurl, CURLOPT_WRITEFUNCTION, YourClass::func);
+curl_easy_setopt(hcurl, CURLOPT_WRITEDATA, this);</code></pre>
+<p><span id="transfers__README__md"></span></p>
+</section>
+</section>
+</body>
+</html>

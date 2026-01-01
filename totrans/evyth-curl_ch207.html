@@ -1,0 +1,1255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch207.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__options__all__md-_-_-all-options" class="level1" data-number="206">
+<h1 data-number="206">All options</h1>
+<p>This is a table of available options for <code>curl_easy_setopt()</code>.</p>
+<table>
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 65%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>CURLOPT_ABSTRACT_UNIX_SOCKET</code></td>
+<td>abstract Unix domain socket</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_ACCEPT_ENCODING</code></td>
+<td>automatic decompression of HTTP downloads</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_ACCEPTTIMEOUT_MS</code></td>
+<td>timeout waiting for FTP server to connect back</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_ADDRESS_SCOPE</code></td>
+<td>scope id for IPv6 addresses</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_ALTSVC_CTRL</code></td>
+<td>control alt-svc behavior</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_ALTSVC</code></td>
+<td>alt-svc cache filename</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_APPEND</code></td>
+<td>append to the remote file</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_AUTOREFERER</code></td>
+<td>automatically update the referer header</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_AWS_SIGV4</code></td>
+<td>V4 signature</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_BUFFERSIZE</code></td>
+<td>receive buffer size</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_CA_CACHE_TIMEOUT</code></td>
+<td>life-time for cached certificate stores</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_CAINFO_BLOB</code></td>
+<td>Certificate Authority (CA) bundle in PEM format</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_CAINFO</code></td>
+<td>path to Certificate Authority (CA) bundle</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_CAPATH</code></td>
+<td>directory holding CA certificates</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_CERTINFO</code></td>
+<td>request SSL certificate information</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_CHUNK_BGN_FUNCTION</code></td>
+<td>callback before a transfer with FTP wildcardmatch</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_CHUNK_DATA</code></td>
+<td>pointer passed to the FTP chunk callbacks</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_CHUNK_END_FUNCTION</code></td>
+<td>callback after a transfer with FTP wildcardmatch</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_CLOSESOCKETDATA</code></td>
+<td>pointer passed to the socket close callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_CLOSESOCKETFUNCTION</code></td>
+<td>callback to socket close replacement</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_CONNECT_ONLY</code></td>
+<td>stop when connected to target server</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_CONNECT_TO</code></td>
+<td>connect to a specific host and port instead of the URL’s host and port</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_CONNECTTIMEOUT_MS</code></td>
+<td>timeout for the connect phase</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_CONNECTTIMEOUT</code></td>
+<td>timeout for the connect phase</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_CONV_FROM_NETWORK_FUNCTION</code></td>
+<td>convert data from network to host encoding</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_CONV_FROM_UTF8_FUNCTION</code></td>
+<td>convert data from UTF8 to host encoding</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_CONV_TO_NETWORK_FUNCTION</code></td>
+<td>convert data to network from host encoding</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_COOKIE</code></td>
+<td>HTTP Cookie header</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_COOKIEFILE</code></td>
+<td>filename to read cookies from</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_COOKIEJAR</code></td>
+<td>filename to store cookies to</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_COOKIELIST</code></td>
+<td>add to or manipulate cookies held in memory</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_COOKIESESSION</code></td>
+<td>start a new cookie session</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_COPYPOSTFIELDS</code></td>
+<td>have libcurl copy data to POST</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_CRLF</code></td>
+<td>CRLF conversion</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_CRLFILE</code></td>
+<td>Certificate Revocation List file</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_CURLU</code></td>
+<td>URL in CURLU * format</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_CUSTOMREQUEST</code></td>
+<td>custom request method</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_DEBUGDATA</code></td>
+<td>pointer passed to the debug callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_DEBUGFUNCTION</code></td>
+<td>debug callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_DEFAULT_PROTOCOL</code></td>
+<td>default protocol to use if the URL is missing a</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_DIRLISTONLY</code></td>
+<td>ask for names only in a directory listing</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_DISALLOW_USERNAME_IN_URL</code></td>
+<td>disallow specifying username in the URL</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_DNS_CACHE_TIMEOUT</code></td>
+<td>life-time for DNS cache entries</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_DNS_INTERFACE</code></td>
+<td>interface to speak DNS over</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_DNS_LOCAL_IP4</code></td>
+<td>IPv4 address to bind DNS resolves to</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_DNS_LOCAL_IP6</code></td>
+<td>IPv6 address to bind DNS resolves to</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_DNS_SERVERS</code></td>
+<td>DNS servers to use</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_DNS_SHUFFLE_ADDRESSES</code></td>
+<td>shuffle IP addresses for hostname</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_DNS_USE_GLOBAL_CACHE</code></td>
+<td>global DNS cache</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_DOH_SSL_VERIFYHOST</code></td>
+<td>verify the hostname in the DoH SSL certificate</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_DOH_SSL_VERIFYPEER</code></td>
+<td>verify the DoH SSL certificate</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_DOH_SSL_VERIFYSTATUS</code></td>
+<td>verify the DoH SSL certificate’s status</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_DOH_URL</code></td>
+<td>provide the DNS-over-HTTPS URL</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_EGDSOCKET</code></td>
+<td>EGD socket path</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_ERRORBUFFER</code></td>
+<td>error buffer for error messages</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_EXPECT_100_TIMEOUT_MS</code></td>
+<td>timeout for Expect: 100-continue response</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_FAILONERROR</code></td>
+<td>request failure on HTTP response &gt;= 400</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_FILETIME</code></td>
+<td>get the modification time of the remote resource</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_FNMATCH_DATA</code></td>
+<td>pointer passed to the fnmatch callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_FNMATCH_FUNCTION</code></td>
+<td>wildcard match callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_FOLLOWLOCATION</code></td>
+<td>follow HTTP 3xx redirects</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_FORBID_REUSE</code></td>
+<td>make connection get closed at once after use</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_FRESH_CONNECT</code></td>
+<td>force a new connection to be used</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_FTP_ACCOUNT</code></td>
+<td>account info for FTP</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_FTP_ALTERNATIVE_TO_USER</code></td>
+<td>command to use instead of USER with FTP</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_FTP_CREATE_MISSING_DIRS</code></td>
+<td>create missing dirs for FTP and SFTP</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_FTP_FILEMETHOD</code></td>
+<td>select directory traversing method for FTP</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_FTP_RESPONSE_TIMEOUT</code></td>
+<td>time allowed to wait for FTP response</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_FTP_SKIP_PASV_IP</code></td>
+<td>ignore the IP address in the PASV response</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_FTP_SSL_CCC</code></td>
+<td>switch off SSL again with FTP after auth</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_FTP_USE_EPRT</code></td>
+<td>use EPRT for FTP</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_FTP_USE_EPSV</code></td>
+<td>use EPSV for FTP</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_FTP_USE_PRET</code></td>
+<td>use PRET for FTP</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_FTPPORT</code></td>
+<td>make FTP transfer active</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_FTPSSLAUTH</code></td>
+<td>order in which to attempt TLS vs SSL</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_GSSAPI_DELEGATION</code></td>
+<td>allowed GSS-API delegation</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HAPPY_EYEBALLS_TIMEOUT_MS</code></td>
+<td>head start for ipv6 for happy eyeballs</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_HAPROXY_CLIENT_IP</code></td>
+<td>set HAProxy PROXY protocol client IP</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HAPROXYPROTOCOL</code></td>
+<td>send HAProxy PROXY protocol v1 header</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_HEADER</code></td>
+<td>pass headers to the data stream</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HEADERDATA</code></td>
+<td>pointer to pass to header callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_HEADERFUNCTION</code></td>
+<td>callback that receives header data</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HEADEROPT</code></td>
+<td>send HTTP headers to both proxy and host or separately</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_HSTS_CTRL</code></td>
+<td>control HSTS behavior</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HSTS</code></td>
+<td>HSTS cache filename</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_HSTSREADDATA</code></td>
+<td>pointer passed to the HSTS read callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HSTSREADFUNCTION</code></td>
+<td>read callback for HSTS hosts</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_HSTSWRITEDATA</code></td>
+<td>pointer passed to the HSTS write callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HSTSWRITEFUNCTION</code></td>
+<td>write callback for HSTS hosts</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_HTTP09_ALLOWED</code></td>
+<td>allow HTTP/0.9 response</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HTTP200ALIASES</code></td>
+<td>alternative matches for HTTP 200 OK</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_HTTP_CONTENT_DECODING</code></td>
+<td>HTTP content decoding control</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HTTP_TRANSFER_DECODING</code></td>
+<td>HTTP transfer decoding control</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_HTTP_VERSION</code></td>
+<td>HTTP protocol version to use</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HTTPAUTH</code></td>
+<td>HTTP server authentication methods to try</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_HTTPGET</code></td>
+<td>ask for an HTTP GET request</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HTTPHEADER</code></td>
+<td>set of HTTP headers</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_HTTPPOST</code></td>
+<td>multipart formpost content</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_HTTPPROXYTUNNEL</code></td>
+<td>tunnel through HTTP proxy</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_IGNORE_CONTENT_LENGTH</code></td>
+<td>ignore content length</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_INFILESIZE_LARGE</code></td>
+<td>size of the input file to send off</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_INFILESIZE</code></td>
+<td>size of the input file to send off</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_INTERFACE</code></td>
+<td>source interface for outgoing traffic</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_INTERLEAVEDATA</code></td>
+<td>pointer passed to RTSP interleave callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_INTERLEAVEFUNCTION</code></td>
+<td>callback for RTSP interleaved data</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_IOCTLDATA</code></td>
+<td>pointer passed to I/O callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_IOCTLFUNCTION</code></td>
+<td>callback for I/O operations</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_IPRESOLVE</code></td>
+<td>IP protocol version to use</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_ISSUERCERT_BLOB</code></td>
+<td>issuer SSL certificate from memory blob</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_ISSUERCERT</code></td>
+<td>issuer SSL certificate filename</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_KEEP_SENDING_ON_ERROR</code></td>
+<td>keep sending on early HTTP response &gt;= 300</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_KEYPASSWD</code></td>
+<td>passphrase to private key</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_KRBLEVEL</code></td>
+<td>FTP kerberos security level</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_LOCALPORT</code></td>
+<td>local port number to use for socket</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_LOCALPORTRANGE</code></td>
+<td>number of additional local ports to try</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_LOGIN_OPTIONS</code></td>
+<td>login options</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_LOW_SPEED_LIMIT</code></td>
+<td>low speed limit in bytes per second</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_LOW_SPEED_TIME</code></td>
+<td>low speed limit time period</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_MAIL_AUTH</code></td>
+<td>SMTP authentication address</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_MAIL_FROM</code></td>
+<td>SMTP sender address</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_MAIL_RCPT_ALLOWFAILS</code></td>
+<td>allow RCPT TO command to fail for some recipients</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_MAIL_RCPT</code></td>
+<td>list of SMTP mail recipients</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_MAX_RECV_SPEED_LARGE</code></td>
+<td>rate limit data download speed</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_MAX_SEND_SPEED_LARGE</code></td>
+<td>rate limit data upload speed</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_MAXAGE_CONN</code></td>
+<td>max idle time allowed for reusing a connection</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_MAXCONNECTS</code></td>
+<td>maximum connection cache size</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_MAXFILESIZE_LARGE</code></td>
+<td>maximum file size allowed to download</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_MAXFILESIZE</code></td>
+<td>maximum file size allowed to download</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_MAXLIFETIME_CONN</code></td>
+<td>max lifetime (since creation) allowed for reusing a connection</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_MAXREDIRS</code></td>
+<td>maximum number of redirects allowed</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_MIME_OPTIONS</code></td>
+<td>set MIME option flags</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_MIMEPOST</code></td>
+<td>send data from mime structure</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_NETRC_FILE</code></td>
+<td>filename to read .netrc info from</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_NETRC</code></td>
+<td>enable use of .netrc</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_NEW_DIRECTORY_PERMS</code></td>
+<td>permissions for remotely created directories</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_NEW_FILE_PERMS</code></td>
+<td>permissions for remotely created files</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_NOBODY</code></td>
+<td>do the download request without getting the body</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_NOPROGRESS</code></td>
+<td>switch off the progress meter</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_NOPROXY</code></td>
+<td>disable proxy use for specific hosts</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_NOSIGNAL</code></td>
+<td>skip all signal handling</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_OPENSOCKETDATA</code></td>
+<td>pointer passed to open socket callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_OPENSOCKETFUNCTION</code></td>
+<td>callback for opening socket</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PASSWORD</code></td>
+<td>password to use in authentication</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PATH_AS_IS</code></td>
+<td>do not handle dot dot sequences</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PINNEDPUBLICKEY</code></td>
+<td>pinned public key</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PIPEWAIT</code></td>
+<td>wait for pipelining/multiplexing</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PORT</code></td>
+<td>remote port number to connect to</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_POST</code></td>
+<td>make an HTTP POST</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_POSTFIELDS</code></td>
+<td>data to POST to server</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_POSTFIELDSIZE_LARGE</code></td>
+<td>size of POST data pointed to</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_POSTFIELDSIZE</code></td>
+<td>size of POST data pointed to</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_POSTQUOTE</code></td>
+<td>(S)FTP commands to run after the transfer</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_POSTREDIR</code></td>
+<td>how to act on an HTTP POST redirect</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PRE_PROXY</code></td>
+<td>pre-proxy host to use</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PREQUOTE</code></td>
+<td>commands to run before an FTP transfer</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PREREQDATA</code></td>
+<td>pointer passed to the pre-request callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PREREQFUNCTION</code></td>
+<td>user callback called when a connection has been</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PRIVATE</code></td>
+<td>store a private pointer</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROGRESSDATA</code></td>
+<td>pointer passed to the progress callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROGRESSFUNCTION</code></td>
+<td>progress meter callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROTOCOLS_STR</code></td>
+<td>allowed protocols</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROTOCOLS</code></td>
+<td>allowed protocols</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_CAINFO_BLOB</code></td>
+<td>proxy Certificate Authority (CA) bundle in PEM format</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_CAINFO</code></td>
+<td>path to proxy Certificate Authority (CA) bundle</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_CAPATH</code></td>
+<td>directory holding HTTPS proxy CA certificates</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_CRLFILE</code></td>
+<td>HTTPS proxy Certificate Revocation List file</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_ISSUERCERT_BLOB</code></td>
+<td>proxy issuer SSL certificate from memory blob</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_ISSUERCERT</code></td>
+<td>proxy issuer SSL certificate filename</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_KEYPASSWD</code></td>
+<td>passphrase for the proxy private key</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_PINNEDPUBLICKEY</code></td>
+<td>pinned public key for https proxy</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_SERVICE_NAME</code></td>
+<td>proxy authentication service name</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_SSL_CIPHER_LIST</code></td>
+<td>ciphers to use for HTTPS proxy</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_SSL_OPTIONS</code></td>
+<td>HTTPS proxy SSL behavior options</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_SSL_VERIFYHOST</code></td>
+<td>verify the proxy certificate’s name against host</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_SSL_VERIFYPEER</code></td>
+<td>verify the proxy’s SSL certificate</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_SSLCERT_BLOB</code></td>
+<td>SSL proxy client certificate from memory blob</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_SSLCERT</code></td>
+<td>HTTPS proxy client certificate</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_SSLCERTTYPE</code></td>
+<td>type of the proxy client SSL certificate</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_SSLKEY_BLOB</code></td>
+<td>private key for proxy cert from memory blob</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_SSLKEY</code></td>
+<td>private keyfile for HTTPS proxy client cert</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_SSLKEYTYPE</code></td>
+<td>type of the proxy private key file</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_SSLVERSION</code></td>
+<td>preferred HTTPS proxy TLS version</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_TLS13_CIPHERS</code></td>
+<td>ciphers suites for proxy TLS 1.3</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_TLSAUTH_PASSWORD</code></td>
+<td>password to use for proxy TLS authentication</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_TLSAUTH_TYPE</code></td>
+<td>HTTPS proxy TLS authentication methods</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY_TLSAUTH_USERNAME</code></td>
+<td>username to use for proxy TLS authentication</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXY_TRANSFER_MODE</code></td>
+<td>append FTP transfer mode to URL for proxy</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXY</code></td>
+<td>proxy to use</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXYAUTH</code></td>
+<td>HTTP proxy authentication methods</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXYHEADER</code></td>
+<td>set of HTTP headers to pass to proxy</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXYPASSWORD</code></td>
+<td>password to use with proxy authentication</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXYPORT</code></td>
+<td>port number the proxy listens on</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXYTYPE</code></td>
+<td>proxy protocol type</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PROXYUSERNAME</code></td>
+<td>username to use for proxy authentication</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_PROXYUSERPWD</code></td>
+<td>username and password to use for proxy authentication</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_PUT</code></td>
+<td>make an HTTP PUT request</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_QUICK_EXIT</code></td>
+<td>allow to exit quickly</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_QUOTE</code></td>
+<td>(S)FTP commands to run before transfer</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_RANDOM_FILE</code></td>
+<td>file to read random data from</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_RANGE</code></td>
+<td>byte range to request</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_READDATA</code></td>
+<td>pointer passed to the read callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_READFUNCTION</code></td>
+<td>read callback for data uploads</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_REDIR_PROTOCOLS_STR</code></td>
+<td>protocols allowed to redirect to</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_REDIR_PROTOCOLS</code></td>
+<td>protocols allowed to redirect to</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_REFERER</code></td>
+<td>the HTTP referer header</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_REQUEST_TARGET</code></td>
+<td>alternative target for this request</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_RESOLVE</code></td>
+<td>provide custom hostname to IP address resolves</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_RESOLVER_START_DATA</code></td>
+<td>pointer passed to the resolver start callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_RESOLVER_START_FUNCTION</code></td>
+<td>callback called before a new name resolve is started</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_RESUME_FROM_LARGE</code></td>
+<td>offset to resume transfer from</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_RESUME_FROM</code></td>
+<td>offset to resume transfer from</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_RTSP_CLIENT_CSEQ</code></td>
+<td>RTSP client CSEQ number</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_RTSP_REQUEST</code></td>
+<td>RTSP request</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_RTSP_SERVER_CSEQ</code></td>
+<td>RTSP server CSEQ number</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_RTSP_SESSION_ID</code></td>
+<td>RTSP session ID</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_RTSP_STREAM_URI</code></td>
+<td>RTSP stream URI</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_RTSP_TRANSPORT</code></td>
+<td>RTSP Transport: header</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SASL_AUTHZID</code></td>
+<td>authorization identity (identity to act as)</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SASL_IR</code></td>
+<td>send initial response in first packet</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SEEKDATA</code></td>
+<td>pointer passed to the seek callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SEEKFUNCTION</code></td>
+<td>user callback for seeking in input stream</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SERVER_RESPONSE_TIMEOUT</code></td>
+<td>time in seconds allowed to wait for server response</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SERVER_RESPONSE_TIMEOUT_MS</code></td>
+<td>time in milliseconds allowed to wait for server response</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SERVICE_NAME</code></td>
+<td>authentication service name</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SHARE</code></td>
+<td>share handle to use</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SOCKOPTDATA</code></td>
+<td>pointer to pass to sockopt callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SOCKOPTFUNCTION</code></td>
+<td>callback for setting socket options</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SOCKS5_AUTH</code></td>
+<td>methods for SOCKS5 proxy authentication</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SOCKS5_GSSAPI_NEC</code></td>
+<td>socks proxy gssapi negotiation protection</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SOCKS5_GSSAPI_SERVICE</code></td>
+<td>SOCKS5 proxy authentication service name</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSH_AUTH_TYPES</code></td>
+<td>auth types for SFTP and SCP</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSH_COMPRESSION</code></td>
+<td>enable SSH compression</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSH_HOST_PUBLIC_KEY_MD5</code></td>
+<td>MD5 checksum of SSH server public key</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSH_HOST_PUBLIC_KEY_SHA256</code></td>
+<td>SHA256 hash of SSH server public key</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSH_HOSTKEYDATA</code></td>
+<td>pointer to pass to the SSH host key callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSH_HOSTKEYFUNCTION</code></td>
+<td>callback to check host key</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSH_KEYDATA</code></td>
+<td>pointer passed to the SSH key callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSH_KEYFUNCTION</code></td>
+<td>callback for known host matching logic</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSH_KNOWNHOSTS</code></td>
+<td>filename holding the SSH known hosts</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSH_PRIVATE_KEYFILE</code></td>
+<td>private key file for SSH auth</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSH_PUBLIC_KEYFILE</code></td>
+<td>public key file for SSH auth</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSL_CIPHER_LIST</code></td>
+<td>ciphers to use for TLS</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSL_CTX_DATA</code></td>
+<td>pointer passed to ssl_ctx callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSL_CTX_FUNCTION</code></td>
+<td>SSL context callback for OpenSSL, wolfSSL or mbedTLS</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSL_EC_CURVES</code></td>
+<td>key exchange curves</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSL_ENABLE_ALPN</code></td>
+<td>Application Layer Protocol Negotiation</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSL_ENABLE_NPN</code></td>
+<td>use NPN</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSL_FALSESTART</code></td>
+<td>TLS false start</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSL_OPTIONS</code></td>
+<td>SSL behavior options</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSL_SESSIONID_CACHE</code></td>
+<td>use the SSL session-ID cache</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSL_VERIFYHOST</code></td>
+<td>verify the certificate’s name against host</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSL_VERIFYPEER</code></td>
+<td>verify the peer’s SSL certificate</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSL_VERIFYSTATUS</code></td>
+<td>verify the certificate’s status</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSLCERT_BLOB</code></td>
+<td>SSL client certificate from memory blob</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSLCERT</code></td>
+<td>SSL client certificate</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSLCERTTYPE</code></td>
+<td>type of client SSL certificate</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSLENGINE_DEFAULT</code></td>
+<td>make SSL engine default</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSLENGINE</code></td>
+<td>SSL engine identifier</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSLKEY_BLOB</code></td>
+<td>private key for client cert from memory blob</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSLKEY</code></td>
+<td>private keyfile for TLS and SSL client cert</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SSLKEYTYPE</code></td>
+<td>type of the private key file</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_SSLVERSION</code></td>
+<td>preferred TLS/SSL version</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_STDERR</code></td>
+<td>redirect stderr to another stream</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_STREAM_DEPENDS_E</code></td>
+<td>stream this transfer depends on exclusively</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_STREAM_DEPENDS</code></td>
+<td>stream this transfer depends on</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_STREAM_WEIGHT</code></td>
+<td>numerical stream weight</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_SUPPRESS_CONNECT_HEADERS</code></td>
+<td>suppress proxy CONNECT response headers from user callbacks</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_TCP_FASTOPEN</code></td>
+<td>TCP Fast Open</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_TCP_KEEPALIVE</code></td>
+<td>TCP keep-alive probing</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_TCP_KEEPIDLE</code></td>
+<td>TCP keep-alive idle time wait</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_TCP_KEEPINTVL</code></td>
+<td>TCP keep-alive interval</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_TCP_NODELAY</code></td>
+<td>the TCP_NODELAY option</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_TELNETOPTIONS</code></td>
+<td>set of telnet options</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_TFTP_BLKSIZE</code></td>
+<td>TFTP block size</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_TFTP_NO_OPTIONS</code></td>
+<td>send no TFTP options requests</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_TIMECONDITION</code></td>
+<td>select condition for a time request</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_TIMEOUT_MS</code></td>
+<td>maximum time the transfer is allowed to complete</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_TIMEOUT</code></td>
+<td>maximum time the transfer is allowed to complete</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_TIMEVALUE_LARGE</code></td>
+<td>time value for conditional</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_TIMEVALUE</code></td>
+<td>time value for conditional</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_TLS13_CIPHERS</code></td>
+<td>ciphers suites to use for TLS 1.3</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_TLSAUTH_PASSWORD</code></td>
+<td>password to use for TLS authentication</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_TLSAUTH_TYPE</code></td>
+<td>TLS authentication methods</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_TLSAUTH_USERNAME</code></td>
+<td>username to use for TLS authentication</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_TRAILERDATA</code></td>
+<td>pointer passed to trailing headers callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_TRAILERFUNCTION</code></td>
+<td>callback for sending trailing headers</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_TRANSFER_ENCODING</code></td>
+<td>ask for HTTP Transfer Encoding</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_TRANSFERTEXT</code></td>
+<td>request a text based transfer for FTP</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_UNIX_SOCKET_PATH</code></td>
+<td>Unix domain socket</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_UNRESTRICTED_AUTH</code></td>
+<td>send credentials to other hosts too</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_UPKEEP_INTERVAL_MS</code></td>
+<td>connection upkeep interval</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_UPLOAD_BUFFERSIZE</code></td>
+<td>upload buffer size</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_UPLOAD</code></td>
+<td>data upload</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_URL</code></td>
+<td>URL for this transfer</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_USE_SSL</code></td>
+<td>request using SSL / TLS for the transfer</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_USERAGENT</code></td>
+<td>HTTP user-agent header</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_USERNAME</code></td>
+<td>username to use in authentication</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_USERPWD</code></td>
+<td>username and password to use in authentication</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_VERBOSE</code></td>
+<td>verbose mode</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_WILDCARDMATCH</code></td>
+<td>directory wildcard transfers</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_WRITEDATA</code></td>
+<td>pointer passed to the write callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_WRITEFUNCTION</code></td>
+<td>callback for writing received data</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_WS_OPTIONS</code></td>
+<td>WebSocket behavior options</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_XFERINFODATA</code></td>
+<td>pointer passed to the progress callback</td>
+</tr>
+<tr class="odd">
+<td><code>CURLOPT_XFERINFOFUNCTION</code></td>
+<td>progress meter callback</td>
+</tr>
+<tr class="even">
+<td><code>CURLOPT_XOAUTH2_BEARER</code></td>
+<td>OAuth 2.0 access token</td>
+</tr>
+</tbody>
+</table>
+<p><span id="transfers__options__info__md"></span></p>
+</section>
+</body>
+</html>

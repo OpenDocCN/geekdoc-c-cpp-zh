@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch217.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__callbacks__header__md-_-_-header-data" class="level1" data-number="216">
+<h1 data-number="216">Header data</h1>
+<p>The header callback is set with <code>CURLOPT_HEADERFUNCTION</code>:</p>
+<pre><code>curl_easy_setopt(handle, CURLOPT_HEADERFUNCTION, header_callback);</code></pre>
+<p>The <code>header_callback</code> function must match this prototype:</p>
+<pre><code>size_t header_callback(char *ptr, size_t size, size_t nmemb,
+                       void *userdata);</code></pre>
+<p>This callback function gets called by libcurl as soon as a header has been received. <em>ptr</em> points to the delivered data, and the size of that data is <em>size</em> multiplied with <em>nmemb</em>. libcurl buffers headers and delivers only “full” headers, one by one, to this callback.</p>
+<p>The data passed to this function is not be zero terminated. You cannot, for example, use printf’s <code>%s</code> operator to display the contents nor strcpy to copy it.</p>
+<p>This callback should return the number of bytes actually taken care of. If that number differs from the number passed to your callback function, it signals an error condition to the library. This causes the transfer to abort and the libcurl function used returns <code>CURLE_WRITE_ERROR</code>.</p>
+<p>The user pointer passed in to the callback in the <em>userdata</em> argument is set with <code>CURLOPT_HEADERDATA</code>:</p>
+<pre><code>curl_easy_setopt(handle, CURLOPT_HEADERDATA, custom_pointer);</code></pre>
+<p><span id="transfers__callbacks__debug__md"></span></p>
+</section>
+</body>
+</html>

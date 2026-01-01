@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch244.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__getinfo__md-_-_-post-transfer-info" class="level1" data-number="243">
+<h1 data-number="243">Post transfer info</h1>
+<p>Remember how libcurl transfers are associated with <em>easy handles</em>. Each transfer has such a handle and when a transfer is completed, before the handle is cleaned or reused for another transfer, it can be used to extract information from the previous operation.</p>
+<p>Your friend for doing this is called <code>curl_easy_getinfo()</code> and you tell it which specific information you are interested in and it returns that if it can.</p>
+<p>When you use this function, you pass in the easy handle, which information you want and a pointer to a variable to hold the answer. You must pass in a pointer to a variable of the correct type or you risk that things go side-ways. These information values are designed to be provided <em>after</em> the transfer is completed.</p>
+<p>The data you receive can be a long, a ‘char <em>’, a ’struct curl_slist </em>’, a double or a socket.</p>
+<p>This is how you extract the <code>Content-Type:</code> value from the previous HTTP transfer:</p>
+<pre><code>CURLcode res;
+char *content_type;
+res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &amp;content_type);</code></pre>
+<p>If you want to extract the local port number that was used in that connection:</p>
+<pre><code>CURLcode res;
+long port_number;
+res = curl_easy_getinfo(curl, CURLINFO_LOCAL_PORT, &amp;port_number);</code></pre>
+<section id="transfers__getinfo__md-_-_-available-information" class="level2" data-number="243.1">
+<h2 data-number="243.1">Available information</h2>
+<table>
+<colgroup>
+<col style="width: 43%" />
+<col style="width: 16%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Getinfo option</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>CURLINFO_ACTIVESOCKET</code></td>
+<td><code>curl_socket_t</code></td>
+<td>The session’s active socket</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_APPCONNECT_TIME</code></td>
+<td><code>double</code></td>
+<td>Time from start until SSL/SSH handshake completed</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_APPCONNECT_TIME_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Time from start until SSL/SSH handshake completed (in microseconds)</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_CAINFO</code></td>
+<td><code>char *</code></td>
+<td>Path to the default CA file libcurl is built to use</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_CAPATH</code></td>
+<td><code>char *</code></td>
+<td>Path to the CA directory libcurl is built to use</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_CERTINFO</code></td>
+<td><code>struct curl_slist *</code></td>
+<td>Certificate chain</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_CONDITION_UNMET</code></td>
+<td><code>long</code></td>
+<td>Whether or not a time conditional was met</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_CONNECT_TIME</code></td>
+<td><code>double</code></td>
+<td>Time from start until remote host or proxy completed</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_CONNECT_TIME_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Time from start until remote host or proxy completed (in microseconds)</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_CONN_ID</code></td>
+<td><code>curl_off_t</code></td>
+<td>Numerical id of the current connection (meant for callbacks)</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_CONTENT_LENGTH_DOWNLOAD</code></td>
+<td><code>double</code></td>
+<td>Content length from the Content-Length header</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_CONTENT_LENGTH_DOWNLOAD_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Content length from the Content-Length header</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_CONTENT_LENGTH_UPLOAD</code></td>
+<td><code>double</code></td>
+<td>Upload size</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_CONTENT_LENGTH_UPLOAD_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Upload size</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_CONTENT_TYPE</code></td>
+<td><code>char *</code></td>
+<td>Content type from the Content-Type header</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_COOKIELIST</code></td>
+<td><code>struct curl_slist *</code></td>
+<td>List of all known cookies</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_EFFECTIVE_METHOD</code></td>
+<td><code>char *</code></td>
+<td>Last used HTTP request method</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_EFFECTIVE_URL</code></td>
+<td><code>char *</code></td>
+<td>Last used URL</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_FILETIME</code></td>
+<td><code>long</code></td>
+<td>Remote time of the retrieved document</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_FILETIME_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Remote time of the retrieved document</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_FTP_ENTRY_PATH</code></td>
+<td><code>char *</code></td>
+<td>The entry path after logging in to an FTP server</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_HEADER_SIZE</code></td>
+<td><code>long</code></td>
+<td>Number of bytes of all headers received</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_HTTP_CONNECTCODE</code></td>
+<td><code>long</code></td>
+<td>Last proxy CONNECT response code</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_HTTP_VERSION</code></td>
+<td><code>long</code></td>
+<td>The HTTP version used in the connection</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_HTTPAUTH_AVAIL</code></td>
+<td><code>long</code></td>
+<td>Available HTTP authentication methods (bitmask)</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_LASTSOCKET</code></td>
+<td><code>long</code></td>
+<td>Last socket used</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_LOCAL_IP</code></td>
+<td><code>char *</code></td>
+<td>Local-end IP address of last connection</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_LOCAL_PORT</code></td>
+<td><code>long</code></td>
+<td>Local-end port of last connection</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_NAMELOOKUP_TIME</code></td>
+<td><code>double</code></td>
+<td>Time from start until name resolving completed</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_NAMELOOKUP_TIME_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Time from start until name resolving completed (in microseconds)</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_NUM_CONNECTS</code></td>
+<td><code>long</code></td>
+<td>Number of new successful connections used for previous transfer</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_OS_ERRNO</code></td>
+<td><code>long</code></td>
+<td>The errno from the last failure to connect</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_PRETRANSFER_TIME</code></td>
+<td><code>double</code></td>
+<td>Time from start until just before the transfer begins</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_PRETRANSFER_TIME_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Time from start until just before the transfer begins (in microseconds)</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_PRIMARY_IP</code></td>
+<td><code>char *</code></td>
+<td>IP address of the last connection</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_PRIMARY_PORT</code></td>
+<td><code>long</code></td>
+<td>Port of the last connection</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_PRIVATE</code></td>
+<td><code>char *</code></td>
+<td>User’s private data pointer</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_PROTOCOL</code></td>
+<td><code>long</code></td>
+<td>The protocol used for the connection</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_PROXY_ERROR</code></td>
+<td><code>long</code></td>
+<td>Detailed (SOCKS) proxy error if <code>CURLE_PROXY</code> was returned from the transfer</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_PROXY_SSL_VERIFYRESULT</code></td>
+<td><code>long</code></td>
+<td>Proxy certificate verification result</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_PROXYAUTH_AVAIL</code></td>
+<td><code>long</code></td>
+<td>Available HTTP proxy authentication methods</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_QUEUE_TIME_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Time in microseconds this transfer was held in queue waiting to start</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_REDIRECT_COUNT</code></td>
+<td><code>long</code></td>
+<td>Total number of redirects that were followed</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_REDIRECT_TIME</code></td>
+<td><code>double</code></td>
+<td>Time taken for all redirect steps before the final transfer</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_REDIRECT_TIME_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Time taken for all redirect steps before the final transfer (in microseconds)</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_REDIRECT_URL</code></td>
+<td><code>char *</code></td>
+<td>URL a redirect would take you to, had you enabled redirects</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_REFERER</code></td>
+<td><code>char *</code></td>
+<td>The used request <code>Referer:</code> header</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_REQUEST_SIZE</code></td>
+<td><code>long</code></td>
+<td>Number of bytes sent in the issued HTTP requests</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_RESPONSE_CODE</code></td>
+<td><code>long</code></td>
+<td>Last received response code</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_RETRY_AFTER</code></td>
+<td><code>curl_off_t</code></td>
+<td>The value from the response <code>Retry-After:</code> header</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_RTSP_CLIENT_CSEQ</code></td>
+<td><code>long</code></td>
+<td>RTSP next expected client CSeq</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_RTSP_CSEQ_RECV</code></td>
+<td><code>long</code></td>
+<td>RTSP last received</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_RTSP_SERVER_CSEQ</code></td>
+<td><code>long</code></td>
+<td>RTSP next expected server CSeq</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_RTSP_SESSION_ID</code></td>
+<td><code>char *</code></td>
+<td>RTSP session ID</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_SCHEME</code></td>
+<td><code>char *</code></td>
+<td>The scheme used for the connection</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_SIZE_DOWNLOAD</code></td>
+<td><code>double</code></td>
+<td>Number of bytes downloaded</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_SIZE_DOWNLOAD_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Number of bytes downloaded</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_SIZE_UPLOAD</code></td>
+<td><code>double</code></td>
+<td>Number of bytes uploaded</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_SIZE_UPLOAD_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Number of bytes uploaded</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_SPEED_DOWNLOAD</code></td>
+<td><code>double</code></td>
+<td>Average download speed</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_SPEED_DOWNLOAD_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Average download speed</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_SPEED_UPLOAD</code></td>
+<td><code>double</code></td>
+<td>Average upload speed</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_SPEED_UPLOAD_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Average upload speed</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_SSL_ENGINES</code></td>
+<td><code>struct curl_slist *</code></td>
+<td>A list of OpenSSL crypto engines</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_SSL_VERIFYRESULT</code></td>
+<td><code>long</code></td>
+<td>Certificate verification result</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_STARTTRANSFER_TIME</code></td>
+<td><code>double</code></td>
+<td>Time from start until just when the first byte is received</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_STARTTRANSFER_TIME_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Time from start until just when the first byte is received (in microseconds)</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_TLS_SSL_PTR</code></td>
+<td><code>struct curl_slist *</code></td>
+<td>TLS session info that can be used for further processing</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_TOTAL_TIME</code></td>
+<td><code>double</code></td>
+<td>Total time of previous transfer</td>
+</tr>
+<tr class="even">
+<td><code>CURLINFO_TOTAL_TIME_T</code></td>
+<td><code>curl_off_t</code></td>
+<td>Total time of previous transfer (in microseconds)</td>
+</tr>
+<tr class="odd">
+<td><code>CURLINFO_XFER_ID</code></td>
+<td><code>curl_off_t</code></td>
+<td>Numerical id of the current transfer (meant for callbacks)</td>
+</tr>
+</tbody>
+</table>
+<p><span id="libcurl-http__README__md"></span></p>
+</section>
+</section>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch121.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__proxies__env__md-_-_-proxy-environment-variables" class="level1" data-number="120">
+<h1 data-number="120">Proxy environment variables</h1>
+<p>curl checks for the existence of specially named environment variables before it runs to see if a proxy is requested to get used.</p>
+<p>You specify the proxy by setting a variable named <code>[scheme]_proxy</code> to hold the proxy hostname (the same way you would specify the host with <code>-x</code>). If you want to tell curl to use a proxy when access an HTTP server, you set the <code>http_proxy</code> environment variable. Like this:</p>
+<pre><code>http_proxy=http://proxy.example.com:80
+curl -v www.example.com</code></pre>
+<p>While the above example shows HTTP, you can, of course, also set <code>ftp_proxy</code>, <code>https_proxy</code>, and so on. All these proxy environment variable names except <code>http_proxy</code> can also be specified in uppercase, like <code>HTTPS_PROXY</code>.</p>
+<p>To set a single variable that controls <em>all</em> protocols, the <code>ALL_PROXY</code> exists. If a specific protocol variable one exists, such a one takes precedence.</p>
+<section id="usingcurl__proxies__env__md-_-_-no-proxy" class="level2" data-number="120.1">
+<h2 data-number="120.1">No proxy</h2>
+<p>You sometimes end up in a situation where one or a few hostnames should be excluded from going through the proxy that normally would be used. This is then done with the <code>NO_PROXY</code> variable. Set that to a comma- separated list of hostnames that should not use a proxy when being accessed. You can set <code>NO_PROXY</code> to be a single asterisk (‘*’) to match all hosts.</p>
+<p>If a name in the exclusion list starts with a dot (<code>.</code>), then the name matches that entire domain. For example <code>.example.com</code> matches both <code>www.example.com</code> and <code>home.example.com</code> but not <code>nonexample.com</code>.</p>
+<p>As an alternative to the <code>NO_PROXY</code> variable, there is also a <code>--noproxy</code> command line option that serves the same purpose and works the same way.</p>
+<p>Since curl 7.86.0, a user can exclude an IP network using the CIDR notation: append a slash and number of bits to an IP address to specify the bit size of the network to match. For example, match the entire 16 bit network starting with <code>192.168</code> by providing the pattern <code>192.168.0.0/16</code>.</p>
+</section>
+<section id="usingcurl__proxies__env__md-_-_-http_proxy-in-lower-case-only" class="level2" data-number="120.2">
+<h2 data-number="120.2"><code>http_proxy</code> in lower case only</h2>
+<p>The HTTP version of the proxy environment variables is treated differently than the others. It is only accepted in its lower case version because of the CGI protocol, which lets users run scripts in a server when invoked by an HTTP server. When a CGI script is invoked by a server, it automatically creates environment variables for the script based on the incoming headers in the request. Those environment variables are prefixed with uppercase <code>HTTP_</code>.</p>
+<p>An incoming request to an HTTP server using a request header like <code>Proxy: yada</code> therefore creates the environment variable <code>HTTP_PROXY</code> set to contain <code>yada</code> before the CGI script is started. If such a CGI script runs curl, it is important that curl does not treat that as a proxy to use.</p>
+<p>Accepting the upper case version of this environment variable has been the source for many security problems in lots of software through times.</p>
+<p><span id="usingcurl__proxies__headers__md"></span></p>
+</section>
+</section>
+</body>
+</html>

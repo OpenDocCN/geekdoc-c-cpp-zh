@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch222.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__callbacks__conversions__md-_-_-network-data-conversion" class="level1" data-number="221">
+<h1 data-number="221">Network data conversion</h1>
+<p>Up until libcurl version 7.82.0, these callbacks were provided to make things work on non-ASCII platforms. <strong>The support for these callbacks have since been removed.</strong></p>
+<p>The documentation below is kept here for a while and describes how they used to work. It will be removed from this book at a future date.</p>
+<section id="transfers__callbacks__conversions__md-_-_-convert-to-and-from-network-callbacks" class="level2" data-number="221.1">
+<h2 data-number="221.1">Convert to and from network callbacks</h2>
+<p>For non-ASCII platforms, <code>CURLOPT_CONV_FROM_NETWORK_FUNCTION</code> is provided. This function should convert <strong>to</strong> host encoding <strong>from</strong> the network encoding.</p>
+<p><code>CURLOPT_CONV_TO_NETWORK_FUNCTION</code> should convert from <strong>host</strong> encoding <strong>to</strong> the network encoding. It is used when commands or ASCII data are sent over the network.</p>
+</section>
+<section id="transfers__callbacks__conversions__md-_-_-convert-from-utf-8-callback" class="level2" data-number="221.2">
+<h2 data-number="221.2">Convert from UTF-8 callback</h2>
+<p><code>CURLOPT_CONV_FROM_UTF8_FUNCTION</code> should convert to host encoding from UTF-8 encoding. It is required only for SSL processing.</p>
+<p><span id="transfers__callbacks__openclosesocket__md"></span></p>
+</section>
+</section>
+</body>
+</html>

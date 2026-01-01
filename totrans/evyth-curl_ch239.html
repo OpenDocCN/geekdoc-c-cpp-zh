@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch239.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__control__stopslow__md-_-_-stop-slow-transfers" class="level1" data-number="238">
+<h1 data-number="238">Stop slow transfers</h1>
+<p>By default, a transfer can stall or transfer data extremely slow for any period without that being an error.</p>
+<p>Stop a transfer if below <strong>N</strong> bytes/sec during <strong>M</strong> seconds. Set <strong>N</strong> with <code>CURLOPT_LOW_SPEED_LIMIT</code> and set <strong>M</strong> with <code>CURLOPT_LOW_SPEED_TIME</code>.</p>
+<p>Using these option in real code can look like this:</p>
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;curl/curl.h&gt;
+
+int main(void)
+{
+  CURL *curl;
+  CURLcode res = CURLE_OK;
+
+  curl = curl_easy_init();
+  if(curl) {
+    /* abort if slower than 30 bytes/sec during 60 seconds */
+    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 60L);
+    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 30L);
+
+    curl_easy_setopt(curl, CURLOPT_URL, &quot;https://curl.se/&quot;);
+
+    res = curl_easy_perform(curl);
+
+    curl_easy_cleanup(curl);
+  }
+
+  return (int)res;
+}</code></pre>
+<p><span id="transfers__control__ratelimit__md"></span></p>
+</section>
+</body>
+</html>

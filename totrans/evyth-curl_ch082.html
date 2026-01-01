@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch082.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__verbose__writeout__md-_-_-write-out" class="level1" data-number="81">
+<h1 data-number="81">Write out</h1>
+<p><code>--write-out</code> or just <code>-w</code> for short, outputs text and information after a transfer is completed. It offers a large range of variables that you can include in the output, variables that have been set with values and information from the transfer.</p>
+<p>Instruct curl to output a string by passing plain text to this option:</p>
+<pre><code>curl -w &quot;formatted string&quot; http://example.com/</code></pre>
+<p>…and you can also have curl read that string from a given file instead if you prefix the string with ‘@’:</p>
+<pre><code>curl -w @filename http://example.com/</code></pre>
+<p>…or even have curl read the string from stdin if you use ‘-’ as filename:</p>
+<pre><code>curl -w @- http://example.com/</code></pre>
+<section id="usingcurl__verbose__writeout__md-_-_-variables" class="level2" data-number="81.1">
+<h2 data-number="81.1">Variables</h2>
+<p>The variables that are available are accessed by writing <code>%{variable_name}</code> in the string and that variable is substituted by the correct value. To output a plain <code>%</code> you write it as <code>%%</code>. You can also output a newline by using <code>\n</code>, a carriage return with <code>\r</code> and a tab space with <code>\t</code>.</p>
+<p>As an example, we can output the Content-Type and the response code from an HTTP transfer, separated with newlines and some extra text like this:</p>
+<pre><code>curl -w &quot;Type: %{content_type}\nCode: %{response_code}\n&quot; \
+  http://example.com</code></pre>
+<p>The output is sent to stdout by default so you probably want to make sure that you do not also send the downloaded content to stdout as then you might have a hard time to separate out the data; or use <code>%{stderr}</code> to send the output to stderr.</p>
+</section>
+<section id="usingcurl__verbose__writeout__md-_-_-http-headers" class="level2" data-number="81.2">
+<h2 data-number="81.2">HTTP headers</h2>
+<p>This option also provides an easy to use way to output the contents of HTTP response headers from the most recent transfer.</p>
+<p>Use <code>%header{name}</code> in the string, where <code>name</code> is the case insensitive name of the header (without the trailing colon). The output header contents are then shown exactly as was sent over the network, with leading and trailing whitespace trimmed. Like this:</p>
+<pre><code>curl -w &quot;Server: %header{server}\n&quot; http://example.com</code></pre>
+</section>
+<section id="usingcurl__verbose__writeout__md-_-_-output" class="level2" data-number="81.3">
+<h2 data-number="81.3">Output</h2>
+<p>By default, this option makes the selected data get output on stdout. If that is not good enough, the pseudo-variable <code>%{stderr}</code> can be used to direct (the following) part to stderr and <code>%{stdout}</code> brings it back to stdout.</p>
+<p>From curl 8.3.0, there is a feature that lets users send the write-out output to a file: <code>%output{filename}</code>. The data following is then written to that file. If you would rather have curl append to that file instead of creating it from scratch, prefix the filename with <code>&gt;&gt;</code>. Like this: <code>%output{&gt;&gt;filename}</code>.</p>
+<p>A write-out argument can include output to stderr, stdout and files as the user sees fit.</p>
+</section>
+<section id="usingcurl__verbose__writeout__md-_-_-windows" class="level2" data-number="81.4">
+<h2 data-number="81.4">Windows</h2>
+<p><strong>NOTE:</strong> In Windows, the <code>%</code>-symbol is a special symbol used to expand environment variables. In batch files all occurrences of <code>%</code> must be doubled when using this option to properly escape. If this option is used at the command prompt then the <code>%</code> cannot be escaped and unintended expansion is possible.</p>
+</section>
+<section id="usingcurl__verbose__writeout__md-_-_-available---write-out-variables" class="level2" data-number="81.5">
+<h2 data-number="81.5">Available –write-out variables</h2>
+<p>Some of these variables are not available in really old curl versions.</p>
+<table>
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 68%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>certs</code></td>
+<td>Outputs the certificate chain from the most recent TLS handshake - with details. (Introduced in 7.88.0)</td>
+</tr>
+<tr class="even">
+<td><code>content_type</code></td>
+<td>Content-Type of the requested document, if there was any.</td>
+</tr>
+<tr class="odd">
+<td><code>errormsg</code></td>
+<td>Error message from the transfer. Empty if no error occurred. (Introduced in 7.75.0)</td>
+</tr>
+<tr class="even">
+<td><code>exitcode</code></td>
+<td>Numerical exit code from the transfer. 0 if no error occurred. (Introduced in 7.75.0)</td>
+</tr>
+<tr class="odd">
+<td><code>filename_effective</code></td>
+<td>The ultimate filename that curl writes out to. Practical if curl is told to write to a file with the <code>--remote-name</code> or <code>--output</code> option. It is most useful in combination with the <code>--remote-header-name</code> option.</td>
+</tr>
+<tr class="even">
+<td><code>ftp_entry_path</code></td>
+<td>The initial path curl ended up in when logging on to the remote FTP server.</td>
+</tr>
+<tr class="odd">
+<td><code>http_code</code></td>
+<td>The former variable name for what is now known as <code>response_code</code>.</td>
+</tr>
+<tr class="even">
+<td><code>http_connect</code></td>
+<td>the numerical code that was found in the last response (from a proxy) to a curl CONNECT request.</td>
+</tr>
+<tr class="odd">
+<td><code>http_version</code></td>
+<td>The HTTP version that was used.</td>
+</tr>
+<tr class="even">
+<td><code>json</code></td>
+<td>all write-out variables as a single JSON object. (Introduced in 7.72.0)</td>
+</tr>
+<tr class="odd">
+<td><code>local_ip</code></td>
+<td>IP address of the local end of the most recently used connection - can be either IPv4 or IPv6</td>
+</tr>
+<tr class="even">
+<td><code>local_port</code></td>
+<td>Local port number of the most recently used connection</td>
+</tr>
+<tr class="odd">
+<td><code>method</code></td>
+<td>HTTP method the most recent request used. (Introduced in 7.72.0)</td>
+</tr>
+<tr class="even">
+<td><code>num_certs</code></td>
+<td>Number of the certificates in the most recent TLS handshake. (Introduced in 7.88.0)</td>
+</tr>
+<tr class="odd">
+<td><code>num_connects</code></td>
+<td>Number of new connects made in the recent transfer.</td>
+</tr>
+<tr class="even">
+<td><code>num_headers</code></td>
+<td>Number of response headers in the last response</td>
+</tr>
+<tr class="odd">
+<td><code>num_redirects</code></td>
+<td>Number of redirects that were followed in the request.</td>
+</tr>
+<tr class="even">
+<td><code>onerror</code></td>
+<td>If the transfer ended with an error, show the rest of the string, otherwise stop here. (Introduced in 7.75.0)</td>
+</tr>
+<tr class="odd">
+<td><code>proxy_ssl_verify_result</code></td>
+<td>The result of the SSL peer certificate verification that was requested when communicating with a proxy. 0 means the verification was successful.</td>
+</tr>
+<tr class="even">
+<td><code>redirect_url</code></td>
+<td>The actual URL a redirect <em>would</em> take you to when an HTTP request was made without <code>-L</code> to follow redirects.</td>
+</tr>
+<tr class="odd">
+<td><code>remote_ip</code></td>
+<td>The remote IP address of the most recently used connection — can be either IPv4 or IPv6.</td>
+</tr>
+<tr class="even">
+<td><code>remote_port</code></td>
+<td>The remote port number of the most recently made connection.</td>
+</tr>
+<tr class="odd">
+<td><code>response_code</code></td>
+<td>The numerical response code that was found in the last transfer.</td>
+</tr>
+<tr class="even">
+<td><code>scheme</code></td>
+<td>scheme used in the previous URL</td>
+</tr>
+<tr class="odd">
+<td><code>size_download</code></td>
+<td>Total number of bytes that were downloaded.</td>
+</tr>
+<tr class="even">
+<td><code>size_header</code></td>
+<td>Total number of bytes of the downloaded headers.</td>
+</tr>
+<tr class="odd">
+<td><code>size_request</code></td>
+<td>Total number of bytes that were sent in the HTTP request.</td>
+</tr>
+<tr class="even">
+<td><code>size_upload</code></td>
+<td>Total number of bytes that were uploaded.</td>
+</tr>
+<tr class="odd">
+<td><code>speed_download</code></td>
+<td>Average download speed that curl measured for the complete download in bytes per second.</td>
+</tr>
+<tr class="even">
+<td><code>speed_upload</code></td>
+<td>Average upload speed that curl measured for the complete upload in bytes per second.</td>
+</tr>
+<tr class="odd">
+<td><code>ssl_verify_result</code></td>
+<td>the result of the SSL peer certificate verification that was requested. 0 means the verification was successful.</td>
+</tr>
+<tr class="even">
+<td><code>stderr</code></td>
+<td>Makes the rest of the output get written to stderr.</td>
+</tr>
+<tr class="odd">
+<td><code>stdout</code></td>
+<td>makes the rest of the output get written to stdout.</td>
+</tr>
+<tr class="even">
+<td><code>time_appconnect</code></td>
+<td>The time in seconds, it took from the start until the SSL/SSH/etc connect/handshake to the remote host was completed.</td>
+</tr>
+<tr class="odd">
+<td><code>time_connect</code></td>
+<td>The time in seconds, it took from the start until the TCP connect to the remote host (or proxy) was completed.</td>
+</tr>
+<tr class="even">
+<td><code>time_namelookup</code></td>
+<td>The time in seconds, it took from the start until the name resolving was completed.</td>
+</tr>
+<tr class="odd">
+<td><code>time_pretransfer</code></td>
+<td>The time in seconds, it took from the start until the file transfer was just about to begin. This includes all pre-transfer commands and negotiations that are specific to the particular protocol(s) involved.</td>
+</tr>
+<tr class="even">
+<td><code>time_redirect</code></td>
+<td>The time in seconds, it took for all redirection steps including name lookup, connect, pre-transfer and transfer before the final transaction was started. time_redirect the complete execution time for multiple redirections.</td>
+</tr>
+<tr class="odd">
+<td><code>time_starttransfer</code></td>
+<td>The time in seconds, it took from the start until the first byte was just about to be transferred. This includes time_pretransfer and also the time the server needed to calculate the result.</td>
+</tr>
+<tr class="even">
+<td><code>time_total</code></td>
+<td>The total time in seconds, that the full operation lasted. The time is displayed with millisecond resolution.</td>
+</tr>
+<tr class="odd">
+<td><code>url</code></td>
+<td>The URL used in the transfer. (Introduced in 7.75.0)</td>
+</tr>
+<tr class="even">
+<td><code>url_effective</code></td>
+<td>The URL that was fetched last. This is particularly meaningful if you have told curl to follow Location: headers (with <code>-L</code>).</td>
+</tr>
+<tr class="odd">
+<td><code>urlnum</code></td>
+<td>0-based numerical index of the URL used in the transfer. (Introduced in 7.75.0)</td>
+</tr>
+</tbody>
+</table>
+<p>In curl 8.1.0, variables to output only specific URL components were added, for when the <code>url</code> or <code>url_effective</code> variables show more than you want.</p>
+<table>
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 82%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>url.scheme</code></td>
+<td>The scheme part of the URL that was fetched.</td>
+</tr>
+<tr class="even">
+<td><code>url.user</code></td>
+<td>The user part of the URL that was fetched.</td>
+</tr>
+<tr class="odd">
+<td><code>url.password</code></td>
+<td>The password part of the URL that was fetched.</td>
+</tr>
+<tr class="even">
+<td><code>url.options</code></td>
+<td>The options part of the URL that was fetched. Only available for some schemes.</td>
+</tr>
+<tr class="odd">
+<td><code>url.host</code></td>
+<td>The hostname part of the URL that was fetched.</td>
+</tr>
+<tr class="even">
+<td><code>url.path</code></td>
+<td>The path part of the URL that was fetched.</td>
+</tr>
+<tr class="odd">
+<td><code>url.query</code></td>
+<td>The query part of the URL that was fetched.</td>
+</tr>
+<tr class="even">
+<td><code>url.fragment</code></td>
+<td>The fragment part of the URL that was fetched.</td>
+</tr>
+<tr class="odd">
+<td><code>url.zoneid</code></td>
+<td>The zone id part of the URL that was fetched. Only available if the hostname is an IPv6 address.</td>
+</tr>
+<tr class="even">
+<td><code>urle.scheme</code></td>
+<td>The scheme part of the effective (last) URL that was fetched.</td>
+</tr>
+<tr class="odd">
+<td><code>urle.user</code></td>
+<td>The user part of the effective (last) URL that was fetched.</td>
+</tr>
+<tr class="even">
+<td><code>urle.password</code></td>
+<td>The password part of the effective (last) URL that was fetched.</td>
+</tr>
+<tr class="odd">
+<td><code>urle.options</code></td>
+<td>The options part of the effective (last) URL that was fetched. Only available for some schemes.</td>
+</tr>
+<tr class="even">
+<td><code>urle.host</code></td>
+<td>The hostname part of the effective (last) URL that was fetched.</td>
+</tr>
+<tr class="odd">
+<td><code>urle.path</code></td>
+<td>The path part of the effective (last) URL that was fetched.</td>
+</tr>
+<tr class="even">
+<td><code>urle.query</code></td>
+<td>The query part of the effective (last) URL that was fetched.</td>
+</tr>
+<tr class="odd">
+<td><code>urle.fragment</code></td>
+<td>The fragment part of the effective (last) URL that was fetched.</td>
+</tr>
+<tr class="even">
+<td><code>urle.zoneid</code></td>
+<td>The zone id part of the effective (last) URL that was fetched. Only available if the hostname is an IPv6 address.</td>
+</tr>
+</tbody>
+</table>
+<p><span id="usingcurl__downloads__README__md"></span></p>
+</section>
+</section>
+</body>
+</html>

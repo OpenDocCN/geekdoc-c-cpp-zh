@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch032.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="install__container__md-_-_-container" class="level1" data-number="31">
+<h1 data-number="31">Container</h1>
+<p>Both <code>docker</code> and <code>podman</code> are containerization tools. The docker image is hosted at <a href="https://hub.docker.com/r/curlimages/curl">https://hub.docker.com/r/curlimages/curl</a></p>
+<p>You can run the latest version of curl with the following command:</p>
+<p>Command for <code>docker</code>:</p>
+<pre><code>docker run -it --rm docker.io/curlimages/curl www.example.com</code></pre>
+<p>Command for <code>podman</code>:</p>
+<pre><code>podman run -it --rm docker.io/curlimages/curl www.example.com</code></pre>
+<section id="install__container__md-_-_-running-curl-seamlessly-in-container" class="level2" data-number="31.1">
+<h2 data-number="31.1">Running curl seamlessly in container</h2>
+<p>It is possible to make an alias to seamlessly run curl inside a container as if it is a native application installed on the host OS.</p>
+<p>Command to define curl as an alias for your containerization tool in the Bash, ZSH, Fish shell:</p>
+<section id="install__container__md-_-_-bash-or-zsh" class="level3" data-number="31.1.1">
+<h3 data-number="31.1.1">Bash or zsh</h3>
+<p>Invoke curl with <code>docker</code>:</p>
+<pre><code>alias curl=&#39;docker run -it --rm docker.io/curlimages/curl&#39;</code></pre>
+<p>Invoke curl with <code>podman</code>:</p>
+<pre><code>alias curl=&#39;podman run -it --rm docker.io/curlimages/curl&#39;</code></pre>
+</section>
+<section id="install__container__md-_-_-fish" class="level3" data-number="31.1.2">
+<h3 data-number="31.1.2">Fish</h3>
+<p>Invoke curl with <code>docker</code>:</p>
+<pre><code>alias -s curl=&#39;docker run -it --rm docker.io/curlimages/curl&#39;</code></pre>
+<p>Invoke curl with <code>podman</code>:</p>
+<pre><code>alias -s curl=&#39;podman run -it --rm docker.io/curlimages/curl&#39;</code></pre>
+<p>And simply invoke <code>curl www.example.com</code> to make a request</p>
+</section>
+</section>
+<section id="install__container__md-_-_-running-curl-in-kubernetes" class="level2" data-number="31.2">
+<h2 data-number="31.2">Running curl in kubernetes</h2>
+<p>Sometimes it can be useful to troubleshoot k8s networking with curl, just like :</p>
+<pre><code>kubectl run -i --tty curl --image=curlimages/curl --restart=Never \
+  -- &quot;-m 5&quot; www.example.com</code></pre>
+<p><span id="source__README__md"></span></p>
+</section>
+</section>
+</body>
+</html>

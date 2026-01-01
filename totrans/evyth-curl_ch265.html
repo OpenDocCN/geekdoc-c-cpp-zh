@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch265.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="helpers__url__get__md-_-_-flags" class="level1" data-number="264">
+<h1 data-number="264">Flags</h1>
+<p>When retrieving a URL part using <code>curl_url_get()</code>, the API offers a few different toggles to better specify exactly how that content should be returned. They are set in the <code>flags</code> bitmask parameter, which is the function’s fourth argument. You can set zero, one or more bits.</p>
+<section id="helpers__url__get__md-_-_-curlu_default_port" class="level2" data-number="264.1">
+<h2 data-number="264.1"><code>CURLU_DEFAULT_PORT</code></h2>
+<p>If the URL handle has no port number stored, this option makes <code>curl_url_get()</code> return the default port for the used scheme.</p>
+</section>
+<section id="helpers__url__get__md-_-_-curlu_default_scheme" class="level2" data-number="264.2">
+<h2 data-number="264.2"><code>CURLU_DEFAULT_SCHEME</code></h2>
+<p>If the handle has no scheme stored, this option makes <code>curl_url_get()</code> return the default scheme instead of error.</p>
+</section>
+<section id="helpers__url__get__md-_-_-curlu_no_default_port" class="level2" data-number="264.3">
+<h2 data-number="264.3"><code>CURLU_NO_DEFAULT_PORT</code></h2>
+<p>Instructs <code>curl_url_get()</code> to <em>not</em> use a port number in the generated URL if that port number matches the default port used for the scheme. For example, if port number 443 is set and the scheme is <code>https</code>, the extracted URL does not include the port number.</p>
+</section>
+<section id="helpers__url__get__md-_-_-curlu_urlencode" class="level2" data-number="264.4">
+<h2 data-number="264.4"><code>CURLU_URLENCODE</code></h2>
+<p>This flag makes <code>curl_url_get()</code> URL encode the hostname part when a full URL is retrieved. If not set (default), libcurl returns the URL with the hostname “raw” to support IDN names to appear as-is. IDN hostnames are typically using non-ASCII bytes that otherwise are percent-encoded.</p>
+<p>Note that even when not asking for URL encoding, the <code>%</code> (byte 37) is URL encoded in hostnames to make sure the hostname remains valid.</p>
+</section>
+<section id="helpers__url__get__md-_-_-curlu_urldecode" class="level2" data-number="264.5">
+<h2 data-number="264.5"><code>CURLU_URLDECODE</code></h2>
+<p>Tells <code>curl_url_get()</code> to URL decode the contents before returning it. It does attempt to decode the scheme, the port number or the full URL. The query component also gets plus-to-space conversion as a bonus when this bit is set. Note that this URL decoding is charset unaware and you get a zero terminated string back with data that could be intended for a particular encoding. If there are any byte values lower than 32 in the decoded string, the get operation instead returns error.</p>
+</section>
+<section id="helpers__url__get__md-_-_-curlu_punycode" class="level2" data-number="264.6">
+<h2 data-number="264.6"><code>CURLU_PUNYCODE</code></h2>
+<p>If set and <code>CURLU_URLENCODE</code> is not set, and asked to retrieve the <code>CURLUPART_HOST</code> or <code>CURLUPART_URL</code> parts, libcurl returns the hostname in its punycode version if it contains any non-ASCII octets (and is an IDN name). If libcurl is built without IDN capabilities, using this bit makes <code>curl_url_get()</code> return <code>CURLUE_LACKS_IDN</code> if the hostname contains anything outside the ASCII range.</p>
+<p><span id="helpers__url__get-part__md"></span></p>
+</section>
+</section>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch209.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__drive__README__md-_-_-drive-transfers" class="level1" data-number="208">
+<h1 data-number="208">Drive transfers</h1>
+<p>libcurl provides three different ways to perform the transfer. Which way to use in your case is entirely up to you and what you need.</p>
+<ol type="1">
+<li><p>The ‘easy’ interface lets you do a single transfer in a synchronous fashion. libcurl does the entire transfer and return control back to your application when it is completed—successful or failed.</p></li>
+<li><p>The ‘multi’ interface is for when you want to do more than one transfer at the same time, or you just want a non-blocking transfer.</p></li>
+<li><p>The ‘multi_socket’ interface is a slight variation of the regular multi one, but is event-based and is really the suggested API to use if you intend to scale up the number of simultaneous transfers to hundreds or thousands or so.</p></li>
+</ol>
+<p>Let’s look at each one a little closer…</p>
+<ul>
+<li><a href="ch209.xhtml#transfers__drive__easy__md">Drive with easy</a></li>
+<li><a href="ch210.xhtml#transfers__drive__multi__md">Drive with multi</a></li>
+<li><a href="ch211.xhtml#transfers__drive__multi-socket__md">Drive with multi_socket</a></li>
+</ul>
+<p><span id="transfers__drive__easy__md"></span></p>
+</section>
+</body>
+</html>

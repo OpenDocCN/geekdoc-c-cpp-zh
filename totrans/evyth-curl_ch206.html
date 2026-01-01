@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch206.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__options__tls__md-_-_-tls-options" class="level1" data-number="205">
+<h1 data-number="205">TLS options</h1>
+<p>At the time of writing this, there are no less than <strong>forty</strong> different options for curl_easy_setopt that are dedicated for controlling how libcurl does SSL and TLS.</p>
+<p>Transfers done using TLS use safe defaults but since curl is used in many different scenarios and setups, chances are you end up in situations where you want to change those behaviors.</p>
+<section id="transfers__options__tls__md-_-_-protocol-version" class="level2" data-number="205.1">
+<h2 data-number="205.1">Protocol version</h2>
+<p>With <code>CURLOPT_SSLVERSION' and</code>CURLOPT_PROXY_SSLVERSION`you can specify which SSL or TLS protocol range that is acceptable to you. Traditionally SSL and TLS protocol versions have been found detect and unsuitable for use over time and even if curl itself raises its default lower version over time you might want to opt for only using the latest and most security protocol versions.</p>
+<p>These options take a lowest acceptable version and optionally a maximum. If the server cannot negotiate a connection with that condition, the transfer fails.</p>
+<p>Example:</p>
+<pre><code>curl_easy_setopt(easy, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);</code></pre>
+</section>
+<section id="transfers__options__tls__md-_-_-protocol-details-and-behavior" class="level2" data-number="205.2">
+<h2 data-number="205.2">Protocol details and behavior</h2>
+<p>You can select what ciphers to use by setting <code>CURLOPT_SSL_CIPHER_LIST</code> and <code>CURLOPT_PROXY_SSL_CIPHER_LIST</code>.</p>
+<p>You can ask to enable SSL “False Start” with <code>CURLOPT_SSL_FALSESTART</code>, and there are a few other behavior changes to tweak using <code>CURLOPT_SSL_OPTIONS</code>.</p>
+</section>
+<section id="transfers__options__tls__md-_-_-verification" class="level2" data-number="205.3">
+<h2 data-number="205.3">Verification</h2>
+<p>A TLS-using client needs to verify that the server it speaks to is the correct and trusted one. This is done by verifying that the server’s certificate is signed by a Certificate Authority (CA) for which curl has a public key for and that the certificate contains the server’s name. Failing any of these checks cause the transfer to fail.</p>
+<p>For development purposes and for experimenting, curl allows an application to switch off either or both of these checks for the server or for an HTTPS proxy.</p>
+<ul>
+<li><p><code>CURLOPT_SSL_VERIFYPEER</code> controls the check that the certificate is signed by a trusted CA.</p></li>
+<li><p><code>CURLOPT_SSL_VERIFYHOST</code> controls the check for the name within the certificate.</p></li>
+<li><p><code>CURLOPT_PROXY_SSL_VERIFYPEER</code> is the proxy version of <code>CURLOPT_SSL_VERIFYPEER</code>.</p></li>
+<li><p><code>CURLOPT_PROXY_SSL_VERIFYHOST</code> is the proxy version of <code>CURLOPT_SSL_VERIFYHOST</code>.</p></li>
+</ul>
+<p>Optionally, you can tell curl to verify the certificate’s public key against a known hash using <code>CURLOPT_PINNEDPUBLICKEY</code> or <code>CURLOPT_PROXY_PINNEDPUBLICKEY</code>. Here too, a mismatch causes the transfer to fail.</p>
+</section>
+<section id="transfers__options__tls__md-_-_-authentication" class="level2" data-number="205.4">
+<h2 data-number="205.4">Authentication</h2>
+<section id="transfers__options__tls__md-_-_-tls-client-certificates" class="level3" data-number="205.4.1">
+<h3 data-number="205.4.1">TLS Client certificates</h3>
+<p>When using TLS and the server asks the client to authenticate using certificates, you typically specify the private key and the corresponding client certificate using <code>CURLOPT_SSLKEY</code> and <code>CURLOPT_SSLCERT</code>. The password for the key is usually also required to be set, with <code>CURLOPT_SSLKEYPASSWD</code>.</p>
+<p>Again, the same set of options exist separately for connections to HTTPS proxies: <code>CURLOPT_PROXY_SSLKEY</code>, <code>CURLOPT_PROXY_SSLCERT</code> etc.</p>
+</section>
+<section id="transfers__options__tls__md-_-_-tls-auth" class="level3" data-number="205.4.2">
+<h3 data-number="205.4.2">TLS auth</h3>
+<p>TLS connections offer a (rarely used) feature called Secure Remote Passwords. Using this, you authenticate the connection for the server using a name and password and the options are called <code>CURLOPT_TLSAUTH_USERNAME</code> and <code>CURLOPT_TLSAUTH_PASSWORD</code>.</p>
+</section>
+</section>
+<section id="transfers__options__tls__md-_-_-starttls" class="level2" data-number="205.5">
+<h2 data-number="205.5">STARTTLS</h2>
+<p>For protocols that are using the STARTTLS method to upgrade the connection to TLS (FTP, IMAP, POP3, and SMTP), you usually tell curl to use the non-TLS version of the protocol when specifying a URL and then ask curl to enable TLS with the <code>CURLOPT_USE_SSL</code> option.</p>
+<p>This option allows a client to let curl continue if it cannot upgrade to TLS, but that is not a recommend path to walk as then you might be using an insecure protocol without properly noticing.</p>
+<pre><code>/* require use of SSL for this, or fail */
+curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);</code></pre>
+<p><span id="transfers__options__all__md"></span></p>
+</section>
+</section>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch278.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="helpers__headerapi__README__md-_-_-headers-api" class="level1" data-number="277">
+<h1 data-number="277">Headers API</h1>
+<p>libcurl offers an API for iterating over all received HTTP headers and for extracting the contents from specific ones.</p>
+<p>When returning header content, libcurl trims leading and trailing whitespace but does not modify or change content in any other way.</p>
+<p>This API was made official and is provided for real starting in libcurl 7.84.0.</p>
+<section id="helpers__headerapi__README__md-_-_-header-origins" class="level2" data-number="277.1">
+<h2 data-number="277.1">Header origins</h2>
+<p>HTTP headers are key value pairs that are sent from the server in a few different <em>origins</em> during a transfer. libcurl collects all headers and provides easy access to them for applications.</p>
+<p>HTTP headers can arrive as</p>
+<ol type="1">
+<li><strong>CURLH_HEADER</strong> - before regular response content.</li>
+<li><strong>CURLH_TRAILER</strong> - fields arriving <em>after</em> the response content</li>
+<li><strong>CURLH_CONNECT</strong> - response headers in the proxy <code>CONNECT</code> request that might have been done before the actual server request</li>
+<li><strong>CURLH_1XX</strong> - headers in the potential 1xx HTTP responses that might have preceded the following &gt;= 2xx response code.</li>
+<li><strong>CURLH_PSEUDO</strong> - HTTP/2 and HTTP/3 level headers that start with colon (<code>:</code>)</li>
+</ol>
+</section>
+<section id="helpers__headerapi__README__md-_-_-request-number" class="level2" data-number="277.2">
+<h2 data-number="277.2">Request number</h2>
+<p>A single HTTP transfer done with libcurl might consist of a series of HTTP requests and the <strong>request</strong> argument to the header API functions lets you specify which particular individual request you want the headers from. 0 being the first request and then the number increases for further redirects or when multi-state authentication is used. Passing in <code>-1</code> is a shortcut to the last request in the series, independently of the actual amount of requests used.</p>
+</section>
+<section id="helpers__headerapi__README__md-_-_-header-folding" class="level2" data-number="277.3">
+<h2 data-number="277.3">Header folding</h2>
+<p>HTTP/1 headers supports a deprecated format called <em>folding</em>, which means that there is a continuation line after a header, making the line folded.</p>
+<p>The headers API supports folded headers and returns such contents unfolded - where the different parts are separated by a single whitespace character.</p>
+</section>
+<section id="helpers__headerapi__README__md-_-_-when" class="level2" data-number="277.4">
+<h2 data-number="277.4">When</h2>
+<p>The two header API function calls are perfectly possible to call at any time during a transfer, both from inside and outside of callbacks. It is however important to remember that the API only returns information about the state of the headers at the exact moment it is called, which might not be the final status if you call it while the transfer is still in progress.</p>
+<ul>
+<li><a href="ch278.xhtml#helpers__headerapi__struct__md">Header struct</a></li>
+<li><a href="ch279.xhtml#helpers__headerapi__get__md">Get a header</a></li>
+<li><a href="ch280.xhtml#helpers__headerapi__iterate__md">Iterate of headers</a></li>
+</ul>
+<p><span id="helpers__headerapi__struct__md"></span></p>
+</section>
+</section>
+</body>
+</html>

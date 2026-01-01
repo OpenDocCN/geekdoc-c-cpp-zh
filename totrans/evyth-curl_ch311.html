@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch311.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__tests__unit__md-_-_-unit-tests" class="level1" data-number="310">
+<h1 data-number="310">Unit tests</h1>
+<p><strong>Unit tests only work on <a href="ch306.xhtml#internals__tests__debug__md">debug builds</a>.</strong></p>
+<p>Unit tests are tests that use functions that are libcurl internal and therefore not part of any public API, headers or external documentation.</p>
+<p>If the internal function you want to test is made <code>static</code>, they should instead be set <code>UNITTEST</code> - which then makes debug builds not use static for them and they then become accessible to test from unit tests.</p>
+<p>We provide a set of convenience functions and macros for unit tests to make it quick and easy to write them.</p>
+<p>All unit test programs are kept in <code>tests/unit</code></p>
+<p><span id="internals__tests__valgrind__md"></span></p>
+</section>
+</body>
+</html>

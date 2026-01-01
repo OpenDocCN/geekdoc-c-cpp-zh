@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch155.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__post__simple__md-_-_-simple-post" class="level1" data-number="154">
+<h1 data-number="154">Simple POST</h1>
+<p>To send form data, a browser URL encodes it as a series of <code>name=value</code> pairs separated by ampersand (<code>&amp;</code>) symbols. The resulting string is sent as the body of a POST request. To do the same with curl, use the <code>-d</code> (or <code>--data</code>) argument, like this:</p>
+<pre><code>curl -d &#39;name=admin&amp;shoesize=12&#39; http://example.com/</code></pre>
+<p>When specifying multiple <code>-d</code> options on the command line, curl concatenates them and insert ampersands in between, so the above example could also be written like this:</p>
+<pre><code>curl -d name=admin -d shoesize=12 http://example.com/</code></pre>
+<p>If the amount of data to send is too large for a mere string on the command line, you can also read it from a filename in standard curl style:</p>
+<pre><code>curl -d @filename http://example.com</code></pre>
+<p>While the server might assume that the data is encoded in some special way, curl does not encode or change the data you tell it to send. <strong>curl sends exactly the bytes you give it</strong> (except that when reading from a file. <code>-d</code> skips over the carriage returns and newlines so you need to use <code>--data-binary</code> if you rather intend them to be included in the data.).</p>
+<p>To send a POST body that starts with a <code>@</code> symbol, to avoid that curl tries to load that as a filename, use <code>--data-raw</code> instead. This option has no file loading capability:</p>
+<pre><code>curl --data-raw &#39;@string&#39; https://example.com</code></pre>
+<p><span id="http__post__content-type__md"></span></p>
+</section>
+</body>
+</html>

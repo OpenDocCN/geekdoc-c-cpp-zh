@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch225.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__callbacks__rtsp__md-_-_-rtsp-interleaved-data" class="level1" data-number="224">
+<h1 data-number="224">RTSP interleaved data</h1>
+<p>The callback with the <code>CURLOPT_INTERLEAVEFUNCTION</code> option.</p>
+<p>This callback gets called by libcurl as soon as it has received interleaved RTP data when doing an RTSP transfer. It gets called for each <code>$</code> block and therefore contains exactly one upper-layer protocol unit (e.g. one RTP packet). libcurl writes the interleaved header as well as the included data for each call. The first byte is always an ASCII dollar sign. The dollar sign is followed by a one byte channel identifier and then a 2 byte integer length in network byte order. See RFC2326 Section 10.12 for more information on how RTP interleaving behaves. If unset or set to NULL, curl uses the default write function.</p>
+<p>The <code>CURLOPT_INTERLEAVEDATA</code> pointer is passed in the userdata argument in the callback.</p>
+<p><span id="transfers__callbacks__ftpmatch__md"></span></p>
+</section>
+</body>
+</html>

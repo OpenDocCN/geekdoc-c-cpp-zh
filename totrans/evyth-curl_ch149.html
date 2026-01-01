@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch149.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__versions__http09__md-_-_-http-slash-0-dot-9" class="level1" data-number="148">
+<h1 data-number="148">HTTP/0.9</h1>
+<p>The HTTP version used before HTTP/1.0 was made available is often referred to as HTTP/0.9. Back in those days, HTTP responses had no headers as they would only return a response body and then immediately close the connection.</p>
+<p>curl can be told to support such responses but by default it does not recognize them, for security reasons. Almost anything bad looks like an HTTP/0.9 response to curl so the option needs to be used with caution.</p>
+<p>The HTTP/0.9 option to curl is different than the other HTTP command line options for HTTP versions mentioned above as this controls what response to accept, while the others are about what HTTP protocol version to try to use.</p>
+<p>Tell curl to accept an HTTP/0.9 response like this:</p>
+<pre><code>curl --http0.9 https://example.com/</code></pre>
+<p><span id="http__versions__http2__md"></span></p>
+</section>
+</body>
+</html>

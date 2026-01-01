@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch050.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="build__boringssl__md-_-_-boringssl" class="level1" data-number="49">
+<h1 data-number="49">BoringSSL</h1>
+<section id="build__boringssl__md-_-_-build-boringssl" class="level2" data-number="49.1">
+<h2 data-number="49.1">build boringssl</h2>
+<p>$HOME/src is where I put the code in this example. You can pick wherever you like.</p>
+<pre><code>$ cd $HOME/src
+$ git clone https://boringssl.googlesource.com/boringssl
+$ cd boringssl
+$ mkdir build
+$ cd build
+$ cmake -DCMAKE_POSITION_INDEPENDENT_CODE=on ..
+$ make</code></pre>
+</section>
+<section id="build__boringssl__md-_-_-set-up-the-build-tree-to-get-detected-by-curls-configure" class="level2" data-number="49.2">
+<h2 data-number="49.2">set up the build tree to get detected by curl’s configure</h2>
+<p>In the boringssl source tree root, make sure there is a <code>lib</code> and an <code>include</code> dir. The <code>lib</code> directory should contain the two libs (I made them symlinks into the build dir). The <code>include</code> directory is already present by default. Make and populate <code>lib</code> like this (commands issued in the source tree root, not in the <code>build/</code> subdirectory).</p>
+<pre><code>$ mkdir lib
+$ cd lib
+$ ln -s ../build/ssl/libssl.a
+$ ln -s ../build/crypto/libcrypto.a</code></pre>
+</section>
+<section id="build__boringssl__md-_-_-configure-curl" class="level2" data-number="49.3">
+<h2 data-number="49.3">configure curl</h2>
+<p><code>LIBS=-lpthread ./configure --with-ssl=$HOME/src/boringssl</code> (where I point out the root of the boringssl tree)</p>
+<p>Verify that at the end of the configuration, it says it detected BoringSSL to be used.</p>
+</section>
+<section id="build__boringssl__md-_-_-build-curl" class="level2" data-number="49.4">
+<h2 data-number="49.4">build curl</h2>
+<p>Run <code>make</code> in the curl source tree.</p>
+<p>Now you can install curl normally with <code>make install</code> etc.</p>
+<p><span id="cmdline__README__md"></span></p>
+</section>
+</section>
+</body>
+</html>

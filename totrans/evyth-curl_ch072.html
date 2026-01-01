@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch072.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="cmdline__variables__md-_-_-variables" class="level1" data-number="71">
+<h1 data-number="71">Variables</h1>
+<p>This concept of variables for the command line and config files was added in curl 8.3.0.</p>
+<p>A user sets a <em>variable</em> to a plain string with <code>--variable varName=content</code> or from the contents of a file with <code>--variable varName@file</code> where the file can be stdin if set to a single dash (<code>-</code>).</p>
+<p>A variable in this context is given a specific name and it holds contents. Any number of variables can be set. If you set the same variable name again, it gets overwritten with new content. Variable names are case sensitive, can be up to 128 characters long and may consist of the characters a-z, A-Z, 0-9 and underscore.</p>
+<p>Some examples below contain multiple lines for readability. The backslash (<code>\</code>) is used to instruct the terminal to ignore the newline.</p>
+<section id="cmdline__variables__md-_-_-setting-variables" class="level2" data-number="71.1">
+<h2 data-number="71.1">Setting variables</h2>
+<p>You can set variables at the command line with <code>--variable</code> or in config files with <code>variable</code> (no dashes):</p>
+<pre><code>curl --variable varName=content</code></pre>
+<p>or in a config file:</p>
+<pre><code># Curl config file
+
+variable varName=content</code></pre>
+</section>
+<section id="cmdline__variables__md-_-_-assigning-contents-from-file" class="level2" data-number="71.2">
+<h2 data-number="71.2">Assigning contents from file</h2>
+<p>You can assign the contents of a plain text file to a variable, too:</p>
+<pre><code>curl --variable varName@filename</code></pre>
+</section>
+<section id="cmdline__variables__md-_-_-expand" class="level2" data-number="71.3">
+<h2 data-number="71.3">Expand</h2>
+<p>Variables can be expanded in option parameters using <code>{{varName}}</code> when the option name is prefixed with <code>--expand-</code>. This makes the content of the variable <code>varName</code> get inserted.</p>
+<p>If you reference a name that does not exist as a variable, a blank string is inserted.</p>
+<p>Insert <code>{{</code> verbatim in the string by escaping it with a backslash:</p>
+<p><code>\{{</code>.</p>
+<p>In the example below, the variable <code>host</code> is set and then expanded:</p>
+<pre><code>curl \ 
+    --variable host=example \
+    --expand-url &quot;https://{{host}}.com&quot;</code></pre>
+<p>For options specified without the <code>--expand-</code> prefix, variables are not expanded.</p>
+<p>Variable content holding null bytes that are not encoded when expanded causes curl to exit with an error.</p>
+</section>
+<section id="cmdline__variables__md-_-_-environment-variables" class="level2" data-number="71.4">
+<h2 data-number="71.4">Environment variables</h2>
+<p>Import an environment variable with <code>--variable %VARNAME</code>. This import makes curl exit with an error if the given environment variable is not set. A user can also opt to set a default value if the environment variable does not exist, using <code>=content</code> or <code>@file</code> as described above.</p>
+<p>As an example, assign the <code>%USER</code> environment variable to a curl variable and insert it into a URL. Because no default value is specified, this operation fails if the environment variable does not exist:</p>
+<pre><code>curl \ 
+    --variable %USER \
+    --expand-url &quot;https://example.com/api/{{USER}}/method&quot;</code></pre>
+<p>Instead, let’s use <code>dummy</code> as a default value if <code>%USER</code> does not exist:</p>
+<pre><code>curl \
+    --variable %USER=dummy \
+    --expand-url &quot;https://example.com/api/{{USER}}/method&quot;</code></pre>
+</section>
+<section id="cmdline__variables__md-_-_-expand---variable" class="level2" data-number="71.5">
+<h2 data-number="71.5">Expand <code>--variable</code></h2>
+<p>The <code>--variable</code> option itself can also be expanded, which allows you to assign variables to the contents of other variables.</p>
+<pre><code>curl \
+    --expand-variable var1={{var2}} \
+    --expand-variable fullname=’Mrs {{first}} {{last}}’ \
+    --expand-variable source@{{filename}}</code></pre>
+<p>Or done in a config file:</p>
+<pre><code># Curl config file
+
+variable host=example
+
+expand-variable url=https://{{host}}.com
+
+expand-variable source@{{filename}}</code></pre>
+</section>
+<section id="cmdline__variables__md-_-_-functions" class="level2" data-number="71.6">
+<h2 data-number="71.6">Functions</h2>
+<p>When expanding variables, curl offers a set of <em>functions</em> to change how they are expanded. Functions are applied with colon + function name after the variable, like this: <code>{{varName:function}}</code>.</p>
+<p>Multiple functions can be applied to the variable. They are then applied in a left-to-right order: <code>{{varName:func1:func2:func3}}</code></p>
+<p>These functions are available: <code>trim</code>, <code>json</code>, <code>url</code> and <code>b64</code></p>
+</section>
+<section id="cmdline__variables__md-_-_-function-trim" class="level2" data-number="71.7">
+<h2 data-number="71.7">Function: <code>trim</code></h2>
+<p>Expands the variable without leading and trailing white space. White space is defined as:</p>
+<ul>
+<li>horizontal tabs</li>
+<li>spaces</li>
+<li>new lines</li>
+<li>vertical tabs</li>
+<li>form feed and carriage returns</li>
+</ul>
+<p>This is extra useful when reading data from files.</p>
+<pre><code>--expand-url “https://example.com/{{path:trim}}”</code></pre>
+</section>
+<section id="cmdline__variables__md-_-_-function-json" class="level2" data-number="71.8">
+<h2 data-number="71.8">Function: <code>json</code></h2>
+<p>Expands the variable as a valid JSON string. This makes it easier to insert valid JSON into an argument (The quotes are not included in the resulting JSON).</p>
+<pre><code>--expand-json &quot;\&quot;full name\&quot;: \&quot;{{first:json}} {{last:json}}\&quot;&quot;</code></pre>
+<p>To trim the variable first, apply both functions (in this order):</p>
+<pre><code>--expand-json &quot;\&quot;full name\&quot;: \&quot;{{varName:trim:json}}\&quot;&quot;</code></pre>
+</section>
+<section id="cmdline__variables__md-_-_-function-url" class="level2" data-number="71.9">
+<h2 data-number="71.9">Function: <code>url</code></h2>
+<p>Expands the variable URL encoded. Also known as <em>percent encoded</em>. This function ensures that all output characters are legal within a URL and the rest are encoded as <code>%HH</code> where <code>HH</code> is a two-digit hexadecimal number for the ascii value.</p>
+<pre><code>--expand-data “varName={{varName:url}}”</code></pre>
+<p>To trim the variable first, apply both functions (in this order):</p>
+<pre><code>--expand-data “varName={{varName:trim:url}}”</code></pre>
+</section>
+<section id="cmdline__variables__md-_-_-function-b64" class="level2" data-number="71.10">
+<h2 data-number="71.10">Function: <code>b64</code></h2>
+<p>Expands the variable base64 encoded. Base64 is an encoding for binary data that only uses 64 specific characters.</p>
+<pre><code>--expand-data “content={{value:b64}}”</code></pre>
+<p>To trim the variable first, apply both functions (in this order):</p>
+<pre><code>--expand-data “content={{value:trim:b64}}”</code></pre>
+<p>Example: get the contents of a file called <code>$HOME/.secret</code> into a variable called <code>fix</code>. Make sure that the content is trimmed and percent-encoded sent as POST data:</p>
+<pre><code>curl \
+    --variable %HOME=/home/default \
+    --expand-variable fix@{{HOME}}/.secret \
+    --expand-data &quot;{{fix:trim:url}}&quot; \
+    --url https://example.com/ \</code></pre>
+<p><span id="cmdline__passwords__md"></span></p>
+</section>
+</section>
+</body>
+</html>

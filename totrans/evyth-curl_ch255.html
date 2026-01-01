@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch255.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="libcurl-http__hsts__md-_-_-hsts" class="level1" data-number="254">
+<h1 data-number="254">HSTS</h1>
+<p>HSTS is short for HTTP Strict-Transport-Security. It is a defined way for a server to tell a client that the client should prefer to use HTTPS with that site for a specified period of time into the future.</p>
+<p>Here is how you use HSTS with libcurl.</p>
+<section id="libcurl-http__hsts__md-_-_-in-memory-cache" class="level2" data-number="254.1">
+<h2 data-number="254.1">In-memory cache</h2>
+<p>libcurl primarily features an in-memory cache for HSTS hosts, so that subsequent HTTP-only requests to a hostname present in the cache gets internally “redirected” to the HTTPS version. Assuming you have this feature enabled.</p>
+</section>
+<section id="libcurl-http__hsts__md-_-_-enable-hsts-for-a-handle" class="level2" data-number="254.2">
+<h2 data-number="254.2">Enable HSTS for a handle</h2>
+<p>HSTS is enabled by setting the correct bitmask using the <code>CURLOPT_HSTS_CTRL</code> option with <code>curl_easy_setopt()</code>. The bitmask has two separate flags that can be used, but <code>CURLHSTS_ENABLE</code> is the primary one. If that is set, then this easy handle how has HSTS support enabled.</p>
+<p>The second flag available for this option is <code>CURLHSTS_READONLYFILE</code>, which if set, tells libcurl that the filename you specify for it to use as a HSTS cache is only to be read from, and not write anything back to.</p>
+</section>
+<section id="libcurl-http__hsts__md-_-_-set-a-hsts-cache-file" class="level2" data-number="254.3">
+<h2 data-number="254.3">Set a HSTS cache file</h2>
+<p>If you want to persist the HSTS cache on disk, then set a filename with the <code>CURLOPT_HSTS</code> option. libcurl reads from this file at start of a transfer and writes to it (unless it was set read-only) when the easy handle is closed.</p>
+<p><span id="libcurl-http__alt-svc__md"></span></p>
+</section>
+</section>
+</body>
+</html>

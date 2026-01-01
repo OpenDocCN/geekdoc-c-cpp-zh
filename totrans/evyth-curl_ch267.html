@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch267.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="helpers__url__set-part__md-_-_-set-url-parts" class="level1" data-number="266">
+<h1 data-number="266">Set URL parts</h1>
+<p>The API allows the application to set individual parts of a URL held in the <code>CURLU</code> handle, either after having parsed a full URL or instead of parsing such.</p>
+<pre><code>rc = curl_url_set(urlp, CURLUPART_HOST, &quot;www.example.com&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_SCHEME, &quot;https&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_USER, &quot;john&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_PASSWORD, &quot;doe&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_PORT, &quot;443&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_PATH, &quot;/index.html&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_QUERY, &quot;name=john&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_FRAGMENT, &quot;anchor&quot;, 0);
+rc = curl_url_set(urlp, CURLUPART_ZONEID, &quot;25&quot;, 0);</code></pre>
+<p>The API always expects a null-terminated <code>char *</code> string in the third argument, or NULL to clear the field. Note that the port number is also provided as a string this way.</p>
+<p>Set parts are not URL encoded unless the user asks for it with the <code>CURLU_URLENCODE</code> flag in the forth argument.</p>
+<section id="helpers__url__set-part__md-_-_-update-parts" class="level2" data-number="266.1">
+<h2 data-number="266.1">Update parts</h2>
+<p>By setting an individual part, you can for example first set a full URL, then update a single component of that URL and then extract the updated version of that URL.</p>
+<p>For example, let’s say we have this URL</p>
+<pre><code>const char *url=&quot;http://joe:7Hbz@example.com:8080/images?id=5445#footer&quot;;</code></pre>
+<p>and we want change the host in that URL to instead become <code>example.net</code>, it could be done like this:</p>
+<pre><code>CURLU *h = curl_url();
+rc = curl_url_set(h, CURLUPART_URL, url, 0);</code></pre>
+<p>Then change the hostname part:</p>
+<pre><code>rc = curl_url_set(h, CURLUPART_HOST, &quot;example.net&quot;, 0);</code></pre>
+<p>and this then now holds this URL:</p>
+<pre><code>http://joe:7Hbz@example.net:8080/images?id=5445#footer</code></pre>
+<p>If you then continue and change the path part to <code>/foo</code> like this:</p>
+<pre><code>rc = curl_url_set(h, CURLUPART_PATH, &quot;/foo&quot;, 0);</code></pre>
+<p>and the URL handle now holds this URL:</p>
+<pre><code>http://joe:7Hbz@example.net:8080/foo?id=5445#footer</code></pre>
+<p>etc…</p>
+<p><span id="helpers__url__append-query__md"></span></p>
+</section>
+</section>
+</body>
+</html>

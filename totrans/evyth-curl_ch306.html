@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch306.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__tests__run__md-_-_-run-tests" class="level1" data-number="305">
+<h1 data-number="305">Run tests</h1>
+<p>The main script that runs tests is called <code>tests/runtests.pl</code> and some of its more useful features are:</p>
+<section id="internals__tests__run__md-_-_-run-a-range-of-tests" class="level2" data-number="305.1">
+<h2 data-number="305.1">Run a range of tests</h2>
+<p>Run test 1 to 27:</p>
+<pre><code>./runtests.pl 1 to 27</code></pre>
+<p>Run all tests marked as <code>SFTP</code>:</p>
+<pre><code>./runtests.pl SFTP</code></pre>
+<p>Run all tests <strong>not</strong> marked <code>FTP</code>:</p>
+<pre><code>./runtests.pl &#39;!FTP&#39;</code></pre>
+</section>
+<section id="internals__tests__run__md-_-_-run-a-specific-test-with-gdb" class="level2" data-number="305.2">
+<h2 data-number="305.2">Run a specific test with gdb</h2>
+<pre><code>./runtests.pl -g 144</code></pre>
+<p>It starts up gdb, you can set break-points etc and then type <code>run</code> and off it goes and performs the entire thing through the debugger.</p>
+</section>
+<section id="internals__tests__run__md-_-_-run-a-specific-test-without-valgrind" class="level2" data-number="305.3">
+<h2 data-number="305.3">Run a specific test without valgrind</h2>
+<p>The test suite uses valgrind by default if it finds it, which is an excellent way to find problems but it also makes the test run much slower. Sometimes you want to do it faster:</p>
+<pre><code>./runtests.pl -n 144</code></pre>
+<p><span id="internals__tests__debug__md"></span></p>
+</section>
+</section>
+</body>
+</html>

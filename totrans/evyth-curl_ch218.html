@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch218.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__callbacks__debug__md-_-_-debug" class="level1" data-number="217">
+<h1 data-number="217">Debug</h1>
+<p>The debug callback is set with <code>CURLOPT_DEBUGFUNCTION</code>:</p>
+<pre><code>curl_easy_setopt(handle, CURLOPT_DEBUGFUNCTION, debug_callback);</code></pre>
+<p>The <code>debug_callback</code> function must match this prototype:</p>
+<pre><code>int debug_callback(CURL *handle,
+                   curl_infotype type,
+                   char *data,
+                   size_t size,
+                   void *userdata);</code></pre>
+<p>This callback function replaces the default verbose output function in the library and gets called for all debug and trace messages to aid applications to understand what’s going on. The <em>type</em> argument explains what sort of data that is provided: header, data or SSL data and in which direction it flows.</p>
+<p>A common use for this callback is to get a full trace of all data that libcurl sends and receives. The data sent to this callback is always the unencrypted version, even when, for example, HTTPS or other encrypted protocols are used.</p>
+<p>This callback must return zero or cause the transfer to stop with an error code.</p>
+<p>The user pointer passed in to the callback in the <em>userdata</em> argument is set with <code>CURLOPT_DEBUGDATA</code>:</p>
+<pre><code>curl_easy_setopt(handle, CURLOPT_DEBUGDATA, custom_pointer);</code></pre>
+<p><span id="transfers__callbacks__sockopt__md"></span></p>
+</section>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch293.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__handler__md-_-_-protocol-handler" class="level1" data-number="292">
+<h1 data-number="292">Protocol handler</h1>
+<p>libcurl is a multi-protocol transfer library. The core of the code is a set of generic functions that are used for transfers in general and mostly works the same for all protocols. The main state machine described above for example is there and works for all protocols - even though some protocols may not make use of all states for all transfers.</p>
+<p>However, each different protocol libcurl speaks also has its unique particularities and specialties. In order to not have the code littered with conditions in the style if the protocol is XYZ, then do…, we instead have the concept of <code>Curl_handler</code>. Each supported protocol defines one of those in <code>lib/url.c</code> there is an array of pointers to such handlers called <code>protocols[]</code>.</p>
+<p>When a transfer is about to be done, libcurl parses the URL it is about to operate on and among other things it figures out what protocol to use. Normally this can be done by looking at the scheme part of the URL. For <code>https://example.com</code> that is <code>https</code> and for <code>imaps://example.com</code> it is <code>imaps</code>. Using the provided scheme, libcurl sets the <code>conn-&gt;handler</code> pointer to the handler struct for the protocol that handles this URL.</p>
+<figure>
+<img src="../media/file14.jpg" alt="" /><figcaption>libcurl protocol handlers</figcaption>
+</figure>
+<p>The handler struct contains a set of function pointers that can be NULL or set to point to a protocol specific function to do things necessary for that protocol to work for a transfer. Things that not all other protocols need. The handler struct also sets up the name of the protocol and describes its feature set with a bitmask.</p>
+<p>A libcurl transfer is built around a set of different actions and the handler can extend each of them. Here are some example function pointers in this struct and how they are used:</p>
+<section id="internals__handler__md-_-_-setup-connection" class="level2" data-number="292.1">
+<h2 data-number="292.1">Setup connection</h2>
+<p>If a connection cannot be reused for a transfer, it needs to setup a connection to the host given in the URL and when it does, it can also call the protocol handler’s function for it. Like this:</p>
+<pre><code>if(conn-&gt;handler-&gt;setup_connection)
+  result = conn-&gt;handler-&gt;setup_connection(data, conn);</code></pre>
+</section>
+<section id="internals__handler__md-_-_-connect" class="level2" data-number="292.2">
+<h2 data-number="292.2">Connect</h2>
+<p>After a connection has been established, this function gets called</p>
+<pre><code>if(conn-&gt;handler-&gt;connect_it)
+  result = conn-&gt;handler-&gt;connect_it(data, &amp;done);</code></pre>
+</section>
+<section id="internals__handler__md-_-_-do" class="level2" data-number="292.3">
+<h2 data-number="292.3">Do</h2>
+<p><em>Do</em> is simply the action that issues a request for the particular resource the URL identifies. All protocol has a do action so this function must be provided:</p>
+<pre><code>result = conn-&gt;handler-&gt;do_it(data, &amp;done);</code></pre>
+</section>
+<section id="internals__handler__md-_-_-done" class="level2" data-number="292.4">
+<h2 data-number="292.4">Done</h2>
+<p>When a transfer is completed, the <em>done</em> action is taken:</p>
+<pre><code>result = conn-&gt;handler-&gt;done(data, status, premature);</code></pre>
+</section>
+<section id="internals__handler__md-_-_-disconnect" class="level2" data-number="292.5">
+<h2 data-number="292.5">Disconnect</h2>
+<p>The connection is about to be taken down.</p>
+<pre><code>result = conn-&gt;handler-&gt;disconnect(data, conn, dead_connection);</code></pre>
+<p><span id="internals__backends__md"></span></p>
+</section>
+</section>
+</body>
+</html>

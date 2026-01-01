@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch266.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="helpers__url__get-part__md-_-_-get-url-parts" class="level1" data-number="265">
+<h1 data-number="265">Get URL parts</h1>
+<p>The <code>CURLU</code> handle stores the individual parts of a URL and the application can extract those pieces individually from the handle at any time. If they are set.</p>
+<p>The second argument to <code>curl_url_get()</code> specifies which part you want extracted. They are all extracted as null-terminated <code>char *</code> data, so you pass a pointer to such a variable.</p>
+<pre><code>char *host;
+rc = curl_url_get(h, CURLUPART_HOST, &amp;host, 0);
+
+char *scheme;
+rc = curl_url_get(h, CURLUPART_SCHEME, &amp;scheme, 0);
+
+char *user;
+rc = curl_url_get(h, CURLUPART_USER, &amp;user, 0);
+
+char *password;
+rc = curl_url_get(h, CURLUPART_PASSWORD, &amp;password, 0);
+
+char *port;
+rc = curl_url_get(h, CURLUPART_PORT, &amp;port, 0);
+
+char *path;
+rc = curl_url_get(h, CURLUPART_PATH, &amp;path, 0);
+
+char *query;
+rc = curl_url_get(h, CURLUPART_QUERY, &amp;query, 0);
+
+char *fragment;
+rc = curl_url_get(h, CURLUPART_FRAGMENT, &amp;fragment, 0);
+
+char *zoneid;
+rc = curl_url_get(h, CURLUPART_ZONEID, &amp;zoneid, 0);</code></pre>
+<p>Remember to free the returned string with <code>curl_free</code> when you are done with it!</p>
+<p>Extracted parts are not URL decoded unless the user asks for it with the <code>CURLU_URLDECODE</code> flag.</p>
+<section id="helpers__url__get-part__md-_-_-url-parts" class="level2" data-number="265.1">
+<h2 data-number="265.1">URL parts</h2>
+<p>The different parts are named from their roles in the URL. Imagine a URL that looks like this:</p>
+<pre><code>http://joe:7Hbz@example.com:8080/images?id=5445#footer</code></pre>
+<p>When this URL is parsed by curl, it stores the different components like this:</p>
+<table>
+<thead>
+<tr class="header">
+<th>text</th>
+<th>part</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>http</code></td>
+<td><code>CURLUPART_SCHEME</code></td>
+</tr>
+<tr class="even">
+<td><code>joe</code></td>
+<td><code>CURLUPART_USER</code></td>
+</tr>
+<tr class="odd">
+<td><code>7Hbz</code></td>
+<td><code>CURLUPART_PASSWORD</code></td>
+</tr>
+<tr class="even">
+<td><code>example.com</code></td>
+<td><code>CURLUPART_HOST</code></td>
+</tr>
+<tr class="odd">
+<td><code>8080</code></td>
+<td><code>CURLUPART_PORT</code></td>
+</tr>
+<tr class="even">
+<td><code>/images</code></td>
+<td><code>CURLUPART_PATH</code></td>
+</tr>
+<tr class="odd">
+<td><code>id=5445</code></td>
+<td><code>CURLUPART_QUERY</code></td>
+</tr>
+<tr class="even">
+<td><code>footer</code></td>
+<td><code>CURLUPART_FRAGMENT</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="helpers__url__get-part__md-_-_-zone-id" class="level2" data-number="265.2">
+<h2 data-number="265.2">Zone ID</h2>
+<p>The one thing that might stick out a little is the Zone id. It is an extra qualifier that can be used for IPv6 numerical addresses, and only for such addresses. It is used like this, where it is set to <code>eth0</code>:</p>
+<pre><code>http://[2a04:4e42:e00::347%25eth0]/</code></pre>
+<p>For this URL, curl extracts:</p>
+<table>
+<thead>
+<tr class="header">
+<th>text</th>
+<th>part</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>http</code></td>
+<td><code>CURLUPART_SCHEME</code></td>
+</tr>
+<tr class="even">
+<td><code>2a04:4e42:e00::347</code></td>
+<td><code>CURLUPART_HOST</code></td>
+</tr>
+<tr class="odd">
+<td><code>eth0</code></td>
+<td><code>CURLUPART_ZONEID</code></td>
+</tr>
+<tr class="even">
+<td><code>/</code></td>
+<td><code>CURLUPART_PATH</code></td>
+</tr>
+</tbody>
+</table>
+<p>Asking for any other component returns non-zero as they are missing.</p>
+<p><span id="helpers__url__set-part__md"></span></p>
+</section>
+</section>
+</body>
+</html>

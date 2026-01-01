@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch241.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__control__meter__md-_-_-progress-meter" class="level1" data-number="240">
+<h1 data-number="240">Progress meter</h1>
+<p>libcurl can be made to output a progress meter on stderr. This feature is disabled by default and is one of those options with an ones awkward negation in the name: <code>CURLOPT_NOPROGRESS</code> - set it to <code>1L</code> to <em>disable</em> progress meter. Set it to <code>0L</code> to enable it.</p>
+<p>Return error to stop transfer</p>
+<p>It can look something like this in code:</p>
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;curl/curl.h&gt;
+
+int main(void)
+{
+  CURL *curl;
+  CURLcode res = CURLE_OK;
+
+  curl = curl_easy_init();
+  if(curl) {
+    /* enable progress meter */
+    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+
+    curl_easy_setopt(curl, CURLOPT_URL, &quot;https://curl.se/&quot;);
+
+    res = curl_easy_perform(curl);
+
+    curl_easy_cleanup(curl);
+  }
+
+  return (int)res;
+}</code></pre>
+<p><span id="transfers__control__progress-callback__md"></span></p>
+</section>
+</body>
+</html>

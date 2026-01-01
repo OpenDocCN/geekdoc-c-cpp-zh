@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch091.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__downloads__multiple__md-_-_-multiple-downloads" class="level1" data-number="90">
+<h1 data-number="90">Multiple downloads</h1>
+<p>As curl can be told to download many URLs in a single command line, there are, of course, times when you want to store these downloads in nicely named local files.</p>
+<p>The key to understanding this is that each download URL needs its own “storage instruction”. Without said “storage instruction”, curl defaults to sending the data to stdout. If you ask for two URLs and only tell curl where to save the first URL, the second one is sent to stdout. Like this:</p>
+<pre><code>curl -o one.html http://example.com/1 http://example.com/2</code></pre>
+<p>The “storage instructions” are read and handled in the same order as the download URLs so they do not have to be next to the URL in any way. You can round up all the output options first, last or interleaved with the URLs. You choose.</p>
+<p>These examples all work the same way:</p>
+<pre><code>curl -o 1.txt -o 2.txt http://example.com/1 http://example.com/2
+curl http://example.com/1 http://example.com/2 -o 1.txt -o 2.txt
+curl -o 1.txt http://example.com/1 http://example.com/2 -o 2.txt
+curl -o 1.txt http://example.com/1 -o 2.txt http://example.com/2</code></pre>
+<p>The <code>-O</code> is similarly just an instruction for a single download so if you download multiple URLs, use more of them:</p>
+<pre><code>curl -O -O http://example.com/1 http://example.com/2</code></pre>
+<section id="usingcurl__downloads__multiple__md-_-_-parallel" class="level2" data-number="90.1">
+<h2 data-number="90.1">Parallel</h2>
+<p>Unless told otherwise, curl downloads all given URLs in a serial fashion, one by one. By using <code>-Z</code> (or <code>--parallel</code>) curl can instead do the transfers <a href="ch066.xhtml#cmdline__urls__parallel__md">in parallel</a>: several ones at once.</p>
+<p><span id="usingcurl__downloads__browsers__md"></span></p>
+</section>
+</section>
+</body>
+</html>

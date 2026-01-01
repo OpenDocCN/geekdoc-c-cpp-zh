@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch074.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="cmdline__progressmeter__md-_-_-progress-meter" class="level1" data-number="73">
+<h1 data-number="73">Progress meter</h1>
+<p>curl has a built-in progress meter. When curl is invoked to transfer data (either uploading or downloading) it can show that meter in the terminal screen to show how the transfer is progressing, namely the current transfer speed, how long it has been going on and how long it thinks it might be left until completion.</p>
+<p>The progress meter is inhibited if curl deems that there is output going to the terminal, as the progress meter would interfere with that output and just mess up what gets displayed. A user can also forcibly switch off the progress meter with the <code>-s / --silent</code> option, which tells curl to hush.</p>
+<p>If you invoke curl and do not get the progress meter, make sure your output is directed somewhere other than the terminal.</p>
+<p>curl also features an alternative and simpler progress meter that you enable with <code>-# / --progress-bar</code>. As the long name implies, it instead shows the transfer as a progress bar.</p>
+<p>At times when curl is asked to transfer data, it cannot figure out the total size of the requested operation and that then subsequently makes the progress meter contain fewer details and it cannot, for example, make forecasts for transfer times, etc.</p>
+<section id="cmdline__progressmeter__md-_-_-units" class="level2" data-number="73.1">
+<h2 data-number="73.1">Units</h2>
+<p>The progress meter displays bytes and bytes per second.</p>
+<p>It also uses suffixes for larger amounts of bytes, using the 1024 base system so 1024 is one kilobyte (1K), 2048 is 2K, etc. curl supports these:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Suffix</th>
+<th>Amount</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>K</td>
+<td>2^10</td>
+<td>kilobyte</td>
+</tr>
+<tr class="even">
+<td>M</td>
+<td>2^20</td>
+<td>megabyte</td>
+</tr>
+<tr class="odd">
+<td>G</td>
+<td>2^30</td>
+<td>gigabyte</td>
+</tr>
+<tr class="even">
+<td>T</td>
+<td>2^40</td>
+<td>terabyte</td>
+</tr>
+<tr class="odd">
+<td>P</td>
+<td>2^50</td>
+<td>petabyte</td>
+</tr>
+</tbody>
+</table>
+<p>The times are displayed using H:MM:SS for hours, minutes and seconds.</p>
+</section>
+<section id="cmdline__progressmeter__md-_-_-progress-meter-legend" class="level2" data-number="73.2">
+<h2 data-number="73.2">Progress meter legend</h2>
+<p>The progress meter exists to show a user that something actually is happening. The different fields in the output have the following meaning:</p>
+<pre><code>% Total  % Received % Xferd Average Speed          Time             Curr.
+                            Dload  Upload Total    Current  Left    Speed
+0  151M  0 38608    0     0  9406      0  4:41:43  0:00:04  4:41:39  9287</code></pre>
+<p>From left to right:</p>
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Title</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>%</code></td>
+<td>Percentage completed of the whole transfer</td>
+</tr>
+<tr class="even">
+<td><code>Total</code></td>
+<td>Total size of the whole expected transfer (if known)</td>
+</tr>
+<tr class="odd">
+<td><code>%</code></td>
+<td>Percentage completed of the download</td>
+</tr>
+<tr class="even">
+<td><code>Received</code></td>
+<td>Currently downloaded number of bytes</td>
+</tr>
+<tr class="odd">
+<td><code>%</code></td>
+<td>Percentage completed of the upload</td>
+</tr>
+<tr class="even">
+<td><code>Xferd</code></td>
+<td>Currently uploaded number of bytes</td>
+</tr>
+<tr class="odd">
+<td><code>Average Speed Dload</code></td>
+<td>Average transfer speed of the entire download so far, in number of bytes per second</td>
+</tr>
+<tr class="even">
+<td><code>Average Speed Upload</code></td>
+<td>Average transfer speed of the entire upload so far, in number of bytes per second</td>
+</tr>
+<tr class="odd">
+<td><code>Time Total</code></td>
+<td>Expected time to complete the operation, in <code>HH:MM:SS</code> notation for hours, minutes and seconds</td>
+</tr>
+<tr class="even">
+<td><code>Time Current</code></td>
+<td>Time passed since the start of the transfer, in <code>HH:MM:SS</code> notation for hours, minutes and seconds</td>
+</tr>
+<tr class="odd">
+<td><code>Time Left</code></td>
+<td>Expected time left to completion, in <code>HH:MM:SS</code> notation for hours, minutes and seconds</td>
+</tr>
+<tr class="even">
+<td><code>Curr. Speed</code></td>
+<td>Average transfer speed over the last 5 seconds (the first 5 seconds of a transfer is based on less time, of course) in number of bytes per second</td>
+</tr>
+</tbody>
+</table>
+<p><span id="cmdline__curlver__md"></span></p>
+</section>
+</section>
+</body>
+</html>

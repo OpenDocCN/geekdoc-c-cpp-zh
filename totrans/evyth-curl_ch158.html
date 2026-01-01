@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch158.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__post__json__md-_-_-json" class="level1" data-number="157">
+<h1 data-number="157">JSON</h1>
+<p>curl 7.82.0 introduced the <code>--json</code> option as a new way to send JSON formatted data to HTTP servers using POST. This option works as a shortcut and provides a single option that replaces these three:</p>
+<pre><code>--data [arg]
+--header &quot;Content-Type: application/json&quot;
+--header &quot;Accept: application/json&quot;</code></pre>
+<p>This option does not make curl actually understand or know about the JSON data it sends, but it makes it easier to send it. curl does not touch or parse the data that it sends, so you need to make sure it is valid JSON yourself.</p>
+<p>Send a basic JSON object to a server:</p>
+<pre><code>curl --json &#39;{&quot;tool&quot;: &quot;curl&quot;}&#39; https://example.com/</code></pre>
+<p>Send JSON from a local file:</p>
+<pre><code>curl --json @json.txt https://example.com/</code></pre>
+<p>Send JSON passed to curl on stdin:</p>
+<pre><code>echo &#39;{&quot;a&quot;:&quot;b&quot;}&#39; | curl --json @- https://example.com/</code></pre>
+<p>You can use multiple <code>--json</code> options on the same command line. This makes curl concatenate the contents from the options and send all data in one go to the server. Note that the concatenation is plain text based and it does not merge the JSON objects as per JSON.</p>
+<p>Send JSON from a file and concatenate a string to the end:</p>
+<pre><code>curl --json @json.txt --json &#39;, &quot;end&quot;: &quot;true&quot;}&#39; https://example.com/</code></pre>
+<section id="http__post__json__md-_-_-crafting-json-to-send" class="level2" data-number="157.1">
+<h2 data-number="157.1">Crafting JSON to send</h2>
+<p>The quotes used in JSON data sometimes makes it a bit difficult and cumbersome to write and use in shells and scripts.</p>
+<p>Using a separate tool for this purpose might make things easier for you, and one tool in particular that might help you accomplish this is <a href="https://github.com/jpmens/jo">jo</a>.</p>
+<p>Send a basic JSON object to a server with jo and <code>--json</code></p>
+<pre><code>jo -p name=jo n=17 parser=false | curl --json @- https://example.com/</code></pre>
+</section>
+<section id="http__post__json__md-_-_-receiving-json" class="level2" data-number="157.2">
+<h2 data-number="157.2">Receiving JSON</h2>
+<p>curl itself does not know or understand the contents it sends or receives, including when the server returns JSON in its response.</p>
+<p>Using a separate tool for the purpose of parsing or pretty-printing JSON responses might make things easier for you, and one tool in particular that might help you accomplish this is <a href="https://stedolan.github.io/jq/">jq</a>.</p>
+<p>Send a basic JSON object to a server, and pretty-print the JSON response:</p>
+<pre><code>curl --json &#39;{&quot;tool&quot;: &quot;curl&quot;}&#39; https://example.com/ | jq</code></pre>
+<p>Send the JSON with <code>jo</code>, print the response with <code>jq</code>:</p>
+<pre><code>jo -p name=jo n=17 | curl --json @- https://example.com/ | jq</code></pre>
+<p>jq is a powerful and capable tool for extracting, filtering and managing JSON content that goes way beyond just pretty-printing.</p>
+<p><span id="http__post__url-encode__md"></span></p>
+</section>
+</section>
+</body>
+</html>

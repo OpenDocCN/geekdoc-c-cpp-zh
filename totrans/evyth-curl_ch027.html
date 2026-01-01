@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch027.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="install__linux__md-_-_-linux" class="level1" data-number="26">
+<h1 data-number="26">Linux</h1>
+<p>Linux distributions come with packager managers that let you install software that they offer. Most Linux distributions offer curl and libcurl to be installed if they are not installed by default.</p>
+<section id="install__linux__md-_-_-ubuntu-and-debian" class="level2" data-number="26.1">
+<h2 data-number="26.1">Ubuntu and Debian</h2>
+<p><code>apt</code> is a tool to install prebuilt packages on Debian Linux and Ubuntu Linux distributions and derivatives.</p>
+<p>To install the curl command-line tool, you usually just</p>
+<pre><code>apt install curl</code></pre>
+<p>…and that then makes sure the dependencies are installed and usually libcurl is then also installed as an individual package.</p>
+<p>If you want to build applications against libcurl, you need a development package installed to get the include headers and some additional documentation, etc. You can then select a libcurl with the TLS backend you prefer:</p>
+<pre><code>apt install libcurl4-openssl-dev</code></pre>
+<p>or</p>
+<pre><code>apt install libcurl4-gnutls-dev</code></pre>
+</section>
+<section id="install__linux__md-_-_-redhat-and-centos" class="level2" data-number="26.2">
+<h2 data-number="26.2">Redhat and CentOS</h2>
+<p>With Redhat Linux and CentOS Linux derivatives, you use <code>yum</code> to install packages. Install the command-line tool with:</p>
+<pre><code>yum install curl</code></pre>
+<p>You install the libcurl development package (with include files and some docs, etc.) with this:</p>
+<pre><code>yum install libcurl-devel</code></pre>
+</section>
+<section id="install__linux__md-_-_-fedora" class="level2" data-number="26.3">
+<h2 data-number="26.3">Fedora</h2>
+<p>Fedora Workstation and other Fedora based distributions use <code>dnf</code> to install packages.</p>
+<p>Install the command-line tool with:</p>
+<pre><code>dnf install curl</code></pre>
+<p>To install the libcurl development package you run:</p>
+<pre><code>dnf install libcurl-devel</code></pre>
+</section>
+<section id="install__linux__md-_-_-immutable-fedora-distributions" class="level2" data-number="26.4">
+<h2 data-number="26.4">Immutable Fedora distributions</h2>
+<p>Distributions such as Silverblue, Kinoite, Sericea, Onyx, … use <code>rpm-ostree</code> to install packages. Remember to restart the system after install.</p>
+<pre><code>rpm-ostree install curl</code></pre>
+<p>To install the libcurl development package you run:</p>
+<pre><code>rpm-ostree install libcurl-devel</code></pre>
+</section>
+<section id="install__linux__md-_-_-nix" class="level2" data-number="26.5">
+<h2 data-number="26.5">nix</h2>
+<p><a href="https://nixos.org/nix/">Nix</a> is a package manager default to the NixOS distribution, but it can also be used on any Linux distribution.</p>
+<p>In order to install command-line tool:</p>
+<pre><code>nix-env -i curl</code></pre>
+</section>
+<section id="install__linux__md-_-_-arch-linux" class="level2" data-number="26.6">
+<h2 data-number="26.6">Arch Linux</h2>
+<p>curl is located in the core repository of Arch Linux. This means it should be installed automatically if you follow the normal installation procedure.</p>
+<p>If curl is not installed, Arch Linux uses <code>pacman</code> to install packages:</p>
+<pre><code>pacman -S curl</code></pre>
+</section>
+<section id="install__linux__md-_-_-suse-and-opensuse" class="level2" data-number="26.7">
+<h2 data-number="26.7">SUSE and openSUSE</h2>
+<p>With SUSE Linux and openSUSE Linux you use <code>zypper</code> to install packages. To install the curl command-line utility:</p>
+<pre><code>zypper install curl</code></pre>
+<p>In order to install the libcurl development package you run:</p>
+<pre><code>zypper install libcurl-devel</code></pre>
+<section id="install__linux__md-_-_-suse-sle-micro-and-opensuse-microos" class="level3" data-number="26.7.1">
+<h3 data-number="26.7.1">SUSE SLE Micro and openSUSE MicroOS</h3>
+<p>These versions of SUSE/openSUSE Linux are immutable OSes and have a read only root file system, to install packages you would use <code>transactional-update</code> instead of <code>zypper</code>. To install the curl command-line utility:</p>
+<pre><code>transactional-update pkg install curl</code></pre>
+<p>And to install the libcurl development package:</p>
+<pre><code>transactional-update pkg install libcurl-devel</code></pre>
+</section>
+</section>
+<section id="install__linux__md-_-_-gentoo" class="level2" data-number="26.8">
+<h2 data-number="26.8">Gentoo</h2>
+<p>This package installs the tool, libcurl, headers and pkg-config files etc</p>
+<pre><code>emerge net-misc/curl</code></pre>
+</section>
+<section id="install__linux__md-_-_-void-linux" class="level2" data-number="26.9">
+<h2 data-number="26.9">Void Linux</h2>
+<p>With Void Linux you use <code>xbps-install</code> to install packages. To install the curl command-line utility:</p>
+<pre><code>xbps-install curl</code></pre>
+<p>In order to install the libcurl development package:</p>
+<pre><code>xbps-install libcurl-devel</code></pre>
+<p><span id="install__windows__README__md"></span></p>
+</section>
+</section>
+</body>
+</html>

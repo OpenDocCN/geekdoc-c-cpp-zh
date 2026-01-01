@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch156.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__post__content-type__md-_-_-content-type" class="level1" data-number="155">
+<h1 data-number="155">Content-Type</h1>
+<p>POSTing with curl’s <code>-d</code> option makes it include a default header that looks like <code>Content-Type: application/x-www-form-urlencoded</code>. That is what your typical browser uses for a plain POST.</p>
+<p>Many receivers of POST data do not care about or check the Content-Type header.</p>
+<p>If that header is not good enough for you, you should, of course, replace that and instead provide the correct one. Such as if you POST JSON to a server and want to more accurately tell the server about what the content is:</p>
+<pre><code>curl -d &#39;{json}&#39; -H &#39;Content-Type: application/json&#39; https://example.com</code></pre>
+<p><span id="http__post__binary__md"></span></p>
+</section>
+</body>
+</html>

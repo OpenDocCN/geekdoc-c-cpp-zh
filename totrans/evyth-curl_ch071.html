@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch071.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="cmdline__configfile__md-_-_-config-file" class="level1" data-number="70">
+<h1 data-number="70">Config file</h1>
+<p>Curl commands with multiple command-line options can become cumbersome to work with. The number of characters can even exceed the maximum length allowed by your terminal application.</p>
+<p>To aid such situations, curl allows you to write command-line options in a plain text config file and tell curl to read options from that file when applicable.</p>
+<p>You can also use config files to assign data to variables and transform the data with functions, making them incredibly useful. This is discussed in the <a href="ch071.xhtml#cmdline__variables__md">Variables</a> section.</p>
+<p>Some examples below contain multiple lines for readability. The backslash (<code>\</code>) is used to instruct the terminal to ignore the newline.</p>
+<section id="cmdline__configfile__md-_-_-specify-the-config-file-to-use" class="level2" data-number="70.1">
+<h2 data-number="70.1">Specify the config file to use</h2>
+<p>Using the <code>-K</code> or long form <code>--config</code> option tells curl to read from a config file.</p>
+<pre><code>curl  \
+    --config configFile.txt \
+    --url https://example.com</code></pre>
+<p>The file path specified is relative to the current directory in your terminal.</p>
+<p>You can name the config file whatever you like. <code>configFile.txt</code> is used for simplicity in the example above.</p>
+</section>
+<section id="cmdline__configfile__md-_-_-syntax" class="level2" data-number="70.2">
+<h2 data-number="70.2">Syntax</h2>
+<p>Enter one command per line. Use a hash symbol for comments:</p>
+<pre><code># curl config file
+
+# Follow redirects
+--location
+
+# Do a HEAD request
+--head</code></pre>
+</section>
+<section id="cmdline__configfile__md-_-_-command-line-options" class="level2" data-number="70.3">
+<h2 data-number="70.3">Command line options</h2>
+<p>You can use both short and long options, exactly as you would write them on a command line.</p>
+<p>You can also write the long option WITHOUT the leading two dashes to make it easier to read.</p>
+<pre><code># curl config file
+
+# Follow redirects
+location
+
+# Do a HEAD request
+head</code></pre>
+</section>
+<section id="cmdline__configfile__md-_-_-arguments" class="level2" data-number="70.4">
+<h2 data-number="70.4">Arguments</h2>
+<p>A command line option that takes an argument must have its argument provided on the SAME LINE as the option.</p>
+<pre><code># curl config file
+
+user-agent &quot;Everything-is-an-agent&quot;</code></pre>
+<p>You can also use <code>=</code> or <code>:</code> between the option and its argument. As you see above, it is not necessary, but some like the clarity it offers. Setting the user-agent option again:</p>
+<pre><code># curl config file
+
+user-agent = &quot;Everything-is-an-agent&quot;</code></pre>
+<p>The user agent string example we have used above has no white spaces, so the quotes are technically not needed:</p>
+<pre><code># curl config file
+
+user-agent = Everything-is-an-agent</code></pre>
+<p>See “When to use quotes” below for more info on when quotes should be used.</p>
+</section>
+<section id="cmdline__configfile__md-_-_-urls" class="level2" data-number="70.5">
+<h2 data-number="70.5">URLs</h2>
+<p>When entering URLs at the command line, everything that is not an option is assumed to be a URL. However, in a config file, you must specify a URL with <code>--url</code> or <code>url</code>.</p>
+<pre><code># curl config file
+
+url = https://example.com</code></pre>
+</section>
+<section id="cmdline__configfile__md-_-_-when-to-use-quotes" class="level2" data-number="70.6">
+<h2 data-number="70.6">When to use quotes</h2>
+<p>You need to use double quotes when:</p>
+<ul>
+<li>the parameter contains white space, or starts with the characters <code>:</code> or <code>=</code>.</li>
+<li>you need to use escape sequences (available options: <code>\\</code>, <code>\"</code>, <code>\t</code>, <code>\n</code>, <code>\r</code> and <code>\v</code>. A backslash preceding any other letter is ignored).</li>
+</ul>
+<p>If a parameter containing white space is not enclosed in double quotes, curl considers the next space or newline as the end of the argument.</p>
+</section>
+<section id="cmdline__configfile__md-_-_-default-config-file" class="level2" data-number="70.7">
+<h2 data-number="70.7">Default config file</h2>
+<p>When curl is invoked, it always (unless <code>-q</code> is used), checks for a default config file and uses it if found.</p>
+<p>Curl looks for the default config file in the following locations, in this order:</p>
+<ol type="1">
+<li><p><code>$CURL_HOME/.curlrc</code></p></li>
+<li><p><code>$XDG_CONFIG_HOME/.curlrc</code> (Added in 7.73.0)</p></li>
+<li><p><code>$HOME/.curlrc</code></p></li>
+<li><p>Windows: <code>%USERPROFILE%\\.curlrc</code></p></li>
+<li><p>Windows: <code>%APPDATA%\\.curlrc</code></p></li>
+<li><p>Windows: <code>%USERPROFILE%\\Application Data\\.curlrc</code></p></li>
+<li><p>Non-Windows: use getpwuid to find the home directory</p></li>
+<li><p>On Windows, if it finds no <code>.curlrc</code> file in the sequence described above, it checks for one in the same directory the curl executable is placed.</p></li>
+</ol>
+<p>On Windows two filenames are checked per location: <code>.curlrc</code> and <code>_curlrc</code>, preferring the former. Ancient curl versions on Windows checked for <code>_curlrc</code> only.</p>
+<p><span id="cmdline__variables__md"></span></p>
+</section>
+</section>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch066.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="cmdline__urls__connreuse__md-_-_-connection-reuse" class="level1" data-number="65">
+<h1 data-number="65">Connection reuse</h1>
+<p>Setting up a TCP connection and especially a TLS connection can be a slow process, even on high bandwidth networks.</p>
+<p>It can be useful to remember that curl has a connection pool internally which keeps previously used connections alive and around for a while after they were used so that subsequent requests to the same hosts can reuse an already established connection.</p>
+<p>Of course, they can only be kept alive for as long as the curl tool is running. It is a good reason for trying to get several transfers done within the same command line instead of running several independent curl command line invocations.</p>
+<p><span id="cmdline__urls__parallel__md"></span></p>
+</section>
+</body>
+</html>

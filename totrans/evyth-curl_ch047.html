@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch047.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="build__windows__md-_-_-windows" class="level1" data-number="46">
+<h1 data-number="46">Windows</h1>
+<p>You can build curl on Windows in several different ways. We recommend using the MSVC compiler from Microsoft or the free and open source mingw compiler. The build process is, however, not limited to these.</p>
+<p>If you use mingw, you might want to use the <a href="ch043.xhtml#build__autotools__md">autotools</a> build system.</p>
+<section id="build__windows__md-_-_-winbuild" class="level2" data-number="46.1">
+<h2 data-number="46.1">winbuild</h2>
+<p>This is how to build curl and libcurl using the command line.</p>
+<p>Build with MSVC using the <code>nmake</code> utility like this:</p>
+<pre><code>cd winbuild</code></pre>
+<p>Decide what options to enable/disable in your build. The <code>README.md</code> file in that directory details them all, but an example command line could look like this (split into several lines for readability):</p>
+<pre><code>nmake WITH_SSL=dll WITH_NGHTTP2=dll ENABLE_IPV6=yes \
+WITH_ZLIB=dll MACHINE=x64 </code></pre>
+</section>
+<section id="build__windows__md-_-_-visual-c---project-files" class="level2" data-number="46.2">
+<h2 data-number="46.2">Visual C++ project files</h2>
+<p>Using <a href="ch044.xhtml#build__cmake__md">CMake</a>, you can generate a set of Visual Studio project files:</p>
+<pre><code>cmake -B build -G &#39;Visual Studio 17 2022&#39;</code></pre>
+<p>Once generated, you import them and build with Visual Studio like normally.</p>
+</section>
+<section id="build__windows__md-_-_-mingw" class="level2" data-number="46.3">
+<h2 data-number="46.3">Mingw</h2>
+<p>You can build curl with the mingw compiler suite. Use <a href="ch044.xhtml#build__cmake__md">CMake</a> to generate the set of Makefiles for you:</p>
+<pre><code>cmake -B build -G &quot;MinGW Makefiles&quot;</code></pre>
+<p><span id="build__deps__md"></span></p>
+</section>
+</section>
+</body>
+</html>

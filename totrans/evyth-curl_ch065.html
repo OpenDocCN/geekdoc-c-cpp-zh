@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch065.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="cmdline__urls__options__md-_-_-many-options-and-urls" class="level1" data-number="64">
+<h1 data-number="64">Many options and URLs</h1>
+<p>As mentioned above, curl supports hundreds of command-line options and it also supports an unlimited number of URLs. If your shell or command-line system supports it, there is really no limit to how long a command line you can pass to curl.</p>
+<p>curl parses the entire command line first, apply the wishes from the command-line options used, and then go over the URLs one by one (in a left to right order) to perform the operations.</p>
+<p>For some options (for example <code>-o</code> or <code>-O</code> that tell curl where to store the transfer), you may want to specify one option for each URL on the command line.</p>
+<p>curl returns an exit code for its operation on the last URL used. If you instead rather want curl to exit with an error on the first URL in the set that fails, use the <code>--fail-early</code> option.</p>
+<section id="cmdline__urls__options__md-_-_-one-output-for-each-given-url" class="level2" data-number="64.1">
+<h2 data-number="64.1">One output for each given URL</h2>
+<p>If you use a command-line with two URLs, you must tell curl how to handle both of them. The <code>-o</code> and <code>-O</code> options instruct curl how to save the output for <em>one</em> URL of the URLs, so you might want to have as many of those options as you have URLs on the command line.</p>
+<p>If you have more URLs than output options on the command line, the URL content without a corresponding output instruction then instead gets sent to stdout.</p>
+<p>Using the <code>--remote-name-all</code> flag automatically makes curl act as if <code>-O</code> was used for all given URLs that do not have any output option.</p>
+</section>
+<section id="cmdline__urls__options__md-_-_-separate-options-per-url" class="level2" data-number="64.2">
+<h2 data-number="64.2">Separate options per URL</h2>
+<p>In previous sections we described how curl always parses all options in the whole command line and applies those to all the URLs that it transfers.</p>
+<p>That was a simplification: curl also offers an option (<code>-:</code>, <code>--next</code>) that inserts a boundary between a set of options and URLs for which it applies the options. When the command-line parser finds a <code>--next</code> option, it applies the following options to the next set of URLs. The <code>--next</code> option thus works as a <em>divider</em> between a set of options and URLs. You can use as many <code>--next</code> options as you please.</p>
+<p>As an example, we do an HTTP GET to a URL and follow redirects, we then make a second HTTP POST to a different URL and we round it up with a HEAD request to a third URL. All in a single command line:</p>
+<pre><code>curl --location http://example.com/1 --next
+  --data sendthis http://example.com/2 --next
+  --head http://example.com/3</code></pre>
+<p>Trying something like that <em>without</em> the <code>--next</code> options on the command line would generate an illegal command line since curl would attempt to combine both a POST and a HEAD:</p>
+<pre><code>Warning: You can only select one HTTP request method! You asked for both
+Warning: POST (-d, --data) and HEAD (-I, --head).</code></pre>
+<p><span id="cmdline__urls__connreuse__md"></span></p>
+</section>
+</section>
+</body>
+</html>

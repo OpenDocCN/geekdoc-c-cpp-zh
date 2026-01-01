@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch208.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__options__info__md-_-_-get-option-information" class="level1" data-number="207">
+<h1 data-number="207">Get option information</h1>
+<p>libcurl offers an API, a set of functions really, that allow applications to get information about all currently support <em>easy options</em>. It does not return <em>the values</em> for the options, but it rather informs about name, ID and type of the option.</p>
+<section id="transfers__options__info__md-_-_-iterate-over-all-options" class="level2" data-number="207.1">
+<h2 data-number="207.1">Iterate over all options</h2>
+<p>Modern libcurl supports over 300 different options. With the use of <code>curl_easy_option_by_next()</code> an application can iterate over all the known options and return a pointer to a <code>struct curl_easyoption</code> for them.</p>
+<p>This function only returns information about options that this exact libcurl build knows about. Other options may exist in newer libcurl builds, or in builds that enable/disable options differently at build-time.</p>
+<p>Example, iterate over all available options:</p>
+<pre><code>const struct curl_easyoption *opt;
+opt = curl_easy_option_by_next(NULL);
+while(opt) {
+  printf(&quot;Name: %s\n&quot;, opt-&gt;name);
+  opt = curl_easy_option_by_next(opt);
+}</code></pre>
+</section>
+<section id="transfers__options__info__md-_-_-find-a-specific-option-by-name" class="level2" data-number="207.2">
+<h2 data-number="207.2">Find a specific option by name</h2>
+<p>Given a specific easy option name, you can ask libcurl to return a pointer to a <code>struct curl_easyoption</code> for it. The name should be provided without the <code>CURLOPT_</code> prefix.</p>
+<p>As an example, an application can ask libcurl about the <code>CURLOPT_VERBOSE</code> option like this:</p>
+<pre><code>const struct curl_easyoption *opt = curl_easy_option_by_name(&quot;VERBOSE&quot;);
+if(opt) {
+  printf(&quot;This option wants CURLoption %x\n&quot;, (int)opt-&gt;id);
+}</code></pre>
+</section>
+<section id="transfers__options__info__md-_-_-find-a-specific-option-by-id" class="level2" data-number="207.3">
+<h2 data-number="207.3">Find a specific option by ID</h2>
+<p>Given a specific easy option ID, you can ask libcurl to return a pointer to a <code>struct curl_easyoption</code> for it. The “ID” is the <code>CURLOPT_</code>-prefixed symbol as provided in the public <code>curl/curl.h</code> header file.</p>
+<p>An application can ask libcurl for the name of the <code>CURLOPT_VERBOSE</code> option like this:</p>
+<pre><code>const struct curl_easyoption *opt =
+  curl_easy_option_by_id(CURLOPT_VERBOSE);
+if(opt) {
+  printf(&quot;This option has the name: %s\n&quot;, opt-&gt;name);
+}</code></pre>
+</section>
+<section id="transfers__options__info__md-_-_-the-curl_easyoption-struct" class="level2" data-number="207.4">
+<h2 data-number="207.4">The <code>curl_easyoption</code> struct</h2>
+<pre><code>struct curl_easyoption {
+  const char *name;
+  CURLoption id;
+  curl_easytype type;
+  unsigned int flags;
+};</code></pre>
+<p>There is only one bit with a defined meaning in ‘flags’: if <code>CURLOT_FLAG_ALIAS</code> is set, it means that that option is an “alias”. A name provided for backwards compatibility that is nowadays rather served by an option with another name. If you lookup the ID for an alias, you get the new canonical name for that option.</p>
+<p><span id="transfers__drive__README__md"></span></p>
+</section>
+</section>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch281.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="helpers__headerapi__iterate__md-_-_-iterate-over-headers" class="level1" data-number="280">
+<h1 data-number="280">Iterate over headers</h1>
+<pre><code>struct curl_header *curl_easy_nextheader(CURL *easy,
+                                         unsigned int origin,
+                                         int request,
+                                         struct curl_header *previous);</code></pre>
+<p>This function lets the application iterate over all available headers from within the given <strong>origins</strong> that arrived in the <strong>request</strong>.</p>
+<p>The <strong>request</strong> argument tells libcurl from which request you want headers from.</p>
+<p>If <strong>previous</strong> is set to NULL, this function returns a pointer to the first header. The application can then use that pointer as an argument to the next call to iterate over all available headers within the same <strong>origin</strong> and <strong>request</strong> context.</p>
+<p>When this function returns NULL, there are no more headers within the context.</p>
+<p>See <a href="ch278.xhtml#helpers__headerapi__struct__md">Header struct</a> for details on the <code>curl_header</code> struct that function this returns a pointer to.</p>
+<p><span id="examples__README__md"></span></p>
+</section>
+</body>
+</html>

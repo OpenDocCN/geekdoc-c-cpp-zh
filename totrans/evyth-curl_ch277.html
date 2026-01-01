@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch277.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="helpers__ws__write__md-_-_-write" class="level1" data-number="276">
+<h1 data-number="276">Write</h1>
+<p>An application can receive WebSocket data two different ways, but there is only one way for it to send data over the connection: the <code>curl_ws_send()</code> function.</p>
+<section id="helpers__ws__write__md-_-_-curl_ws_send" class="level2" data-number="276.1">
+<h2 data-number="276.1"><code>curl_ws_send()</code></h2>
+<pre><code>CURLcode curl_ws_send(CURL *curl, const void *buffer, size_t buflen,
+                      size_t *sent, curl_off_t fragsize,
+                      unsigned int sendflags);</code></pre>
+<p><code>curl</code> - transfer handle</p>
+<p><code>buffer</code> - pointer to the frame data to send</p>
+<p><code>buflen</code> - length of the data (in bytes) in <code>buffer</code></p>
+<p><code>fragsize</code> - the total size of the whole fragment, used when sending only a part of a larger fragment.</p>
+<p><code>sent</code> - number of bytes that were sent</p>
+<p><code>flags</code> - bitmask describing the data. See bit descriptions below.</p>
+</section>
+<section id="helpers__ws__write__md-_-_-full-fragment-vs-partial" class="level2" data-number="276.2">
+<h2 data-number="276.2">Full fragment vs partial</h2>
+<p>To send a complete WebSocket fragment, set <code>fragsize</code> to zero and provide data for all other arguments.</p>
+<p>To send a fragment in smaller pieces: send the first part with <code>fragsize</code> set to the <em>total</em> fragment size. You <strong>must</strong> know and provide the size of the entire fragment before you can send it. In subsequent calls to <code>curl_ws_send()</code> you send the next pieces of the fragment with <code>fragsize</code> set to zero but with the <code>CURLWS_OFFSET</code> bit sets in the <code>flags</code> argument. Repeat until all pieces have been sent that constitute the whole fragment.</p>
+</section>
+<section id="helpers__ws__write__md-_-_-flags" class="level2" data-number="276.3">
+<h2 data-number="276.3">Flags</h2>
+<section id="helpers__ws__write__md-_-_-curlws_text" class="level3" data-number="276.3.1">
+<h3 data-number="276.3.1"><code>CURLWS_TEXT</code></h3>
+<p>The buffer contains text data. Note that this makes a difference to WebSocket but libcurl itself does not perform any verification of the content or make any precautions that you actually send valid UTF-8 content.</p>
+</section>
+<section id="helpers__ws__write__md-_-_-curlws_binary" class="level3" data-number="276.3.2">
+<h3 data-number="276.3.2"><code>CURLWS_BINARY</code></h3>
+<p>This is binary data.</p>
+</section>
+<section id="helpers__ws__write__md-_-_-curlws_cont" class="level3" data-number="276.3.3">
+<h3 data-number="276.3.3"><code>CURLWS_CONT</code></h3>
+<p>This is not the final fragment of the message, which implies that there is another fragment coming as part of the same message where this bit is not set.</p>
+</section>
+<section id="helpers__ws__write__md-_-_-curlws_close" class="level3" data-number="276.3.4">
+<h3 data-number="276.3.4"><code>CURLWS_CLOSE</code></h3>
+<p>Close this transfer.</p>
+</section>
+<section id="helpers__ws__write__md-_-_-curlws_ping" class="level3" data-number="276.3.5">
+<h3 data-number="276.3.5"><code>CURLWS_PING</code></h3>
+<p>This as a ping.</p>
+</section>
+<section id="helpers__ws__write__md-_-_-curlws_pong" class="level3" data-number="276.3.6">
+<h3 data-number="276.3.6"><code>CURLWS_PONG</code></h3>
+<p>This as a pong.</p>
+</section>
+<section id="helpers__ws__write__md-_-_-curlws_offset" class="level3" data-number="276.3.7">
+<h3 data-number="276.3.7"><code>CURLWS_OFFSET</code></h3>
+<p>The provided data is only a partial fragment and there is more data coming in a following call to <code>curl_ws_send()</code>. When sending only a piece of the fragment like this, the <code>fragsize</code> must be provided with the total expected frame size in the first call and it needs to be zero in subsequent calls.</p>
+<p>When <code>CURLWS_OFFSET</code> is set, no other flag bits should be set as this is a continuation of a previous send and the bits describing the fragments were set then.</p>
+<p><span id="helpers__headerapi__README__md"></span></p>
+</section>
+</section>
+</section>
+</body>
+</html>

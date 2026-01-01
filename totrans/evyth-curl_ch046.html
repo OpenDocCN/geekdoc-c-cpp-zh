@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch046.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="build__separate__md-_-_-separate-install" class="level1" data-number="45">
+<h1 data-number="45">Separate install</h1>
+<p>At times when you build curl and libcurl from source, you do this with the purpose of experimenting, testing or perhaps debugging. In these scenarios, you might not be ready to replace your system wide libcurl installation.</p>
+<p>Many modern systems already have libcurl installed in the system, so when you build and install your test version, you need to make sure that your new build is used for your purposes.</p>
+<p>We get a lot of reports from people who build and install their own version of curl and libcurl, but when they subsequently invoke their new curl build, the new tool finds an older libcurl in the system and instead uses that. This tends to confuse users.</p>
+<section id="build__separate__md-_-_-static-linking" class="level2" data-number="45.1">
+<h2 data-number="45.1">Static linking</h2>
+<p>You can avoid the problem of curl finding an older dynamic libcurl library by instead linking with libcurl statically. This however instead triggers a slew of other challenges because linking modern libraries with several third party dependencies statically is hard work. When you link statically, you need to make sure you provide all the dependencies to the linker. This is not a method we recommend.</p>
+</section>
+<section id="build__separate__md-_-_-dynamic-linking" class="level2" data-number="45.2">
+<h2 data-number="45.2">Dynamic linking</h2>
+<p>When you invoke <code>curl</code> on a modern system, there is a runtime linker (often called <code>ld.so</code>) that loads the shared libraries the executable was built to use. The shared libraries are searched for and loaded from a set of paths.</p>
+<p>The problem is often that the system libcurl library exists in that path, while your newly built libcurl does not. Or they both exist in the path but the system one is found first.</p>
+<p>The runtime linker path order is typically defined in <code>/etc/ld.so.conf</code> on Linux systems. You can change the order and you can add new directories to the list of directories to search. Remember to run <code>ldconfig</code> after an update.</p>
+</section>
+<section id="build__separate__md-_-_-temporary-installs" class="level2" data-number="45.3">
+<h2 data-number="45.3">Temporary installs</h2>
+<p>If you build a libcurl and install it somewhere and you just want to use it for a single application or maybe just to test something out for a bit, editing and changing the dynamic library path might be a bit too intrusive.</p>
+<p>A normal unix offers a few other alternative takes that we recommend.</p>
+<section id="build__separate__md-_-_-ld_library_path" class="level3" data-number="45.3.1">
+<h3 data-number="45.3.1"><code>LD_LIBRARY_PATH</code></h3>
+<p>You can set this environment variable in your shell to make the runtime linker look in a particular directory. This affects all executables loaded where this variable is set.</p>
+<p>It is convenient for quick checks, or even if you want to rotate around and have your single <code>curl</code> executable use different libcurls in different invokes.</p>
+<p>It can look like this when you have installed your new curl build in <code>$HOME/install</code>:</p>
+<pre><code>export LD_LIBRARY_PATH=$HOME/install/lib
+$HOME/install/bin/curl https://example.com/</code></pre>
+</section>
+<section id="build__separate__md-_-_-rpath" class="level3" data-number="45.3.2">
+<h3 data-number="45.3.2"><code>rpath</code></h3>
+<p>Often, a better way to forcibly load your separate libcurl instead of the system one, is to set the <code>rpath</code> of the specific <code>curl</code> executable you build. That gives the runtime linker a specific path to check for this specific executable.</p>
+<p>This is done at link time, and if you build your own libcurl using application, you can make that load your custom libcurl build like this:</p>
+<pre><code>gcc -g example.c -L$HOME/install/lib -lcurl -Wl,-rpath=$HOME/install/lib</code></pre>
+<p>With <code>rpath</code> set, the executable linked against <code>$HOME/install/lib/libcurl.so</code> then makes the runtime linker use that specific path and library, while other binaries in your system continue to use the system libcurl.</p>
+<p>When you want to make your custom build of <code>curl</code> use its own libcurl and you install them into <code>$HOME/install</code>, then a configure command line for this looks something like this:</p>
+<pre><code>LDFLAGS=&quot;-Wl,-rpath,$HOME/install/lib&quot; ./configure ...</code></pre>
+<p>If your system supports the runpath form of rpath it is often better to use that instead because it can be overridden by the <code>LD_LIBRARY_PATH</code> environment variable. It may also prevent libtool bugs when testing in-tree builds of curl, since then libtool can use <code>LD_LIBRARY_PATH</code>. Newer linkers may use the runpath form of rpath by default when rpath is specified but others need an additional linker flag <code>-Wl,--enable-new-dtags</code> like this:</p>
+<pre><code>LDFLAGS=&quot;-Wl,-rpath,$HOME/install/lib -Wl,--enable-new-dtags&quot; \
+  ./configure ...</code></pre>
+<p><span id="build__windows__md"></span></p>
+</section>
+</section>
+</section>
+</body>
+</html>

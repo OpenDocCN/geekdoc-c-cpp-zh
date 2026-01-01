@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch067.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="cmdline__urls__parallel__md-_-_-parallel-transfers" class="level1" data-number="66">
+<h1 data-number="66">Parallel transfers</h1>
+<p>The default behavior of getting the specified URLs one by one in a serial fashion makes it easy to understand exactly when each URL is fetched but it can be slow.</p>
+<p>curl offers the <code>-Z</code> (or <code>--parallel</code>) option that instead instructs curl to attempt to do the specified transfers in a parallel fashion. When this is enabled, curl performs a lot of transfers simultaneously instead of serially. It does up to 50 transfers at the same time by default and as soon as one of them completes, the next one is kicked off.</p>
+<p>For cases where you want to download many files from different sources and a few of them might be slow, a few fast, this can speed things up tremendously.</p>
+<p>If 50 parallel transfers is wrong for you, the <code>--parallel-max</code> option is there to allow you to change that amount.</p>
+<section id="cmdline__urls__parallel__md-_-_-parallel-transfer-progress-meter" class="level2" data-number="66.1">
+<h2 data-number="66.1">Parallel transfer progress meter</h2>
+<p>Naturally, the ordinary progress meter display that shows file transfer progress for a single transfer is not that useful for parallel transfers so when curl performs parallel transfers, it shows a different progress meter that displays information about all the current ongoing transfers in a single line.</p>
+</section>
+<section id="cmdline__urls__parallel__md-_-_-connection-before-multiplex" class="level2" data-number="66.2">
+<h2 data-number="66.2">Connection before multiplex</h2>
+<p>When curl is asked to do parallel transfers, it prioritizes having the additional transfer reuse and multiplexing happen over pre-existing connections. This can potentially lower the total amount of connections (and thereby resources) necessary, but it might be slightly slower at start-up.</p>
+<p>With <code>--parallel-immediate</code>, curl is instructed to reverse the prioritization and instead prefer creating a new connection immediately rather than risk waiting a little to see if the transfer can be multiplexed on another connection.</p>
+<p><span id="cmdline__urls__trurl__md"></span></p>
+</section>
+</section>
+</body>
+</html>

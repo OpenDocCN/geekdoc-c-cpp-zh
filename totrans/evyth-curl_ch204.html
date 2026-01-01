@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch204.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__options__num__md-_-_-set-numerical-options" class="level1" data-number="203">
+<h1 data-number="203">Set numerical options</h1>
+<p>Since <code>curl_easy_setopt()</code> is a vararg function where the 3rd argument can use different types depending on the situation, normal C language type conversion cannot be done. You <strong>must</strong> make sure that you truly pass a <code>long</code> and not an <code>int</code> if the documentation tells you so. On architectures where they are the same size, you may not get any problems but not all work like that. Similarly, for options that accept a <code>curl_off_t</code> type, it is <strong>crucial</strong> that you pass in an argument using that type and no other.</p>
+<p>Enforce a <code>long</code>:</p>
+<pre><code>curl_easy_setopt(handle, CURLOPT_TIMEOUT, 5L); /* 5 seconds timeout */</code></pre>
+<p>Enforce a <code>curl_off_t</code>:</p>
+<pre><code>curl_off_t no_larger_than = 0x50000;
+curl_easy_setopt(handle, CURLOPT_MAXFILESIZE_LARGE, no_larger_than);</code></pre>
+<p><span id="transfers__options__strings__md"></span></p>
+</section>
+</body>
+</html>

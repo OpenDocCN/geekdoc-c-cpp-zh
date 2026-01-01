@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch213.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__callbacks__README__md-_-_-callbacks" class="level1" data-number="212">
+<h1 data-number="212">Callbacks</h1>
+<p>Lots of operations within libcurl are controlled with the use of <em>callbacks</em>. A callback is a function pointer provided to libcurl that libcurl then calls at some point to get a particular job done.</p>
+<p>Each callback has its specific documented purpose and it requires that you write it with the exact function prototype to accept the correct arguments and return the documented return code and return value so that libcurl performs the way you want it to.</p>
+<p>Each callback option also has a companion option that sets the associated user pointer. This user pointer is a pointer that libcurl does not touch or care about, but just passes on as an argument to the callback. This allows you to, for example, pass in pointers to local data all the way through to your callback function.</p>
+<p>Unless explicitly stated in a libcurl function documentation, it is not legal to invoke libcurl functions from within a libcurl callback.</p>
+<ul>
+<li><a href="ch213.xhtml#transfers__callbacks__write__md">Write data</a></li>
+<li><a href="ch214.xhtml#transfers__callbacks__read__md">Read data</a></li>
+<li><a href="ch215.xhtml#transfers__callbacks__progress__md">Progress information</a></li>
+<li><a href="ch216.xhtml#transfers__callbacks__header__md">Header data</a></li>
+<li><a href="ch217.xhtml#transfers__callbacks__debug__md">Debug</a></li>
+<li><a href="ch218.xhtml#transfers__callbacks__sockopt__md">sockopt</a></li>
+<li><a href="ch219.xhtml#transfers__callbacks__sslcontext__md">SSL context</a></li>
+<li><a href="ch220.xhtml#transfers__callbacks__seek__md">Seek and ioctl</a></li>
+<li><a href="ch221.xhtml#transfers__callbacks__conversions__md">Network data conversion</a></li>
+<li><a href="ch222.xhtml#transfers__callbacks__openclosesocket__md">Opensocket and closesocket</a></li>
+<li><a href="ch223.xhtml#transfers__callbacks__sshkey__md">SSH key</a></li>
+<li><a href="ch224.xhtml#transfers__callbacks__rtsp__md">RTSP interleaved data</a></li>
+<li><a href="ch225.xhtml#transfers__callbacks__ftpmatch__md">FTP wildcard matching</a></li>
+<li><a href="ch226.xhtml#transfers__callbacks__resolver__md">Resolver start</a></li>
+<li><a href="ch227.xhtml#transfers__callbacks__trailers__md">Sending trailers</a></li>
+<li><a href="ch228.xhtml#transfers__callbacks__hsts__md">HSTS</a></li>
+<li><a href="ch229.xhtml#transfers__callbacks__prereq__md">Prereq</a></li>
+</ul>
+<p><span id="transfers__callbacks__write__md"></span></p>
+</section>
+</body>
+</html>

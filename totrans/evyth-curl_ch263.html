@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch263.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="helpers__url__redirect__md-_-_-redirect-to-url" class="level1" data-number="262">
+<h1 data-number="262">Redirect to URL</h1>
+<p>When the handle already has parsed a URL, setting a second relative URL makes it “redirect” to adapt to it.</p>
+<p>Example, first set the original URL then set the one we “redirect” to:</p>
+<pre><code>CURLU *h = curl_url();
+rc = curl_url_set(h, CURLUPART_URL,
+                  &quot;https://example.com/foo/bar?name=moo&quot;, 0);
+
+rc = curl_url_set(h, CURLUPART_URL, &quot;../test?another&quot;, 0);</code></pre>
+<p><span id="helpers__url__get__md"></span></p>
+</section>
+</body>
+</html>

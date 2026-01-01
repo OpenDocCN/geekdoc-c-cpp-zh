@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch261.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="helpers__url__init__md-_-_-create-cleanup-duplicate" class="level1" data-number="260">
+<h1 data-number="260">Create, cleanup, duplicate</h1>
+<p>The first step when using this API is to create a <code>CURLU *</code> handle that holds URL info and resources. The handle is a reference to an associated data object that holds information about a single URL and all its different components.</p>
+<p>The API allows you to set or get each URL component separately or as a full URL.</p>
+<p>Create a URL handle like this:</p>
+<pre><code>CURLU *h = curl_url();</code></pre>
+<p>When you are done with it, clean it up:</p>
+<pre><code>curl_url_cleanup(h);</code></pre>
+<p>When you need a copy of a handle, just duplicate it:</p>
+<pre><code>CURLU *nh = curl_url_dup(h);</code></pre>
+<p><span id="helpers__url__parse__md"></span></p>
+</section>
+</body>
+</html>

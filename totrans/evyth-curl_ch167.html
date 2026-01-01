@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch167.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__post__postvspost__md-_-_-sect--d-vs--f" class="level1" data-number="166">
+<h1 data-number="166">-d vs -F</h1>
+<p>Previous chapters talked about <a href="ch154.xhtml#http__post__simple__md">regular POST</a> and <a href="ch165.xhtml#http__post__multipart__md">multipart formpost</a>, and in your typical command lines you do them with <code>-d</code> or <code>-F</code>.</p>
+<p>When do you use which of them?</p>
+<p>As described in the chapters mentioned above, both these options send the specified data to the server. The difference is in how the data is formatted over the wire. Most of the time, the receiving end is written to expect a specific format and it expects that the sender formats and sends the data correctly. A client cannot just pick a format of its own choice.</p>
+<section id="http__post__postvspost__md-_-_-html-web-forms" class="level2" data-number="166.1">
+<h2 data-number="166.1">HTML web forms</h2>
+<p>When we are talking browsers and HTML, the standard way is to offer a form to the user that sends off data when the form has been filled in. The <code>&lt;form&gt;</code> tag is what makes one of those appear on the webpage. The tag instructs the browser how to format its POST. If the form tag includes <code>enctype=multipart/form-data</code>, it tells the browser to send the data as a <a href="ch165.xhtml#http__post__multipart__md">multipart formpost</a> which you make with curl’s <code>-F</code> option. This method is typically used when the form includes a <code>&lt;input type=file&gt;</code> tag, for file uploads.</p>
+<p>The default <code>enctype</code> used by forms, which is rarely spelled out in HTML since it is default, is <code>application/x-www-form-urlencoded</code>. It makes the browser URL encode the input as name=value pairs with the data encoded to avoid unsafe characters. We often refer to that as a <a href="ch154.xhtml#http__post__simple__md">regular POST</a>, and you perform one with curl’s <code>-d</code> and friends.</p>
+</section>
+<section id="http__post__postvspost__md-_-_-post-outside-of-html" class="level2" data-number="166.2">
+<h2 data-number="166.2">POST outside of HTML</h2>
+<p>POST is a regular HTTP method and there is no requirement that it be triggered by HTML or involve a browser. Lots of services, APIs and other systems allow you to pass in data these days in order to get things done.</p>
+<p>If these services expect plain raw data or perhaps data formatted as JSON or similar, you want the <a href="ch154.xhtml#http__post__simple__md">regular POST</a> approach. curl’s <code>-d</code> option does not alter or encode the data at all but just sends exactly what you tell it to. Just pay attention that <code>-d</code> sets a default <code>Content-Type:</code> that might not be what you want.</p>
+<p><span id="http__redirects__md"></span></p>
+</section>
+</section>
+</body>
+</html>

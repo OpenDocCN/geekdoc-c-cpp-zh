@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch309.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__tests__curl__md-_-_-curl-tests" class="level1" data-number="308">
+<h1 data-number="308">curl tests</h1>
+<p>The standard test in the suite is the “curl test”. They all invoke a curl command line and verifies that everything it sends, gets back and returns are exactly as expected. Any mismatch and the test is considered a fail and the script shows details about the error.</p>
+<p>What the test features in the <code>&lt;client&gt;&lt;command&gt;</code> section is what is used in the command line, verbatim.</p>
+<p>The <code>tests/log/commands.log</code> is handy to look at after a run, as it contains the full command line that was run in the test.</p>
+<p>If you want to make a test that does not invoke the curl command line tool, then you should consider the <a href="ch309.xhtml#internals__tests__libcurl__md">libcurl tests</a> or <a href="ch310.xhtml#internals__tests__unit__md">unit tests</a> instead.</p>
+<p><span id="internals__tests__libcurl__md"></span></p>
+</section>
+</body>
+</html>

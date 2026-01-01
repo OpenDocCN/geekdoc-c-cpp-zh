@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch180.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__altsvc__md-_-_-alternative-services" class="level1" data-number="179">
+<h1 data-number="179">Alternative Services</h1>
+<p><a href="https://www.rfc-editor.org/rfc/rfc7838.txt">RFC 7838</a> defines an HTTP header which lets a server tell a client that there is one or more <em>alternatives</em> for that server at another place with the use of the <code>Alt-Svc:</code> response header.</p>
+<p>The <em>alternatives</em> the server suggests can include a server running on another port on the same host, on another completely different hostname and it can even perhaps offer the service over another protocol.</p>
+<section id="http__altsvc__md-_-_-enable" class="level2" data-number="179.1">
+<h2 data-number="179.1">Enable</h2>
+<p>To make curl consider offered alternatives, tell curl to use a specific alt-svc cache file like this:</p>
+<pre><code>curl --alt-svc altcache.txt https://example.com/</code></pre>
+<p>then curl loads existing alternative service entries from the file at start-up and consider those when doing HTTP requests, and if the servers sends new or updated <code>Alt-Svc:</code> headers, curl stores those in the cache at exit.</p>
+</section>
+<section id="http__altsvc__md-_-_-the-alt-svc-cache" class="level2" data-number="179.2">
+<h2 data-number="179.2">The alt-svc cache</h2>
+<p>The alt-svc cache is similar to a cookie jar. It is a text based file that stores one alternative per line and each entry also has an expiry time for which duration that particular alternative is valid.</p>
+</section>
+<section id="http__altsvc__md-_-_-https-only" class="level2" data-number="179.3">
+<h2 data-number="179.3">HTTPS only</h2>
+<p><code>Alt-Svc:</code> is only trusted and parsed from servers when connected to over HTTPS.</p>
+</section>
+<section id="http__altsvc__md-_-_-http-slash-3" class="level2" data-number="179.4">
+<h2 data-number="179.4">HTTP/3</h2>
+<p>The use of <code>Alt-Svc:</code> headers is as of August 2019 the only defined way to bootstrap a client and server into using HTTP/3. The server then hints to the client over HTTP/1 or HTTP/2 that it also is available over HTTP/3 and then curl can connect to it using HTTP/3 in the subsequent request if the alt-svc cache says so.</p>
+<p><span id="http__hsts__md"></span></p>
+</section>
+</section>
+</body>
+</html>

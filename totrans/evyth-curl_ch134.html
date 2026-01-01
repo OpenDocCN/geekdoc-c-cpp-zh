@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch134.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="usingcurl__tls__sslkeylogfile__md-_-_-sslkeylogfile" class="level1" data-number="133">
+<h1 data-number="133">SSLKEYLOGFILE</h1>
+<figure>
+<img src="../media/file10.png" alt="" /><figcaption>view network traffic with Wireshark</figcaption>
+</figure>
+<p>Since a long time back, the venerable network analyzer tool Wireshark (screenshot above) has provided a way to decrypt and inspect TLS traffic when sent and received by Firefox and Chrome.</p>
+<p>This is similarly possible to do with curl.</p>
+<p>You do this by making the browser or curl tell Wireshark the encryption secrets so that it can decrypt them:</p>
+<ol type="1">
+<li>set the environment variable named <code>SSLKEYLOGFILE</code> to a filename of your choice before you start the browser or curl</li>
+<li>Setting the same filename path in the Master-secret field in Wireshark. Go to Preferences-&gt;Protocols-&gt;TLS and edit the path as shown in the screenshot below.</li>
+</ol>
+<figure>
+<img src="../media/file11.png" alt="" /><figcaption>set the ssl key filename</figcaption>
+</figure>
+<p>Having done this simple operation, you can now inspect curl’s or your browser’s HTTPS traffic in Wireshark. Just super handy and awesome.</p>
+<p>Just remember that if you record TLS traffic and want to save it for analyzing later, you need to also save the file with the secrets so that you can decrypt that traffic capture at a later time as well.</p>
+<section id="usingcurl__tls__sslkeylogfile__md-_-_-libcurl-using-applications-too" class="level2" data-number="133.1">
+<h2 data-number="133.1">libcurl-using applications too</h2>
+<p>Support for <code>SSLKEYLOGFILE</code> is provided by libcurl itself - making it possible for you to trace and inspect the TLS network data for any application built to use libcurl - not just the curl command line tool.</p>
+</section>
+<section id="usingcurl__tls__sslkeylogfile__md-_-_-restrictions" class="level2" data-number="133.2">
+<h2 data-number="133.2">Restrictions</h2>
+<p>The support for <code>SSLKEYLOGFILE</code> requires that curl was built with a TLS backend that supports this feature. The backends that support SSLKEYLOGFILE are: OpenSSL, libressl, BoringSSL, GnuTLS and wolfSSL.</p>
+<p>If curl was built to use another backend, you cannot record your curl TLS traffic this way.</p>
+<p><span id="usingcurl__scpsftp__md"></span></p>
+</section>
+</section>
+</body>
+</html>

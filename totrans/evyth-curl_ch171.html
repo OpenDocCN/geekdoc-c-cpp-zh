@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch171.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__modify__method__md-_-_-request-method" class="level1" data-number="170">
+<h1 data-number="170">Request method</h1>
+<p>The first line of an HTTP request includes the <em>method</em> - sometimes also referred to as the verb. When doing a simple GET request as this command line would do:</p>
+<pre><code>curl http://example.com/file</code></pre>
+<p>…the initial request line looks like this:</p>
+<pre><code>GET /file HTTP/1.1</code></pre>
+<p>You can tell curl to change the method into something else by using the <code>-X</code> or <code>--request</code> command-line options followed by the actual method name. You can, for example, send a <code>DELETE</code> instead of <code>GET</code> like this:</p>
+<pre><code>curl http://example.com/file -X DELETE</code></pre>
+<p>This command-line option only changes the text in the outgoing request, it does not change any behavior. This is particularly important if you, for example, ask curl to send a HEAD with <code>-X</code>, as HEAD is specified to send all the headers a GET response would get but <em>never</em> send a response body, even if the headers otherwise imply that one would come. So, adding <code>-X HEAD</code> to a command line that would otherwise do a GET causes curl to hang, waiting for a response body that does not come.</p>
+<p>When asking curl to perform HTTP transfers, it picks the correct method based on the option so you should only rarely have to explicitly ask for it with <code>-X</code>. It should also be noted that when curl follows redirects like asked to with <code>-L</code>, the request method set with <code>-X</code> is sent even on the subsequent redirects.</p>
+<p><span id="http__modify__target__md"></span></p>
+</section>
+</body>
+</html>

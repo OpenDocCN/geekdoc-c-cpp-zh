@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch238.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="transfers__control__stop__md-_-_-stop" class="level1" data-number="237">
+<h1 data-number="237">Stop</h1>
+<p>An Internet transfer might be brief but can also take a long time. Maybe even an infinite amount of time.</p>
+<p>libcurl normally performs transfers until they are complete or until an error occurs. If none of those events happen, the transfer continues.</p>
+<p>At times, you might want to stop a libcurl transfer before it would otherwise stop.</p>
+<section id="transfers__control__stop__md-_-_-easy-api" class="level2" data-number="237.1">
+<h2 data-number="237.1">easy API</h2>
+<p>As explained elsewhere, the <code>curl_easy_perform()</code> function is a synchronous function call. It does the entire transfer before it returns.</p>
+<p>There are a few different ways to stop a transfer before it would otherwise end:</p>
+<ol type="1">
+<li>return an error from a callback</li>
+<li>set an option that makes the transfer stop after a fixed period of time</li>
+</ol>
+<p>Every <a href="../callbacks/">callback</a> can return an error, and when an error is returned from one of those functions the entire transfer is stopped. For example the read, write or progress callbacks.</p>
+<p>The second way is to set a timeout or other option that stops the transfer after a time or at a particular condition. For example one or more of the following:</p>
+<ol type="1">
+<li><code>CURLOPT_TIMEOUT</code> - set a maximum time the entire transfer may take</li>
+<li><code>CURLOPT_CONNECTTIMEOUT</code> - set a maximum time “connection phase” may take</li>
+<li><code>CURLOPT_LOW_SPEED_LIMIT</code> - set the lowest acceptable transfer speed. The transfer stops if slower than this speed for <code>CURLOPT_LOW_SPEED_TIME</code> number of second.</li>
+</ol>
+<p>There is no provided function that allows your application to stop an ongoing <code>curl_easy_perform()</code> call from another thread. The common suggestion is then that you signal that intent in a private way that you can detect in a callback and have that callback return error when it happens.</p>
+</section>
+<section id="transfers__control__stop__md-_-_-multi-api" class="level2" data-number="237.2">
+<h2 data-number="237.2">multi API</h2>
+<p>The multi interface is generally a non-blocking API, so in most situations you can stop a transfer by removing its corresponding easy handle from the multi handle using <code>curl_multi_remove_handle()</code>.</p>
+<p>When you use the multi API, you might call libcurl to wait for activities or traffic on sockets libcurl works with. A call that might sit blocking while waiting for something to happen (or a timeout to expire), like <code>curl_multi_poll()</code>.</p>
+<p>An application can make a blocked call to <code>curl_multi_poll()</code> wake up and return forcibly and immediately by calling <code>curl_multi_wakeup()</code> from another thread.</p>
+<p><span id="transfers__control__stopslow__md"></span></p>
+</section>
+</section>
+</body>
+</html>

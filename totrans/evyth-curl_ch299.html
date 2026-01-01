@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch299.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__content-encoding__md-_-_-content-encoding" class="level1" data-number="298">
+<h1 data-number="298">Content Encoding</h1>
+<section id="internals__content-encoding__md-_-_-about-content-encodings" class="level2" data-number="298.1">
+<h2 data-number="298.1">About content encodings</h2>
+<p>[HTTP/1.1][4] specifies that a client may request that a server encode its response. This is usually used to compress a response using one (or more) encodings from a set of commonly available compression techniques. These schemes include <code>deflate</code> (the zlib algorithm), <code>gzip</code>, <code>br</code> (brotli) and <code>compress</code>. A client requests that the server perform an encoding by including an <code>Accept-Encoding</code> header in the request document. The value of the header should be one of the recognized tokens <code>deflate</code>, … (there is a way to register new schemes/tokens, see sec 3.5 of the spec). A server MAY honor the client’s encoding request. When a response is encoded, the server includes a <code>Content-Encoding</code> header in the response. The value of the <code>Content-Encoding</code> header indicates which encodings were used to encode the data, in the order in which they were applied.</p>
+<p>It is also possible for a client to attach priorities to different schemes so that the server knows which it prefers. See sec 14.3 of RFC 2616 for more information on the <code>Accept-Encoding</code> header. See sec <a href="https://datatracker.ietf.org/doc/html/rfc7231#section-3.1.2.2">3.1.2.2 of RFC 7231</a> for more information on the <code>Content-Encoding</code> header.</p>
+</section>
+<section id="internals__content-encoding__md-_-_-supported-content-encodings" class="level2" data-number="298.2">
+<h2 data-number="298.2">Supported content encodings</h2>
+<p>The <code>deflate</code>, <code>gzip</code>, <code>zstd</code> and <code>br</code> content encodings are supported by libcurl. Both regular and chunked transfers work fine. The zlib library is required for the <code>deflate</code> and <code>gzip</code> encodings, the brotli decoding library is for the <code>br</code> encoding and not too surprisingly libzstd does <code>zstd</code>.</p>
+</section>
+<section id="internals__content-encoding__md-_-_-the-libcurl-interface" class="level2" data-number="298.3">
+<h2 data-number="298.3">The libcurl interface</h2>
+<p>To cause libcurl to request a content encoding use:</p>
+<p>[<code>curl_easy_setopt</code>][1](curl, [<code>CURLOPT_ACCEPT_ENCODING</code>][5], string)</p>
+<p>where string is the intended value of the <code>Accept-Encoding</code> header.</p>
+<p>Currently, libcurl does support multiple encodings but only understands how to process responses that use the <code>deflate</code>, <code>gzip</code>, <code>zstd</code> and/or <code>br</code> content encodings, so the only values for [<code>CURLOPT_ACCEPT_ENCODING</code>][5] that work (besides <code>identity</code>, which does nothing) are <code>deflate</code>, <code>gzip</code>, <code>zstd</code> and <code>br</code>. If a response is encoded using the <code>compress</code> or methods, libcurl returns an error indicating that the response could not be decoded. If <code>&lt;string&gt;</code> is NULL no <code>Accept-Encoding</code> header is generated. If <code>&lt;string&gt;</code> is a zero-length string, then an <code>Accept-Encoding</code> header containing all supported encodings is generated.</p>
+<p>The [<code>CURLOPT_ACCEPT_ENCODING</code>][5] must be set to any non-NULL value for content to be automatically decoded. If it is not set and the server still sends encoded content (despite not having been asked), the data is returned in its raw form and the <code>Content-Encoding</code> type is not checked.</p>
+</section>
+<section id="internals__content-encoding__md-_-_-the-curl-interface" class="level2" data-number="298.4">
+<h2 data-number="298.4">The curl interface</h2>
+<p>Use the [<code>--compressed</code>][6] option with curl to cause it to ask servers to compress responses using any format supported by curl.</p>
+<p><span id="internals__structs__md"></span></p>
+</section>
+</section>
+</body>
+</html>

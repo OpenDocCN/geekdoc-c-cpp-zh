@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch307.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__tests__debug__md-_-_-debug-builds" class="level1" data-number="306">
+<h1 data-number="306">Debug builds</h1>
+<p>When we speak of <em>debug builds</em>, we usually refer to curl builds that are done with debug code and symbols still present. We strongly recommend you do this if you want to work with curl development as it makes it easier to test and debug.</p>
+<p>You make a debug build using configure like this:</p>
+<pre><code>./configure --enable-debug</code></pre>
+<p>Debug-builds make it possible to run individual test cases with gdb with runtests.pl, which is handy - especially for example if you can make it crash somewhere as then gdb can catch it and show you exactly where it happens etc.</p>
+<p>Debug-builds are also built a little different than regular <em>release builds</em> in that they contain some snippets of code that makes curl easier to test. For example it allows the test suite to override the random number generator so that testing for values that otherwise are random actually work. Also, the unit tests only work on debug builds.</p>
+<section id="internals__tests__debug__md-_-_-memdebug" class="level2" data-number="306.1">
+<h2 data-number="306.1">Memdebug</h2>
+<p>Debug builds also enable the <em>memdebug</em> internal memory tracking and debugging system.</p>
+<p>When switched on, the memdebug system outputs detailed information about a lot of memory-related options into a logfile, so that it can be analyzed and verified after the fact. Verified that all memory was freed, all files were closed and so on.</p>
+<p>This is a poor-man’s version of valgrind but does not at all compare with its features. It is however fairly portable and low-impact.</p>
+<p>In a debug build, the memdebug system is enabled by curl if the <code>CURL_MEMDEBUG</code> environment variable is set to a filename, which is used for the log. The test suite sets this variable for us (see <code>tests/log/memdump</code>) and verifies it after each test run, if present.</p>
+<p><span id="internals__tests__servers__md"></span></p>
+</section>
+</section>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch058.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="cmdline__urls__host__md-_-_-host" class="level1" data-number="57">
+<h1 data-number="57">Host</h1>
+<p>The hostname part of the URL is, of course, simply a name that can be resolved to a numerical IP address, or the numerical address itself.</p>
+<pre><code>curl http://example.com</code></pre>
+<p>When specifying a numerical address, use the dotted version for IPv4 addresses:</p>
+<pre><code>curl http://127.0.0.1/</code></pre>
+<p>…and for IPv6 addresses the numerical version needs to be within square brackets:</p>
+<pre><code>curl http://[2a04:4e42::561]/</code></pre>
+<p>When a hostname is used, the conversion of the name to an IP address is typically done using the system’s resolver functions. That normally lets a sysadmin provide local name lookups in the <code>/etc/hosts</code> file (or equivalent).</p>
+<section id="cmdline__urls__host__md-_-_-international-domain-names-idn" class="level2" data-number="57.1">
+<h2 data-number="57.1">International Domain Names (IDN)</h2>
+<p>curl knows how to deal with IDN names and you just pass them on like you would a normal name:</p>
+<pre><code>curl https://räksmörgås.se</code></pre>
+<p><span id="cmdline__urls__port__md"></span></p>
+</section>
+</section>
+</body>
+</html>

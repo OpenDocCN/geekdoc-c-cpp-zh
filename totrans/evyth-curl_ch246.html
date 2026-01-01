@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch246.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="libcurl-http__responses__md-_-_-responses" class="level1" data-number="245">
+<h1 data-number="245">Responses</h1>
+<p>Every HTTP request includes an HTTP response. An HTTP response is a set of metadata and a response body, where the body can occasionally be zero bytes and thus nonexistent. An HTTP response however always has response headers.</p>
+<section id="libcurl-http__responses__md-_-_-response-body" class="level2" data-number="245.1">
+<h2 data-number="245.1">Response body</h2>
+<p>The response body is passed to the <a href="ch213.xhtml#transfers__callbacks__write__md">write callback</a> and the response headers to the <a href="ch216.xhtml#transfers__callbacks__header__md">header callback</a>.</p>
+<p>Virtually all libcurl-using applications need to set at least one of those callbacks instructing libcurl what to do with received headers and data.</p>
+</section>
+<section id="libcurl-http__responses__md-_-_-response-meta-data" class="level2" data-number="245.2">
+<h2 data-number="245.2">Response meta-data</h2>
+<p>libcurl offers the <code>curl_easy_getinfo()</code> function that allows an application to query libcurl for information from the previously performed transfer.</p>
+<p>Sometimes an application just want to know the size of the data. The size of a response <em>as told by the server headers</em> can be extracted with <code>curl_easy_getinfo()</code> like this:</p>
+<pre><code>curl_off_t size;
+curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &amp;size);</code></pre>
+<p>If you can wait until after the transfer is already done, which also is a more reliable way since not all URLs provide the size up front (like for example for servers that generate content on demand) you can instead ask for the amount of downloaded data in the most recent transfer.</p>
+<pre><code>curl_off_t size;
+curl_easy_getinfo(curl, CURLINFO_SIZE_DOWNLOAD_T, &amp;size);</code></pre>
+</section>
+<section id="libcurl-http__responses__md-_-_-http-response-code" class="level2" data-number="245.3">
+<h2 data-number="245.3">HTTP response code</h2>
+<p>Every HTTP response starts off with a single line that contains the HTTP response code. It is a three digit number that contains the server’s idea of the status for the request. The numbers are detailed in the HTTP standard specifications but they are divided into ranges that work like this:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1xx</td>
+<td>Transient code, a new one follows</td>
+</tr>
+<tr class="even">
+<td>2xx</td>
+<td>Things are OK</td>
+</tr>
+<tr class="odd">
+<td>3xx</td>
+<td>The content is somewhere else</td>
+</tr>
+<tr class="even">
+<td>4xx</td>
+<td>Failed because of a client problem</td>
+</tr>
+<tr class="odd">
+<td>5xx</td>
+<td>Failed because of a server problem</td>
+</tr>
+</tbody>
+</table>
+<p>You can extract the response code after a transfer like this</p>
+<pre><code>long code;
+curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &amp;code);</code></pre>
+</section>
+<section id="libcurl-http__responses__md-_-_-about-http-response-code-errors" class="level2" data-number="245.4">
+<h2 data-number="245.4">About HTTP response code “errors”</h2>
+<p>While the response code numbers can include numbers (in the 4xx and 5xx ranges) which the server uses to signal that there was an error processing the request, it is important to realize that this does not make libcurl return an error.</p>
+<p>When libcurl is asked to perform an HTTP transfer it returns an error if that HTTP transfer fails. However, getting an HTTP 404 or the like back is not a problem for libcurl. It is not an HTTP transfer error. A user might be writing a client for testing a server’s HTTP responses.</p>
+<p>If you insist on curl treating HTTP response codes from 400 and up as errors, libcurl offers the <code>CURLOPT_FAILONERROR</code> option that if set instructs curl to return <code>CURLE_HTTP_RETURNED_ERROR</code> in this case. It then returns error as soon as possible and does not deliver the response body.</p>
+<p><span id="libcurl-http__requests__md"></span></p>
+</section>
+</section>
+</body>
+</html>

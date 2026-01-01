@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch169.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__redirects__md-_-_-non-http-redirects" class="level1" data-number="168">
+<h1 data-number="168">Non-HTTP redirects</h1>
+<p>Browsers support more ways to do redirects that sometimes make life complicated to a curl user as these methods are not supported or recognized by curl.</p>
+<section id="http__redirects__md-_-_-html-redirects" class="level2" data-number="168.1">
+<h2 data-number="168.1">HTML redirects</h2>
+<p>If the above was not enough, the web world also provides a method to redirect browsers by plain HTML. See the example <code>&lt;meta&gt;</code> tag below. This is somewhat complicated with curl since curl never parses HTML and thus has no knowledge of these kinds of redirects.</p>
+<pre><code>&lt;meta http-equiv=&quot;refresh&quot; content=&quot;0; url=http://example.com/&quot;&gt;</code></pre>
+</section>
+<section id="http__redirects__md-_-_-javascript-redirects" class="level2" data-number="168.2">
+<h2 data-number="168.2">JavaScript redirects</h2>
+<p>The modern web is full of JavaScript and as you know, JavaScript is a language and a full runtime that allows code to execute in the browser when visiting websites.</p>
+<p>JavaScript also provides means for it to instruct the browser to move on to another site - a redirect, if you will.</p>
+<p><span id="http__modify__README__md"></span></p>
+</section>
+</section>
+</body>
+</html>

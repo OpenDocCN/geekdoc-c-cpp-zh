@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch285.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="examples__login__md-_-_-submit-a-login-form-over-http" class="level1" data-number="284">
+<h1 data-number="284">Submit a login form over HTTP</h1>
+<p>A login submission over HTTP is usually a matter of figuring out exactly what data to submit in a POST and to which target URL to send it.</p>
+<p>Once logged in, the target URL can be fetched if the proper cookies are used. As many login-systems work with HTTP redirects, we ask libcurl to follow such if they arrive.</p>
+<p>Some login forms makes it more complicated and require that you got cookies from the page showing the login form etc, so if you need that you may want to extend this code a little bit.</p>
+<p>By passing in a non-existing cookie file, this example enables the cookie parser so incoming cookies are stored when the response from the login response arrives and then the subsequent request for the resource uses those and prove to the server that we are in fact correctly logged in.</p>
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;curl/curl.h&gt;
+
+int main(void)
+{
+  CURL *curl;
+  CURLcode res;
+
+  static const char *postthis = &quot;user=daniel&amp;password=monkey123&quot;;
+
+  curl = curl_easy_init();
+  if(curl) {
+    curl_easy_setopt(curl, CURLOPT_URL, &quot;https://example.com/login.cgi&quot;);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postthis);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); /* redirects */
+    curl_easy_setopt(curl, CURLOPT_COOKIEFILE, &quot;&quot;); /* no file */
+    res = curl_easy_perform(curl);
+    /* Check for errors */
+    if(res != CURLE_OK)
+      fprintf(stderr, &quot;curl_easy_perform() failed: %s\n&quot;,
+              curl_easy_strerror(res));
+    else {
+      /*
+       * After the login POST, we have received the new cookies. Switch
+       * over to a GET and ask for the login-protected URL.
+       */
+      curl_easy_setopt(curl, CURLOPT_URL, &quot;https://example.com/file&quot;);
+      curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L); /* no more POST */
+      res = curl_easy_perform(curl);
+      /* Check for errors */
+      if(res != CURLE_OK)
+        fprintf(stderr, &quot;second curl_easy_perform() failed: %s\n&quot;,
+                curl_easy_strerror(res));
+    }
+    /* always cleanup */
+    curl_easy_cleanup(curl);
+  }
+  return 0;
+}</code></pre>
+<p><span id="examples__ftplist__md"></span></p>
+</section>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch295.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__caches__md-_-_-caches-and-state" class="level1" data-number="294">
+<h1 data-number="294">Caches and state</h1>
+<p>When libcurl is used for Internet transfers, it stores data in caches and state storage in order to do subsequent transfers faster and better.</p>
+<p>The caches are kept associated with the <code>CURL</code> or <code>CURLM</code> handles, depending on which libcurl API is used, easy or multi.</p>
+<section id="internals__caches__md-_-_-dns-cache" class="level2" data-number="294.1">
+<h2 data-number="294.1">DNS cache</h2>
+<p>When libcurl resolves the IP addresses of a hostname it stores the result in its DNS cache (with a default life-time of 60 seconds), so that subsequent lookups can use the cached data immediately instead of doing the (potentially slow) resolve operation again. This cache exists in memory only.</p>
+</section>
+<section id="internals__caches__md-_-_-connection-cache" class="level2" data-number="294.2">
+<h2 data-number="294.2">connection cache</h2>
+<p>Also known as the connection pool. This is where curl puts live connections after a transfer is complete so that a subsequent transfer might be able to use an already existing connection instead of having to set a new one up. When a connection is reused, curl avoids name lookups, TLS handshakes and more. This cache exists in memory only.</p>
+</section>
+<section id="internals__caches__md-_-_-tls-session-id-cache" class="level2" data-number="294.3">
+<h2 data-number="294.3">TLS session-ID cache</h2>
+<p>When curl uses TLS, it saves the <em>session-ID</em> in a cache. When a subsequent transfer needs to redo the TLS handshake with a host for which it has a cached session-ID, the handshake can complete faster. This cache exists in memory only.</p>
+</section>
+<section id="internals__caches__md-_-_-ca-store-cache" class="level2" data-number="294.4">
+<h2 data-number="294.4">CA store cache</h2>
+<p>When curl creates a new connection and performs a TLS handshake, it needs to load and parse a <em>CA store</em> to use for verifying the certificate presented by the remote server. The CA store cache keeps the parsed CA store in memory for a period of time (default is 24 hours) so that subsequent handshakes are done much faster by avoiding having to re-parse this potentially large data amount. This cache exists in memory only. Added in 7.87.0.</p>
+</section>
+<section id="internals__caches__md-_-_-hsts" class="level2" data-number="294.5">
+<h2 data-number="294.5">HSTS</h2>
+<p>HSTS is HTTP Strict Transport Security. HTTPS servers can inform clients that they want the client to connect to its hostname using only HTTPS going forward and not HTTP, even when <code>HTTP://</code> URLs are used. curl keeps this connection upgrade information in memory and can be told to load it from and save it to disk as well.</p>
+</section>
+<section id="internals__caches__md-_-_-alt-svc" class="level2" data-number="294.6">
+<h2 data-number="294.6">Alt-Svc</h2>
+<p><code>Alt-Svc:</code> is an HTTP response header that informs the client about alternative hostnames, port numbers and protocol versions where the same service is also available. curl keeps this alternative service information in memory and can be told to load it from and save it to disk as well.</p>
+</section>
+<section id="internals__caches__md-_-_-cookies" class="level2" data-number="294.7">
+<h2 data-number="294.7">Cookies</h2>
+<p>Cookies are name value pairs sent from an HTTP server to the client, meant to be sent back in subsequent requests that match the conditions. curl keeps all cookies in memory and can be told to load them from and save them to disk as well.</p>
+<p><span id="internals__timeouts__md"></span></p>
+</section>
+</section>
+</body>
+</html>

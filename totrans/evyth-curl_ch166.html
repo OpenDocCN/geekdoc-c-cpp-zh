@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch166.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="http__post__multipart__md-_-_-multipart-formposts" class="level1" data-number="165">
+<h1 data-number="165">Multipart formposts</h1>
+<p>A multipart formpost is what an HTTP client sends when an HTML form is submitted with <em>enctype</em> set to <code>multipart/form-data</code>. It is an HTTP POST request sent with the request body specially formatted as a series of parts, separated with MIME boundaries.</p>
+<p>An example piece of HTML would look like this:</p>
+<pre><code>&lt;form action=&quot;submit.cgi&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;
+  Name: &lt;input type=&quot;text&quot; name=&quot;person&quot;&gt;&lt;br&gt;
+  File: &lt;input type=&quot;file&quot; name=&quot;secret&quot;&gt;&lt;br&gt;
+  &lt;input type=&quot;submit&quot; value=&quot;Submit&quot;&gt;
+&lt;/form&gt;</code></pre>
+<p>Which could look something like this in a web browser:</p>
+<figure>
+<img src="../media/file12.png" alt="" /><figcaption>a multipart form</figcaption>
+</figure>
+<p>A user can fill in text in the ‘Name’ field and by pressing the <code>Browse</code> button a local file can be selected that is uploaded when <code>Submit</code> is pressed.</p>
+<section id="http__post__multipart__md-_-_-sending-such-a-form-with-curl" class="level2" data-number="165.1">
+<h2 data-number="165.1">Sending such a form with curl</h2>
+<p>With curl, you add each separate multipart with one <code>-F</code> (or <code>--form</code>) flag and you then continue and add one -F for every input field in the form that you want to send.</p>
+<p>The above small example form has two parts, one named ‘person’ that is a plain text field and one named ‘secret’ that is a file.</p>
+<p>Send your data to that form like this:</p>
+<pre><code>curl -F person=anonymous -F secret=@file.txt http://example.com/submit.cgi</code></pre>
+</section>
+<section id="http__post__multipart__md-_-_-the-http-this-generates" class="level2" data-number="165.2">
+<h2 data-number="165.2">The HTTP this generates</h2>
+<p>The <strong>action</strong> specifies where the POST is sent. <strong>method</strong> says it is a POST and <strong>enctype</strong> tells us it is a multipart formpost.</p>
+<p>With the fields filled in as shown above, curl generates and sends these HTTP request headers to the host example.com:</p>
+<pre><code>POST /submit.cgi HTTP/1.1
+Host: example.com
+User-Agent: curl/7.46.0
+Accept: */*
+Content-Length: 313
+Expect: 100-continue
+Content-Type: multipart/form-data; boundary=------------d74496d66958873e</code></pre>
+<p><strong>Content-Length</strong>, of course, tells the server how much data to expect. This example’s 313 bytes is really small.</p>
+<p>The <strong>Expect</strong> header is explained in the <a href="ch160.xhtml#http__post__expect100__md">Expect 100 continue</a> chapter.</p>
+<p>The <strong>Content-Type</strong> header is a bit special. It tells that this is a multipart formpost and then it sets the boundary string. The boundary string is a line of characters with a bunch of random digits somewhere in it, that serves as a separator between the different parts of the form that is submitted. The particular boundary you see in this example has the random part <code>d74496d66958873e</code> but you, of course, get something different when you run curl (or when you submit such a form with a browser).</p>
+<p>So after that initial set of headers follows the request body</p>
+<pre><code>--------------------------d74496d66958873e
+Content-Disposition: form-data; name=&quot;person&quot;
+
+anonymous
+--------------------------d74496d66958873e
+Content-Disposition: form-data; name=&quot;secret&quot;; filename=&quot;file.txt&quot;
+Content-Type: text/plain
+
+contents of the file
+--------------------------d74496d66958873e--</code></pre>
+<p>Here you clearly see the two parts sent, separated with the boundary strings. Each part starts with one or more headers describing the individual part with its name and possibly some more details. Then after the part’s headers come the actual data of the part, without any sort of encoding.</p>
+<p>The last boundary string has two extra dashes <code>--</code> appended to signal the end.</p>
+</section>
+<section id="http__post__multipart__md-_-_-content-type" class="level2" data-number="165.3">
+<h2 data-number="165.3">Content-Type</h2>
+<p>POSTing with curl’s <code>-F</code> option makes it include a default <code>Content-Type</code> header in its request, as shown in the above example. This says <code>multipart/form-data</code> and then specifies the MIME boundary string. That <code>Content-Type</code> is the default for multipart formposts but you can, of course, still modify that for your own commands and if you do, curl is clever enough to still append the boundary magic to the replaced header. You cannot really alter the boundary string, since curl needs that for producing the POST stream.</p>
+<p>To replace the header, use <code>-H</code> like this:</p>
+<pre><code>curl -F &#39;name=Dan&#39; -H &#39;Content-Type: multipart/magic&#39; https://example.com</code></pre>
+</section>
+<section id="http__post__multipart__md-_-_-converting-a-web-form" class="level2" data-number="165.4">
+<h2 data-number="165.4">Converting a web form</h2>
+<p>There are a few different ways to figure out how to write a curl command line to submit a multipart form as seen in HTML.</p>
+<ol type="1">
+<li><p>Save the HTML locally, run <code>nc</code> locally to listen on a chosen port number, change the <code>action</code> URL to submit the POST to your local <code>nc</code> instance. Submit the form and watch how <code>nc</code> shows it. Then translate into a curl command line.</p></li>
+<li><p>Use the development tools in your favorite browser and inspect the POST request in the network tab after you have submitted it. Then convert that HTTP data to a curl command line. Unfortunately, the <a href="ch077.xhtml#cmdline__copyas__md">copy as curl</a> feature in the browsers usually do not actually do multipart formposts particularly well.</p></li>
+<li><p>Inspect the source HTML and convert into a curl command line directly from that.</p></li>
+</ol>
+</section>
+<section id="http__post__multipart__md-_-_-from--less-than-form-greater-than--to--f" class="level2" data-number="165.5">
+<h2 data-number="165.5">From <code>&lt;form&gt;</code> to -F</h2>
+<p>In a <code>&lt;form&gt;</code> that uses <code>enctype="multipart/form-data"</code>, the first step is to find the <code>action=</code> property as that tells the target for the POST. You need to convert that into a full URL for your curl command line.</p>
+<p>An example action looks like this:</p>
+<pre><code>&lt;form action=&quot;submit.cgi&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;</code></pre>
+<p>If the form is found in a webpage hosted on a URL like for example <code>https://example.com/user/login</code> the <code>action=submit.cgi</code> is a relative path within the same directory as the form itself. The full URL to submit this form thus becomes <code>https://example.com/user/submit.cgi</code>. That is the URL to use in the curl command line.</p>
+<p>Next, you must identify every <code>&lt;input&gt;</code> tag used within the form, including the ones that are marked as hidden. Hidden just means that they are not shown in the webpage, but they should still be sent in the POST.</p>
+<p>For every <code>&lt;input&gt;</code> in the form there should be a corresponding <code>-F</code> in the command line.</p>
+<section id="http__post__multipart__md-_-_-text-input" class="level3" data-number="165.5.1">
+<h3 data-number="165.5.1">text input</h3>
+<p>A regular tag using type text in the style like</p>
+<pre><code>&lt;input type=&quot;text&quot; name=&quot;person&quot;&gt;</code></pre>
+<p>should then set the field name with content like this:</p>
+<pre><code>curl -F &quot;person=Mr Smith&quot; https://example.com/</code></pre>
+</section>
+<section id="http__post__multipart__md-_-_-file-input" class="level3" data-number="165.5.2">
+<h3 data-number="165.5.2">file input</h3>
+<p>When the input type is set to a file, like in:</p>
+<pre><code>&lt;input type=&quot;file&quot; name=&quot;image&quot;&gt;</code></pre>
+<p>You provide a file for this part by specifying the filename and use <code>@</code> and the path to the file to include:</p>
+<pre><code>curl -F image=@funnycat.gif https://example.com/</code></pre>
+</section>
+<section id="http__post__multipart__md-_-_-hidden-input" class="level3" data-number="165.5.3">
+<h3 data-number="165.5.3">hidden input</h3>
+<p>A common technique to pass on state from a form is to set a number of <code>&lt;input&gt;</code> tags as <code>type="hidden"</code>. This is basically the same thing as an already filled in form field, so you convert this to a command line by using the name and value. For example:</p>
+<pre><code>&lt;input type=&quot;hidden&quot; name=&quot;username&quot; value=&quot;bob123&quot;&gt;</code></pre>
+<p>This is converted like for the normal text field, and here you know what the content should be:</p>
+<pre><code>curl -F &quot;username=bob123&quot; https://example.com/</code></pre>
+</section>
+<section id="http__post__multipart__md-_-_-all-fields-at-once" class="level3" data-number="165.5.4">
+<h3 data-number="165.5.4">All fields at once</h3>
+<p>If we toy with the idea that all the three different <code>&lt;input&gt;</code> tags showed in the examples above were used in the same <code>&lt;form&gt;</code>, then a complete curl command line to send, including the correct URL as extracted above, would look like:</p>
+<pre><code>curl -F &quot;person=Mr Smith&quot; -F image=@funnycat.gif -F &quot;username=bob123&quot; \
+  https://example.com/user/submit.cgi</code></pre>
+<p><span id="http__post__postvspost__md"></span></p>
+</section>
+</section>
+</section>
+</body>
+</html>

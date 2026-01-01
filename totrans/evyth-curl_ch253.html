@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch253.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="libcurl-http__upload__md-_-_-upload" class="level1" data-number="252">
+<h1 data-number="252">Upload</h1>
+<p>Uploads over HTTP can be done in many different ways and it is important to notice the differences. They can use different methods, like POST or PUT, and when using POST the body formatting can differ.</p>
+<p>In addition to those HTTP differences, libcurl offers different ways to provide the data to upload.</p>
+<section id="libcurl-http__upload__md-_-_-http-post" class="level2" data-number="252.1">
+<h2 data-number="252.1">HTTP POST</h2>
+<p>POST is typically the HTTP method to pass data to a remote web application. A common way to do that in browsers is by filling in an HTML form and pressing submit. It is the standard way for an HTTP request to pass on data to the server. With libcurl you normally provide that data as a pointer and a length:</p>
+<pre><code>curl_easy_setopt(easy, CURLOPT_POSTFIELDS, dataptr);
+curl_easy_setopt(easy, CURLOPT_POSTFIELDSIZE, (long)datalength);</code></pre>
+<p>Or you tell libcurl that it is a post but would prefer to have libcurl instead get the data by using the regular <a href="ch214.xhtml#transfers__callbacks__read__md">read callback</a>:</p>
+<pre><code>curl_easy_setopt(easy, CURLOPT_POST, 1L);
+curl_easy_setopt(easy, CURLOPT_READFUNCTION, read_callback);</code></pre>
+<p>This “normal” POST also sets the request header <code>Content-Type: application/x-www-form-urlencoded</code>.</p>
+</section>
+<section id="libcurl-http__upload__md-_-_-http-multipart-formposts" class="level2" data-number="252.2">
+<h2 data-number="252.2">HTTP multipart formposts</h2>
+<p>A multipart formpost is still using the same HTTP method POST; the difference is only in the formatting of the request body. A multipart formpost is a series of separate “parts”, separated by MIME-style boundary strings. There is no limit to how many parts you can send.</p>
+<p>Each such part has a name, a set of headers and a few other properties.</p>
+<p>libcurl offers a set of convenience functions for constructing such a series of parts and to send that off to the server, all prefixed with <code>curl_mime</code>. Create a multipart post and for each part in the data you set the name, the data and perhaps additional meta-data. A basic setup might look like this:</p>
+<pre><code>/* Create the form */
+form = curl_mime_init(curl);
+
+/* Fill in the file upload field */
+field = curl_mime_addpart(form);
+curl_mime_name(field, &quot;sendfile&quot;);
+curl_mime_filedata(field, &quot;photo.jpg&quot;);</code></pre>
+<p>Then you pass that post to libcurl like this:</p>
+<pre><code>curl_easy_setopt(easy, CURLOPT_MIMEPOST, form);</code></pre>
+<p>(<code>curl_formadd</code> is the former API to build multi-part formposts with but we no longer recommend using that)</p>
+</section>
+<section id="libcurl-http__upload__md-_-_-http-put" class="level2" data-number="252.3">
+<h2 data-number="252.3">HTTP PUT</h2>
+<p>A PUT with libcurl assumes you pass the data to it using the read callback, as that is the typical “file upload” pattern libcurl uses and provides. You set the callback, you ask for PUT (by asking for <code>CURLOPT_UPLOAD</code>), you set the size of the upload and you set the URL to the destination:</p>
+<pre><code>curl_easy_setopt(easy, CURLOPT_UPLOAD, 1L);
+curl_easy_setopt(easy, CURLOPT_INFILESIZE_LARGE, (curl_off_t) size);
+curl_easy_setopt(easy, CURLOPT_READFUNCTION, read_callback);
+curl_easy_setopt(easy, CURLOPT_URL, &quot;https://example.com/handle/put&quot;);</code></pre>
+<p>If you for some reason do not know the size of the upload before the transfer starts, and you are using HTTP 1.1 you can add a <code>Transfer-Encoding: chunked</code> header with <a href="ch246.xhtml#libcurl-http__requests__md">CURLOPT_HTTPHEADER</a>. For HTTP 1.0 you must provide the size before hand and for HTTP 2 and later, neither the size nor the extra header is needed.</p>
+</section>
+<section id="libcurl-http__upload__md-_-_-expect-headers" class="level2" data-number="252.4">
+<h2 data-number="252.4">Expect: headers</h2>
+<p>When doing HTTP uploads using HTTP 1.1, libcurl inserts an <code>Expect: 100-continue</code> header in some circumstances. This header offers the server a way to reject the transfer early and save the client from having to send a lot of data in vain before the server gets a chance to decline.</p>
+<p>The header is added by libcurl if HTTP uploading is done with <code>CURLOPT_UPLOAD</code> or if it is asked to do an HTTP POST for which the body size is either unknown or known to be larger than 1024 bytes.</p>
+<p>A libcurl-using client can explicitly disable the use of the <code>Expect:</code> header with the <a href="ch246.xhtml#libcurl-http__requests__md">CURLOPT_HTTPHEADER</a> option.</p>
+<p>This header is not used with HTTP/2 or HTTP/3.</p>
+</section>
+<section id="libcurl-http__upload__md-_-_-uploads-also-downloads" class="level2" data-number="252.5">
+<h2 data-number="252.5">Uploads also downloads</h2>
+<p>HTTP is a protocol that can respond with contents back even when you upload data to it - it is up to the server to decide. The response data may even start getting sent back to the client before the upload has completed.</p>
+<p><span id="libcurl-http__multiplexing__md"></span></p>
+</section>
+</section>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch314.xhtml</title>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="internals__tests__autobuilds__md-_-_-autobuilds" class="level1" data-number="313">
+<h1 data-number="313">Autobuilds</h1>
+<p>Volunteering individuals run the <strong>autobuilds</strong>. This is a script that runs automatically that:</p>
+<ul>
+<li>checks out the latest code from the git repository</li>
+<li>builds everything</li>
+<li>runs the test suite</li>
+<li>sends the full log over email to the curl server</li>
+</ul>
+<p>As they are then run on different platforms with different build options, they offer an extra dimension of feedback on curl build health.</p>
+<section id="internals__tests__autobuilds__md-_-_-check-status" class="level2" data-number="313.1">
+<h2 data-number="313.1">Check status</h2>
+<p>All logs are parsed, managed and displayed on <a href="https://curl.se/dev/builds.html">the curl site</a>.</p>
+</section>
+<section id="internals__tests__autobuilds__md-_-_-legacy" class="level2" data-number="313.2">
+<h2 data-number="313.2">Legacy</h2>
+<p>We started the autobuild system in 2003, a decade before <a href="ch312.xhtml#internals__tests__ci__md">CI jobs</a> started becoming a serious alternative.</p>
+<p>Now, the autobuilds are more of a legacy system as we are moving more and more into a world with CI and more direct and earlier feedback.</p>
+<p><span id="internals__tests__torture__md"></span></p>
+</section>
+</section>
+</body>
+</html>
