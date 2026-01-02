@@ -1,0 +1,1488 @@
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: Chapter 3. Computer Architecture
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1 The CPU
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: <picture>![](computer.svg)</picture>
+  prefs: []
+  type: TYPE_NORMAL
+- en: The CPU performs instructions on values held in registers. This example shows
+    firstly setting the value of R1 to 100, loading the value from memory location
+    0x100 into R2, adding the two values together and placing the result in R3 and
+    finally storing the new value (110) to R4 (for further use).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Figure 1.1 The CPU
+  prefs: []
+  type: TYPE_NORMAL
+- en: To greatly simplify, a computer consists of a central processing unit (CPU)
+    attached to memory. The figure above illustrates the general principle behind
+    all computer operations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The CPU executes instructions read from memory. There are two categories of
+    instructions
+  prefs: []
+  type: TYPE_NORMAL
+- en: Those that *load* values from memory into registers and *store* values from
+    registers to memory.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Those that operate on values stored in registers. For example adding, subtracting
+    multiplying or dividing the values in two registers, performing bitwise operations
+    (and, or, xor, etc) or performing other mathematical operations (square root,
+    sin, cos, tan, etc).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: So in the example we are simply adding 100 to a value stored in memory, and
+    storing this new result back into memory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.1 Branching
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Apart from loading or storing, the other important operation of a CPU is *branching*.
+    Internally, the CPU keeps a record of the next instruction to be executed in the
+    *instruction pointer*. Usually, the instruction pointer is incremented to point
+    to the next instruction sequentially; the branch instruction will usually check
+    if a specific register is zero or if a flag is set and, if so, will modify the
+    pointer to a different address. Thus the next instruction to execute will be from
+    a different part of program; this is how loops and decision statements work.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, a statement like `if (x==0)` might be implemented by finding the
+    `or` of two registers, one holding `x` and the other zero; if the result is zero
+    the comparison is true (i.e. all bits of `x` were zero) and the body of the statement
+    should be taken, otherwise branch past the body code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.2 Cycles
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We are all familiar with the speed of the computer, given in Megahertz or Gigahertz
+    (millions or thousands of millions cycles per second). This is called the *clock
+    speed* since it is the speed that an internal clock within the computer pulses.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The pulses are used within the processor to keep it internally synchronised.
+    On each tick or pulse another operation can be started; think of the clock like
+    the person beating the drum to keep the rower's oars in sync.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.3 Fetch, Decode, Execute, Store
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Executing a single instruction consists of a particular cycle of events; fetching,
+    decoding, executing and storing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, to do the `add` instruction above the CPU must
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Fetch : get the instruction from memory into the processor.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Decode : internally decode what it has to do (in this case add).'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Execute : take the values from the registers, actually add them together'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Store : store the result back into another register. You might also see the
+    term *retiring* the instruction.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 1.3.1 Looking inside a CPU
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Internally the CPU has many different sub components that perform each of the
+    above steps, and generally they can all happen independently of each other. This
+    is analogous to a physical production line, where there are many stations where
+    each step has a particular task to perform. Once done it can pass the results
+    to the next station and take a new input to work on.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![](block.svg)</picture>
+  prefs: []
+  type: TYPE_NORMAL
+- en: The CPU is made up of many different sub-components, each doing a dedicated
+    task.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Figure 1.3.1.1 Inside the CPU
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Figure 1.3.1.1, Inside the CPU](#inside_the_cpu) shows a very simple block
+    diagram illustrating some of the main parts of a modern CPU.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can see the instructions come in and are decoded by the processor. The CPU
+    has two main types of registers, those for *integer* calculations and those for
+    *floating point* calculations. Floating point is a way of representing numbers
+    with a decimal place in binary form, and is handled differently within the CPU.
+    *MMX* (multimedia extension) and *SSE* (Streaming Single Instruction Multiple
+    Data) or *Altivec* registers are similar to floating point registers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A *register file* is the collective name for the registers inside the CPU. Below
+    that we have the parts of the CPU which really do all the work.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We said that processors are either loading or storing a value into a register
+    or from a register into memory, or doing some operation on values in registers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The *Arithmetic Logic Unit* (ALU) is the heart of the CPU operation. It takes
+    values in registers and performs any of the multitude of operations the CPU is
+    capable of. All modern processors have a number of ALUs so each can be working
+    independently. In fact, processors such as the Pentium have both *fast* and *slow*
+    ALUs; the fast ones are smaller (so you can fit more on the CPU) but can do only
+    the most common operations, slow ALUs can do all operations but are bigger.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The *Address Generation Unit* (AGU) handles talking to cache and main memory
+    to get values into the registers for the ALU to operate on and get values out
+    of registers back into main memory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Floating point registers have the same concepts, but use slightly different
+    terminology for their components.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.3.2 Pipelining
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: As we can see above, whilst the ALU is adding registers together is completely
+    separate to the AGU writing values back to memory, so there is no reason why the
+    CPU can not be doing both at once. We also have multiple ALUs in the system, each
+    which can be working on separate instructions. Finally the CPU could be doing
+    some floating point operations with its floating point logic whilst integer instructions
+    are in flight too. This process is called *pipelining*In fact, any modern processor
+    has many more than four stages it can pipeline, above we have only shown a very
+    simplified view. The more stages that can be executed at the same time, the deeper
+    the pipeline., and a processor that can do this is referred to as a *superscalar
+    architecture*. All modern processors are superscalar.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another analogy might be to think of the pipeline like a hose that is being
+    filled with marbles, except our marbles are instructions for the CPU. Ideally
+    you will be putting your marbles in one end, one after the other (one per clock
+    pulse), filling up the pipe. Once full, for each marble (instruction) you push
+    in all the others will move to the next position and one will fall out the end
+    (the result).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Branch instruction play havoc with this model however, since they may or may
+    not cause execution to start from a different place. If you are pipelining, you
+    will have to basically guess which way the branch will go, so you know which instructions
+    to bring into the pipeline. If the CPU has predicted correctly, everything goes
+    fine!Processors such as the Pentium use a *trace cache* to keep a track of which
+    way branches are going. Much of the time it can predict which way a branch will
+    go by remembering its previous result. For example, in a loop that happens 100
+    times, if you remember the last result of the branch you will be right 99 times,
+    since only the last time will you actually continue with the program. Conversely,
+    if the processor has predicted incorrectly it has wasted a lot of time and has
+    to clear the pipeline and start again.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This process is usually referred to as a *pipeline flush* and is analogous to
+    having to stop and empty out all your marbles from your hose!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.3.2.1 Branch Prediction
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: pipeline flush, predict taken, predict not taken, branch delay slots
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.3.3 Reordering
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: In fact, if the CPU is the hose, it is free to reorder the marbles within the
+    hose, as long as they pop out the end in the same order you put them in. We call
+    this *program order* since this is the order that instructions are given in the
+    computer program.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Figure 1.3.3.1 Reorder buffer example
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consider an instruction stream such as that shown in [Figure 1.3.3.1, Reorder
+    buffer example](#reorder_buffer) Instruction 2 needs to wait for instruction 1
+    to complete fully before it can start. This means that the pipeline has to *stall*
+    as it waits for the value to be calculated. Similarly instructions 3 and 4 have
+    a dependency on *r7*. However, instructions 2 and 3 have no *dependency* on each
+    other at all; this means they operate on completely separate registers. If we
+    swap instructions 2 and 3 we can get a much better ordering for the pipeline since
+    the processor can be doing useful work rather than waiting for the pipeline to
+    complete to get the result of a previous instruction.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, when writing very low level code some instructions may require some
+    security about how operations are ordered. We call this requirement *memory semantics*.
+    If you require *acquire* semantics this means that for this instruction you must
+    ensure that the results of all previous instructions have been completed. If you
+    require *release* semantics you are saying that all instructions after this one
+    must see the current result. Another even stricter semantic is a *memory barrier*
+    or *memory fence* which requires that operations have been committed to memory
+    before continuing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: On some architectures these semantics are guaranteed for you by the processor,
+    whilst on others you must specify them explicitly. Most programmers do not need
+    to worry directly about them, although you may see the terms.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.4 CISC v RISC
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: A common way to divide computer architectures is into *Complex Instruction Set
+    Computer* (CISC) and *Reduced Instruction Set Computer* (RISC).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note in the first example, we have explicitly loaded values into registers,
+    performed an addition and stored the result value held in another register back
+    to memory. This is an example of a RISC approach to computing -- only performing
+    operations on values in registers and explicitly loading and storing values to
+    and from memory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A CISC approach may be only a single instruction taking values from memory,
+    performing the addition internally and writing the result back. This means the
+    instruction may take many cycles, but ultimately both approaches achieve the same
+    goal.
+  prefs: []
+  type: TYPE_NORMAL
+- en: All modern architectures would be considered RISC architecturesEven the most
+    common architecture, the Intel Pentium, whilst having an instruction set that
+    is categorised as CISC, internally breaks down instructions to RISC style sub-instructions
+    inside the chip before executing..
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are a number of reasons for this
+  prefs: []
+  type: TYPE_NORMAL
+- en: Whilst RISC makes assembly programming becomes more complex, since virtually
+    all programmers use high level languages and leave the hard work of producing
+    assembly code to the compiler, so the other advantages outweigh this disadvantage.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Because the instructions in a RISC processor are much more simple, there is
+    more space inside the chip for registers. As we know from the memory hierarchy,
+    registers are the fastest type of memory and ultimately all instructions must
+    be performed on values held in registers, so all other things being equal more
+    registers leads to higher performance.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Since all instructions execute in the same time, pipelining is possible. We
+    know pipelining requires streams of instructions being constantly fed into the
+    processor, so if some instructions take a very long time and others do not, the
+    pipeline becomes far to complex to be effective.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 1.4.1 EPIC
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Itanium processor, which is used in many example through this book, is an
+    example of a modified architecture called Explicitly Parallel Instruction Computing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We have discussed how superscaler processors have pipelines that have many instructions
+    in flight at the same time in different parts of the processor. Obviously for
+    this to work as well as possible instructions should be given the processor in
+    an order that can make best use of the available elements of the CPU.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Traditionally organising the incoming instruction stream has been the job of
+    the hardware. Instructions are issued by the program in a sequential manner; the
+    processor must look ahead and try to make decisions about how to organise the
+    incoming instructions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The theory behind EPIC is that there is more information available at higher
+    levels which can make these decisions better than the processor. Analysing a stream
+    of assembly language instructions, as current processors do, loses a lot of information
+    that the programmer may have provided in the original source code. Think of it
+    as the difference between studying a Shakespeare play and reading the Cliff's
+    Notes version of the same. Both give you the same result, but the original has
+    all sorts of extra information that sets the scene and gives you insight into
+    the characters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus the logic of ordering instructions can be moved from the processor to the
+    compiler. This means that compiler writers need to be smarter to try and find
+    the best ordering of code for the processor. The processor is also significantly
+    simplified, since a lot of its work has been moved to the compiler.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another term often used around EPIC is Very Long Instruction World (VLIW), which
+    is where each instruction to the processor is extended to tell the processor about
+    where it should execute the instruction in its internal units. The problem with
+    this approach is that code is then completely dependent on the model of processor
+    is has been compiled for. Companies are always making revisions to hardware, and
+    making customers recompile their application every single time, and maintain a
+    range of different binaries was impractical.
+  prefs: []
+  type: TYPE_NORMAL
+- en: EPIC solves this in the usual computer science manner by adding a layer of abstraction.
+    Rather than explicitly specifying the exact part of the processor the instructions
+    should execute on, EPIC creates a simplified view with a few core units like memory,
+    integer and floating point.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2 Memory
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 2.1 Memory Hierarchy
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The CPU can only directly fetch instructions and data from cache memory, located
+    directly on the processor chip. Cache memory must be loaded in from the main system
+    memory (the Random Access Memory, or RAM). RAM however, only retains its contents
+    when the power is on, so needs to be stored on more permanent storage.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We call these layers of memory the *memory hierarchy*
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 2.1.1 Memory Hierarchy
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Speed | Memory | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Fastest | Cache | Cache memory is memory actually embedded inside the CPU.
+    Cache memory is very fast, typically taking only once cycle to access, but since
+    it is embedded directly into the CPU there is a limit to how big it can be. In
+    fact, there are several sub-levels of cache memory (termed L1, L2, L3) all with
+    slightly increasing speeds. |'
+  prefs: []
+  type: TYPE_TB
+- en: '|  | RAM | All instructions and storage addresses for the processor must come
+    from RAM. Although RAM is very fast, there is still some significant time taken
+    for the CPU to access it (this is termed *latency*). RAM is stored in separate,
+    dedicated chips attached to the motherboard, meaning it is much larger than cache
+    memory. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Slowest | Disk | We are all familiar with software arriving on a floppy disk
+    or CDROM, and saving our files to the hard disk. We are also familiar with the
+    long time a program can take to load from the hard disk -- having physical mechanisms
+    such as spinning disks and moving heads means disks are the slowest form of storage.
+    But they are also by far the largest form of storage. |'
+  prefs: []
+  type: TYPE_TB
+- en: The important point to know about the memory hierarchy is the trade offs between
+    speed and size — the faster the memory the smaller it is. Of course, if you can
+    find a way to change this equation, you'll end up a billionaire!
+  prefs: []
+  type: TYPE_NORMAL
+- en: The reason caches are effective is because computer code generally exhibits
+    two forms of locality
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Spatial* locality suggests that data within blocks is likely to be accessed
+    together.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '*Temporal* locality suggests that data that was used recently will likely be
+    used again shortly.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: This means that benefits are gained by implementing as much quickly accessible
+    memory (temporal) storing small blocks of relevant information (spatial) as practically
+    possible.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.2 Cache in depth
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Cache is one of the most important elements of the CPU architecture. To write
+    efficient code developers need to have an understanding of how the cache in their
+    systems works.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The cache is a very fast copy of the slower main system memory. Cache is much
+    smaller than main memories because it is included inside the processor chip alongside
+    the registers and processor logic. This is prime real estate in computing terms,
+    and there are both economic and physical limits to its maximum size. As manufacturers
+    find more and more ways to cram more and more transistors onto a chip cache sizes
+    grow considerably, but even the largest caches are tens of megabytes, rather than
+    the gigabytes of main memory or terabytes of hard disk otherwise common.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The cache is made up of small chunks of mirrored main memory. The size of these
+    chunks is called the *line size*, and is typically something like 32 or 64 bytes.
+    When talking about cache, it is very common to talk about the line size, or a
+    cache line, which refers to one chunk of mirrored main memory. The cache can only
+    load and store memory in sizes a multiple of a cache line.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Caches have their own hierarchy, commonly termed L1, L2 and L3\. L1 cache is
+    the fastest and smallest; L2 is bigger and slower, and L3 more so.
+  prefs: []
+  type: TYPE_NORMAL
+- en: L1 caches are generally further split into instruction caches and data, known
+    as the "Harvard Architecture" after the relay based Harvard Mark-1 computer which
+    introduced it. Split caches help to reduce pipeline bottlenecks as earlier pipeline
+    stages tend to reference the instruction cache and later stages the data cache.
+    Apart from reducing contention for a shared resource, providing separate caches
+    for instructions also allows for alternate implementations which may take advantage
+    of the nature of instruction streaming; they are read-only so do not need expensive
+    on-chip features such as multi-porting, nor need to handle handle sub-block reads
+    because the instruction stream generally uses more regular sized accesses.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![](sets.svg)</picture>
+  prefs: []
+  type: TYPE_NORMAL
+- en: A given cache line may find a valid home in one of the shaded entries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Figure 2.2.1 Cache Associativity
+  prefs: []
+  type: TYPE_NORMAL
+- en: During normal operation the processor is constantly asking the cache to check
+    if a particular address is stored in the cache, so the cache needs some way to
+    very quickly find if it has a valid line present or not. If a given address can
+    be cached anywhere within the cache, every cache line needs to be searched every
+    time a reference is made to determine a hit or a miss. To keep searching fast
+    this is done in parallel in the cache hardware, but searching every entry is generally
+    far too expensive to implement for a reasonable sized cache. Thus the cache can
+    be made simpler by enforcing limits on where a particular address must live. This
+    is a trade-off; the cache is obviously much, much smaller than the system memory,
+    so some addresses must *alias* others. If two addresses which alias each other
+    are being constantly updated they are said to *fight* over the cache line. Thus
+    we can categorise caches into three general types, illustrated in [Figure 2.2.1,
+    Cache Associativity](#cache_associativity).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Direct mapped* caches will allow a cache line to exist only in a singe entry
+    in the cache. This is the simplest to implement in hardware, but as illustrated
+    in [Figure 2.2.1, Cache Associativity](#cache_associativity) there is no potential
+    to avoid aliasing because the two shaded addresses must share the same cache line.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '*Fully Associative* caches will allow a cache line to exist in any entry of
+    the cache. This avoids the problem with aliasing, since any entry is available
+    for use. But it is very expensive to implement in hardware because every possible
+    location must be looked up simultaneously to determine if a value is in the cache.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '*Set Associative* caches are a hybrid of direct and fully associative caches,
+    and allow a particular cache value to exist in some subset of the lines within
+    the cache. The cache is divided into even compartments called *ways*, and a particular
+    address could be located in any way. Thus an *n*-way set associative cache will
+    allow a cache line to exist in any entry of a set sized total blocks mod n — [Figure 2.2.1,
+    Cache Associativity](#cache_associativity) shows a sample 8-element, 4-way set
+    associative cache; in this case the two addresses have four possible locations,
+    meaning only half the cache must be searched upon lookup. The more ways, the more
+    possible locations and the less aliasing, leading to overall better performance.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Once the cache is full the processor needs to get rid of a line to make room
+    for a new line. There are many algorithms by which the processor can choose which
+    line to evict; for example *least recently used* (LRU) is an algorithm where the
+    oldest unused line is discarded to make room for the new line.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When data is only read from the cache there is no need to ensure consistency
+    with main memory. However, when the processor starts writing to cache lines it
+    needs to make some decisions about how to update the underlying main memory. A
+    *write-through* cache will write the changes directly into the main system memory
+    as the processor updates the cache. This is slower since the process of writing
+    to the main memory is, as we have seen, slower. Alternatively a *write-back* cache
+    delays writing the changes to RAM until absolutely necessary. The obvious advantage
+    is that less main memory access is required when cache entries are written. Cache
+    lines that have been written but not committed to memory are referred to as *dirty*.
+    The disadvantage is that when a cache entry is evicted, it may require two memory
+    accesses (one to write dirty data main memory, and another to load the new data).
+  prefs: []
+  type: TYPE_NORMAL
+- en: If an entry exists in both a higher-level and lower-level cache at the same
+    time, we say the higher-level cache is *inclusive*. Alternatively, if the higher-level
+    cache having a line removes the possibility of a lower level cache having that
+    line, we say it is *exclusive*. This choice is discussed further in [Section 4.1.1.1,
+    Cache exclusivity in SMP systems](csbu-print_split_014.html#cache_exclusivity_in_smp).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.2.1 Cache Addressing
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: So far we have not discussed how a cache decides if a given address resides
+    in the cache or not. Clearly, caches must keep a directory of what data currently
+    resides in the cache lines. The cache directory and data may co-located on the
+    processor, but may also be separate — such as in the case of the POWER5 processor
+    which has an on-core L3 directory, but actually accessing the data requires traversing
+    the L3 bus to access off-core memory. An arrangement like this can facilitate
+    quicker hit/miss processing without the other costs of keeping the entire cache
+    on-core.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![](tags.svg)</picture>
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tags need to be checked in parallel to keep latency times low; more tag bits
+    (i.e. less set associativity) requires more complex hardware to achieve this.
+    Alternatively more set associativity means less tags, but the processor now needs
+    hardware to multiplex the output of the many sets, which can also add latency.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Figure 2.2.1.1 Cache tags
+  prefs: []
+  type: TYPE_NORMAL
+- en: To quickly decide if an address lies within the cache it is separated into three
+    parts; the *tag* and the *index* and the *offset*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The offset bits depend on the line size of the cache. For example, a 32-byte
+    line size would use the last 5-bits (i.e. 2⁵) of the address as the offset into
+    the line.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The *index* is the particular cache line that an entry may reside in. As an
+    example, let us consider a cache with 256 entries. If this is a direct-mapped
+    cache, we know the data may reside in only one possible line, so the next 8-bits
+    (2⁸) after the offset describe the line to check - between 0 and 255.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now, consider the same 256 element cache, but divided into two ways. This means
+    there are two groups of 128 lines, and the given address may reside in either
+    of these groups. Consequently only 7-bits are required as an index to offset into
+    the 128-entry ways. For a given cache size, as we increase the number of ways,
+    we decrease the number of bits required as an index since each way gets smaller.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The cache directory still needs to check if the particular address stored in
+    the cache is the one it is interested in. Thus the remaining bits of the address
+    are the *tag* bits which the cache directory checks against the incoming address
+    tag bits to determine if there is a cache hit or not. This relationship is illustrated
+    in [Figure 2.2.1.1, Cache tags](#cache_tags).
+  prefs: []
+  type: TYPE_NORMAL
+- en: When there are multiple ways, this check must happen in parallel within each
+    way, which then passes its result into a multiplexor which outputs a final *hit*
+    or *miss* result. As describe above, the more associative a cache is, the less
+    bits are required for index and the more as tag bits — to the extreme of a fully-associative
+    cache where no bits are used as index bits. The parallel matching of tags bits
+    is the expensive component of cache design and generally the limiting factor on
+    how many lines (i.e, how big) a cache may grow.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3 Peripherals and buses
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Peripherals are any of the many external devices that connect to your computer.
+    Obviously, the processor must have some way of talking to the peripherals to make
+    them useful.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The communication channel between the processor and the peripherals is called
+    a *bus*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1 Peripheral Bus concepts
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: A device requires both input and output to be useful. There are a number of
+    common concepts required for useful communication with peripherals.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1.1 Interrupts
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: An interrupt allows the device to literally interrupt the processor to flag
+    some information. For example, when a key is pressed, an interrupt is generated
+    to deliver the key-press event to the operating system. Each device is assigned
+    an interrupt by some combination of the operating system and BIOS.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Devices are generally connected to an *programmable interrupt controller* (PIC),
+    a separate chip that is part of the motherboard which buffers and communicates
+    interrupt information to the main processor. Each device has a physical *interrupt
+    line* between it an one of the PIC's provided by the system. When the device wants
+    to interrupt, it will modify the voltage on this line.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A very broad description of the PIC's role is that it receives this interrupt
+    and converts it to a message for consumption by the main processor. While the
+    exact procedure varies by architecture, the general principle is that the operating
+    system has configured an *interrupt descriptor table* which pairs each of the
+    possible interrupts with a code address to jump to when the interrupt is received.
+    This is illustrated in [Figure 3.1.1.1, Overview of handling an interrupt](#interrupt_handling).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Writing this *interrupt handler* is the job of the device driver author in conjunction
+    with the operating system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![](interrupt.svg)</picture>
+  prefs: []
+  type: TYPE_NORMAL
+- en: A generic overview of handling an interrupt. The device raises the interrupt
+    to the interrupt controller, which passes the information onto the processor.
+    The processor looks at its descriptor table, filled out by the operating system,
+    to find the code to handle the fault.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Figure 3.1.1.1 Overview of handling an interrupt
+  prefs: []
+  type: TYPE_NORMAL
+- en: Most drivers will split up handling of interrupts into *bottom* and *top* halves.
+    The bottom half will acknowledge the interrupt, queue actions for processing and
+    return the processor to what it was doing quickly. The top half will then run
+    later when the CPU is free and do the more intensive processing. This is to stop
+    an interrupt hogging the entire CPU.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1.1.1 Saving state
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Since an interrupt can happen at any time, it is important that you can return
+    to the running operation when finished handling the interrupt. It is generally
+    the job of the operating system to ensure that upon entry to the interrupt handler,
+    it saves any *state*; i.e. registers, and restores them when returning from the
+    interrupt handler. In this way, apart from some lost time, the interrupt is completely
+    transparent to whatever happens to be running at the time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1.1.2 Interrupts v traps and exceptions
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: While an interrupt is generally associated with an external event from a physical
+    device, the same mechanism is useful for handling internal system operations.
+    For example, if the processor detects conditions such as an access to invalid
+    memory, an attempt to divide-by-zero or an invalid instruction, it can internally
+    raise an *exception* to be handled by the operating system. It is also the mechanism
+    used to trap into the operating system for *system calls*, as discussed in [Section 3,
+    System Calls](csbu-print_split_018.html#system_calls) and to implement virtual
+    memory, as discussed in [Chapter 6, Virtual Memory](csbu-print_split_028.html#chapter05).
+    Although generated internally rather than from an external source, the principles
+    of asynchronously interrupting the running code remains the same.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1.1.3 Types of interrupts
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: There are two main ways of signalling interrupts on a line — *level* and *edge*
+    triggered.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Level-triggered interrupts define voltage of the interrupt line being held high
+    to indicate an interrupt is pending. Edge-triggered interrupts detect *transitions*
+    on the bus; that is when the line voltage goes from low to high. With an edge-triggered
+    interrupt, a square-wave pulse is detected by the PIC as signalling and interrupt
+    has been raised.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The difference is pronounced when devices share an interrupt line. In a level-triggered
+    system, the interrupt line will be high until all devices that have raised an
+    interrupt have been processed and un-asserted their interrupt.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In an edge-triggered system, a pulse on the line will indicate to the PIC that
+    an interrupt has occurred, which it will signal to the operating system for handling.
+    However, if further pulses come in on the already asserted line from another device.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The issue with level-triggered interrupts is that it may require some considerable
+    amount of time to handle an interrupt for a device. During this time, the interrupt
+    line remains high and it is not possible to determine if any other device has
+    raised an interrupt on the line. This means there can be considerable unpredictable
+    latency in servicing interrupts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: With edge-triggered interrupts, a long-running interrupt can be noticed and
+    queued, but other devices sharing the line can still transition (and hence raise
+    interrupts) while this happens. However, this introduces new problems; if two
+    devices interrupt at the same time it may be possible to miss one of the interrupts,
+    or environmental or other interference may create a *spurious* interrupt which
+    should be ignored.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1.1.4 Non-maskable interrupts
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: It is important for the system to be able to *mask* or prevent interrupts at
+    certain times. Generally, it is possible to put interrupts on hold, but a particular
+    class of interrupts, called *non-maskable interrupts* (NMI), are the exception
+    to this rule. The typical example is the *reset* interrupt.
+  prefs: []
+  type: TYPE_NORMAL
+- en: NMIs can be useful for implementing things such as a system watchdog, where
+    a NMI is raised periodically and sets some flag that must be acknowledged by the
+    operating system. If the acknowledgement is not seen before the next periodic
+    NMI, then system can be considered to be not making forward progress. Another
+    common usage is for profiling a system. A periodic NMI can be raised and used
+    to evaluate what code the processor is currently running; over time this builds
+    a profile of what code is being run and create a very useful insight into system
+    performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1.2 IO Space
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Obviously the processor will need to communicate with the peripheral device,
+    and it does this via IO operations. The most common form of IO is so called *memory
+    mapped IO* where registers on the device are *mapped* into memory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This means that to communicate with the device, you need simply read or write
+    to a specific address in memory. TODO: expand'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.2 DMA
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Since the speed of devices is far below the speed of processors, there needs
+    to be some way to avoid making the CPU wait around for data from devices.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Direct Memory Access (DMA) is a method of transferring data directly between
+    an peripheral and system RAM.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The driver can setup a device to do a DMA transfer by giving it the area of
+    RAM to put its data into. It can then start the DMA transfer and allow the CPU
+    to continue with other tasks.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Once the device is finished, it will raise an interrupt and signal to the driver
+    the transfer is complete. From this time the data from the device (say a file
+    from a disk, or frames from a video capture card) is in memory and ready to be
+    used.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3 Other Buses
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Other buses connect between the PCI bus and external devices.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3.1 USB
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: 'From an operating system point of view, a USB device is a group of end-points
+    grouped together into an interface. An end-point can be either *in* or *out* and
+    hence transfers data in one direction only. End-points can have a number of different
+    types:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Control* end-points are for configuring the device, etc.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '*Interrupt* end-points are for transferring small amounts of data. They have
+    higher priority than ...'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '*Bulk* end-points, which transfer large amounts of data but do not get guaranteed
+    time constraints.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '*Isochronous* transfers are high-priority real-time transfers, but if they
+    are missed they are not re-tried. This is for streaming data like video or audio
+    where there is no point sending data again.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: There can be many interfaces (made of multiple end-points) and interfaces are
+    grouped into *configurations*. However most devices only have a single configuration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![](uhci.svg)</picture>
+  prefs: []
+  type: TYPE_NORMAL
+- en: An overview of a UCHI controller, taken from [Intel documentation](http://download.intel.com/technology/usb/UHCI11D.pdf)
+    (http://download.intel.com/technology/usb/UHCI11D.pdf).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Figure 3.3.1.1 Overview of a UHCI controller operation
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Figure 3.3.1.1, Overview of a UHCI controller operation](#uhci) shows an overview
+    of a universal host controller interface, or UHCI. It provides an overview of
+    how USB data is moved out of the system by a combination of hardware and software.
+    Essentially, the software sets up a template of data in a specified format for
+    the host controller to read and send across the USB bus.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Starting at the top-left of the overview, the controller has a *frame* register
+    with a counter which is incremented periodically — every millisecond. This value
+    is used to index into a *frame list* created by software. Each entry in this table
+    points to a queue of *transfer descriptors*. Software sets up this data in memory,
+    and it is read by the host controller which is a separate chip the drives the
+    USB bus. Software needs to schedule the work queues so that 90% of a frame time
+    is given to isochronous data, and 10% left for interrupt, control and bulk data..
+  prefs: []
+  type: TYPE_NORMAL
+- en: As you can see from the diagram, the way the data is linked means that transfer
+    descriptors for isochronous data are associated with only one particular frame
+    pointer — in other words only one particular time period — and after that will
+    be discarded. However, the interrupt, control and bulk data are all *queued* after
+    the isochronous data and thus if not transmitted in one frame (time period) will
+    be done in the next.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The USB layer communicates through USB *request blocks*, or URBs. A URB contains
+    information about what end-point this request relates to, data, any related information
+    or attributes and a call-back function to be called when the URB is complete.
+    USB drivers submit URBs in a fixed format to the USB core, which manages them
+    in co-ordination with the USB host controller as above. Your data gets sent off
+    to the USB device by the USB core, and when its done your call-back is triggered.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4 Small to big systems
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: As Moore's law has predicted, computing power has been growing at a furious
+    pace and shows no signs of slowing down. It is relatively uncommon for any high
+    end servers to contain only a single CPU. This is achieved in a number of different
+    fashions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.1 Symmetric Multi-Processing
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Symmetric Multi-Processing, commonly shortened to *SMP*, is currently the most
+    common configuration for including multiple CPUs in a single system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The symmetric term refers to the fact that all the CPUs in the system are the
+    same (e.g. architecture, clock speed). In a SMP system there are multiple processors
+    that share other all other system resources (memory, disk, etc).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.1.1 Cache Coherency
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: For the most part, the CPUs in the system work independently; each has its own
+    set of registers, program counter, etc. Despite running separately, there is one
+    component that requires strict synchronisation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This is the CPU cache; remember the cache is a small area of quickly accessible
+    memory that mirrors values stored in main system memory. If one CPU modifies data
+    in main memory and another CPU has an old copy of that memory in its cache the
+    system will obviously not be in a consistent state. Note that the problem only
+    occurs when processors are writing to memory, since if a value is only read the
+    data will be consistent.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To co-ordinate keeping the cache coherent on all processors an SMP system uses
+    *snooping*. Snooping is where a processor listens on a bus which all processors
+    are connected to for cache events, and updates its cache accordingly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: One protocol for doing this is the *MOESI* protocol; standing for Modified,
+    Owner, Exclusive, Shared, Invalid. Each of these is a state that a cache line
+    can be in on a processor in the system. There are other protocols for doing as
+    much, however they all share similar concepts. Below we examine MOESI so you have
+    an idea of what the process entails.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When a processor requires reading a cache line from main memory, it firstly
+    has to snoop all other processors in the system to see if they currently know
+    anything about that area of memory (e.g. have it cached). If it does not exist
+    in any other process, then the processor can load the memory into cache and mark
+    it as *exclusive*. When it writes to the cache, it then changes state to be *modified*.
+    Here the specific details of the cache come into play; some caches will immediately
+    write back the modified cache to system memory (known as a *write-through* cache,
+    because writes go through to main memory). Others will not, and leave the modified
+    value only in the cache until it is evicted, when the cache becomes full for example.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The other case is where the processor snoops and finds that the value is in
+    another processors cache. If this value has already been marked as *modified*,
+    it will copy the data into its own cache and mark it as *shared*. It will send
+    a message for the other processor (that we got the data from) to mark its cache
+    line as *owner*. Now imagine that a third processor in the system wants to use
+    that memory too. It will snoop and find both a *shared* and a *owner* copy; it
+    will thus take its value from the *owner* value. While all the other processors
+    are only reading the value, the cache line stays *shared* in the system. However,
+    when one processor needs to update the value it sends an *invalidate* message
+    through the system. Any processors with that cache line must then mark it as invalid,
+    because it not longer reflects the "true" value. When the processor sends the
+    invalidate message, it marks the cache line as *modified* in its cache and all
+    others will mark as *invalid* (note that if the cache line is *exclusive* the
+    processor knows that no other processor is depending on it so can avoid sending
+    an invalidate message).
+  prefs: []
+  type: TYPE_NORMAL
+- en: From this point the process starts all over. Thus whichever processor has the
+    *modified* value has the responsibility of writing the true value back to RAM
+    when it is evicted from the cache. By thinking through the protocol you can see
+    that this ensures consistency of cache lines between processors.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are several issues with this system as the number of processors starts
+    to increase. With only a few processors, the overhead of checking if another processor
+    has the cache line (a read snoop) or invalidating the data in every other processor
+    (invalidate snoop) is manageable; but as the number of processors increase so
+    does the bus traffic. This is why SMP systems usually only scale up to around
+    8 processors.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Having the processors all on the same bus starts to present physical problems
+    as well. Physical properties of wires only allow them to be laid out at certain
+    distances from each other and to only have certain lengths. With processors that
+    run at many gigahertz the speed of light starts to become a real consideration
+    in how long it takes messages to move around a system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note that system software usually has no part in this process, although programmers
+    should be aware of what the hardware is doing underneath in response to the programs
+    they design to maximise performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.1.1.1 Cache exclusivity in SMP systems
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: In [Section 2.2, Cache in depth](csbu-print_split_012.html#cache_in_depth) we
+    described *inclusive* v *exclusive* caches. In general, L1 caches are usually
+    inclusive — that is all data in the L1 cache also resides in the L2 cache. In
+    a multiprocessor system, an inclusive L1 cache means that only the L2 cache need
+    snoop memory traffic to maintain coherency, since any changes in L2 will be guaranteed
+    to be reflected by L1\. This reduces the complexity of the L1 and de-couples it
+    from the snooping process allowing it to be faster.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Again, in general, most all modern high-end (e.g. not targeted at embedded)
+    processors have a write-through policy for the L1 cache, and a write-back policy
+    for the lower level caches. There are several reasons for this. Since in this
+    class of processors L2 caches are almost exclusively on-chip and generally quite
+    fast the penalties from having L1 write-through are not the major consideration.
+    Further, since L1 sizes are small, pools of written data unlikely to be read in
+    the future could cause pollution of the limited L1 resource. Additionally, a write-through
+    L1 does not have to be concerned if it has outstanding dirty data, hence can pass
+    the extra coherency logic to the L2 (which, as we mentioned, already has a larger
+    part to play in cache coherency).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.1.2 Hyperthreading
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Much of the time of a modern processor is spent waiting for much slower devices
+    in the memory hierarchy to deliver data for processing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus strategies to keep the pipeline of the processor full are paramount. One
+    strategy is to include enough registers and state logic such that two instruction
+    streams can be processed at the same time. This makes one CPU look for all intents
+    and purposes like two CPUs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: While each CPU has its own registers, they still have to share the core logic,
+    cache and input and output bandwidth from the CPU to memory. So while two instruction
+    streams can keep the core logic of the processor busier, the performance increase
+    will not be as great has having two physically separate CPUs. Typically the performance
+    improvement is below 20% (XXX check), however it can be drastically better or
+    worse depending on the workloads.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.1.3 Multi Core
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: With increased ability to fit more and more transistors on a chip, it became
+    possible to put two or more processors in the same physical package. Most common
+    is dual-core, where two processor cores are in the same chip. These cores, unlike
+    hyperthreading, are full processors and so appear as two physically separate processors
+    a la a SMP system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: While generally the processors have their own L1 cache, they do have to share
+    the bus connecting to main memory and other devices. Thus performance is not as
+    great as a full SMP system, but considerably better than a hyperthreading system
+    (in fact, each core can still implement hyperthreading for an additional enhancement).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Multi core processors also have some advantages not performance related. As
+    we mentioned, external physical buses between processors have physical limits;
+    by containing the processors on the same piece of silicon extremely close to each
+    other some of these problems can be worked around. The power requirements for
+    multi core processors are much less than for two separate processors. This means
+    that there is less heat needing to be dissipated which can be a big advantage
+    in data centre applications where computers are packed together and cooling considerations
+    can be considerable. By having the cores in the same physical package it makes
+    muti-processing practical in applications where it otherwise would not be, such
+    as laptops. It is also considerably cheaper to only have to produce one chip rather
+    than two.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.2 Clusters
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Many applications require systems much larger than the number of processors
+    a SMP system can scale to. One way of scaling up the system further is a *cluster*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A cluster is simply a number of individual computers which have some ability
+    to talk to each other. At the hardware level the systems have no knowledge of
+    each other; the task of stitching the individual computers together is left up
+    to software.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Software such as MPI allow programmers to write their software and then "farm
+    out" parts of the program to other computers in the system. For example, image
+    a loop that executes several thousand times performing independent action (that
+    is no iteration of the loop affects any other iteration). With four computers
+    in a cluster, the software could make each computer do 250 loops each.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The interconnect between the computers varies, and may be as slow as an internet
+    link or as fast as dedicated, special buses (Infiniband). Whatever the interconnect,
+    however, it is still going to be further down the memory hierarchy and much, much
+    slower than RAM. Thus a cluster will not perform well in a situation when each
+    CPU requires access to data that may be stored in the RAM of another computer;
+    since each time this happens the software will need to request a copy of the data
+    from the other computer, copy across the slow link and into local RAM before the
+    processor can get any work done.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, many applications *do not* require this constant copying around between
+    computers. One large scale example is SETI@Home, where data collected from a radio
+    antenna is analysed for signs of Alien life. Each computer can be distributed
+    a few minutes of data to analyse, and only needs report back a summary of what
+    it found. SETI@Home is effectively a very large, dedicated cluster.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another application is rendering of images, especially for special effects in
+    films. Each computer can be handed a single frame of the movie which contains
+    the wire-frame models, textures and light sources which needs to be combined (rendered)
+    into the amazing special effects we now take for grained. Since each frame is
+    static, once the computer has the initial input it does not need any more communication
+    until the final frame is ready to be sent back and combined into the move. For
+    example the block-buster Lord of the Rings had their special effects rendered
+    on a huge cluster running Linux.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.3 Non-Uniform Memory Access
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Non-Uniform Memory Access, more commonly abbreviated to NUMA, is almost the
+    opposite of a cluster system mentioned above. As in a cluster system it is made
+    up of individual nodes linked together, however the linkage between nodes is highly
+    specialised (and expensive!). As opposed to a cluster system where the hardware
+    has no knowledge of the linkage between nodes, in a NUMA system the *software*
+    has no (well, less) knowledge about the layout of the system and the hardware
+    does all the work to link the nodes together.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The term *non uniform memory access* comes from the fact that RAM may not be
+    local to the CPU and so data may need to be accessed from a node some distance
+    away. This obviously takes longer, and is in contrast to a single processor or
+    SMP system where RAM is directly attached and always takes a constant (uniform)
+    time to access.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.3.1 NUMA Machine Layout
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: With so many nodes talking to each other in a system, minimising the distance
+    between each node is of paramount importance. Obviously it is best if every single
+    node has a direct link to every other node as this minimises the distance any
+    one node needs to go to find data. This is not a practical situation when the
+    number of nodes starts growing into the hundreds and thousands as it does with
+    large supercomputers; if you remember your high school maths the problem is basically
+    a combination taken two at a time (each node talking to another), and will grow
+    `n!/2*(n-2)!`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To combat this exponential growth alternative layouts are used to trade off
+    the distance between nodes with the interconnects required. One such layout common
+    in modern NUMA architectures is the hypercube.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A hypercube has a strict mathematical definition (way beyond this discussion)
+    but as a cube is a 3 dimensional counterpart of a square, so a hypercube is a
+    4 dimensional counterpart of a cube.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![](hypercube.svg)</picture>
+  prefs: []
+  type: TYPE_NORMAL
+- en: An example of a hypercube. Hypercubes provide a good trade off between distance
+    between nodes and number of interconnections required.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Figure 4.3.1.1 A Hypercube
+  prefs: []
+  type: TYPE_NORMAL
+- en: Above we can see the outer cube contains four 8 nodes. The maximum number of
+    paths required for any node to talk to another node is 3\. When another cube is
+    placed inside this cube, we now have double the number of processors but the maximum
+    path cost has only increased to 4\. This means as the number of processors grow
+    by 2^n the maximum path cost grows only linearly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.3.2 Cache Coherency
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Cache coherency can still be maintained in a NUMA system (this is referred to
+    as a cache-coherent NUMA system, or ccNUMA). As we mentioned, the broadcast based
+    scheme used to keep the processor caches coherent in an SMP system does not scale
+    to hundreds or even thousands of processors in a large NUMA system. One common
+    scheme for cache coherency in a NUMA system is referred to as a *directory based
+    model*. In this model processors in the system communicate to special cache directory
+    hardware. The directory hardware maintains a consistent picture to each processor;
+    this abstraction hides the working of the NUMA system from the processor.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Censier and Feautrier directory based scheme maintains a central directory
+    where each memory block has a flag bit known as the *valid bit* for each processor
+    and a single *dirty* bit. When a processor reads the memory into its cache, the
+    directory sets the valid bit for that processor.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When a processor wishes to write to the cache line the directory needs to set
+    the dirty bit for the memory block. This involves sending an invalidate message
+    to those processors who are using the cache line (and only those processors whose
+    flag are set; avoiding broadcast traffic).
+  prefs: []
+  type: TYPE_NORMAL
+- en: After this should any other processor try to read the memory block the directory
+    will find the dirty bit set. The directory will need to get the updated cache
+    line from the processor with the valid bit currently set, write the dirty data
+    back to main memory and then provide that data back to the requesting processor,
+    setting the valid bit for the requesting processor in the process. Note that this
+    is transparent to the requesting processor and the directory may need to get that
+    data from somewhere very close or somewhere very far away.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Obviously having thousands of processors communicating to a single directory
+    does also not scale well. Extensions to the scheme involve having a hierarchy
+    of directories that communicate between each other using a separate protocol.
+    The directories can use a more general purpose communications network to talk
+    between each other, rather than a CPU bus, allowing scaling to much larger systems.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.3.3 NUMA Applications
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: NUMA systems are best suited to the types of problems that require much interaction
+    between processor and memory. For example, in weather simulations a common idiom
+    is to divide the environment up into small "boxes" which respond in different
+    ways (oceans and land reflect or store different amounts of heat, for example).
+    As simulations are run, small variations will be fed in to see what the overall
+    result is. As each box influences the surrounding boxes (e.g. a bit more sun means
+    a particular box puts out more heat, affecting the boxes next to it) there will
+    be much communication (contrast that with the individual image frames for a rendering
+    process, each of which does not influence the other). A similar process might
+    happen if you were modelling a car crash, where each small box of the simulated
+    car folds in some way and absorbs some amount of energy.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Although the software has no directly knowledge that the underlying system is
+    a NUMA system, programmers need to be careful when programming for the system
+    to get maximum performance. Obviously keeping memory close to the processor that
+    is going to use it will result in the best performance. Programmers need to use
+    techniques such as *profiling* to analyse the code paths taken and what consequences
+    their code is causing for the system to extract best performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.4 Memory ordering, locking and atomic operations
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The multi-level cache, superscalar multi-processor architecture brings with
+    it some interesting issues relating to how a programmer sees the processor running
+    code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Imagine program code is running on two processors simultaneously, both processors
+    sharing effectively one large area of memory. If one processor issues a store
+    instruction, to put a register value into memory, when can it be sure that the
+    other processor does a load of that memory it will see the correct value?
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the simplest situation the system could guarantee that if a program executes
+    a store instruction, any subsequent load instructions will see this value. This
+    is referred to as *strict memory ordering*, since the rules allow no room for
+    movement. You should be starting to realise why this sort of thing is a serious
+    impediment to performance of the system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Much of the time, the memory ordering is not required to be so strict. The programmer
+    can identify points where they need to be sure that all outstanding operations
+    are seen globally, but in between these points there may be many instructions
+    where the semantics are not important.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Take, for example, the following situation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 4.4.1 Memory Ordering
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this example, we have two stores that can be done in any particular order,
+    as it suits the processor. However, in the final case, the pointer must only be
+    updated once the two previous stores are known to have been done. Otherwise another
+    processor might look at the value of `p`, follow the pointer to the memory, load
+    it, and get some completely incorrect value!
+  prefs: []
+  type: TYPE_NORMAL
+- en: To indicate this, loads and stores have to have *semantics* that describe what
+    behaviour they must have. Memory semantics are described in terms of *fences*
+    that dictate how loads and stores may be reordered around the load or store.
+  prefs: []
+  type: TYPE_NORMAL
+- en: By default, a load or store can be re-ordered anywhere.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Acquire* semantics is like a fence that only allows load and stores to move
+    downwards through it. That is, when this load or store is complete you can be
+    guaranteed that any later load or stores will see the value (since they can not
+    be moved above it).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Release* semantics is the opposite, that is a fence that allows any load or
+    stores to be done before it (move upwards), but nothing before it to move downwards
+    past it. Thus, when load or store with release semantics is processed, you can
+    be store that any earlier load or stores will have been complete.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![](memorder.svg)</picture>
+  prefs: []
+  type: TYPE_NORMAL
+- en: An illustration of valid reorderings around operations with acquire and release
+    semantics.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Figure 4.4.1 Acquire and Release semantics
+  prefs: []
+  type: TYPE_NORMAL
+- en: A *full memory fence* is a combination of both; where no loads or stores can
+    be reordered in any direction around the current load or store.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The strictest memory model would use a full memory fence for every operation.
+    The weakest model would leave every load and store as a normal re-orderable instruction.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.4.1 Processors and memory models
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Different processors implement different memory models.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The x86 (and AMD64) processor has a quite strict memory model; all stores have
+    release semantics (that is, the result of a store is guaranteed to be seen by
+    any later load or store) but all loads have normal semantics. lock prefix gives
+    memory fence.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Itanium allows all load and stores to be normal, unless explicitly told. XXX
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.4.2 Locking
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Knowing the memory ordering requirements of each architecture is not practical
+    for all programmers, and would make programs difficult to port and debug across
+    different processor types.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Programmers use a higher level of abstraction called *locking* to allow simultaneous
+    operation of programs when there are multiple CPUs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When a program acquires a lock over a piece of code, no other processor can
+    obtain the lock until it is released. Before any critical pieces of code, the
+    processor must attempt to take the lock; if it can not have it, it does not continue.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can see how this is tied into the naming of the memory ordering semantics
+    in the previous section. We want to ensure that before we *acquire* a lock, no
+    operations that should be protected by the lock are re-ordered before it. This
+    is how acquire semantics works.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Conversely, when we *release* the lock, we must be sure that every operation
+    we have done whilst we held the lock is complete (remember the example of updating
+    the pointer previously?). This is release semantics.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are many software libraries available that allow programmers to not have
+    to worry about the details of memory semantics and simply use the higher level
+    of abstraction of `lock()` and `unlock()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.4.2.1 Locking difficulties
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Locking schemes make programming more complicated, as it is possible to *deadlock*
+    programs. Imagine if one processor is currently holding a lock over some data,
+    and is currently waiting for a lock for some other piece of data. If that other
+    processor is waiting for the lock the first processor holds before unlocking the
+    second lock, we have a deadlock situation. Each processor is waiting for the other
+    and neither can continue without the others lock.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Often this situation arises because of a subtle *race condition*; one of the
+    hardest bugs to track down. If two processors are relying on operations happening
+    in a specific order in time, there is always the possibility of a race condition
+    occurring. A gamma ray from an exploding star in a different galaxy might hit
+    one of the processors, making it skip a beat, throwing the ordering of operations
+    out. What will often happen is a deadlock situation like above. It is for this
+    reason that program ordering needs to be ensured by semantics, and not by relying
+    on one time specific behaviours. (XXX not sure how i can better word that).
+  prefs: []
+  type: TYPE_NORMAL
+- en: A similar situation is the opposite of deadlock, called *livelock*. One strategy
+    to avoid deadlock might be to have a "polite" lock; one that you give up to anyone
+    who asks. This politeness might cause two threads to be constantly giving each
+    other the lock, without either ever taking the lock long enough to get the critical
+    work done and be finished with the lock (a similar situation in real life might
+    be two people who meet at a door at the same time, both saying "no, you first,
+    I insist". Neither ends up going through the door!).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.4.2.2 Locking strategies
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Underneath, there are many different strategies for implementing the behaviour
+    of locks.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A simple lock that simply has two states - locked or unlocked, is referred to
+    as a *mutex* (short for mutual exclusion; that is if one person has it the other
+    can not have it).
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are, however, a number of ways to implement a mutex lock. In the simplest
+    case, we have what its commonly called a *spinlock*. With this type of lock, the
+    processor sits in a tight loop waiting to take the lock; equivalent to it saying
+    "can I have it now" constantly much as a young child might ask of a parent.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The problem with this strategy is that it essentially wastes time. Whilst the
+    processor is sitting constantly asking for the lock, it is not doing any useful
+    work. For locks that are likely to be only held locked for a very short amount
+    of time this may be appropriate, but in many cases the amount of time the lock
+    is held might be considerably longer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus another strategy is to *sleep* on a lock. In this case, if the processor
+    can not have the lock it will start doing some other work, waiting for notification
+    that the lock is available for use (we see in future chapters how the operating
+    system can switch processes and give the processor more work to do).
+  prefs: []
+  type: TYPE_NORMAL
+- en: A mutex is however just a special case of a *semaphore*, famously invented by
+    the Dutch computer scientist Dijkstra. In a case where there are multiple resources
+    available, a semaphore can be set to count accesses to the resources. In the case
+    where the number of resources is one, you have a mutex. The operation of semaphores
+    can be detailed in any algorithms book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: These locking schemes still have some problems however. In many cases, most
+    people only want to read data which is updated only rarely. Having all the processors
+    wanting to only read data require taking a lock can lead to *lock contention*
+    where less work gets done because everyone is waiting to obtain the same lock
+    for some data.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.4.3 Atomic Operations
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Explain what it is.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL

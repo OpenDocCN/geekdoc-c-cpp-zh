@@ -1,0 +1,804 @@
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: Chapter 7. The Toolchain
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1 Compiled v Interpreted Programs
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 1.1 Compiled Programs
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: So far we have discussed how a program is loaded into virtual memory, started
+    as a process kept track of by the operating system and interacts with via system
+    calls.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A program that can be loaded directly into memory needs to be in a straight
+    *binary* format. The process of converting source code, written in a language
+    such as C, to a binary file ready to be executed is called *compiling*. Not surprisingly,
+    the process is done by a *compiler*; the most widespread example being gcc.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.2 Interpreted programs
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Compiled programs have some disadvantages for modern software development. Every
+    time a developer makes a change, the compiler must be invoked to recreate the
+    executable file. It is a logical extension to design a compiled program that can
+    read *another* program listing and execute the code line by line.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We call this type of compiled program a *interpreter* because it interprets
+    each line of the input file and executes it as code. This way the program does
+    not need to be compiled, and any changes will be seen the next time the interpreter
+    runs the code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For their convenience, interpreted programs usually run slower than a compiled
+    counterpart. The overhead in the program reading and interpreting the code each
+    time is only encountered once for a compiled program, whilst an interpreted program
+    encounters it each time it is run.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But interpreted languages have many positive aspects. Many interpreted languages
+    actually run in a `virtual machine` that is abstracted from the underlying hardware.
+    Python and Perl 6 are languages that implement a virtual machine that interpreted
+    code runs on.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.2.1 Virtual Machines
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: A compiled program is completely dependent on the hardware of the machine it
+    is compiled for, since it must be able to simply be copied to memory and executed.
+    A virtual machine is an abstraction of hardware into software.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, Java is a hybrid language that is partly compiled and partly interpreted.
+    Java code is complied into a program that runs inside a *Java Virtual Machine*
+    or more commonly referred to as a JVM. This means that a compiled program can
+    run on any hardware that has a JVM written for it; so called *write one, run anywhere*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2 Building an executable
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: When we talk about the compiler, there are actually three separate steps involved
+    in creating the executable file.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Compiling
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Assembling
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Linking
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The components involved in this process are collectively called the *toolchain*
+    because the tools *chain* the output of one to the input of the other to create
+    the final output.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Each link in the chain takes the source code progressively closer to being binary
+    code suitable for execution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3 Compiling
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 3.1 The process of compiling
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The first step of compiling a source file to an executable file is converting
+    the code from the high level, human understandable language to *assembly code*.
+    We know from previous chapters than assembly code works directly with the instructions
+    and registers provided by the processor.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The compiler is the most complex step of process for a number of reasons. Firstly,
+    humans are very unpredictable and have their source code in many different forms.
+    The compiler is only interested the actual code, however humans need things like
+    comments and whitespace (spaces, tabs, indents, etc) to understand code. The process
+    that the compiler takes to convert the human-written source code to its internal
+    representation is called *parsing*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1.1 C code
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: With C code, there is actually a step *before* parsing the source code called
+    the *pre-processor*. The pre-processor is at its core a text replacement program.
+    For example, any variable declared as `#define variable text` will have `variable`
+    replaced with `text`. This preprocessed code is then passed into the compiler.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.2 Syntax
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Any computing language has a particular *syntax* that describes the rules of
+    the language. Both you and the compiler know the syntax rules, and all going well
+    you will understand each other. Humans, being as they are, often forget the rules
+    or break them, leading the compiler to be unable to understand your intentions.
+    For example, if you were to leave the closing bracket off a `if` condition, the
+    compiler does not know where the actual conditional is.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Syntax is most often described in *Backus-Naur Form* (BNF)In fact the most common
+    form is Extended Backus-Naur Form, or EBNF, as it allows some extra rules which
+    are more suitable for modern languages. which is a language with which you can
+    describe languages!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3 Assembly Generation
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The job of the compiler is to translate the higher level language into assembly
+    code suitable for the target being compiled for. Obviously each different architecture
+    has a different instruction set, different numbers of registers and different
+    rules for correct operation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3.1 Alignment
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: <picture>![CPU's can generally only load values into registers from memory on
+    specific alignments. Unaligned loads lead to, at best, performance degradation.](alignment.svg)</picture>Figure 3.3.1.1 Alignment
+  prefs: []
+  type: TYPE_NORMAL
+- en: Alignment of variables in memory is an important consideration for the compiler.
+    Systems programmers need to be aware of alignment constraints to help the compiler
+    create the most efficient code it can.
+  prefs: []
+  type: TYPE_NORMAL
+- en: CPUs can generally not load a value into a register from an arbitrary memory
+    location. It requires that variables be *aligned* on certain boundaries. In the
+    example above, we can see how a 32 bit (4 byte) value is loaded into a register
+    on a machine that requires 4 byte alignment of variables.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The first variable can be directly loaded into a register, as it falls between
+    4 byte boundaries. The second variable, however, spans the 4 byte boundary. This
+    means that at minimum two loads will be required to get the variable into a single
+    register; firstly the lower half and then the upper half.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Some architectures, such as x86, can handle unaligned loads in hardware and
+    the only symptoms will be lower performance as the hardware does the extra work
+    to get the value into the register. Others architectures can not have alignment
+    rules violated and will raise an exception which is generally caught by the operating
+    system which then has to manually load the register in parts, causing even more
+    overheads.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3.1.1 Structure Padding
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Programmers need to consider alignment especially when creating `struct`s. Whilst
+    the compiler knows the alignment rules for the architecture it is building for,
+    at times programmers can cause sub-optimal behaviour.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The C99 standard only says that structures will be ordered in memory in the
+    same order as they are specified in the declaration, and that in an array of structures
+    all elements will be the same size.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.3.1.1.1 Struct padding example
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the example above, we contrive a structure that has two bytes (`chars` followed
+    by a 4 byte integer. The compiler pads the structure as below.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![The compiler pads the structure to align the integer on a 4 byte
+    boundary.](padding.svg)</picture>Figure 3.3.1.1.1 Alignment
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the other example we direct the compiler *not* to pad structures and correspondingly
+    we can see that the integer starts directly after the two `chars`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3.1.2 Cache line alignment
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: We talked previously about aliasing in the cache, and how several addresses
+    may map to the same cache line. Programmers need to be sure that when they write
+    their programs they do not cause *bouncing* of cache lines.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This situation occurs when a program constantly accesses two areas of memory
+    that map to the same cache line. This effectively wastes the cache line, as it
+    gets loaded in, used for a short time and then must be kicked out and the other
+    cache line loaded into the same place in the cache.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Obviously if this situation repeats the performance will be significantly reduced.
+    The situation would be relieved if the conflicting data was organised in slightly
+    different ways to avoid the cache line conflict.
+  prefs: []
+  type: TYPE_NORMAL
+- en: One possible way to detect this sort of situation is *profiling*. When you profile
+    your code you "watch" it to analyse what code paths are taken and how long they
+    take to execute. With *profile guided optimisation* (PGO) the compiler can put
+    special extra bits of code in the first binary it builds, which runs and makes
+    a record of the branches taken, etc. You can then recompile the binary with the
+    extra information to possibly create a better performing binary. Otherwise the
+    programmer can look at the output of the profile and possibly detect situations
+    such as cache line bouncing. (XXX somewhere else?)
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3.1.3 Space - Speed Trade off
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: What the compiler has done above is traded off using some extra memory to gain
+    a speed improvement in running our code. The compiler knows the rules of the architecture
+    and can make decisions about the best way to align data, possibly by trading off
+    small amounts of wasted memory for increased (or perhaps even just correct) performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consequently as a programmer you should never make assumptions about the way
+    variables and data will be laid out by the compiler. To do so is not portable,
+    as a different architecture may have different rules and the compiler may make
+    different decisions based on explicit commands or optimisation levels.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3.1.4 Making Assumptions
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: Thus, as a C programmer you need to be familiar with what you can assume about
+    what the compiler will do and what may be variable. What exactly you can assume
+    and can not assume is detailed in the C99 standard; if you are programming in
+    C it is certainly worth the investment in becoming familiar with the rules to
+    avoid writing non-portable or buggy code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.3.1.4.1 Stack alignment example
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the example above, taken from an Itanium machine, we can see that the padding
+    and alignment of the stack has changed considerably between gcc versions. This
+    type of thing is to be expected and must be considered by the programmer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Generally you should ensure that you do not make assumptions about the size
+    of types or alignment rules.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3.1.5 C Idioms with alignment
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: There are a few common sequences of code that deal with alignment; generally
+    most programs will consider it in some ways. You may see these "code idioms" in
+    many places outside the kernel when dealing with programs that deal with chunks
+    of data in some form or another, so it is worth investigating.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can take some examples from the Linux kernel, which often has to deal with
+    alignment of pages of memory within the system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.3.1.5.1 Page alignment manipulations
+  prefs: []
+  type: TYPE_NORMAL
+- en: Above we can see that there are a number of different options for page sizes
+    within the kernel, ranging from 4KB through 64KB.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `PAGE_SIZE` macro is fairly self explanatory, giving the current page size
+    selected within the system by shifting a value of 1 by the shift number given
+    (remember, this is the equivalent of saying `2^n` where `n` is the `PAGE_SHIFT`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next we have a definition for `PAGE_MASK`. The `PAGE_MASK` allows us to find
+    just those bits that are within the current page, that is the `offset` of an address
+    within its page.
+  prefs: []
+  type: TYPE_NORMAL
+- en: XXX continue short discussion
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.4 Optimisation
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Once the compiler has an internal representation of the code, the *really* interesting
+    part of the compiler starts. The compiler wants to find the most optimised assembly
+    language output for the given input code. This is a large and varied problem and
+    requires knowledge of everything from efficient algorithms based in computer science
+    to deep knowledge about the particular processor the code is to be run on.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are some common optimisations the compiler can look at when generating
+    output. There are many, many more strategies for generating the best code, and
+    it is always an active research area.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.4.1 General Optimising
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The compiler can often see that a particular piece of code can not be used and
+    so leave it out optimise a particular language construct into something smaller
+    with the same outcome.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.4.2 Unrolling loops
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: If code contains a loop, such as a `for` or `while` loop and the compiler has
+    some idea how many times it will execute, it may be more efficient to *unroll*
+    the loop so that it executes sequentially. This means that instead of doing the
+    inside of the loop and then branching back to the start to do repeat the process,
+    the inner loop code is duplicated to be executed again.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Whilst this increases the size of the code, it may allow the processor to work
+    through the instructions more efficiently as branches can cause inefficiencies
+    in the pipeline of instructions coming into the processor.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.4.3 Inlining functions
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Similar to unrolling loops, it is possible to put embed called functions within
+    the callee. The programmer can specify that the compiler should try to do this
+    by specifying the function as `inline` in the function definition. Once again,
+    you may trade code size for sequentially in the code by doing this.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.4.4 Branch Prediction
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Any time the computer comes across an `if` statement there are two possible
+    outcomes; true or false. The processor wants to keep its incoming pipes as full
+    as possible, so it can not wait for the outcome of the test before putting code
+    into the pipeline.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus the compiler can make a prediction about what way the test is likely to
+    go. There are some simple rules the compiler can use to guess things like this,
+    for example `if (val == -1)` is probably *not* likely to be true, since -1 usually
+    indicates an error code and hopefully that will not be triggered too often.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Some compilers can actually compile the program, have the user run it and take
+    note of which way the branches go under real conditions. It can then re-compile
+    it based on what it has seen.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4 Assembler
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The assembly code outputted by the compiler is still in a human readable form,
+    should you know the specifics of the assembly code for the processor. Developers
+    will often take a peek at the assembly output to manually check that the code
+    is the most optimised or to discover any bugs in the compiler (this is more common
+    than one might think, especially when the compiler is being very aggressive with
+    optimisations).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The assembler is a more mechanical process of converting the assembly code into
+    a binary form. Essentially, the assembler keeps a large table of each possible
+    instruction and its binary counterpart (called an *op code* for operation code).
+    It combines these opcodes with the registers specified in the assembly to produce
+    a binary output file.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This code is called *object code* and, at this stage, is not executable. Object
+    code is simply a binary representation of specific input source code file. Good
+    programming practice dictates that a programmer should not "put all the eggs in
+    one basket" by placing all your source code in one file.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5 Linker
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Often in a large program, you will separate out code into multiple files to
+    keep related functions together. Each of these files can be compiled into object
+    code: but your final goal is to create a single executable! There needs to be
+    some way combining each of these object files into a single executable. We call
+    this linking.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note that even if your program does fit in one file it still needs to be linked
+    against certain system libraries to operate correctly. For example, the `printf`
+    call is kept in a library which must be combined with your executable to work.
+    So although you do not explicitly have to worry about linking in this case, there
+    is most certainly still a linking process happening to create your executable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the following sections we explain some terms essential to understanding linking.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.1 Symbols
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 5.1.1 Symbols
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Variables and functions all have names in source code which we refer to them
+    by. One way of thinking of a statement declaring a variable `int a` is that you
+    are telling the compiler "set aside some memory of `sizeof(int)` and from now
+    on when I use `a` it will refer to this allocated memory. Similarly a function
+    says "store this code in memory, and when I call `function()` jump to and execute
+    this code".
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this case, we call `a` and `function` *symbols* since they are a symbolic
+    representation of an area of memory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Symbols help humans to understand programming. You could say that the primary
+    job of the compilation process is to remove symbols -- the processor doesn't know
+    what `a` represents, all it knows is that it has some data at a particular memory
+    address. The compilation process needs to convert `a += 2` to something like "increment
+    the value in memory at `0xABCDE` by 2.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.1.2 Symbol Visibility
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: In some C programs, you may have seen the terms `static` and `extern` used with
+    variables. These modifiers can effect what we call the visibility of symbols.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Imagine you have split up your program in two files, but some functions need
+    to share a variable. You only want one *definition* (i.e. memory location) of
+    the shared variable (otherwise it wouldn't be shared!), but both files need to
+    reference it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To enable this, we declare the variable in one file, and then in the other file
+    declare a variable of the same name but with the prefix `extern`. `extern` stands
+    for *external* and to a human means that this variable is declared somewhere else.
+  prefs: []
+  type: TYPE_NORMAL
+- en: What `extern` says to a compiler is that it should not allocate any space in
+    memory for this variable, and leave this symbol in the object code where it will
+    be fixed up later. The compiler can not possibly know where the symbol is actually
+    defined but the *linker*does, since it is its job to look at all object files
+    together and combine them into a single executable. So the linker will see the
+    symbol left over in the second file, and say "I've seen that symbol before in
+    file 1, and I know that it refers to memory location `0x12345`". Thus it can modify
+    the symbol value to be the memory value of the variable in the first file.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`static` is almost the opposite of `extern`. It places restrictions on the
+    visibility of the symbol it modifies. If you declare a variable with `static`
+    that says to the compiler "don''t leave any symbols for this in the object code".
+    This means that when the linker is linking together object files it will never
+    see that symbol (and so can''t make that "I''ve seen this before!" connection).
+    `static` is good for separation and reducing conflicts -- by declaring a variable
+    `static` you can reuse the variable name in other files and not end up with symbol
+    clashes. We say we are *restricting the visibility* of the symbol, because we
+    are not allowing the linker to see it. Contrast this with a more visible symbol
+    (one not declared with `static`) which can be seen by the linker.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.2 The linking process
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Thus the linking process is really two steps; combining all object files into
+    one executable file and then going through each object file to *resolve* any symbols.
+    This usually requires two passes; one to read all the symbol definitions and take
+    note of unresolved symbols and a second to fix up all those unresolved symbols
+    to the right place.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The final executable should end up with no unresolved symbols; the linker will
+    fail with an error if there are any.We call this *static linking*. Dynamic linking
+    is a similar concept done at executable runtime, and is described a little later
+    on.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 6 A practical example
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: We can walk through the steps taken to build a simple application step by step.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note that when you type `gcc` that actually runs a driver program that hides
+    most of the steps from you. Under normal circumstances this is exactly what you
+    want, because the exact commands and options to get a real life working executable
+    on a real system can be quite complicated and architecture specific.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We will show the compilation process with the two following examples. Both are
+    C source files, one defined the `main()` function for the initial program entry
+    point, and another declares a helper type function. There is one global variable
+    too, just for illustration.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.1 Hello World
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.2 Function Example
+  prefs: []
+  type: TYPE_NORMAL
+- en: 6.1 Compiling
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: All compilers have an option to only execute the first step of compilation.
+    Usually this is something like `-S` and the output will generally be put into
+    a file with the same name as the input file but with a `.s` extension.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus we can show the first step with `gcc -S` as illustrated in the example
+    below.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.1.1 Compilation Example
+  prefs: []
+  type: TYPE_NORMAL
+- en: The assembly is a little to complex to fully describe, but you should be able
+    to see where `i` is defined as a `data4` (i.e. 4 bytes or 32 bits, the size of
+    an `int`), where `function` is defined (`function:`) and a call to `printf()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We now have two assembly files ready to be assembled into machine code!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 6.2 Assembly
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Assembly is a fairly straight forward process. The assembler is usually called
+    `as` and takes arguments in a similar fashion to `gcc`
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.2.1 Assembly Example
+  prefs: []
+  type: TYPE_NORMAL
+- en: After assembling we have *object* code, which is ready to be linked together
+    into the final executable. You can usually skip having to use the assembler by
+    hand by calling the compiler with `-c`, which will directly convert the input
+    file to object code, putting it in a file with the same prefix but `.o` as an
+    extension.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can't inspect the object code directly, as it is in a binary format (in future
+    weeks we will learn about this binary format). However we can use some tools to
+    inspect the object files, for example `readelf --symbols` will show us symbols
+    in the object file.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.2.2 Readelf Example
+  prefs: []
+  type: TYPE_NORMAL
+- en: Although the output is quite complicated (again!) you should be able to understand
+    much of it. For example
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the output of `hello.o` have a look at the symbol with name `i`. Notice how
+    it says it is `LOCAL`? That is because we declared it `static` and as such it
+    has been flagged as being local to this object file.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: In the same output, notice that the `global` variable is defined as a `GLOBAL`,
+    meaning that it is visible outside this file. Similarly the `main()` function
+    is externally visible.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Notice that the `function` symbol (for the call to `function()` is left has
+    `UND` or *undefined*. This means that it has been left for the linker to find
+    the address of the function.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Have a look at the symbols in the `function.c` file and how they fit into the
+    output.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 6.3 Linking
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Actually invoking the linker, called `ld`, is a very complicated process on
+    a real system (are you sick of hearing this yet?). This is why we leave the linking
+    process up to `gcc`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But of course we can spy on what `gcc` is doing under the hood with the `-v`
+    (verbose) flag.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.3.1 Linking Example
+  prefs: []
+  type: TYPE_NORMAL
+- en: The first thing you notice is that a program called collect2 is being called.
+    This is a simple wrapper around ld that is used internally by gcc.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The next thing you notice is object files starting with `crt` being specified
+    to the linker. These functions are provided by gcc and the system libraries and
+    contain code required to start the program. In actuality, the `main()` function
+    is not the first one called when a program runs, but a function called `_start`
+    which is in the `crt` object files. This function does some generic setup which
+    application programmers do not need to worry about.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The path hierarchy is quite complicated, but in essence we can see that the
+    final step is to link in some extra object files, namely
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`crt1.o` : provided by the system libraries (libc) this object file contains
+    the `_start` function which is actually the first thing called within the program.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`crti.o` : provided by the system libraries'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '`crtbegin.o`'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '`crtsaveres.o`'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '`crtend.o`'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: '`crtn.o`'
+  prefs:
+  - PREF_IND
+  type: TYPE_NORMAL
+- en: We discuss how these are used to start the program a little later.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next you can see that we link in our two object files, `hello.o` and `function.o`.
+    After that we specify some extra libraries with `-l` flags. These libraries are
+    system specific and required for every program. The major one is `-lc` which brings
+    in the C library, which has all common functions like `printf()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: After that we again link in some more system object files which do some cleanup
+    after programs exit.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Although the details are complicated, the concept is straight forward. All the
+    object files will be linked together into a single executable file, ready to run!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 6.4 The Executable
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We will go into more details about the executable in the short future, but we
+    can do some inspection in a similar fashion to the object files to see what has
+    happened.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.4.1 Executable Example
+  prefs: []
+  type: TYPE_NORMAL
+- en: Some things to note
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note I built the executable the "easy" way!
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: See there are two symbol tables; the `dynsym` and `symtab` ones. We explain
+    how the `dynsym` symbols work soon, but notice that some of them are *versioned*
+    with an `@` symbol.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Note the many symbols that have been included from the extra object files. Many
+    of them start with `__` to avoid clashing with any names the programmer might
+    choose. Read through and pick out the symbols we mentioned before from the object
+    files and see if they have changed in any way.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL

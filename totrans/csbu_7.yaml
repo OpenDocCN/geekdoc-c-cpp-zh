@@ -1,0 +1,1144 @@
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: Chapter 8. Behind the process
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1 Review of executable files
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: We know that a program running in memory has two major components in *code*
+    (also commonly known as a *text* for historical reasons) and *data*. We also know,
+    however, an executable does not live its life in memory, but spends most of its
+    life as a file on a disk waiting to be loaded an run. Since a file is, in essence,
+    simply a contiguous array of bits, all systems come up with methods of organising
+    code and data within files for on-demand execution. This file-format is generally
+    referred to as a *binary* or an *executable*. The bits and bytes of the file are
+    generally in a format ready to be placed in memory and interpreted directly by
+    processor hardware.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2 Representing executable files
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 2.1 Three Standard Sections
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: At a minimum, any executable file format will need to specify where the code
+    and data are in the binary file. These are the two primary sections within an
+    executable file.
+  prefs: []
+  type: TYPE_NORMAL
+- en: One additional component we have not mentioned until now is storage space of
+    uninitialised global variables. If we declare a variable and give it an initial
+    value, this value needs to be stored in the executable file so that at program
+    start it can be initalised to the correct value. However many variables are uninitialised
+    (or zero) when the program is first executed. Making space for these in the executable
+    and then simply storing zero or NULL values is a waste of space, needlessly bloating
+    the executable file-size on disk. Thus most binary formats define the concept
+    of a additional `BSS` section as a place-holder size for zeroed, uninitialised
+    data. On program load the extra memory described by the BSS can be allocated (and
+    set to zero!). BSS *probably* stands for Block Started by Symbol, an assembly
+    command for a old IBM computer; the exact derivation is probably lost to history.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.2 Binary Format
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The executable is created by the toolchain from the source code. This file needs
+    to be in a format explicitly defined such that the compiler can create it and
+    the operating system can identify it and load into memory, turning it into a running
+    process that the operating system can manage. This *executable file format* can
+    be specific to the operating system, as we would not normally expect that a program
+    compiled for one system will execute on another (for example, you don't expect
+    your Windows programs to run on Linux, or your Linux programs to run on OS X).
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, the common thread between all executable file formats is that they
+    include a predefined, standardised header which describes how program code and
+    data are stored in the rest of the file. In words, it would generally describe
+    "the program code starts 20 bytes into this file, and is 50 kilobytes long. The
+    program data follows it and is 20 kilobytes long".
+  prefs: []
+  type: TYPE_NORMAL
+- en: In recent times one particular format has become the de facto standard for executable
+    representation for modern UNIX type systems. It is called the `Executable and
+    Linker Format`, or ELF for short; we'll be looking at it in more detail soon.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.3 Binary Format History
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 2.3.1 a.out
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: ELF was not always the standard; original UNIX systems used a file format called
+    `a.out`. We can see the vestiges of this if you compile a program without the
+    `-o` option to specify an output file name; the executable will be created with
+    a default name of `a.out`In fact, `a.out` is the default output filename from
+    the *linker*. The compiler generally uses randomly generated file names as intermediate
+    files for assembly and object code..
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`a.out` is a very simple header format that only allows a single data, code
+    and BSS section. As you will come to see, this is insufficient for modern systems
+    with dynamic libraries.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.3.2 COFF
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The Common Object File Format, or COFF, was the precursor to ELF. Its header
+    format was more flexible, allowing more (but limited) sections in the file.
+  prefs: []
+  type: TYPE_NORMAL
+- en: COFF also has difficulties with elegant support of shared libraries, and ELF
+    was selected as an alternative implementation on Linux.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, COFF lives on in Microsoft Windows as the `Portable Executable` or
+    PE format. PE is to Windows as ELF is to Linux.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3 ELF
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: ELF is an extremely flexible format for representing binary code in a system.
+    By following the ELF standard you can represent a kernel binary just as easily
+    as a normal executable or a system library. The same tools can be used to inspect
+    and operate on all ELF files and developers who understand the ELF file format
+    can translate their skills to most modern UNIX systems.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ELF extends on COFF and gives the header sufficient flexibility to define an
+    arbitrary number of sections, each with its own properties. This facilitates easier
+    dynamic linking and debugging.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![ELF Overview](elf-overview.svg)</picture>Figure 3.1 ELF Overview
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1 ELF File Header
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Overall, the file has a *file header* which describes the file in general and
+    then has pointers to each of the individual sections that make up the file. [Example 3.1.1,
+    The ELF Header](#elf-header) shows the description as given in the API documentation
+    for ELF32 (the 32-bit form of ELF). This is the layout of the C structure which
+    defines a ELF header.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.1.1 The ELF Header
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.1.2 The ELF Header, as shown by readelf
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Example 3.1.2, The ELF Header, as shown by readelf](#readelf-elf-header) shows
+    a human readable form as present by the readelf program, which is part of GNU
+    binutils.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `e_ident` array is the first thing at the start of any ELF file, and always
+    starts with a few "magic" bytes. The first byte is 0x7F and then the next three
+    bytes are "ELF". You can inspect an ELF binary to see this for yourself with something
+    like the `hexdump` command.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.1.3 Inspecting the ELF magic number
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note the 0x7F to start, then the ASCII encoded "ELF" string. Have a look at
+    the standard and see what the rest of the array defines and what the values are
+    in a binary.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next we have some flags for the type of machine this binary is created for.
+    The first thing we can see is that ELF defines different type sized versions,
+    one for 32 bit and one for 64 bit versions; here we inspect the 32 bit version.
+    The difference is mostly that on 64 bit machines addresses obviously required
+    to be held in 64 bit variables. We can see that the binary has been created for
+    a big endian machine that uses 2's complement to represent negative numbers. Skipping
+    down a bit we can see the `Machine` tells us this is a PowerPC binary.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The apparently innocuous entry point address seems straight forward enough;
+    this is the address in memory that the program code starts at. Beginning C programmers
+    are told that *main()* is the first program called in your program. Using the
+    entry point address we can actually verify that it *isn't*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.1.4 Investigating the entry point
+  prefs: []
+  type: TYPE_NORMAL
+- en: In [Example 3.1.4, Investigating the entry point](#entry-point) we can see that
+    the entry point is actually a function called `_start`. Our program didn't define
+    this at all, and the leading underscore suggests that it is in a separate *namespace*.
+    We examine how a program starts up in detail in [Section 8.2, Starting the program](csbu-print_split_055.html#startup).
+  prefs: []
+  type: TYPE_NORMAL
+- en: After that the header contains pointers to where in the file other important
+    parts of the ELF file start, like a table of contents.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.2 Symbols and Relocations
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The ELF specification provides for *symbol tables* which are simply mappings
+    of strings (symbols) to locations in the file. Symbols are required for linking;
+    for example assigning a value to a variable `foo` declared as `extern int foo;`
+    would require the linker to find the address of `foo`, which would involve looking
+    up "foo" in the symbol table and finding the address.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Closely related to symbols are *relocations*. A relocation is simply a blank
+    space left to be patched up later. In the previous example, until the address
+    of `foo` is known it can not be used. However, on a 32-bit system, we know the
+    *address* of `foo` must be a 4-byte value, so any time the compiler needs to use
+    that address (to say, assign a value) it can simply leave 4-bytes of blank space
+    and keep a relocation that essentially says to the linker "place the real value
+    of "foo" into the 4 bytes at this address". As mentioned, this requires the symbol
+    "foo" to be resolved. [Section 2.1, Relocations](csbu-print_split_058.html#dynamic_relocations)
+    contains further information on relocations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3 Sections and Segments
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The ELF format specifies two "views" of an ELF file — that which is used for
+    linking and that which is used for execution. This affords significant flexibility
+    for systems designers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We talk about *sections* in object code waiting to be linked into an executable.
+    One or more sections map to a *segment* in the executable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3.1 Segments
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: As we have done before, it is sometimes easier to look at the higher level of
+    abstraction (segments) before inspecting the lower layers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As we mentioned the ELF file has an header that describes the overall layout
+    of the file. The ELF header actually points to another group of headers called
+    the *program headers*. These headers describe to the operating system anything
+    that might be required for it to load the binary into memory and execute it. Segments
+    are described by program headers, but so are some other things required to get
+    the executable running.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.3.1.1 The Program Header
+  prefs: []
+  type: TYPE_NORMAL
+- en: The definition of the program header is seen in [Example 3.3.1.1, The Program
+    Header](#program-header). You might have noticed from the ELF header definition
+    above how there were fields `e_phoff`, `e_phnum` and `e_phentsize`; these are
+    simply the offset in the file where the program headers start, how many program
+    headers there are and how big each program header is. With these three bits of
+    information you can easily find and read the program headers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Program headers more than just segments. The `p_type` field defines just what
+    the program header is defining. For example, if this field is `PT_INTERP` the
+    header is defined as meaning a string pointer to an *interpreter* for the binary
+    file. We discussed compiled versus interpreted languages previously and made the
+    distinction that a compiler builds a binary which can be run in a stand alone
+    fashion. Why should it need an interpreter? As always, the true picture is a little
+    more complicated. There are several reasons why a modern system wants flexibility
+    when loading executable files, and to do this some information can only be adequately
+    acquired at the actual time the program is set up to run. We see this in future
+    chapters where we look into dynamic linking. Consequently some minor changes might
+    need to be made to the binary to allow it to work properly at runtime. Thus the
+    usual interpreter of a binary file is the *dynamic loader*, so called because
+    it takes the final steps to complete loading of the executable and prepare the
+    binary image for running.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Segments are described with a value of `PT_LOAD` in the `p_type` field. Each
+    segment is then described by the other fields in the program header. The `p_offset`
+    field tells you how far into the file on disk the data for the segment is. The
+    `p_vaddr` field tells you what address that data is to live at in virtual memory
+    (`p_addr` describes the physical address, which is only really useful for small
+    embedded systems that do not implement virtual memory). The two flags `p_filesz`
+    and `p_memsz` work to tell you how big the segment is on disk and how big it should
+    be in memory. If the memory size is greater than the disk size, then the overlap
+    should be filled with zeros. In this way you can save considerable space in your
+    binaries by not having to waste space for empty global variables. Finally `p_flags`
+    indicates the permissions on the segment. Execute, read and write permissions
+    can be specified in any combination; for example code segments should be marked
+    as read and execute only, data sections as read and write with no execute.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are a few other segment types defined in the program headers, they are
+    described more fully in the standards specification.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3.2 Sections
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: As we have mentioned, sections make up segments. Sections are a way to organise
+    the binary into logical areas to communicate information between the compiler
+    and the linker. In some special binaries, such as the Linux kernel, sections are
+    used in more specific ways (see [Section 6.2, Custom sections](csbu-print_split_053.html#extra_sections)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: We've seen how segments ultimately come down to a blob of data in a file on
+    disk with some descriptions about where it should be loaded and what permissions
+    it has. Sections have a similar header to segments, as shown in [Example 3.3.2.1,
+    Sections](#section-header) .
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.3.2.1 Sections
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sections have a few more types defined for the `sh_type` field; for example
+    a section of type `SH_PROGBITS` is defined as a section that hold binary data
+    for use by the program. Other flags say if this section is a symbol table (used
+    by the linker or debugger for example) or maybe something for the dynamic loader.
+    There are also more attributes, such as the *allocate* attribute which flags that
+    this section will need memory allocated for it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Below we will examine the program listed in [Example 3.3.2.2, Sections](#section)
+    .
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.3.2.2 Sections
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Example 3.3.2.3, Sections readelf output](#section-readelf) shows the output
+    of readelf with some parts stripped clarity. Using this output we can analyse
+    each part of our simple program and see where it ends up in the final output binary.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.3.2.3 Sections readelf output
+  prefs: []
+  type: TYPE_NORMAL
+- en: Firstly, let us look at the variable `big_big_array`, which as the name suggests
+    is a fairly large global array. If we skip down to the symbol table we can see
+    that the variable is at location `0x100109cc` which we can correlate to the `.bss`
+    section in the section listing, since it starts just below it at `0x100109c8`.
+    Note the size, and how it is quite large. We mentioned that BSS is a standard
+    part of a binary image since it would be silly to require that binary on disk
+    have 10 megabytes of space allocated to it, when all of that space is going to
+    be zero. Note that this section has a type of `NOBITS` meaning that it does not
+    have any bytes on disk.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus the `.bss` section is defined for global variables whose value should be
+    zero when the program starts. We have seen how the memory size can be different
+    to the on disk size in our discussion of segments; variables being in the `.bss`
+    section are an indication that they will be given zero value on program start.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `a_string` variable lives in the `.sdata` section, which stands for *small
+    data*. Small data (and the corresponding `.sbss` section) are sections available
+    on some architectures where data can be reached by an offset from some known pointer.
+    This means a fixed-value can be added to the base-address, making it faster to
+    get to data in the sections as there are no extra lookups and loading of addresses
+    into memory required. Most architectures are limited to the size of immediate
+    values you can add to a register (e.g. if performing the instruction `r1 = add
+    r2, 70;`, 70 is an *immediate value*, as opposed to say, adding two values stored
+    in registers `r1 = add r2,r3`) and can thus only offset a certain "small" distance
+    from an address. We can also see that our `a_var_with_value` lives in the same
+    place.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`main` however lives in the `.text` section, as we expect (remember the name
+    "text" and "code" are used interchangeably to refer to a program in memory.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.3.3 Sections and Segments together
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.3.3.1 Sections and Segments
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Example 3.3.3.1, Sections and Segments](#sections-segments) shows how `readelf`
+    shows us the segments and section mappings in the ELF file for the binary `/bin/ls`.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Skipping to the bottom of the output, we can see what sections have been moved
+    into what segments. So, for example the `.interp` section is placed into an `INTERP`
+    flagged segment. Notice that readelf tells us it is requesting the interpreter
+    `/lib/ld.so.1`; this is the dynamic linker which is run to prepare the binary
+    for execution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Looking at the two `LOAD` segments we can see the distinction between text and
+    data. Notice how the first one has only "read" and "execute" permissions, whilst
+    the next one has read, write and execute permissions? These describe the code
+    (r/w) and data (r/w/e) segments.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But data should not need to be executable! Indeed, on most architectures (for
+    example, the most common x86) the data section will not be marked as having the
+    data section executable. However, the example output above was taken from a PowerPC
+    machine which has a slightly different programming model (ABI, see below) requiring
+    that the data section be executable For those that are curious, the PowerPC ABI
+    calls stubs for functions in dynamic libraries directly in the GOT, rather than
+    having them bounce through a separate PLT entry. Thus the processor needs execute
+    permissions for the GOT section, which you can see is embedded in the data segment.
+    This should make sense after reading the dynamic linking chapter!. Such is the
+    life of a systems programmer, where rules were made to be broken!
+  prefs: []
+  type: TYPE_NORMAL
+- en: The other interesting thing to note is that the file size is the same as the
+    memory size for the code segment, however memory size is greater than the file
+    size for the data segment. This comes from the BSS section which holds zeroed
+    global variables.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4 ELF Executables
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Executables are of course one of the primary uses of the ELF format. Contained
+    within the *binary* is everything required for the operating system to execute
+    the code as intended.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Since an executable is designed to be run in a process with a unique address
+    space (see [Chapter 6, Virtual Memory](csbu-print_split_028.html#chapter05)) the
+    code can make assumptions about where the various parts of the program will be
+    loaded in memory. [Example 4.1, Segments of an executable file](#elf_executable)
+    shows an example using the readelf tool to examine the segments of an executable
+    file. We can see the virtual addresses at which the `LOAD` segments are required
+    to be placed at. We can further see that one segment is for code — it has read
+    and execute permissions only — and one is for data, unsurprisingly with read and
+    write permissions, but importantly no execute permissions (without execute permissions,
+    even if a bug allowed an attacker to introduce arbitrary data the pages backing
+    it would not be marked with execute permissions, and most processors will hence
+    disallow any execution of code in those pages).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 4.1 Segments of an executable file
+  prefs: []
+  type: TYPE_NORMAL
+- en: The program segments must be loaded at these addresses; the last step of the
+    linker is to resolve most relocations ([Section 3.2, Symbols and Relocations](csbu-print_split_050.html#symbols_and_relocations))
+    and patch them with the assumed absolute addresses — the data describing the relocation
+    is then discarded in the final binary and there is no longer a way to find this
+    information.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In reality, executables generally have external dependencies on *shared libraries*,
+    or pieces of common code abstracted and shared among the entire system — almost
+    all of the confusing parts of [Example 4.1, Segments of an executable file](#elf_executable)
+    relate to the use of shared libraries. Libraries are discussed in [Section 5,
+    Libraries](csbu-print_split_052.html#libraries), dynamic libraries in [Chapter 9,
+    Dynamic Linking](csbu-print_split_055.html#chapter08).
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5 Libraries
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Developers soon tired of having to write everything from scratch, so one of
+    the first inventions of computer science was *libraries*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A library is simply a collection of functions which you can call from your program.
+    Obviously a library has many advantages, not least of which is that you can save
+    much time by reusing work someone else has already done and generally be more
+    confident that it has fewer bugs (since probably many other people use the libraries
+    too, and you benefit from having them finding and fixing bugs). A library is exactly
+    like an executable, except instead of running directly the library functions are
+    invoked with parameters from your executable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.1 Static Libraries
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The most straight forward way of using a library function is to have the object
+    files from the library linked directly into your final executable, just as with
+    those you have compiled yourself. When linked like this the library is called
+    a *static* library, because the library will remain unchanged unless the program
+    is recompiled.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This is the most straight forward way of using a library as the final result
+    is a simple executable with no dependencies.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.1.1 Inside static libraries
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: A static library is simply a group of object files. The object files are kept
+    in an *archive*, which leads to their usual `.a` suffix extension. You can think
+    of archives as similar to a `zip` file, but without compression.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Below we show the creation of basic static library and introduce some common
+    tools for working with libraries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 5.1.1.1 Creating and using a static library
+  prefs: []
+  type: TYPE_NORMAL
+- en: Firstly we compile our library to an object file, just as we have seen in the
+    previous chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Notice that we define the library API in the header file. The API consists of
+    function definitions for the functions in the library; this is so that the compiler
+    knows what types the functions take when building object files that reference
+    the library (e.g. `program.c`, which `#include`s the header file).
+  prefs: []
+  type: TYPE_NORMAL
+- en: We create the library ar (short for "archive") command. By convention static
+    library file names are prefixed with `lib` and have the extension `.a`. The `c`
+    argument tells the program to create the archive, and `a` tells archive to add
+    the object files specified into the library file.Archives created with ar pop
+    up in a few different places around Linux systems other than just creating static
+    libraries. One widely used application is in the `.deb` packaging format used
+    with Debian, Ubuntu and some other Linux systems is one example. `debs` use archives
+    to keep all the application files together in the one package file. RedHat RPM
+    packages use an alternate but similar format called cpio. Of course the canonical
+    application for keeping files together is the `tar` file, which is a common format
+    to distribute source code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next we use the ranlib application to make a header in the library with the
+    symbols of the object file contents. This helps the compiler to quickly reference
+    symbols; in the case where we just have one this step may seem a little redundant;
+    however a large library may have thousands of symbols meaning an index can significantly
+    speed up finding references. We inspect this new header with the nm application.
+    We see the `function` symbol for the `function()` function at offset zero, as
+    we expect.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You then specify the library to the compiler with `-lname` where name is the
+    filename of the library without the prefix `lib`. We also provide an extra search
+    directory for libraries, namely the current directory (`-L .`), since by default
+    the current directory is not searched for libraries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The final result is a single executable with our new library included.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.1.2 Static Linking Drawbacks
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Static linking is very straight forward, but has a number of drawbacks.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are two main disadvantages; firstly if the library code is updated (to
+    fix a bug, say) you have to recompile your program into a new executable and secondly,
+    every program in the system that uses that library contains a copy in its executable.
+    This is very inefficient (and a pain if you find a bug and have to recompile,
+    as per point one).
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, the C library (glibc) is included in all programs, and provides
+    all the common functions such as `printf`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.2 Shared Libraries
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Shared libraries are an elegant way around the problems posed by a static library.
+    A shared library is a library that is loaded dynamically at runtime for each application
+    that requires it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The application simply leaves pointers that it will require a certain library,
+    and when the function call is made the library is loaded into memory and executed.
+    If the library is already loaded for another application, the code can be shared
+    between the two, saving considerable resources with commonly used libraries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This process, called dynamic linking, is one of the more intricate parts of
+    a modern operating system. As such, we dedicate the next chapter to investigating
+    the dynamic linking process.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 6 Extending ELF concepts
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 6.1 Debugging
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Traditionally the primary method of post mortem debugging is referred to as
+    the *core dump*. The term *core* comes from the original physical characteristics
+    of magnetic core memory, which uses the orientation of small magnetic rings to
+    store state.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus a core dump is simply a complete snapshot of the program as it was running
+    at a particular time. A *debugger* can then be used to examine this dump and reconstruct
+    the program state. [Example 6.1.1, Example of creating a core dump and using it
+    with gdb](#coredump_gdb) shows a sample program that writes to a random memory
+    location in order to force a crash. At this point the processes will be halted
+    and a dump of the current state is recorded.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.1.1 Example of creating a core dump and using it with gdb
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus a core-dump is just another ELF file with a range of sections understood
+    to the debugger to represent parts of the running program.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 6.1.1 Symbols and Debugging Information
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: As [Example 6.1.1, Example of creating a core dump and using it with gdb](#coredump_gdb)
+    shows, the debugger gdb requires the original executable and the core dump to
+    reconstruct the environment for the debugging session. Note that the original
+    executable was built with the `-g` flag, which instructs the compiler to include
+    all *debugging information*. This extra debugging information is kept in special
+    sections of the ELF file. It describes in detail things like what register values
+    currently hold which variables used in the code, size of variables, length of
+    arrays, etc. It is generally in the standard *DWARF* format (a pun on the almost-synonym
+    ELF).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Including debugging information can make executable files and libraries very
+    large; although this data is not required resident in memory for actually running
+    it can still take up considerable disk space. Thus the usual process is to *strip*
+    this information from the ELF file. While it is possible to arrange for shipping
+    of both stripped and unstripped files, most all current binary distribution methods
+    provide the debugging information in separate files. The objcopy tool can be used
+    to extract the debugging information (`--only-keep-debug`) and then add a link
+    in the original executable to this stripped information (`--add-gnu-debuglink`).
+    After this is done, a special section called `.gnu_debuglink` will be present
+    in the original executable, which contains a hash so that when a debugging sessions
+    starts the debugger can be sure it associates the right debugging information
+    with the right executable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.1.1.1 Example of stripping debugging information into separate files
+    using objcopy
+  prefs: []
+  type: TYPE_NORMAL
+- en: Symbols take up much less space, but are also targets for removal from final
+    output. Once the individual object files of an executable are linked into the
+    single final image there is generally no need for most symbols to remain. As discussed
+    in [Section 3.2, Symbols and Relocations](csbu-print_split_050.html#symbols_and_relocations)
+    symbols are required to fix up relocation entries, but once this is done the symbols
+    are not strictly necessary for running the final program. On Linux the GNU toolchain
+    strip program provides options to remove symbols. Note that some symbols are required
+    to be resolved at run-time (for *dynamic linking*, the focus of [Chapter 9, Dynamic
+    Linking](csbu-print_split_055.html#chapter08)) but these are put in separate *dynamic*
+    symbol tables so they will not be removed and render the final output useless.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 6.1.2 Inside coredumps
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: A coredump is really just another ELF file; this illustrates the flexibility
+    of ELF as a binary format.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.1.2.1 Example of using readelf and eu-readelf to examine a coredump.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In [Example 6.1.2.1, Example of using readelf and eu-readelf to examine a coredump.](#coredump_internal)
+    we can see an examination of the core file produced by [Example 6.1.1, Example
+    of creating a core dump and using it with gdb](#coredump_gdb) using firstly the
+    readelf tool. There are no sections, relocations or other extraneous information
+    in the file that may be required for loading an executable or library; it simply
+    consists of a series of program headers describing `LOAD` segments. These segments
+    are raw data dumps, created by the kernel, of the current memory allocations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The other component of the core dump is the `NOTE` sections which contain data
+    necessary for debugging but not necessarily captured in straight snapshot of the
+    memory allocations. The eu-readelf program used in the second part of the figure
+    provides a more complete view of the data by decoding it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `PRSTATUS` note gives a range of interesting information about the process
+    as it was running; for example we can see from `cursig` that the program received
+    a signal 11, or segmentation fault, as we would expect. Along with process number
+    information, it also includes a dump of all the current registers. Given the register
+    values, the debugger can reconstruct the stack state and hence provide a *backtrace*;
+    combined with the symbol and debugging information from the original binary the
+    debugger can show exactly how you reached the current point of execution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another interesting output is the current *auxiliary vector* (`AUXV`), discussed
+    in [Section 8.1, Kernel communication to programs](csbu-print_split_055.html#auxv).
+    The `386_TLS` describes *global descriptor table* entries used for the x86 implementation
+    of *thread-local storage* (see [Section 4.1.1.3, Fast System Calls](csbu-print_split_019.html#fast_system_calls)
+    for more information on use of segmentation, and [Section 4.3.1.1, Threads](csbu-print_split_024.html#threads)
+    for information on threadsFor a multi-threaded application, there would be duplicate
+    entries for each thread running. The debugger will understand this, and it is
+    how gdb implements the `thread` command to show and switch between threads.).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The kernel creates the core dump file within the bounds of the current `ulimit`
+    settings — since a program using a lot of memory could result in a very large
+    dump, potentially filling up disk and making problems even worse, generally the
+    `ulimit` is set low or even at zero, since most non-developers have little use
+    for a core dump file. However the core dump remains the single most useful way
+    to debug an unexpected situation in a postmortem fashion.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 6.2 Custom sections
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: For the most part, organisation of code, data and symbols is something a programmer
+    can leave up the toolchain defaults. However, there are times when it makes sense
+    to extend or customise sections and their contents. One common example of this
+    is with Linux kernel *modules* which are used to dynamically load drivers and
+    other features into the running kernel. Because these modules are not portable,
+    in so much as they only work with one fixed kernel build version, the interface
+    between modules and the kernel can be flexible and is not bound to particular
+    standards. This means the methods of storing things like license information,
+    authorship, dependencies and paramaters for the moudule can be uniquely and wholly
+    defined by the kernel.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `modinfo` tool can inspect this information within a module and present
+    it to the user. Below we use the example of the `FUSE` Linux kernel module, which
+    allows user-space libraries to provide file-system implementations to the kernel.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.2.1 Example of `modinfo` output
+  prefs: []
+  type: TYPE_NORMAL
+- en: As you can see above, `modinfo` is parsing the `.modinfo` section embedded within
+    the module file to present the details of the module. [Example 6.2.2, Putting
+    module info into sections](#modinfo_sections) shows how one field, the "author"
+    is put into the module. The code mostly comes from `include/linux/module.h`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.2.2 Putting module info into sections
+  prefs: []
+  type: TYPE_NORMAL
+- en: At first, this looks like a macro nightmare, but it can be unravelled step by
+    step. Starting at the bottom, we see that `MODULE_AUTHOR` is a wrapper around
+    the more generic `__MODULE_INFO` macro, which is where most of the magic happens.
+    There, we can see that we are building up a `static const char []` variable to
+    hold the string `"author=Your Name <your@name.com>"`. The interesting thing to
+    note is that the variable has an extra parameter `__attribute__((section(".modinfo")))`
+    which is telling the compiler to not put this in the `data` section with all the
+    other variables, but to stash it in its own ELF section called `.modinfo`. The
+    other parameters stop the variable being optimised away because it looks unused
+    and to ensure we pack the variables in next to each other by specifying the alignment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There is extensive use of *stringification* macros, which are rather arcane
+    tricks used within the C pre-processor to ensure that strings and definitions
+    can live together. The only other trick is the use of the `__COUNTER__` special
+    define provided by `gcc`, which provides a unique, incrementing value each time
+    it is called; this allows multiple `MODULE_AUTHOR` calls to in the one file and
+    not end up with the same variable name.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We can inspect the symbols placed in the final module to see the end result:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.2.3 Module symbols in `.modinfo` sections
+  prefs: []
+  type: TYPE_NORMAL
+- en: 6.3 Linker Scripts
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In [Example 3.3.2.2, Sections](csbu-print_split_050.html#section) we described
+    how sections make up segments in the final output. It is the job of the linker
+    to build these sections into segments; to achieve this it uses a *linker script*
+    which describes where segments start, what sections go into them and various other
+    parameters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Example 6.3.1, The default linker script](#linker-script) shows an extract
+    of the default linker script, which the linker will show when given its verbose
+    flag via specifying `-Wl,--verbose` to gcc. The default script is built-in to
+    the linker and is based on the standard API definitions to create working user-space
+    programs for the building platform.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 6.3.1 The default linker script
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can roughly see how the linker script specifies things like starting locations
+    and what sections to group into various segments. In the same way `-Wl` is used
+    to pass the `--verbose` to the linker via gcc, customised linker scripts can be
+    provided by flags. Regular user-space developers are unlikely to need to override
+    the default linker script. However, often very customised applications such as
+    kernel builds require customised linker scripts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7 ABIs
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: An ABI is a term you will hear a lot about when working with systems programming.
+    We have talked extensively about *API*, which are interfaces the programmer sees
+    to your code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ABI's refer to lower level interfaces which the compiler, operating system and,
+    to some extent, processor, must agree on to communicate together. Below we introduce
+    a number of concepts which are important to understanding ABI considerations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.1 Byte Order
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Endianess
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.2 Calling Conventions
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 7.2.1 Passing parameters
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: registers or stack?
+  prefs: []
+  type: TYPE_NORMAL
+- en: 7.2.2 Function Descriptors
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: On many architectures you must call a function through a *function descriptor*,
+    rather than directly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, on IA64 a function descriptor consists of two components; the address
+    of the function (that being a 64 bit, or 8 byte value) and the address of the
+    *global pointer* (gp). The ABI specifies that r1 should always contain the gp
+    value for a function. This means that when you call a function, it is the `callees`
+    job to save their gp value, set r1 to be the new value (from the function descriptor)
+    and `then` call the function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This may seem like a strange way to do things, but it has very useful practical
+    implications as you will see in the next chapter about global offset tables. On
+    IA64 an `add` instruction can only take a maximum 22 bit *immediate value*Technically
+    this is because of the way IA64 bundles instructions. Three instructions are put
+    into each bundle, and there is only enough room to keep a 22 bit value to keep
+    the bundle together.. An immediate value is one that is specified directly, rather
+    than in a register (e.g. in `add r1 + 100` 100 is the immediate value).
+  prefs: []
+  type: TYPE_NORMAL
+- en: You might recognise 22 bits as being able to represent 4194304 bytes, or 4MB.
+    Thus each function can directly offset into an area of memory 4MB big without
+    having to take the penalty of loading any values into a register. If the compiler,
+    linker and loader all agree on what the global pointer is pointing to (as specified
+    in the ABI) performance can be improved by less loading.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 8 Starting a process
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: We mentioned before that simply saying the program starts with the `main()`
+    function is not quite true. Below we examine what happens to a typical dynamically
+    linked program when it is loaded and run (statically linked programs are similar
+    but different XXX should we go into this?).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Firstly, in response to an `exec` system call the kernel allocates the structures
+    for a new process and reads the ELF file specified from disk.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We mentioned that ELF has a program interpreter field, `PT_INTERP`, which can
+    be set to 'interpret' the program. For dynamically linked applications that interpreter
+    is the dynamic linker, namely ld.so, which allows some of the linking process
+    to be done on the fly before the program starts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this case, the kernel *also* reads in the dynamic linker code, and starts
+    the program from the entry point address as specified by it. We examine the role
+    of the dynamic linker in depth in the next chapter, but suffice to say it does
+    some setup like loading any libraries required by the application (as specified
+    in the dynamic section of the binary) and then starts execution of the program
+    binary at its entry point address (i.e. the `_init` function).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 8.1 Kernel communication to programs
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The kernel needs to communicate some things to programs when they start up;
+    namely the arguments to the program, the current environment variables and a special
+    structure called the `Auxiliary Vector` or `auxv` (you can request the the dynamic
+    linker show you some debugging output of the `auxv` by specifying the environment
+    value `LD_SHOW_AUXV=1`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The arguments and environment at fairly straight forward, and the various incarnations
+    of the `exec` system call allow you to specify these for the program.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The kernel communicates this by putting all the required information on the
+    stack for the newly created program to pick up. Thus when the program starts it
+    can use its stack pointer to find the all the startup information required.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The auxiliary vector is a special structure that is for passing information
+    directly from the kernel to the newly running program. It contains system specific
+    information that may be required, such as the default size of a virtual memory
+    page on the system or *hardware capabilities*; that is specific features that
+    the kernel has identified the underlying hardware has that userspace programs
+    can take advantage of.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 8.1.1 Kernel Library
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: We mentioned previously that system calls are slow, and modern systems have
+    mechanisms to avoid the overheads of calling a trap to the processor.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In Linux, this is implemented by a neat trick between the dynamic loader and
+    the kernel, all communicated with the AUXV structure. The kernel actually adds
+    a small shared library into the address space of every newly created process which
+    contains a function that makes system calls for you. The beauty of this system
+    is that if the underlying hardware supports a fast system call mechanism the kernel
+    (being the creator of the library) can use it, otherwise it can use the old scheme
+    of generating a trap. This library is named `linux-gate.so.1`, so called because
+    it is a *gateway* to the inner workings of the kernel.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When the kernel starts the dynamic linker it adds an entry to the auxv called
+    `AT_SYSINFO_EHDR`, which is the address in memory that the special kernel library
+    lives in. When the dynamic linker starts it can look for the `AT_SYSINFO_EHDR`
+    pointer, and if found load that library for the program. The program has no idea
+    this library exists; this is a private arrangement between the dynamic linker
+    and the kernel.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We mentioned that programmers make system calls indirectly through calling functions
+    in the system libraries, namely libc. libc can check to see if the special kernel
+    binary is loaded, and if so use the functions within that to make system calls.
+    As we mentioned, if the kernel determines the hardware is capable, this will use
+    the fast system call method.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 8.2 Starting the program
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Once the kernel has loaded the interpreter it passes it to the entry point as
+    given in the interpreter file (note will not examine how the dynamic linker starts
+    at this stage; see [Chapter 9, Dynamic Linking](#chapter08) for a full discussion
+    of dynamic linking). The dynamic linker will jump to the entry point address as
+    given in the ELF binary.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 8.2.1 Disassembley of program startup
+  prefs: []
+  type: TYPE_NORMAL
+- en: Above we investigate the very simplest program. Using readelf we can see that
+    the entry point is the `_start` function in the binary. At this point we can see
+    in the disassembley some values are pushed onto the stack. The first value, `0x8048400`
+    is the `__libc_csu_fini` function; `0x8048390` is the `__libc_csu_init` and then
+    finally `0x8048368`, the `main()` function. After this the value `__libc_start_main`
+    function is called.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`__libc_start_main` is defined in the glibc sources `sysdeps/generic/libc-start.c`.
+    The file function is quite complicated and hidden between a large number of defines,
+    as it needs to be portable across the very wide number of systems and architectures
+    that glibc can run on. It does a number of specific things related to setting
+    up the C library which the average programmer does not need to worry about. The
+    next point where the library calls back into the program is to handle `init` code.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`init` and `fini` are two special concepts that call parts of code in shared
+    libraries that may need to be called before the library starts or if the library
+    is unloaded respectively. You can see how this might be useful for library programmers
+    to setup variables when the library is started, or to clean up at the end. Originally
+    the functions `_init` and `_fini` were looked for in the library; however this
+    became somewhat limiting as everything was required to be in these functions.
+    Below we will examine just how the `init`/`fini` process works.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: At this stage we can see that the `__libc_start_main` function will receive
+    quite a few input paramaters on the stack. Firstly it will have access to the
+    program arguments, environment variables and auxiliary vector from the kernel.
+    Then the initalization function will have pushed onto the stack addresses for
+    functions to handle `init`, `fini`, and finally the address of the main function
+    itself.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We need some way to indicate in the source code that a function should be called
+    by `init` or `fini`. With gcc we use *attributes* to label two functions as *constructors*
+    and *destructors* in our main program. These terms are more commonly used with
+    object oriented languages to describe object life cycles.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 8.2.2 Constructors and Destructors
+  prefs: []
+  type: TYPE_NORMAL
+- en: The last value pushed onto the stack for the `__libc_start_main` was the initialisation
+    function `__libc_csu_init`. If we follow the call chain through from `__libc_csu_init`
+    we can see it does some setup and then calls the `_init` function in the executable.
+    The `_init` function eventually calls a function called `__do_global_ctors_aux`.
+    Looking at the disassembley of this function we can see that it appears to start
+    at address `0x804952c` and loop along, reading an value and calling it. We can
+    see that this starting address is in the `.ctors` section of the file; if we have
+    a look inside this we see that it contains the first value `-1`, a function address
+    (in big endian format) and the value zero.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The address in big endian format is `0x08048398`, or the address of `program_init`
+    function! So the format of the `.ctors` section is firstly a -1, and then the
+    address of functions to be called on initialisation, and finally a zero to indicate
+    the list is complete. Each entry will be called (in this case we only have the
+    one function).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Once `__libc_start_main` has completed with the `_init` call it *finally* calls
+    the `main()` function! Remember that it had the stack setup initially with the
+    arguments and environment pointers from the kernel; this is how main gets its
+    `argc, argv[], envp[]` arguments. The process now runs and the setup phase is
+    complete.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A similar process is enacted with the `.dtors` for destructors when the program
+    exits. `__libc_start_main` calls these when the `main()` function completes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As you can see, a lot is done before the program gets to start, and even a little
+    after you think it is finished!
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL

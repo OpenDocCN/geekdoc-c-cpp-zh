@@ -1,0 +1,1187 @@
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: Chapter 9. Dynamic Linking
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1 Code Sharing
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: We know that for the operating system code is considered read only, and separate
+    from data. It seems logical then that if programs can not modify code and have
+    large amounts of common code, instead of replicating it for every executable it
+    should be shared between many executables.
+  prefs: []
+  type: TYPE_NORMAL
+- en: With virtual memory this can be easily done. The physical pages of memory the
+    library code is loaded into can be easily referenced by any number of virtual
+    pages in any number of address spaces. So while you only have one physical copy
+    of the library code in system memory, every process can have access to that library
+    code at any virtual address it likes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus people quickly came up with the idea of a *shared library* which, as the
+    name suggests, is shared by multiple executables. Each executable contains a reference
+    essentially saying "I need library foo". When the program is loaded, it is up
+    to the system to either check if some other program has already loaded the code
+    for library foo into memory, and thus share it by mapping pages into the executable
+    for that physical memory, or otherwise load the library into memory for the executable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This process is called *dynamic linking* because it does part of the linking
+    process "on the fly" as programs are executed in the system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.1 Dynamic Library Details
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Libraries are very much like a program that never gets started. They have code
+    and data sections (functions and variables) just like every executable; but no
+    where to start running. They just provide a library of functions for developers
+    to call.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus ELF can represent a dynamic library just as it does an executable. There
+    are some fundamental differences, such as there is no pointer to where execution
+    should start, but all shared libraries are just ELF objects like any other executable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The ELF header has two mutually exclusive flags, `ET_EXEC` and `ET_DYN` to mark
+    an ELF file as either an executable or a shared object file.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.2 Including libraries in an executable
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 1.2.1 Compilation
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: When you compile your program that uses a dynamic library, object files are
+    left with references to the library functions just as for any other external reference.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You need to include the *header* for the library so that the compiler knows
+    the specific types of the functions you are calling. Note the compiler only needs
+    to know the types associated with a function (such as, it takes an `int` and returns
+    a `char *`) so that it can correctly allocate space for the function call.This
+    has not always been the case with the C standard. Previously, compilers would
+    assume that any function it did not know about returned an `int`. On a 32 bit
+    system, the size of a pointer is the same size as an `int`, so there was no problem.
+    However, with a 64 bit system, the size of a pointer is generally twice the size
+    of an `int` so if the function actually returns a pointer, its value will be destroyed.
+    This is clearly not acceptable, as the pointer will thus not point to valid memory.
+    The C99 standard has changed such that you are required to specify the types of
+    included functions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1.2.2 Linking
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Even though the *dynamic linker* does a lot of the work for shared libraries,
+    the traditional linker still has a role to play in creating the executable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The traditional linker needs to leave a pointer in the executable so that the
+    dynamic linker knows what library will satisfy the dependencies at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `dynamic` section of the executable requires a `NEEDED` entry for each shared
+    library that the executable depends on.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Again, we can inspect these fields with the `readelf` program. Below we have
+    a look at a very standard binary, `/bin/ls`
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 1.2.2.1 Specifying Dynamic Libraries
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can see that it specifies three libraries. The most common library shared
+    by most, if not all, programs on the system is `libc`. There are also some other
+    libraries that the program needs to run correctly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reading the ELF file directly is sometimes useful, but the usual way to inspect
+    a dynamically linked executable is via `ldd`. `ldd` "walks" the dependencies of
+    libraries for you; that is if a library depends on another library, it will show
+    it to you.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 1.2.2.2 Looking at dynamic libraries
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can see above that `libpthread` has been required from somewhere. If we do
+    a little digging, we can see that the requirement comes from `librt`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2 The Dynamic Linker
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The dynamic linker is the program that manages shared dynamic libraries on behalf
+    of an executable. It works to load libraries into memory and modify the program
+    at runtime to call the functions in the library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ELF allows executables to specify an *interpreter*, which is a program that
+    should be used to run the executable. The compiler and static linker set the interpreter
+    of executables that rely on dynamic libraries to be the dynamic linker.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 2.1 Checking the program interpreter
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can see above that the interpreter is set to be /lib/ld-linux-ia64.so.2,
+    which is the dynamic linker. When the kernel loads the binary for execution, it
+    will check if the `PT_INTERP` field is present, and if so load what it points
+    to into memory and start it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We mentioned that dynamically linked executables leave behind references that
+    need to be fixed with information that isn't available until runtime, such as
+    the address of a function in a shared library. The references that are left behind
+    are called *relocations*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.1 Relocations
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The essential part of the dynamic linker is fixing up addresses at runtime,
+    which is the only time you can know for certain where you are loaded in memory.
+    A relocation can simply be thought of as a note that a particular address will
+    need to be fixed at load time. Before the code is ready to run you will need to
+    go through and read all the relocations and fix the addresses it refers to to
+    point to the right place.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 2.1.1 Relocation Example
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Address | Action |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 0x123456 | Address of symbol "x" |'
+  prefs: []
+  type: TYPE_TB
+- en: '| 0x564773 | Function X |'
+  prefs: []
+  type: TYPE_TB
+- en: There are many types of relocation for each architecture, and each types exact
+    behaviour is documented as part of the ABI for the system. The definition of a
+    relocation is quite straight forward.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 2.1.1 Relocation as defined by ELF
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `r_offset` field refers to the offset in the file that needs to be fixed
+    up. The `r_info` field specifies the type of relocation which describes what exactly
+    must be done to fix this code up. The simplest relocation usually defined for
+    an architecture is simply the value of the symbol. In this case you simply substitute
+    the address of the symbol at the location specified, and the relocation has been
+    "fixed-up".
+  prefs: []
+  type: TYPE_NORMAL
+- en: The two types, one with an addend and one without specify different ways for
+    the relocation to operate. An addend is simply something that should be added
+    to the fixed up address to find the correct address. For example, if the relocation
+    is for the symbol `i` because the original code is doing something like `i[8]`
+    the addend will be set to 8\. This means "find the address of `i`, and go 8 past
+    it".
+  prefs: []
+  type: TYPE_NORMAL
+- en: That addend value needs to be stored somewhere. The two solutions are covered
+    by the two forms. In the `REL` form the addend is actually store in the program
+    code in the place where the fixed up address should be. This means that to fix
+    up the address properly, you need to first read the memory you are about to fix
+    up to get any addend, store that, find the "real" address, add the addend to it
+    and then write it back (over the addend). The `RELA` format specifies the addend
+    right there in the relocation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The trade offs of each approach should be clear. With `REL` you need to do an
+    extra memory reference to find the addend before the fixup, but you don't waste
+    space in the binary because you use relocation target memory. With `RELA` you
+    keep the addend with the relocation, but waste that space in the on disk binary.
+    Most modern systems use `RELA` relocations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.1.1 Relocations in action
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The example below shows how relocations work. We create two very simple shared
+    libraries and reference one from in the other.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 2.1.1.1 Specifying Dynamic Libraries
+  prefs: []
+  type: TYPE_NORMAL
+- en: We thus have one relocation in `addendtest.so` of type `R_IA64_DIR64LSB`. If
+    you look this up in the IA64 ABI, the acronym can be broken down to
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*R_IA64* : all relocations start with this prefix.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '*DIR64* : a 64 bit direct type relocation'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '*LSB* : Since IA64 can operate in big and little endian modes, this relocation
+    is little endian (least significant byte).'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The ABI continues to say that that relocation means "the value of the symbol
+    pointed to by the relocation, plus any addend". We can see we have an addend of
+    8, since `sizeof(int) == 4` and we have moved two int's into the array (`*j =
+    i + 2`). So at runtime, to fix this relocation you need to find the address of
+    symbol `i` and put its value, plus 8 into `0x104f8`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.2 Position Independence
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: In an *executable* file, the code and data segment is given a specified base
+    address in virtual memory. The executable code is not shared, and each executable
+    gets its own fresh address space. This means that the compiler knows exactly where
+    the data section will be, and can reference it directly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Libraries have no such guarantee. They can know that their data section will
+    be a specified *offset* from the base address; but exactly where that base address
+    is can only be known at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Consequently all libraries must be produced with code that can execute no matter
+    where it is put into memory, known as *position independent code* (or PIC for
+    short). Note that the data section is still a fixed offset from the code section;
+    but to actually find the address of data the offset needs to be added to the load
+    address.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3 Global Offset Tables
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: You might have noticed a critical problem with relocations when thinking about
+    the goals of a shared library. We mentioned previously that the big advantage
+    of a shared library with virtual memory is that multiple programs can use the
+    code in memory by sharing of pages.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The problem stems from the fact that libraries have no guarantee about where
+    they will be put into memory. The dynamic linker will find the most convenient
+    place in virtual memory for each library required and place it there. Think about
+    the alternative if this were *not* to happen; every library in the system would
+    require its own chunk of virtual memory so that no two overlapped. Every time
+    a new library were added to the system it would require allocation. Someone could
+    potentially be a hog and write a *huge* library, not leaving enough space for
+    other libraries! And chances are, your program doesn't ever want to use that library
+    anyway.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus, if you modify the code of a shared library with a relocation, that code
+    no longer becomes sharable. We've lost the advantage of our shared library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Below we explain the mechanism for doing this.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1 The Global Offset Table
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: So imagine the situation where we take the value of a symbol. With only relocations,
+    we would have the dynamic linker look up the memory address of that symbol and
+    re-write the code to load that address.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A fairly straight forward enhancement would be to set aside space in our binary
+    to hold the address of that symbol, and have the dynamic linker put the address
+    there rather than in the code directly. This way we never need to touch the code
+    part of the binary.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The area that is set aside for these addresses is called the Global Offset Table,
+    or GOT. The GOT lives in a section of the ELF file called `.got`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![To keep code (green) sharable, we define process private areas to
+    which we can store the addresses of common variables. This allows us to load the
+    code anywhere in the process address space whilst still sharing the underlying
+    physical pages.](got-plt.svg)</picture>Figure 3.1.1 Memory access via the GOT
+  prefs: []
+  type: TYPE_NORMAL
+- en: The GOT is private to each process, and the process must have write permissions
+    to it. Conversely the library code is shared and the process should have only
+    read and execute permissions on the code; it would be a serious security breach
+    if the process could modify code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1.1 The GOT in action
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.1.1.1 Using the GOT
+  prefs: []
+  type: TYPE_NORMAL
+- en: Above we create a simple shared library which refers to an external symbol.
+    We do not know the address of this symbol at compile time, so we leave it for
+    the dynamic linker to fix up at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But we want our code to remain sharable, in case other processes want to use
+    our code as well.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The disassembly reveals just how we do this with the `.got`. On IA64 (the architecture
+    which the library was compiled for) the register `r1` is known as the *global
+    pointer* and always points to where the `.got` section is loaded into memory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If we have a look at the `readelf` output we can see that the `.got` section
+    starts 0x10570 bytes past where library was loaded into memory. Thus if the library
+    were to be loaded into memory at address 0x6000000000000000 the `.got` would be
+    at 0x6000000000010570, and register `r1` would always point to this address.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Working backwards through the disassembly, we can see that we store the value
+    100 into the memory address held in register `r15`. If we look back we can see
+    that register 15 holds the value of the memory address stored in register 14\.
+    Going back one more step, we see we load this address is found by adding a small
+    number to register 1\. The GOT is simply a big long list of entries, one for each
+    external variable. This means that the GOT entry for the external variable `i`
+    is stored 24 bytes (that is 3 64 bit addresses).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.1.1.2 Relocations against the GOT
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can also check out the relocation for this entry too. The relocation says
+    "replace the value at offset 10588 with the memory location that symbol i is stored
+    at".
+  prefs: []
+  type: TYPE_NORMAL
+- en: We know that the `.got` starts at offset 0x10570 from the previous output. We
+    have also seen how the code loads an address 0x18 (24 in decimal) past this, giving
+    us an address of 0x10570 + 0x18 = 0x10588 ... the address which the relocation
+    is for!
+  prefs: []
+  type: TYPE_NORMAL
+- en: So before the program begins, the dynamic linker will have fixed up the relocation
+    to ensure that the value of the memory at offset 0x10588 is the address of the
+    global variable `i`!
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4 Libraries
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 4.1 The Procedure Lookup Table
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Libraries may contain many functions, and a program may end up including many
+    libraries to get its work done. A program may only use one or two functions from
+    each library of the many available, and depending on the run-time path through
+    the code may use some functions and not others.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As we have seen, the process of dynamic linking is a fairly computationally
+    intensive one, since it involves looking up and searching through many tables.
+    Anything that can be done to reduce the overheads will increase performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Procedure Lookup Table (PLT) facilitates what is called *lazy binding* in
+    programs. Binding is synonymous with the fix-up process described above for variables
+    located in the GOT. When an entry has been "fixed-up" it is said to be "bound"
+    to its real address.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As we mentioned, sometimes a program will include a function from a library
+    but never actually call that function, depending on user input. The process of
+    binding this function is quite intensive, involving loading code, searching through
+    tables and writing memory. To go through the process of binding a function that
+    is not used is simply a waste of time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Lazy binding defers this expense until the actual function is called by using
+    a PLT.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Each library function has an entry in the PLT, which initially points to some
+    special dummy code. When the program calls the function, it actually calls the
+    PLT entry (in the same was as variables are referenced through the GOT).
+  prefs: []
+  type: TYPE_NORMAL
+- en: This dummy function will load a few parameters that need to be passed to the
+    dynamic linker for it to resolve the function and then call into a special lookup
+    function of the dynamic linker. The dynamic linker finds the real address of the
+    function, and writes that location into the calling binary over the top of the
+    dummy function call.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus, the next time the function is called the address can be loaded without
+    having to go back into the dynamic loader again. If a function is never called,
+    then the PLT entry will never be modified but there will be no runtime overhead.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.1.1 The PLT in action
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Things start to get a bit hairy here! If nothing else, you should begin to appreciate
+    that there is a fair bit of work in resolving a dynamic symbol!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let us consider the simple "hello World" application. This will only make one
+    library call to `printf` to output the string to the user.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 4.1.1.1 Hello World PLT example
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can see above that we have a `R_IA64_IPLTLSB` relocation for our `printf`
+    symbol. This is saying "put the address of symbol printf into memory address 0x6000000000000f10".
+    We have to start digging deeper to find the exact procedure that gets us the function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Below we have a look at the disassembly of the `main()` function of the program.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 4.1.1.2 Hello world main()
+  prefs: []
+  type: TYPE_NORMAL
+- en: The call to 0x4000000000000520 must be us calling the `printf` function. We
+    can find out where this is by looking at the sections with `readelf`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 4.1.1.3 Hello world sections
+  prefs: []
+  type: TYPE_NORMAL
+- en: That address is (unsurprisingly) in the `.plt` section. So there we have our
+    call into the PLT! But we're not satisfied with that, let's keep digging further
+    to see what we can uncover. We disassemble the `.plt` section to see what that
+    call actually does.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 4.1.1.4 Hello world PLT
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let us step through the instructions. Firstly, we add 80 to the value in r1,
+    storing it in r15\. We know from before that r1 will be pointing to the GOT, so
+    this is saying "store in r15 80 bytes into the GOT". The next thing we do is load
+    into r16 the value stored in this location in the GOT, and post increment the
+    value in r15 by 8 bytes. We then store r1 (the location of the GOT) in r14 and
+    set r1 to be the value in the next 8 bytes after r15\. Then we branch to r16.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the previous chapter we discussed how functions are actually called through
+    a function descriptor which contains the function address and the address of the
+    global pointer. Here we can see that the PLT entry is first loading the function
+    value, moving on 8 bytes to the second part of the function descriptor and then
+    loading that value into the op register before calling the function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But what exactly are we loading? We know that r1 will be pointing to the GOT.
+    We go 80 bytes past the got (0x50)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 4.1.1.5 Hello world GOT
+  prefs: []
+  type: TYPE_NORMAL
+- en: 0x6000000000000ec0 + 0x50 = 0x6000000000000f10, or the `.IA_64.pltoff` section.
+    Now we're starting to get somewhere!
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can decode the objdump output so we can see exactly what is being loaded
+    here. Swapping the byte order of the first 8 bytes `f0 04 00 00 00 00 00 40` we
+    end up with `0x4000000000004f0`. Now that address looks familiar! Looking back
+    up at the assemble output of the PLT we see that address.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The code at `0x4000000000004f0` firstly puts a zero value into r15, and then
+    branches back to `0x40000000000004c0`. Wait a minute! That's the start of our
+    PLT section.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can trace this code through too. Firstly we save the value of the global
+    pointer (`r2`) then we load three 8 byte values into `r16`, `r17` and finally,
+    `r1`. We then branch to the address in `r17`. What we are seeing here is the actual
+    call into the dynamic linker!
+  prefs: []
+  type: TYPE_NORMAL
+- en: We need to delve into the ABI to understand exactly what is being loaded at
+    this point. The ABI says two things -- dynamically linked programs must have a
+    special section (called the `DT_IA_64_PLT_RESERVE` section) that can hold three
+    8 byte values. There is a pointer where this reserved area in the dynamic segment
+    of the binary.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 4.1.1.6 Dynamic Segment
+  prefs: []
+  type: TYPE_NORMAL
+- en: Do you notice anything about it? Its the same value as the GOT. This means that
+    the first three 8 byte entries in the GOT are actually the reserved area; thus
+    will always be pointed to by the global pointer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When the dynamic linker starts it is its duty to fill these values in. The ABI
+    says that the first value will be filled in by the dynamic linker giving this
+    *module* a unique ID. The second value is the global pointer value for the dynamic
+    linker, and the third value is the address of the function that finds and fixes
+    up the symbol.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 4.1.1.7 Code in the dynamic linker for setting up special values (from
+    libc `sysdeps/ia64/dl-machine.h`)
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can see how this gets setup by the dynamic linker by looking at the function
+    that does this for the binary. The `reserve` variable is set from the PLT_RESERVE
+    section pointer in the binary. The unique value (put into `reserve[0]`) is the
+    address of the *link map* for this object. Link maps are the internal representation
+    within `glibc` for shared objects. We then put in the address of `_dl_runtime_resolve`
+    to the second value (assuming we are not using profiling). `reserve[2]` is finally
+    set to gp, which has been found from r2 with the `__asm__` call.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Looking back at the ABI, we see that the `relocation index` for the entry must
+    be placed in `r15` and the unique identifier must be passed in `r16`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`r15` has previously been set in the stub code, before we jumped back to the
+    start of the PLT. Have a look down the entries, and notice how each PLT entry
+    loads `r15` with an incremented value? It should come as no surprise if you look
+    at the relocations the `printf` relocation is number zero.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`r16` we load up from the values that have been initialised by the dynamic
+    linker, as previously discussed. Once that is ready, we can load the function
+    address and global pointer and branch into the function.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: What happens at this point is the dynamic linker function `_dl_runtime_resolve`
+    is run. It finds the relocation; remember how the relocation specified the name
+    of the symbol? It uses this name to find the right function; this might involve
+    loading the library from disk if it is not already in memory, or otherwise sharing
+    the code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The relocation record provides the dynamic linker with the address it needs
+    to "fix up"; remember it was in the GOT and loaded by the initial PLT stub? This
+    means that after the first time the function is called, the *second* time it is
+    loaded it will get the direct address of the function; short circuiting the dynamic
+    linker.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 4.1.2 Summary
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: You've seen the *exact* mechanism behind the PLT, and consequently the inner
+    workings of the dynamic linker. The important points to remember are
+  prefs: []
+  type: TYPE_NORMAL
+- en: Library calls in your program actually call a stub of code in the PLT of the
+    binary.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: That stub code loads an address and jumps to it.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Initially, that address points to a function in the dynamic linker which is
+    capable of looking up the "real" function, given the information in the relocation
+    entry for that function.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The dynamic linker re-writes the address that the stub code reads, so that the
+    next time the function is called it will go straight to the right address.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5 Working with libraries and the linker
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The presence of the dynamic linker provides both some advantages we can utilise
+    and some extra issues that need to be resolved to get a functional system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.1 Library versions
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: One potential issue is different versions of libraries. With only static libraries
+    there is much less potential for problems, as all library code is built directly
+    into the binary of the application. If you want to use a new version of the library
+    you need to recompile it into a new binary, replacing the old one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This is obviously fairly impractical for common libraries, the most common of
+    course being libc which is included in most all applications. If it were only
+    available as a static library any change would require every single application
+    in the system be rebuilt.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, changes in the way the dynamic library work could cause multiple problems.
+    In the best case, the modifications are completely compatible and nothing externally
+    visible is changed. On the other hand the changes might cause the application
+    to crash; for example if a function that used to take an `int` changes to take
+    an `int *`. Worse, the new library version could have changed semantics and suddenly
+    start silently returning different, possibly wrong values. This can be a very
+    nasty bug to try and track down; when an application crashes you can use a debugger
+    to isolate where the error occurs whilst data corruption or modification may only
+    show up in seemingly unrelated parts of the application.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The dynamic linker requires a way to determine the version of libraries within
+    the system so that newer revisions can be identified. There are a number of schemes
+    a modern dynamic linker can use to find the right versions of libraries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.1.1  `sonames`
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Using `sonames` we can add some extra information to a library to help identify
+    versions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As we have seen previously, an application lists the libraries it requires in
+    `DT_NEEDED` fields in the dynamic section of the binary. The actual library is
+    held in a file on disc, usually in `/lib` for core system libraries or `/usr/lib`
+    for optional libraries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To allow multiple versions of the library to exist on disk, they obviously require
+    differing file names. The `soname` scheme uses a combination of names and file
+    system links to build a hierarchy of libraries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This is done by introducing the concept of *major* and *minor* library revisions.
+    A minor revision is one wholly backwards compatible with a previous version of
+    the library; this usually consists of only bug fixes. A major revision is therefore
+    any revision that is not compatible; e.g. changes the inputs to functions or the
+    way a function behaves.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As each library revision, major or minor, will need to be kept in a separate
+    file on disk, this forms the basis of the library hierarchy. The library name
+    is by convention `libNAME.so.MAJOR.MINOR`You can optionally have a *release* as
+    a final identifier after the minor number. Generally this is enough to distinguish
+    all the various versions library.. However, if every application were directly
+    linked against this file we would have the same issue as with a static library;
+    every time a minor change happened we would need to rebuild the application to
+    point to the new library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: What we really want to refer to is the *major* number of the library. If this
+    changes, we reasonably are required to recompile our application, since we need
+    to make sure our program is still compatible with the new library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus the `soname` is the `libNAME.so.MAJOR`. The `soname` should be set in the
+    `DT_SONAME` field of the dynamic section in a shared library; the library author
+    can specify this version when they build the library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus each minor version library file on disc can specify the same major version
+    number in its `DT_SONAME` field, allowing the dynamic linker to know that this
+    particular library file implements a particular major revision of the library
+    API and ABI.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To keep track of this, an application called ldconfig is commonly run to create
+    symbolic links named for the major version to the latest minor version on the
+    system. ldconfig works by running through all the libraries that implement a particular
+    major revision number, and then picks out the one with the highest minor revision.
+    It then creates a symbolic link from `libNAME.so.MAJOR` to the actual library
+    file on disc, i.e. `libNAME.so.MAJOR.MINOR`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'XXX : talk about libtool versions'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The final piece of the hierarchy is the *compile name* for the library. When
+    you compile your program, to link against a library you use the `-lNAME` flag,
+    which goes off searching for the `libNAME.so` file in the library search path.
+    Notice however, we have not specified any version number; we just want to link
+    against the latest library on the system. It is up to the installation procedure
+    for the library to create the symbolic link between the compile `libNAME.so` name
+    and the latest library code on the system. Usually this is handled by your package
+    management system (dpkg or rpm). This is not an automated process because it is
+    possible that the latest library on the system may not be the one you wish to
+    always compile against; for example if the latest installed library were a development
+    version not appropriate for general use.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The general process is illustrated below.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![Describing the soname system](libs.svg)</picture>Figure 5.1.1.1 
+    `sonames`
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.1.1.1 How the dynamic linker looks up libraries
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: When the application starts, the dynamic linker looks at the `DT_NEEDED` field
+    to find the required libraries. This field contains the `soname` of the library,
+    so the next step is for the dynamic linker to walk through all the libraries in
+    its search path looking for it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This process conceptually involves two steps. Firstly the dynamic linker needs
+    to search through all the libraries to find those that implement the given `soname`.
+    Secondly the file names for the minor revisions need to be compared to find the
+    latest version, which is then ready to be loaded.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We mentioned previously that there is a symbolic link setup by ldconfig between
+    the library `soname` and the latest minor revision. Thus the dynamic linker should
+    need to only follow that link to find the correct file to load, rather than having
+    to open all possible libraries and decide which one to go with each time the application
+    is required.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Since file system access is so slow, ldconfig also creates a *cache* of libraries
+    installed in the system. This cache is simply a list of `soname`s of libraries
+    available to the dynamic linker and a pointer to the major version link on disk,
+    saving the dynamic linker having to read entire directories full of files to locate
+    the correct link. You can analyse this with /sbin/ldconfig -p; it actually lives
+    in the file `/etc/ldconfig.so.cache`. If the library is not found in the cache
+    the dynamic linker will fall back to the slower option of walking the file system,
+    thus it is important to re-run ldconfig when new libraries are installed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.2 Finding symbols
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We've already discussed how the dynamic linker gets the address of a library
+    function and puts it in the PLT for the program to use. But so far we haven't
+    discussed just *how* the dynamic linker finds the address of the function. The
+    whole process is called *binding*, because the symbol name is bound to the address
+    it represents.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The dynamic linker has a few pieces of information; firstly the *symbol* that
+    it is searching for, and secondly a list of libraries that that symbol might be
+    in, as defined by the `DT_NEEDED` fields in the binary.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Each shared object library has a section, marked `SHT_DYNSYM` and called `.dynsym`
+    which is the minimal set of symbols required for dynamic linking -- that is any
+    symbol in the library that may be called by an external program.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.2.1 Dynamic Symbol Table
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: In fact, there are three sections that all play a part in describing the dynamic
+    symbols. Firstly, let us look at the definition of a symbol from the ELF specification
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 5.2.1.1 Symbol definition from ELFTable 5.2.1.1 ELF symbol fields
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Field | Value |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `st_name` | An *index to the string table* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `st_value` | Value - in a relocatable shared object this holds the offset
+    from the section of index given in `st_shndx` |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `st_size` | Any associated size of the symbol |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `st_info` | Information on the binding of the symbol (described below) and
+    what type of symbol this is (a function, object, etc). |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `st_other` | Not currently used |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `st_shndx` | Index of the section this symbol resides in (see `st_value`
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: As you can see, the actual string of the symbol name is held in a separate section
+    (`.dynstr`; the entry in the `.dynsym` section only holds an index into the string
+    section. This creates some level of overhead for the dynamic linker; the dynamic
+    linker must read all of the symbol entries in the `.dynsym` section and then follow
+    the index pointer to find the symbol name for comparison.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To speed this process up, a third section called `.hash` is introduced, containing
+    a *hash table* of symbol names to symbol table entries. This hash table is pre-computed
+    when the library is built and allows the dynamic linker to find the symbol entry
+    much faster, generally with only one or two lookups.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.2.2 Symbol Binding
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Whilst we usually say the process of finding the address of a symbol refers
+    is the process of binding that symbol, the *symbol binding* has a separate meaning.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The binding of a symbol dictates its external visibility during the dynamic
+    linking process. A *local* symbol is not visible outside the object file it is
+    defined in. A *global* symbol is visible to other object files, and can satisfy
+    undefined references in other objects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A *weak* reference is a special type of lower priority global reference. This
+    means it is designed to be overridden, as we will see shortly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Below we have an example C program which we analyse to inspect the symbol bindings.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 5.2.2.1 Examples of symbol bindings
+  prefs: []
+  type: TYPE_NORMAL
+- en: Notice the use of `#pragma` to define the weak symbol. A `pragma` is a way of
+    communicating extra information to the compiler; its use is not common but occasionally
+    is required to get the compiler to do out of the ordinary operations.x
+  prefs: []
+  type: TYPE_NORMAL
+- en: We inspect the symbols with two different tools; in both cases the binding is
+    shown in the second column; the codes should be quite straight forward (are are
+    documented in the tools man page).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.2.2.1 Overriding symbols
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: It is often very useful for a programmer to be able to *override* a symbol in
+    a library; that is to subvert the normal symbol with a different definition.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We mentioned that the order that libraries is searched is given by the order
+    of the `DT_NEEDED` fields within the library. However, it is possible to insert
+    libraries as the *last* libraries to be searched; this means that any symbols
+    within them will be found as the final reference.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This is done via an environment variable called `LD_PRELOAD` which specifies
+    libraries that the linker should load last.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 5.2.2.1.1 Example of `LD_PRELOAD`
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the above example we override the `getpid` function to print out a small
+    statement when it is called. We use the `dlysm` function provided by `libc` with
+    an argument telling it to continue on and find the *next* symbol called `getpid`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.2.2.1.1 Weak symbols over time
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: The concept of the *weak* symbol is that the symbol is marked as a lower priority
+    and can be overridden by another symbol. Only if no other implementation is found
+    will the weak symbol be the one that it used.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The logical extension of this for the dynamic loader is that all libraries should
+    be loaded, and any weak symbols in those libraries should be ignored for normal
+    symbols in any other library. This was indeed how weak symbol handling was originally
+    implemented in Linux by glibc.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, this was actually incorrect to the letter of the Unix standard at the
+    time (*SysVr4*). The standard actually dictates that weak symbols should only
+    be handled by the *static* linker; they should remain irrelevant to the dynamic
+    linker (see the section on binding order below).
+  prefs: []
+  type: TYPE_NORMAL
+- en: At the time, the Linux implementation of making the dynamic linker override
+    weak symbols matched with SGI's IRIX platform, but differed to others such as
+    Solaris and AIX. When the developers realised this behaviour violated the standard
+    it was reversed, and the old behaviour relegated to requiring a special environment
+    flag (*LD_DYNAMIC_WEAK*) be set.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.2.2.2 Specifying binding order
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: We have seen how we can override a function in another library by *preloading*
+    another shared library with the same symbol defined. The symbol that gets resolved
+    as the final one is the last one in the order that the dynamic loader loads the
+    libraries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Libraries are loaded in the order they are specified in the `DT_NEEDED` flag
+    of the binary. This in turn is decided from the order that libraries are passed
+    in on the command line when the object is built. When symbols are to be located,
+    the dynamic linker starts at the last loaded library and works backwards until
+    the symbol is found.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Some shared libraries, however, need a way to override this behaviour. They
+    need to say to the dynamic linker "look first inside me for these symbols, rather
+    than working backwards from the last loaded library". Libraries can set the `DT_SYMBOLIC`
+    flag in their dynamic section header to get this behaviour (this is usually set
+    by passing the `-Bsymbolic` flag on the static linkers command line when building
+    the shared library).
+  prefs: []
+  type: TYPE_NORMAL
+- en: What this flag is doing is controlling *symbol visibility*. The symbols in the
+    library can not be overridden so could be considered private to the library that
+    is being loaded.
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, this loses a lot of granularity since the library is either flagged
+    for this behaviour, or it is not. A better system would allow us to make some
+    symbols private and some symbols public.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 5.2.2.3 Symbol Versioning
+  prefs:
+  - PREF_H5
+  type: TYPE_NORMAL
+- en: That better system comes from symbol versioning. With symbol versioning we specify
+    some extra input to the static linker to give it some more information about the
+    symbols in our shared library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 5.2.2.3.1 Example of symbol versioning
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the simplest case as above, we simply state if the symbol is *global* or
+    *local*. Thus in the case above the `foo` function is most likely a support function
+    for `test_foo`; whilst we are happy for the overall functionality of the `test_foo`
+    function to be overridden, if we do use the shared library version it needs to
+    have unaltered access nobody should modify the support function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This allows us to keep our *namespace* better organised. Many libraries might
+    want to implement something that could be named like a common function like `read`
+    or `write`; however if they all did the actual version given to the program might
+    be completely wrong. By specifying symbols as *local* only the developer can be
+    sure that nothing will conflict with that internal name, and conversely the name
+    he chose will not influence any other program.
+  prefs: []
+  type: TYPE_NORMAL
+- en: An extension of this scheme is *symbol versioning*. With this you can specify
+    multiple versions of the same symbol in the same library. The static linker appends
+    some version information after the symbol name (something like `@VER`) describing
+    what version the symbol is given.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'If the developer implements a function that has the same name but possibly
+    a binary or programatically different implementation he can increase the version
+    number. When new applications are built against the shared library, they will
+    pick up the latest version of the symbol. However, applications built against
+    earlier versions of the same library will be requesting older versions (e.g. will
+    have older `@VER` strings in the symbol name they request) and thus get the original
+    implementation. XXX : example'
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: Glossary
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: A
+  prefs: []
+  type: TYPE_NORMAL
+- en: Application Binary Interface
+  prefs: []
+  type: TYPE_NORMAL
+- en: A technical description of how the operating system should interface with hardware.
+  prefs: []
+  type: TYPE_NORMAL
+- en: See Also [Application Programming Interface](#API).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Application Programming Interface
+  prefs: []
+  type: TYPE_NORMAL
+- en: The set of variables and functions used to communicate between different parts
+    of programs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: See Also [Application Binary Interface](#ABI).
+  prefs: []
+  type: TYPE_NORMAL
+- en: E
+  prefs: []
+  type: TYPE_NORMAL
+- en: Extensible Markup Language
+  prefs: []
+  type: TYPE_NORMAL
+- en: Some reasonable definition here.
+  prefs: []
+  type: TYPE_NORMAL
+- en: See Also [Standardised Generalised Markup Language](#sgml).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Standardised Generalised Markup Language
+  prefs: []
+  type: TYPE_NORMAL
+- en: The grand daddy of all documents
+  prefs: []
+  type: TYPE_NORMAL
+- en: See Also [Extensible Markup Language](#xml).
+  prefs: []
+  type: TYPE_NORMAL
+- en: M
+  prefs: []
+  type: TYPE_NORMAL
+- en: MMU
+  prefs: []
+  type: TYPE_NORMAL
+- en: The *memory managment unit* component of the hardware architecture.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Mutually Exclusive
+  prefs: []
+  type: TYPE_NORMAL
+- en: When a number of things are mutually exclusive, only one can be valid at a time.
+    The fact that one of the things is valid makes the others invalid.
+  prefs: []
+  type: TYPE_NORMAL
+- en: O
+  prefs: []
+  type: TYPE_NORMAL
+- en: Open Source
+  prefs: []
+  type: TYPE_NORMAL
+- en: Software distributed in source form under licenses guaranteeing anybody rights
+    to freely use, modify, and redistribute the code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: S
+  prefs: []
+  type: TYPE_NORMAL
+- en: Shell
+  prefs: []
+  type: TYPE_NORMAL
+- en: The interface used to interact with the operating system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL

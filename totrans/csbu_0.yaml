@@ -1,0 +1,453 @@
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: Chapter 1. General Unix and Advanced C
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 1  *Everything is a file!*
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: An often-quoted tenet of UNIX-like systems such as Linux or BSD is *everything
+    is a file*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Imagine a file in the context of something familiar like a word processor.
+    There are two fundamental operations we could use on this imaginary word processing
+    file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Read it (existing saved data from the word processor).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Write to it (new data from the user).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Consider some of the common things attached to a computer and how they relate
+    to our fundamental file operations:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The screen
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The keyboard
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: A printer
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: A CD-ROM
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The screen and printer are both like a write-only file, but instead of being
+    stored as bits on a disk the information is displayed as dots on a screen or lines
+    on a page. The keyboard is like a read only file, with the data coming from keystrokes
+    provided by the user. The CD-ROM is similar, but rather than randomly coming from
+    the user the data is stored directly on the disk.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Thus the concept of a file is a good *abstraction* of either a sink for, or
+    source of, data. As such it is an excellent abstraction of all the devices one
+    might attach to the computer. This realisation is the great power of UNIX and
+    is evident across the design of the entire platform. It is one of the fundamental
+    roles of the operating system to provide this abstraction of the hardware to the
+    programmer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It is probably not too much of a stretch to say abstraction is *the* primary
+    concept that underpins all modern computing. No one person can understand everything
+    from designing a modern user-interface to the internal workings of a modern CPU,
+    much less build it all themselves. To programmers, abstractions are the common
+    language that allows us to collaborate and invent.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Learning to navigate across abstractions gives one greater insight into how
+    to *use* the abstractions in the best and most innovative ways. In this book,
+    we are concerned with abstractions at the lowest layers; between applications
+    and the operating system and the operating system and hardware. Many more layers
+    lie above this, each worthy of their own books. As these chapters progress, you
+    will hopefully gain some insight into the abstractions presented by a modern operating
+    system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![Can you spot the difference between a CD-ROM and a keyboard? As an
+    application programmer, you should not be able to.](abstraction.svg)</picture>Figure 1.1 Abstraction</main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2 Implementing abstraction
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In general, abstraction is implemented by what is generically termed an *Application
+    Programming Interface* (API). API is a somewhat nebulous term that means different
+    things in the context of various programming endeavours. Fundamentally, a programmer
+    designs a set of functions and documents their interface and functionality with
+    the principle that the actual implementation providing the API is opaque.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, many large web applications provide an API accessible via HTTP.
+    Accessing data via this method surely triggers many complicated series of remote
+    procedure calls, database queries and data transfers, all of which are opaque
+    to the end user who simply receives the contracted data.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Those familiar with *object-oriented* languages such as Java, Python or C++
+    would be familiar with the abstraction provided by *classes*. Methods provide
+    the interface to the class, but abstract the implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.1 Implementing abstraction with C
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: A common method used in the Linux kernel and other large C code bases, which
+    lack a built-in concept of object-orientation, is *function pointers*. Learning
+    to read this idiom is key to navigating most large C code bases. By understanding
+    how to read the abstractions provided within the code an understanding of internal
+    API designs can be built.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 2.1.1 Abstraction with function pointers
+  prefs: []
+  type: TYPE_NORMAL
+- en: Code such as the above is the simplest example of constructs used repeatedly
+    throughout the Linux Kernel and other C programs. Let's have a look at some specific
+    elements.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We start out with a structure that defines the API (`struct greet_api`). The
+    functions whose names are encased in parentheses with a pointer marker describe
+    a *function pointer*Often you will see that the names of the parameters are omitted,
+    and only the type of the parameter is specified. This allows the implementer to
+    specify their own parameter names avoiding warnings from the compiler.. The function
+    pointer describes the *prototype* of the function it must point to; pointing it
+    at a function without the correct return type or parameters will generate a compiler
+    warning at least; if left in code will likely lead to incorrect operation or crashes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We then have our implementation of the API. Often for more complex functionality
+    you will see an idiom where API implementation functions will only be a wrapper
+    around other functions that are conventionally prepended with one or or two underscoresA
+    double-underscore function `__foo` may conversationally be referred to as "dunder
+    foo". (i.e. `say_hello_fn()` would call another function `_say_hello_function()`).
+    This has several uses; generally it relates to having simpler and smaller parts
+    of the API (marshalling or checking arguments, for example) separate from more
+    complex implementation, which often eases the path to significant changes in the
+    internal workings whilst ensuring the API remains constant. Our implementation
+    is very simple, however, and doesn't even need its own support functions. In various
+    projects, single-, double- or even triple-underscore function prefixes will mean
+    different things, but universally it is a visual warning that the function is
+    not supposed to be called directly from "beyond" the API.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Second to last, we fill out the function pointers in `struct greet_api greet_api`.
+    The name of the function is a pointer; therefore there is no need to take the
+    address of the function (i.e. `&say_hello_fn`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Finally we can call the API functions through the structure in `main`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You will see this idiom constantly when navigating the source code. The tiny
+    example below is taken from `include/linux/virtio.h` in the Linux kernel source
+    to illustrate:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 2.1.2 Abstraction in `include/linux/virtio.h`
+  prefs: []
+  type: TYPE_NORMAL
+- en: It's only necessary to vaguely understand that this structure is a description
+    of a virtual I/O device. We can see the user of this API (the device driver author)
+    is expected to provide a number of functions that will be called under various
+    conditions during system operation (when probing for new hardware, when hardware
+    is removed, etc.). It also contains a range of data; structures which should be
+    filled with relevant data.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Starting with descriptors like this is usually the easiest way to begin understanding
+    the various layers of kernel code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 2.2 Libraries
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Libraries have two roles which illustrate abstraction.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Allow programmers to reuse commonly accessed code.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Act as a *black box* implementing functionality for the programmer.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: For example, a library implementing access to the raw data in JPEG files has
+    both the advantage that the many programs that wish to access image files can
+    all use the same library and the programmers building these programs do not need
+    to worry about the exact details of the JPEG file format, but can concentrate
+    their efforts on what their program wants to do with the image.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The standard library of a UNIX platform is generically referred to as `libc`.
+    It provides the basic interface to the system: fundamental calls such as `read()`,
+    `write()` and `printf()`. This API is described in its entirety by a specification
+    called `POSIX`. It is freely available online and describes the many calls that
+    make up the standard UNIX API.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Most UNIX platforms broadly follow the POSIX standard, though often differ in
+    small but sometimes important ways (hence the complexity of the various GNU autotools,
+    which often try to abstract away these differences for you). Linux has many interfaces
+    that are not specified by POSIX; writing applications that use them exclusively
+    will make your application less portable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Libraries are a fundamental abstraction with many details. Later chapters will
+    describe how libraries work in much greater detail.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
+- en: <main class="calibre3">
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3 File Descriptors
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'One of the first things a UNIX programmer learns is that every running program
+    starts with three files already opened:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 3.1 Standard Files Provided by Unix
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Descriptive Name | Short Name | File Number | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Standard In | stdin | 0 | Input from the keyboard |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Standard Out | stdout | 1 | Output to the console |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Standard Error | stderr | 2 | Error output to the console |'
+  prefs: []
+  type: TYPE_TB
+- en: <picture>![The standard files opened with any UNIX program.](stdfds.svg)</picture>Figure 3.1 Default
+    Unix Files
+  prefs: []
+  type: TYPE_NORMAL
+- en: This raises the question of what an *open file* represents. The value returned
+    by an `open` call is termed a *file descriptor* and is essentially an index into
+    an array of open files kept by the kernel.
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![File descriptors associate the abstraction provided by device drivers
+    with a file interface provided to a user.](file-descriptors.svg)</picture>
+  prefs: []
+  type: TYPE_NORMAL
+- en: File descriptors are an index into a file descriptor table stored by the kernel.
+    The kernel creates a file descriptor in response to an `open` call and associates
+    the file descriptor with some abstraction of an underlying file-like object, be
+    that an actual hardware device, or a file system or something else entirely. Consequently
+    a process's `read` or `write` calls that reference that file descriptor are routed
+    to the correct place by the kernel to ultimately do something useful.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Figure 3.2 Abstraction
+  prefs: []
+  type: TYPE_NORMAL
+- en: In short, the file descriptor is the gateway into the kernel's abstractions
+    of underlying hardware. An overall view of the abstraction for physical-devices
+    is shown in [Figure 3.2, Abstraction](#fd_abstraction).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Starting at the lowest level, the operating system requires a programmer to
+    create a *device driver* to be able to communicate with a hardware device. This
+    device driver is written to an API provided by the kernel just like in [Example 2.1.2,
+    Abstraction in `include/linux/virtio.h`](csbu-print_split_005.html#virtio-abstraction);
+    the device driver will provide a range of functions which are called by the kernel
+    in response to various requirements. In the simplified example above, we can see
+    the drivers provide a `read` and `write` function that will be called in response
+    to the analogous operations on the file descriptor. The device driver knows how
+    to convert these generic requests into specific requests or commands for a particular
+    device.
+  prefs: []
+  type: TYPE_NORMAL
+- en: To provide the abstraction to user-space, the kernel provides a file-interface
+    via what is generically termed a *device layer*. Physical devices on the host
+    are represented by a file in a special file system such as `/dev`. In UNIX-like
+    systems, so-called *device-nodes* have what are termed a *major* and a *minor*
+    number, which allow the kernel to associate particular nodes with their underlying
+    driver. These can be identified via `ls` as illustrated in [Example 3.1, Example
+    of major and minor numbers](#major-minor-numbers).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Example 3.1 Example of major and minor numbers
+  prefs: []
+  type: TYPE_NORMAL
+- en: This brings us to the file descriptor, which is the handle user-space uses to
+    talk to the underlying device. In a broad sense, what happens when a file is `open`ed
+    is that the kernel is using the path information to map the file descriptor with
+    something that provides an appropriate `read` and `write`, etc., API. When this
+    `open` is for a device (`/dev/sr0` above), the major and minor number of the opened
+    device node provides the information the kernel needs to find the correct device
+    driver and complete the mapping. The kernel will then know how to route further
+    calls such as `read` to the underlying functions provided by the device driver.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A non-device file operates similarly, although there are more layers in between.
+    The abstraction here is the *mount point*; mounting a file system has the dual
+    purpose of setting up a mapping so the file system knows the underlying device
+    that provides the storage and the kernel knows that files opened under that mount-point
+    should be directed to the file system driver. Like device drivers, file systems
+    are written to a particular generic file system API provided by the kernel.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are indeed many other layers that complicate the picture in real-life.
+    For example, the kernel will go to great efforts to cache as much data from disks
+    as possible in otherwise-free memory; this provides many speed advantages. It
+    will also try to organise device access in the most efficient ways possible; for
+    example trying to order disk-access to ensure data stored physically close together
+    is retrieved together, even if the requests did not arrive in sequential order.
+    Further, many devices are of a more generic class such as USB or SCSI devices
+    which provide their own abstraction layers to write to. Thus, rather than writing
+    directly to devices, file systems will go through these many layers. Understanding
+    the kernel is to understand how these many APIs interrelate and coexist.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1 The Shell
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The shell is the gateway to interacting with the operating system. Be it `bash`,
+    `zsh`, `csh` or any of the many other shells, they all fundamentally have only
+    one major task — to allow you to execute programs (you will begin to understand
+    how the shell actually does this when we talk about some of the internals of the
+    operating system later).
+  prefs: []
+  type: TYPE_NORMAL
+- en: But shells do much more than allow you to simply execute a program. They have
+    powerful abilities to redirect files, allow you to execute multiple programs simultaneously
+    and script complete programs. These all come back to the *everything is a file*
+    idiom.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 3.1.1 Redirection
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: Often we do not want the standard file descriptors mentioned in [Section 3,
+    File Descriptors](#file_descriptors) to point to their default places. For example,
+    you may wish to capture all the output of a program into a file on disk or, alternatively,
+    have it read its commands from a file you prepared earlier. Another useful task
+    might like to pass the output of one program to the input of another. With the
+    operating system, the shell facilitates all this and more.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 3.1.1.1 Standard Shell Redirection Facilities
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Name | Command | Description | Example |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Redirect to a file | `> filename` | Take all output from standard out and
+    place it into `filename`. Note using `>>` will append to the file, rather than
+    overwrite it. | `ls > filename` |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Read from a file | < `filename` | Copy all data from the file to the standard
+    input of the program | `echo < filename` |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Pipe | `program1 &#124; program2` | Take everything from standard out of
+    `program1` and pass it to standard input of `program2` | `ls &#124; more` |'
+  prefs: []
+  type: TYPE_TB
+- en: 3.1.2 Implementing `pipe`
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: The implementation of `ls | more` is just another example of the power of abstraction.
+    What fundamentally happens here is that instead of associating the file descriptor
+    for the standard-output with some sort of underlying device (such as the console,
+    for output to the terminal), the descriptor is pointed to an in-memory buffer
+    provided by the kernel commonly termed a `pipe`. The trick here is that another
+    process can associate its standard *input* with the other side of this same buffer
+    and effectively consume the output of the other process. This is illustrated in
+    [Figure 3.1.2.1, A pipe in action](#process_pipe).
+  prefs: []
+  type: TYPE_NORMAL
+- en: <picture>![The pipe is an in-memory buffer provided by the kernel which allows
+    the output of one process to be consumed as the input to another.](pipe.svg)</picture>
+  prefs: []
+  type: TYPE_NORMAL
+- en: The pipe is an in-memory buffer that connects two processes together. file descriptors
+    point to the pipe object, which buffers data sent to it (via a `write`) to be
+    *drained* (via a `read`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Figure 3.1.2.1 A pipe in action
+  prefs: []
+  type: TYPE_NORMAL
+- en: Writes to the pipe are stored by the kernel until a corresponding read from
+    the other side *drains* the buffer. This is a very powerful concept and is one
+    of the fundamental forms of *inter-process communication* or IPC in UNIX-like
+    operating systems. The pipe allows more than just a data transfer; it can act
+    as a signaling channel. If a process `read`s an empty pipe, it will by default
+    *block* or be put into hibernation until there is some data available (this is
+    discussed in much greater depth in [Chapter 5, The Process](csbu-print_split_019.html#chapter04)).
+    Thus two processes may use a pipe to communicate that some action has been taken
+    just by writing a byte of data; rather than the actual data being important, the
+    mere presence of *any* data in the pipe can signal a message. Say for example
+    one process requests that another print a file — something that will take some
+    time. The two processes may set up a pipe between themselves where the requesting
+    process does a `read` on the empty pipe; being empty, that call blocks and the
+    process does not continue. Once the print is done, the other process can write
+    a message into the pipe, which effectively wakes up the requesting process and
+    signals the work is done.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Allowing processes to pass data between each other like this springs another
+    common UNIX idiom of small tools doing one particular thing. Chaining these small
+    tools gives flexibility that a single monolithic tool often can not.
+  prefs: []
+  type: TYPE_NORMAL
+- en: </main>
+  prefs: []
+  type: TYPE_NORMAL
