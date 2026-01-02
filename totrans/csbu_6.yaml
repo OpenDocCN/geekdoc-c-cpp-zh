@@ -1,264 +1,379 @@
 - en: <main class="calibre3">
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: Chapter 7. The Toolchain
+  id: totrans-1
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 第七章. 工具链
 - en: </main>
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 1 Compiled v Interpreted Programs
+  id: totrans-4
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 1 编译型与解释型程序
 - en: 1.1 Compiled Programs
+  id: totrans-5
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.1 编译型程序
 - en: So far we have discussed how a program is loaded into virtual memory, started
     as a process kept track of by the operating system and interacts with via system
     calls.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 到目前为止，我们已经讨论了程序如何加载到虚拟内存中，作为操作系统跟踪并通过系统调用来交互的进程。
 - en: A program that can be loaded directly into memory needs to be in a straight
     *binary* format. The process of converting source code, written in a language
     such as C, to a binary file ready to be executed is called *compiling*. Not surprisingly,
     the process is done by a *compiler*; the most widespread example being gcc.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以直接加载到内存的程序需要以直 *二进制* 格式存在。将用如 C 语言编写的源代码转换为准备执行的二进制文件的过程称为 *编译*。毫不奇怪，这个过程是通过
+    *编译器* 来完成的；最广泛使用的例子是 gcc。
 - en: 1.2 Interpreted programs
+  id: totrans-8
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.2 解释型程序
 - en: Compiled programs have some disadvantages for modern software development. Every
     time a developer makes a change, the compiler must be invoked to recreate the
     executable file. It is a logical extension to design a compiled program that can
     read *another* program listing and execute the code line by line.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 编译型程序在现代软件开发中存在一些缺点。每次开发者进行更改时，都必须调用编译器来重新创建可执行文件。设计一个可以读取 *另一个* 程序列表并逐行执行代码的编译型程序是一个逻辑上的扩展。
 - en: We call this type of compiled program a *interpreter* because it interprets
     each line of the input file and executes it as code. This way the program does
     not need to be compiled, and any changes will be seen the next time the interpreter
     runs the code.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们称这种类型的编译型程序为 *解释器*，因为它解释输入文件的每一行并将其作为代码执行。这样，程序就不需要编译，任何更改都会在解释器下次运行代码时显现。
 - en: For their convenience, interpreted programs usually run slower than a compiled
     counterpart. The overhead in the program reading and interpreting the code each
     time is only encountered once for a compiled program, whilst an interpreted program
     encounters it each time it is run.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了方便起见，解释型程序通常比编译型程序运行得慢。对于编译型程序，每次读取和解释代码的开销只遇到一次，而对于解释型程序，每次运行都会遇到。
 - en: But interpreted languages have many positive aspects. Many interpreted languages
     actually run in a `virtual machine` that is abstracted from the underlying hardware.
     Python and Perl 6 are languages that implement a virtual machine that interpreted
     code runs on.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 但解释型语言有许多积极的方面。许多解释型语言实际上是在从底层硬件抽象出来的 `虚拟机` 中运行的。Python 和 Perl 6 是实现虚拟机的语言，解释型代码在其上运行。
 - en: 1.2.1 Virtual Machines
+  id: totrans-13
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.2.1 虚拟机
 - en: A compiled program is completely dependent on the hardware of the machine it
     is compiled for, since it must be able to simply be copied to memory and executed.
     A virtual machine is an abstraction of hardware into software.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 编译型程序完全依赖于为其编译的机器的硬件，因为它必须能够简单地复制到内存中并执行。虚拟机是硬件到软件的抽象。
 - en: For example, Java is a hybrid language that is partly compiled and partly interpreted.
     Java code is complied into a program that runs inside a *Java Virtual Machine*
     or more commonly referred to as a JVM. This means that a compiled program can
     run on any hardware that has a JVM written for it; so called *write one, run anywhere*.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，Java 是一种部分编译和部分解释的混合语言。Java 代码被编译成一个在 *Java 虚拟机* 或更常见地称为 JVM 中运行的程序。这意味着编译后的程序可以在任何为其编写了
+    JVM 的硬件上运行；所谓 *一次编写，到处运行*。
 - en: </main>
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 2 Building an executable
+  id: totrans-18
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2 构建可执行文件
 - en: When we talk about the compiler, there are actually three separate steps involved
     in creating the executable file.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我们谈论编译器时，实际上涉及创建可执行文件的三个独立步骤。
 - en: Compiling
+  id: totrans-20
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 编译
 - en: Assembling
+  id: totrans-21
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 汇编
 - en: Linking
+  id: totrans-22
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 链接
 - en: The components involved in this process are collectively called the *toolchain*
     because the tools *chain* the output of one to the input of the other to create
     the final output.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个过程中涉及到的组件统称为 *工具链*，因为这些工具 *链* 接一个工具的输出到另一个工具的输入，以创建最终的输出。
 - en: Each link in the chain takes the source code progressively closer to being binary
     code suitable for execution.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 链中的每个环节都将源代码逐步转换为适合执行的二进制代码。
 - en: </main>
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 3 Compiling
+  id: totrans-27
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3 编译
 - en: 3.1 The process of compiling
+  id: totrans-28
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.1 编译过程
 - en: The first step of compiling a source file to an executable file is converting
     the code from the high level, human understandable language to *assembly code*.
     We know from previous chapters than assembly code works directly with the instructions
     and registers provided by the processor.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 将源文件编译成可执行文件的第一步是将代码从高级、人类可理解的语言转换为*汇编代码*。我们从前面的章节中了解到，汇编代码直接与处理器提供的指令和寄存器交互。
 - en: The compiler is the most complex step of process for a number of reasons. Firstly,
     humans are very unpredictable and have their source code in many different forms.
     The compiler is only interested the actual code, however humans need things like
     comments and whitespace (spaces, tabs, indents, etc) to understand code. The process
     that the compiler takes to convert the human-written source code to its internal
     representation is called *parsing*.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 编译器是整个过程中最复杂的步骤，原因有很多。首先，人类是非常不可预测的，他们的源代码形式多种多样。编译器只对实际代码感兴趣，然而人类需要诸如注释和空白（空格、制表符、缩进等）来理解代码。编译器将人类编写的源代码转换为内部表示的过程称为*解析*。
 - en: 3.1.1 C code
+  id: totrans-31
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.1.1 C语言代码
 - en: With C code, there is actually a step *before* parsing the source code called
     the *pre-processor*. The pre-processor is at its core a text replacement program.
     For example, any variable declared as `#define variable text` will have `variable`
     replaced with `text`. This preprocessed code is then passed into the compiler.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C代码中，实际上在解析源代码之前有一个步骤叫做*预处理器*。预处理器本质上是一个文本替换程序。例如，任何声明为`#define variable text`的变量都将用`text`替换`variable`。然后，这个预处理后的代码被传递到编译器。
 - en: 3.2 Syntax
+  id: totrans-33
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.2 语法
 - en: Any computing language has a particular *syntax* that describes the rules of
     the language. Both you and the compiler know the syntax rules, and all going well
     you will understand each other. Humans, being as they are, often forget the rules
     or break them, leading the compiler to be unable to understand your intentions.
     For example, if you were to leave the closing bracket off a `if` condition, the
     compiler does not know where the actual conditional is.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 任何计算语言都有特定的*语法*，它描述了语言的规则。你和编译器都知道语法规则，如果一切顺利，你们将互相理解。然而，人类常常会忘记规则或违反规则，导致编译器无法理解你的意图。例如，如果你在`if`条件中遗漏了闭合括号，编译器将不知道实际的条件在哪里。
 - en: Syntax is most often described in *Backus-Naur Form* (BNF)In fact the most common
     form is Extended Backus-Naur Form, or EBNF, as it allows some extra rules which
     are more suitable for modern languages. which is a language with which you can
     describe languages!
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 语法通常用*巴科斯-诺尔范式*（BNF）来描述。实际上，最常见的形式是扩展巴科斯-诺尔范式，或EBNF，因为它允许一些更适合现代语言的额外规则。这是一种你可以用来描述语言的工具！
 - en: 3.3 Assembly Generation
+  id: totrans-36
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.3 代码生成
 - en: The job of the compiler is to translate the higher level language into assembly
     code suitable for the target being compiled for. Obviously each different architecture
     has a different instruction set, different numbers of registers and different
     rules for correct operation.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 编译器的任务是将其转换为目标架构适合的汇编代码。显然，不同的架构有不同的指令集、不同的寄存器数量和不同的正确操作规则。
 - en: 3.3.1 Alignment
+  id: totrans-38
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.3.1 对齐
 - en: <picture>![CPU's can generally only load values into registers from memory on
     specific alignments. Unaligned loads lead to, at best, performance degradation.](alignment.svg)</picture>Figure 3.3.1.1 Alignment
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![CPU通常只能在特定对齐方式下从内存中加载值到寄存器。非对齐加载会导致，至多，性能下降。](alignment.svg)</picture>图3.3.1.1
+    对齐
 - en: Alignment of variables in memory is an important consideration for the compiler.
     Systems programmers need to be aware of alignment constraints to help the compiler
     create the most efficient code it can.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 在内存中对变量进行对齐是编译器需要考虑的一个重要因素。系统程序员需要了解对齐约束，以帮助编译器生成最有效的代码。
 - en: CPUs can generally not load a value into a register from an arbitrary memory
     location. It requires that variables be *aligned* on certain boundaries. In the
     example above, we can see how a 32 bit (4 byte) value is loaded into a register
     on a machine that requires 4 byte alignment of variables.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: CPU通常不能从任意内存位置将值加载到寄存器中。它要求变量在特定的边界上*对齐*。在上面的例子中，我们可以看到在需要4字节对齐变量的机器上，如何将32位（4字节）值加载到寄存器中。
 - en: The first variable can be directly loaded into a register, as it falls between
     4 byte boundaries. The second variable, however, spans the 4 byte boundary. This
     means that at minimum two loads will be required to get the variable into a single
     register; firstly the lower half and then the upper half.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一个变量可以直接加载到寄存器中，因为它位于4字节边界之间。然而，第二个变量跨越了4字节边界。这意味着至少需要两次加载才能将变量放入单个寄存器；首先加载下半部分，然后加载上半部分。
 - en: Some architectures, such as x86, can handle unaligned loads in hardware and
     the only symptoms will be lower performance as the hardware does the extra work
     to get the value into the register. Others architectures can not have alignment
     rules violated and will raise an exception which is generally caught by the operating
     system which then has to manually load the register in parts, causing even more
     overheads.
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些架构，例如x86，可以在硬件上处理未对齐的加载，唯一的症状将是性能降低，因为硬件需要做额外的工作将值放入寄存器。其他架构不能违反对齐规则，将会引发异常，通常由操作系统捕获，然后操作系统必须手动分部分加载寄存器，造成更多的开销。
 - en: 3.3.1.1 Structure Padding
+  id: totrans-44
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 3.3.1.1 结构体填充
 - en: Programmers need to consider alignment especially when creating `struct`s. Whilst
     the compiler knows the alignment rules for the architecture it is building for,
     at times programmers can cause sub-optimal behaviour.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 程序员在创建`struct`s时需要考虑对齐。虽然编译器知道它为该架构构建的对齐规则，但有时程序员可能会引起次优行为。
 - en: The C99 standard only says that structures will be ordered in memory in the
     same order as they are specified in the declaration, and that in an array of structures
     all elements will be the same size.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: C99标准仅说明结构体在内存中的顺序将与声明中指定的顺序相同，并且结构体数组中所有元素的大小都相同。
 - en: '[PRE0]'
+  id: totrans-47
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: Example 3.3.1.1.1 Struct padding example
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.3.1.1.1 结构体填充示例
 - en: In the example above, we contrive a structure that has two bytes (`chars` followed
     by a 4 byte integer. The compiler pads the structure as below.
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上面的例子中，我们构造了一个结构体，它有两个字节（`chars`后跟一个4字节整数。编译器按照以下方式填充结构体。
 - en: <picture>![The compiler pads the structure to align the integer on a 4 byte
     boundary.](padding.svg)</picture>Figure 3.3.1.1.1 Alignment
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![编译器填充结构体以对齐整数到4字节边界。](padding.svg)</picture>图 3.3.1.1.1 对齐
 - en: In the other example we direct the compiler *not* to pad structures and correspondingly
     we can see that the integer starts directly after the two `chars`.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 在另一个例子中，我们指导编译器*不要*填充结构体，相应地，我们可以看到整数直接跟在两个`chars`之后。
 - en: 3.3.1.2 Cache line alignment
+  id: totrans-52
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 3.3.1.2 缓存行对齐
 - en: We talked previously about aliasing in the cache, and how several addresses
     may map to the same cache line. Programmers need to be sure that when they write
     their programs they do not cause *bouncing* of cache lines.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们之前讨论了缓存中的别名问题，以及多个地址可能映射到相同的缓存行。程序员需要确保在编写程序时，他们不会导致缓存行的*弹跳*。
 - en: This situation occurs when a program constantly accesses two areas of memory
     that map to the same cache line. This effectively wastes the cache line, as it
     gets loaded in, used for a short time and then must be kicked out and the other
     cache line loaded into the same place in the cache.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种情况发生在程序不断访问映射到相同缓存行的两个内存区域时。这实际上浪费了缓存行，因为它被加载进来，短暂使用后，必须将其踢出，并将另一个缓存行加载到缓存中的相同位置。
 - en: Obviously if this situation repeats the performance will be significantly reduced.
     The situation would be relieved if the conflicting data was organised in slightly
     different ways to avoid the cache line conflict.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 显然，如果这种情况重复出现，性能将显著降低。如果将冲突数据以稍微不同的方式组织，以避免缓存行冲突，则可以缓解这种情况。
 - en: One possible way to detect this sort of situation is *profiling*. When you profile
     your code you "watch" it to analyse what code paths are taken and how long they
     take to execute. With *profile guided optimisation* (PGO) the compiler can put
@@ -267,263 +382,372 @@
     extra information to possibly create a better performing binary. Otherwise the
     programmer can look at the output of the profile and possibly detect situations
     such as cache line bouncing. (XXX somewhere else?)
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 检测这种状况的一种可能方法是*分析*。当你分析你的代码时，你“监视”它以分析采取的代码路径以及它们执行所需的时间。通过*分析指导优化*（PGO），编译器可以在构建的第一个二进制文件中放置特殊的额外代码，该代码运行并记录分支等。然后你可以使用额外的信息重新编译二进制文件，以可能创建性能更好的二进制文件。否则，程序员可以查看分析输出，并可能检测到缓存行弹跳等情况。（XXX其他地方？）
 - en: 3.3.1.3 Space - Speed Trade off
+  id: totrans-57
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 3.3.1.3 空间-速度权衡
 - en: What the compiler has done above is traded off using some extra memory to gain
     a speed improvement in running our code. The compiler knows the rules of the architecture
     and can make decisions about the best way to align data, possibly by trading off
     small amounts of wasted memory for increased (or perhaps even just correct) performance.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 编译器在上面所做的是通过使用一些额外的内存来换取运行我们代码的速度提升。编译器了解架构的规则，可以做出关于最佳数据对齐方式的决定，可能通过牺牲少量浪费的内存来换取（或甚至只是正确的）性能提升。
 - en: Consequently as a programmer you should never make assumptions about the way
     variables and data will be laid out by the compiler. To do so is not portable,
     as a different architecture may have different rules and the compiler may make
     different decisions based on explicit commands or optimisation levels.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，作为一个程序员，你不应该对变量和数据将由编译器如何布局做出假设。这样做是不可移植的，因为不同的架构可能有不同的规则，编译器可能会根据显式命令或优化级别做出不同的决定。
 - en: 3.3.1.4 Making Assumptions
+  id: totrans-60
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 3.3.1.4 做出假设
 - en: Thus, as a C programmer you need to be familiar with what you can assume about
     what the compiler will do and what may be variable. What exactly you can assume
     and can not assume is detailed in the C99 standard; if you are programming in
     C it is certainly worth the investment in becoming familiar with the rules to
     avoid writing non-portable or buggy code.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，作为一个C程序员，你需要熟悉你可以假设编译器会做什么以及可能是什么变量。你可以假设和不能假设的确切内容在C99标准中有详细说明；如果你在用C编程，熟悉这些规则以避免编写不可移植或存在错误的代码是非常值得的。
 - en: '[PRE1]'
+  id: totrans-62
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Example 3.3.1.4.1 Stack alignment example
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.3.1.4.1 栈对齐示例
 - en: In the example above, taken from an Itanium machine, we can see that the padding
     and alignment of the stack has changed considerably between gcc versions. This
     type of thing is to be expected and must be considered by the programmer.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上面的例子中，取自Itanium机器，我们可以看到gcc版本之间栈的填充和对齐发生了相当大的变化。这种事情是可以预料的，程序员必须考虑这一点。
 - en: Generally you should ensure that you do not make assumptions about the size
     of types or alignment rules.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常，你应该确保不要对类型的大小或对齐规则做出假设。
 - en: 3.3.1.5 C Idioms with alignment
+  id: totrans-66
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 3.3.1.5 对齐的C语言习语
 - en: There are a few common sequences of code that deal with alignment; generally
     most programs will consider it in some ways. You may see these "code idioms" in
     many places outside the kernel when dealing with programs that deal with chunks
     of data in some form or another, so it is worth investigating.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 有一些常见的代码序列处理对齐；通常大多数程序都会以某种方式考虑它。你可能会在内核之外许多地方看到这些“代码习语”，当处理以某种形式处理数据块的程序时，所以值得调查。
 - en: We can take some examples from the Linux kernel, which often has to deal with
     alignment of pages of memory within the system.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以从Linux内核中举一些例子，内核经常需要处理系统内内存页的对齐。
 - en: '[PRE2]'
+  id: totrans-69
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Example 3.3.1.5.1 Page alignment manipulations
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.3.1.5.1 页面对齐操作
 - en: Above we can see that there are a number of different options for page sizes
     within the kernel, ranging from 4KB through 64KB.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上面，我们可以看到内核内有多种页面大小的选项，从4KB到64KB。
 - en: The `PAGE_SIZE` macro is fairly self explanatory, giving the current page size
     selected within the system by shifting a value of 1 by the shift number given
     (remember, this is the equivalent of saying `2^n` where `n` is the `PAGE_SHIFT`).
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: '`PAGE_SIZE` 宏相当直观，通过将1的值左移给定的移位次数（记住，这相当于说 `2^n`，其中 `n` 是 `PAGE_SHIFT`）来给出系统内当前选定的页面大小。'
 - en: Next we have a definition for `PAGE_MASK`. The `PAGE_MASK` allows us to find
     just those bits that are within the current page, that is the `offset` of an address
     within its page.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，我们有一个 `PAGE_MASK` 的定义。`PAGE_MASK` 允许我们找到当前页面内的那些位，即地址在其页面内的 `offset`。
 - en: XXX continue short discussion
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: XXX 继续简短讨论
 - en: 3.4 Optimisation
+  id: totrans-75
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.4 优化
 - en: Once the compiler has an internal representation of the code, the *really* interesting
     part of the compiler starts. The compiler wants to find the most optimised assembly
     language output for the given input code. This is a large and varied problem and
     requires knowledge of everything from efficient algorithms based in computer science
     to deep knowledge about the particular processor the code is to be run on.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦编译器有了代码的内部表示，编译器的真正有趣部分就开始了。编译器想要找到给定输入代码的最优化的汇编语言输出。这是一个庞大且多样化的问题，需要了解从基于计算机科学的效率算法到特定处理器的深入知识。
 - en: There are some common optimisations the compiler can look at when generating
     output. There are many, many more strategies for generating the best code, and
     it is always an active research area.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 在生成输出时，编译器可以查看一些常见的优化。有更多、更多的策略用于生成最佳代码，并且这始终是一个活跃的研究领域。
 - en: 3.4.1 General Optimising
+  id: totrans-78
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.4.1 通用优化
 - en: The compiler can often see that a particular piece of code can not be used and
     so leave it out optimise a particular language construct into something smaller
     with the same outcome.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 编译器通常能够识别出某些代码片段无法使用，因此会将其省略，以优化特定的语言结构，将其转换为具有相同结果但更小的形式。
 - en: 3.4.2 Unrolling loops
+  id: totrans-80
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.4.2 展开循环
 - en: If code contains a loop, such as a `for` or `while` loop and the compiler has
     some idea how many times it will execute, it may be more efficient to *unroll*
     the loop so that it executes sequentially. This means that instead of doing the
     inside of the loop and then branching back to the start to do repeat the process,
     the inner loop code is duplicated to be executed again.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果代码包含循环，例如 `for` 或 `while` 循环，并且编译器对循环将执行多少次有一些了解，那么将循环展开以顺序执行可能更有效。这意味着，而不是执行循环内部代码然后跳转回开始处重复这个过程，循环内部的代码会被复制以再次执行。
 - en: Whilst this increases the size of the code, it may allow the processor to work
     through the instructions more efficiently as branches can cause inefficiencies
     in the pipeline of instructions coming into the processor.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然这会增加代码的大小，但它可能允许处理器更有效地执行指令，因为分支可能会在进入处理器的指令管道中造成低效。
 - en: 3.4.3 Inlining functions
+  id: totrans-83
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.4.3 内联函数
 - en: Similar to unrolling loops, it is possible to put embed called functions within
     the callee. The programmer can specify that the compiler should try to do this
     by specifying the function as `inline` in the function definition. Once again,
     you may trade code size for sequentially in the code by doing this.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 与展开循环类似，可以在被调用函数中嵌入调用函数。程序员可以通过在函数定义中将函数指定为 `inline` 来指示编译器尝试这样做。再次强调，通过这样做，您可能会以代码大小为代价换取代码的顺序性。
 - en: 3.4.4 Branch Prediction
+  id: totrans-85
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.4.4 分支预测
 - en: Any time the computer comes across an `if` statement there are two possible
     outcomes; true or false. The processor wants to keep its incoming pipes as full
     as possible, so it can not wait for the outcome of the test before putting code
     into the pipeline.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 每当计算机遇到一个 `if` 语句时，都有两种可能的结果：真或假。处理器希望尽可能保持其输入管道充满，因此它不能在将代码放入管道之前等待测试的结果。
 - en: Thus the compiler can make a prediction about what way the test is likely to
     go. There are some simple rules the compiler can use to guess things like this,
     for example `if (val == -1)` is probably *not* likely to be true, since -1 usually
     indicates an error code and hopefully that will not be triggered too often.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，编译器可以预测测试可能的发展方向。编译器可以使用一些简单的规则来猜测这类事情，例如 `if (val == -1)` 很可能*不*为真，因为-1通常表示错误代码，并且希望这种情况不会频繁触发。
 - en: Some compilers can actually compile the program, have the user run it and take
     note of which way the branches go under real conditions. It can then re-compile
     it based on what it has seen.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些编译器实际上可以编译程序，让用户运行它，并注意在真实条件下分支的走向。然后，它可以基于所看到的情况重新编译它。
 - en: </main>
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 4 Assembler
+  id: totrans-91
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 4 汇编器
 - en: The assembly code outputted by the compiler is still in a human readable form,
     should you know the specifics of the assembly code for the processor. Developers
     will often take a peek at the assembly output to manually check that the code
     is the most optimised or to discover any bugs in the compiler (this is more common
     than one might think, especially when the compiler is being very aggressive with
     optimisations).
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 编译器输出的汇编代码仍然是可读的，如果您了解处理器的汇编代码细节。开发者通常会查看汇编输出，以手动检查代码是否是最优化的，或者发现编译器中的任何错误（这比人们想象的更常见，尤其是在编译器非常积极地优化时）。
 - en: The assembler is a more mechanical process of converting the assembly code into
     a binary form. Essentially, the assembler keeps a large table of each possible
     instruction and its binary counterpart (called an *op code* for operation code).
     It combines these opcodes with the registers specified in the assembly to produce
     a binary output file.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 汇编器是一个更机械的过程，将汇编代码转换为二进制形式。本质上，汇编器维护一个包含每个可能的指令及其二进制对应物（称为*操作码*）的大表。它将这些操作码与汇编中指定的寄存器结合起来，生成一个二进制输出文件。
 - en: This code is called *object code* and, at this stage, is not executable. Object
     code is simply a binary representation of specific input source code file. Good
     programming practice dictates that a programmer should not "put all the eggs in
     one basket" by placing all your source code in one file.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 这段代码被称为*目标代码*，在这个阶段，它不可执行。目标代码仅仅是特定输入源代码文件的二进制表示。良好的编程实践规定，程序员不应该“把所有的鸡蛋放在一个篮子里”，即将所有的源代码放在一个文件中。
 - en: </main>
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 5 Linker
+  id: totrans-97
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5 链接器
 - en: 'Often in a large program, you will separate out code into multiple files to
     keep related functions together. Each of these files can be compiled into object
     code: but your final goal is to create a single executable! There needs to be
     some way combining each of these object files into a single executable. We call
     this linking.'
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 在大型程序中，你通常会分离代码到多个文件中，以保持相关函数在一起。这些文件中的每一个都可以编译成目标代码：但你的最终目标是创建一个单独的可执行文件！需要有一种方法将每个目标文件组合成一个单独的可执行文件。我们称这个过程为链接。
 - en: Note that even if your program does fit in one file it still needs to be linked
     against certain system libraries to operate correctly. For example, the `printf`
     call is kept in a library which must be combined with your executable to work.
     So although you do not explicitly have to worry about linking in this case, there
     is most certainly still a linking process happening to create your executable.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，即使你的程序可以放在一个文件中，它仍然需要链接到某些系统库才能正确运行。例如，`printf`调用被保存在一个库中，必须与你的可执行文件结合才能工作。所以尽管在这种情况下你不必担心链接，但确实仍然有一个链接过程在创建你的可执行文件。
 - en: In the following sections we explain some terms essential to understanding linking.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 在接下来的章节中，我们将解释一些理解链接所必需的术语。
 - en: 5.1 Symbols
+  id: totrans-101
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.1 符号
 - en: 5.1.1 Symbols
+  id: totrans-102
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 5.1.1 符号
 - en: Variables and functions all have names in source code which we refer to them
     by. One way of thinking of a statement declaring a variable `int a` is that you
     are telling the compiler "set aside some memory of `sizeof(int)` and from now
     on when I use `a` it will refer to this allocated memory. Similarly a function
     says "store this code in memory, and when I call `function()` jump to and execute
     this code".
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 变量和函数在源代码中都有名称，我们通过这些名称来引用它们。一种思考声明变量`int a`的方法是，你是在告诉编译器“留出一些`sizeof(int)`大小的内存，从现在开始，当我使用`a`时，它将指向这块分配的内存”。同样，一个函数会说“将这段代码存储在内存中，当我调用`function()`时，跳转到并执行这段代码”。
 - en: In this case, we call `a` and `function` *symbols* since they are a symbolic
     representation of an area of memory.
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这种情况下，我们将`a`和`function`称为*符号*，因为它们是内存区域的符号表示。
 - en: Symbols help humans to understand programming. You could say that the primary
     job of the compilation process is to remove symbols -- the processor doesn't know
     what `a` represents, all it knows is that it has some data at a particular memory
     address. The compilation process needs to convert `a += 2` to something like "increment
     the value in memory at `0xABCDE` by 2.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 符号帮助人类理解编程。你可以这样说，编译过程的主要任务就是移除符号——处理器并不知道`a`代表什么，它只知道在某个特定的内存地址有一些数据。编译过程需要将`a
+    += 2`转换为类似于“将内存地址`0xABCDE`中的值增加2”的操作。
 - en: 5.1.2 Symbol Visibility
+  id: totrans-106
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 5.1.2 符号可见性
 - en: In some C programs, you may have seen the terms `static` and `extern` used with
     variables. These modifiers can effect what we call the visibility of symbols.
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 在某些C程序中，你可能见过`static`和`extern`这些术语与变量一起使用。这些修饰符可以影响我们所说的符号的可见性。
 - en: Imagine you have split up your program in two files, but some functions need
     to share a variable. You only want one *definition* (i.e. memory location) of
     the shared variable (otherwise it wouldn't be shared!), but both files need to
     reference it.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设你将程序分成两个文件，但某些函数需要共享一个变量。你只希望有一个共享变量的*定义*（即内存位置），但两个文件都需要引用它。
 - en: To enable this, we declare the variable in one file, and then in the other file
     declare a variable of the same name but with the prefix `extern`. `extern` stands
     for *external* and to a human means that this variable is declared somewhere else.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了实现这一点，我们在一个文件中声明变量，然后在另一个文件中声明一个具有相同名称但前缀为`extern`的变量。`extern`代表*外部*，对人类来说意味着这个变量是在其他地方声明的。
 - en: What `extern` says to a compiler is that it should not allocate any space in
     memory for this variable, and leave this symbol in the object code where it will
     be fixed up later. The compiler can not possibly know where the symbol is actually
@@ -532,8 +756,12 @@
     symbol left over in the second file, and say "I've seen that symbol before in
     file 1, and I know that it refers to memory location `0x12345`". Thus it can modify
     the symbol value to be the memory value of the variable in the first file.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: '`extern` 对编译器说的话是，它不应该为这个变量在内存中分配任何空间，并将这个符号留在对象代码中，稍后将其修复。编译器不可能知道符号实际定义在哪里，但
+    *链接器* 知道，因为它的任务是查看所有对象文件，并将它们组合成一个单独的可执行文件。所以链接器会看到第二个文件中留下的符号，并说“我在文件 1 中见过这个符号，我知道它指的是内存位置
+    `0x12345`”。因此，它可以修改符号值，使其成为第一个文件中变量的内存值。'
 - en: '`static` is almost the opposite of `extern`. It places restrictions on the
     visibility of the symbol it modifies. If you declare a variable with `static`
     that says to the compiler "don''t leave any symbols for this in the object code".
@@ -544,261 +772,390 @@
     clashes. We say we are *restricting the visibility* of the symbol, because we
     are not allowing the linker to see it. Contrast this with a more visible symbol
     (one not declared with `static`) which can be seen by the linker.'
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: '`static` 几乎是 `extern` 的对立面。它对它修改的符号的可见性施加限制。如果你用 `static` 声明一个变量，这意味着告诉编译器“不要在对象代码中为这个变量留下任何符号”。这意味着当链接器链接对象文件时，它永远不会看到那个符号（因此不能做出“我之前见过这个！”的连接）。`static`
+    对分离和减少冲突很有用--通过声明一个 `static` 变量，你可以在其他文件中重用变量名，而不会出现符号冲突。我们说我们正在 *限制符号的可见性*，因为我们不允许链接器看到它。这与更可见的符号（未用
+    `static` 声明的符号）形成对比，链接器可以看到它。'
 - en: 5.2 The linking process
+  id: totrans-112
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.2 链接过程
 - en: Thus the linking process is really two steps; combining all object files into
     one executable file and then going through each object file to *resolve* any symbols.
     This usually requires two passes; one to read all the symbol definitions and take
     note of unresolved symbols and a second to fix up all those unresolved symbols
     to the right place.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，链接过程实际上是两个步骤；将所有对象文件组合成一个可执行文件，然后遍历每个对象文件以 *解析* 任何符号。这通常需要两次遍历；一次是读取所有符号定义并注意未解决的符号，另一次是将所有这些未解决的符号修复到正确的位置。
 - en: The final executable should end up with no unresolved symbols; the linker will
     fail with an error if there are any.We call this *static linking*. Dynamic linking
     is a similar concept done at executable runtime, and is described a little later
     on.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 最终的可执行文件应该没有未解决的符号；如果有任何错误，链接器将失败。我们称之为 *静态链接*。动态链接是一个类似的概念，在可执行文件运行时完成，稍后会有所描述。
 - en: </main>
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 6 A practical example
+  id: totrans-117
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 6 实际示例
 - en: We can walk through the steps taken to build a simple application step by step.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以一步一步地走过构建一个简单应用程序的步骤。
 - en: Note that when you type `gcc` that actually runs a driver program that hides
     most of the steps from you. Under normal circumstances this is exactly what you
     want, because the exact commands and options to get a real life working executable
     on a real system can be quite complicated and architecture specific.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，当你输入 `gcc` 时，实际上运行的是一个驱动程序，它隐藏了大多数步骤。在正常情况下，这正是你想要的，因为要在真实系统上获得一个真正工作的可执行文件的确切命令和选项可能相当复杂，并且与架构相关。
 - en: We will show the compilation process with the two following examples. Both are
     C source files, one defined the `main()` function for the initial program entry
     point, and another declares a helper type function. There is one global variable
     too, just for illustration.
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将通过以下两个示例展示编译过程。这两个都是 C 源文件，一个定义了初始程序入口点的 `main()` 函数，另一个声明了一个辅助类型函数。还有一个全局变量，仅用于说明。
 - en: '[PRE3]'
+  id: totrans-121
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Example 6.1 Hello World
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.1 Hello World
 - en: '[PRE4]'
+  id: totrans-123
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: Example 6.2 Function Example
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.2 函数示例
 - en: 6.1 Compiling
+  id: totrans-125
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 6.1 编译
 - en: All compilers have an option to only execute the first step of compilation.
     Usually this is something like `-S` and the output will generally be put into
     a file with the same name as the input file but with a `.s` extension.
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有编译器都有一个选项，只执行编译的第一步。通常这类似于 `-S`，输出通常会被放入与输入文件同名但扩展名为 `.s` 的文件中。
 - en: Thus we can show the first step with `gcc -S` as illustrated in the example
     below.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，我们可以通过以下示例中的 `gcc -S` 来展示第一步。
 - en: '[PRE5]'
+  id: totrans-128
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Example 6.1.1 Compilation Example
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.1.1 编译示例
 - en: The assembly is a little to complex to fully describe, but you should be able
     to see where `i` is defined as a `data4` (i.e. 4 bytes or 32 bits, the size of
     an `int`), where `function` is defined (`function:`) and a call to `printf()`.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 汇编过程相对复杂，难以完全描述，但你应该能够看到 `i` 被定义为 `data4`（即 4 字节或 32 位，`int` 的大小），`function`
+    被定义（`function:`）以及 `printf()` 的调用。
 - en: We now have two assembly files ready to be assembled into machine code!
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们有两个汇编文件，准备将其汇编成机器代码！
 - en: 6.2 Assembly
+  id: totrans-132
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 6.2 汇编
 - en: Assembly is a fairly straight forward process. The assembler is usually called
     `as` and takes arguments in a similar fashion to `gcc`
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 汇编是一个相当直接的过程。汇编器通常被称为 `as`，并且以与 `gcc` 类似的方式接受参数。
 - en: '[PRE6]'
+  id: totrans-134
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: Example 6.2.1 Assembly Example
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.2.1 汇编示例
 - en: After assembling we have *object* code, which is ready to be linked together
     into the final executable. You can usually skip having to use the assembler by
     hand by calling the compiler with `-c`, which will directly convert the input
     file to object code, putting it in a file with the same prefix but `.o` as an
     extension.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 组装完成后，我们得到的是*目标代码*，它已经准备好被链接成最终的可执行文件。通常，你可以通过使用带有 `-c` 选项的编译器来跳过手动使用汇编器的步骤，这将直接将输入文件转换为目标代码，并将其放入具有相同前缀但扩展名为
+    `.o` 的文件中。
 - en: We can't inspect the object code directly, as it is in a binary format (in future
     weeks we will learn about this binary format). However we can use some tools to
     inspect the object files, for example `readelf --symbols` will show us symbols
     in the object file.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们不能直接检查目标代码，因为它是以二进制格式存在的（在未来的几周里，我们将学习这种二进制格式）。然而，我们可以使用一些工具来检查目标文件，例如 `readelf
+    --symbols` 将会显示目标文件中的符号。
 - en: '[PRE7]'
+  id: totrans-138
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: Example 6.2.2 Readelf Example
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.2.2 Readelf 示例
 - en: Although the output is quite complicated (again!) you should be able to understand
     much of it. For example
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管输出相当复杂（又是！）但你应该能够理解其中大部分内容。例如
 - en: In the output of `hello.o` have a look at the symbol with name `i`. Notice how
     it says it is `LOCAL`? That is because we declared it `static` and as such it
     has been flagged as being local to this object file.
+  id: totrans-141
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在 `hello.o` 的输出中，看看名为 `i` 的符号。注意它说它是 `LOCAL` 吗？这是因为我们将其声明为 `static`，因此它被标记为仅在此目标文件中本地。
 - en: In the same output, notice that the `global` variable is defined as a `GLOBAL`,
     meaning that it is visible outside this file. Similarly the `main()` function
     is externally visible.
+  id: totrans-142
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在相同的输出中，注意 `global` 变量被定义为 `GLOBAL`，这意味着它在文件外部是可见的。同样，`main()` 函数也是外部可见的。
 - en: Notice that the `function` symbol (for the call to `function()` is left has
     `UND` or *undefined*. This means that it has been left for the linker to find
     the address of the function.
+  id: totrans-143
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 注意到 `function` 符号（对于 `function()` 的调用）左侧有 `UND` 或 *未定义*。这意味着它被留给了链接器来查找函数的地址。
 - en: Have a look at the symbols in the `function.c` file and how they fit into the
     output.
+  id: totrans-144
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 看看 `function.c` 文件中的符号以及它们如何与输出匹配。
 - en: 6.3 Linking
+  id: totrans-145
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 6.3 链接
 - en: Actually invoking the linker, called `ld`, is a very complicated process on
     a real system (are you sick of hearing this yet?). This is why we leave the linking
     process up to `gcc`.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上调用链接器，称为 `ld`，在真实系统中是一个非常复杂的过程（你厌倦了听到这一点吗？）。这就是为什么我们将链接过程留给 `gcc`。
 - en: But of course we can spy on what `gcc` is doing under the hood with the `-v`
     (verbose) flag.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，我们可以使用 `-v`（详细）标志来监视 `gcc` 在底层执行的操作。
 - en: '[PRE8]'
+  id: totrans-148
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: Example 6.3.1 Linking Example
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.3.1 链接示例
 - en: The first thing you notice is that a program called collect2 is being called.
     This is a simple wrapper around ld that is used internally by gcc.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 你首先注意到被调用的程序是 collect2。这是一个简单的 `ld` 包装器，由 `gcc` 内部使用。
 - en: The next thing you notice is object files starting with `crt` being specified
     to the linker. These functions are provided by gcc and the system libraries and
     contain code required to start the program. In actuality, the `main()` function
     is not the first one called when a program runs, but a function called `_start`
     which is in the `crt` object files. This function does some generic setup which
     application programmers do not need to worry about.
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一个你注意到的是，指定给链接器的 `crt` 开头的目标文件。这些函数由 gcc 和系统库提供，包含启动程序所需的代码。实际上，当程序运行时，`main()`
+    函数并不是第一个被调用的，而是 `crt` 目标文件中的 `_start` 函数。这个函数执行一些通用的设置，应用程序员不需要担心。
 - en: The path hierarchy is quite complicated, but in essence we can see that the
     final step is to link in some extra object files, namely
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 路径层次结构相当复杂，但本质上我们可以看到最终步骤是链接一些额外的目标文件，即
 - en: '`crt1.o` : provided by the system libraries (libc) this object file contains
     the `_start` function which is actually the first thing called within the program.'
+  id: totrans-153
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`crt1.o` : 由系统库（libc）提供，此目标文件包含 `_start` 函数，实际上这是程序中首先被调用的东西。'
 - en: '`crti.o` : provided by the system libraries'
+  id: totrans-154
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '`crti.o` : 由系统库提供'
 - en: '`crtbegin.o`'
+  id: totrans-155
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '`crtbegin.o`'
 - en: '`crtsaveres.o`'
+  id: totrans-156
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '`crtsaveres.o`'
 - en: '`crtend.o`'
+  id: totrans-157
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '`crtend.o`'
 - en: '`crtn.o`'
+  id: totrans-158
   prefs:
   - PREF_IND
   type: TYPE_NORMAL
+  zh: '`crtn.o`'
 - en: We discuss how these are used to start the program a little later.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们稍后会讨论这些是如何被用来启动程序的。
 - en: Next you can see that we link in our two object files, `hello.o` and `function.o`.
     After that we specify some extra libraries with `-l` flags. These libraries are
     system specific and required for every program. The major one is `-lc` which brings
     in the C library, which has all common functions like `printf()`.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，你可以看到我们链接了两个目标文件，`hello.o` 和 `function.o`。之后，我们使用 `-l` 标志指定了一些额外的库。这些库是系统特定的，并且对于每个程序都是必需的。主要的一个是
+    `-lc`，它引入了 C 库，其中包含所有常见的函数，如 `printf()`。
 - en: After that we again link in some more system object files which do some cleanup
     after programs exit.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 之后，我们再次链接一些更多的系统目标文件，这些文件在程序退出后进行清理。
 - en: Although the details are complicated, the concept is straight forward. All the
     object files will be linked together into a single executable file, ready to run!
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然细节很复杂，但概念很简单。所有目标文件都将链接成一个单独的可执行文件，准备运行！
 - en: 6.4 The Executable
+  id: totrans-163
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 6.4 可执行文件
 - en: We will go into more details about the executable in the short future, but we
     can do some inspection in a similar fashion to the object files to see what has
     happened.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将在不久的将来更详细地介绍可执行文件，但我们可以以类似对象文件的方式进行检查，看看发生了什么。
 - en: '[PRE9]'
+  id: totrans-165
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: Example 6.4.1 Executable Example
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.4.1 可执行示例
 - en: Some things to note
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些需要注意的事项
 - en: Note I built the executable the "easy" way!
+  id: totrans-168
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 注意我是通过“简单”的方式构建可执行文件的！
 - en: See there are two symbol tables; the `dynsym` and `symtab` ones. We explain
     how the `dynsym` symbols work soon, but notice that some of them are *versioned*
     with an `@` symbol.
+  id: totrans-169
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 注意到存在两个符号表；`dynsym` 和 `symtab`。我们很快会解释 `dynsym` 符号的工作原理，但请注意，其中一些通过 `@` 符号进行了版本控制。
 - en: Note the many symbols that have been included from the extra object files. Many
     of them start with `__` to avoid clashing with any names the programmer might
     choose. Read through and pick out the symbols we mentioned before from the object
     files and see if they have changed in any way.
+  id: totrans-170
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 注意从额外目标文件中包含的许多符号。许多符号以 `__` 开头，以避免与程序员可能选择的任何名称冲突。阅读并通过目标文件挑选出我们之前提到的符号，看看它们是否有所变化。
 - en: </main>
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>

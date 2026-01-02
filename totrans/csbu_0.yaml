@@ -1,79 +1,113 @@
 - en: <main class="calibre3">
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: Chapter 1. General Unix and Advanced C
+  id: totrans-1
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 第一章. 通用Unix和高级C
 - en: </main>
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 1  *Everything is a file!*
+  id: totrans-4
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 1 *一切皆文件！*
 - en: An often-quoted tenet of UNIX-like systems such as Linux or BSD is *everything
     is a file*.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 类似于Linux或BSD这样的UNIX系统的一个经常引用的原则是*一切皆文件*。
 - en: 'Imagine a file in the context of something familiar like a word processor.
     There are two fundamental operations we could use on this imaginary word processing
     file:'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 想象一下在像文字处理器这样的熟悉环境中的文件。我们可以在这个假想的文字处理文件上使用两个基本操作：
 - en: Read it (existing saved data from the word processor).
+  id: totrans-7
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 从它读取（来自文字处理器的现有保存数据）。
 - en: Write to it (new data from the user).
+  id: totrans-8
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 向它写入（来自用户的新数据）。
 - en: 'Consider some of the common things attached to a computer and how they relate
     to our fundamental file operations:'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一些常见的连接到计算机的设备以及它们如何与我们的基本文件操作相关：
 - en: The screen
+  id: totrans-10
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 屏幕
 - en: The keyboard
+  id: totrans-11
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 键盘
 - en: A printer
+  id: totrans-12
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 打印机
 - en: A CD-ROM
+  id: totrans-13
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: CD-ROM
 - en: The screen and printer are both like a write-only file, but instead of being
     stored as bits on a disk the information is displayed as dots on a screen or lines
     on a page. The keyboard is like a read only file, with the data coming from keystrokes
     provided by the user. The CD-ROM is similar, but rather than randomly coming from
     the user the data is stored directly on the disk.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 屏幕和打印机都像是一个只写文件，但信息不是以位的形式存储在磁盘上，而是以点在屏幕上显示或以线条在页面上显示。键盘像是一个只读文件，数据来自用户提供的按键。CD-ROM类似，但数据不是随机来自用户，而是直接存储在磁盘上。
 - en: Thus the concept of a file is a good *abstraction* of either a sink for, or
     source of, data. As such it is an excellent abstraction of all the devices one
     might attach to the computer. This realisation is the great power of UNIX and
     is evident across the design of the entire platform. It is one of the fundamental
     roles of the operating system to provide this abstraction of the hardware to the
     programmer.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，文件的概念是对数据接收器或源的一个很好的抽象。这样，它就是所有可能连接到计算机的设备的优秀抽象。这种认识是UNIX的强大之处，这一点在整个平台的设计中都很明显。操作系统的一个基本角色就是向程序员提供这种硬件抽象。
 - en: It is probably not too much of a stretch to say abstraction is *the* primary
     concept that underpins all modern computing. No one person can understand everything
     from designing a modern user-interface to the internal workings of a modern CPU,
     much less build it all themselves. To programmers, abstractions are the common
     language that allows us to collaborate and invent.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 可能不会过分夸张地说，抽象是支撑所有现代计算的首要概念。没有人能够理解从设计现代用户界面到现代CPU内部工作的一切，更不用说自己构建它了。对于程序员来说，抽象是我们协作和创新的共同语言。
 - en: Learning to navigate across abstractions gives one greater insight into how
     to *use* the abstractions in the best and most innovative ways. In this book,
     we are concerned with abstractions at the lowest layers; between applications
@@ -81,59 +115,85 @@
     lie above this, each worthy of their own books. As these chapters progress, you
     will hopefully gain some insight into the abstractions presented by a modern operating
     system.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 学习在抽象之间导航可以让人更深入地了解如何以最佳和最具创新性的方式使用抽象。在这本书中，我们关注的是最低层的抽象；在应用程序和操作系统之间，以及操作系统和硬件之间。还有更多层次，每个都值得有自己的一本书。随着这些章节的进展，你可能会希望对现代操作系统提供的抽象有所了解。
 - en: <picture>![Can you spot the difference between a CD-ROM and a keyboard? As an
     application programmer, you should not be able to.](abstraction.svg)</picture>Figure 1.1 Abstraction</main>
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![你能发现CD-ROM和键盘之间的区别吗？作为一个应用程序程序员，你不应该能够做到。](abstraction.svg)</picture>图1.1
+    抽象</main>
 - en: <main class="calibre3">
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 2 Implementing abstraction
+  id: totrans-20
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2 实现抽象
 - en: In general, abstraction is implemented by what is generically termed an *Application
     Programming Interface* (API). API is a somewhat nebulous term that means different
     things in the context of various programming endeavours. Fundamentally, a programmer
     designs a set of functions and documents their interface and functionality with
     the principle that the actual implementation providing the API is opaque.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常，抽象是通过所谓的应用程序编程接口（API）实现的。API是一个有些模糊的术语，在不同的编程任务中有不同的含义。从根本上讲，程序员设计一组函数，并记录它们的接口和功能，原则上是提供API的实际实现是透明的。
 - en: For example, many large web applications provide an API accessible via HTTP.
     Accessing data via this method surely triggers many complicated series of remote
     procedure calls, database queries and data transfers, all of which are opaque
     to the end user who simply receives the contracted data.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，许多大型网络应用程序提供通过 HTTP 访问的 API。通过这种方法访问数据无疑会触发许多复杂的远程过程调用、数据库查询和数据传输系列，所有这些都对最终用户来说是透明的，他们只是简单地接收合同数据。
 - en: Those familiar with *object-oriented* languages such as Java, Python or C++
     would be familiar with the abstraction provided by *classes*. Methods provide
     the interface to the class, but abstract the implementation.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 熟悉 Java、Python 或 C++ 等面向对象语言的那些人会对 *类* 提供的抽象很熟悉。方法提供了对类的接口，但抽象了实现。
 - en: 2.1 Implementing abstraction with C
+  id: totrans-24
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.1 使用 C 实现抽象
 - en: A common method used in the Linux kernel and other large C code bases, which
     lack a built-in concept of object-orientation, is *function pointers*. Learning
     to read this idiom is key to navigating most large C code bases. By understanding
     how to read the abstractions provided within the code an understanding of internal
     API designs can be built.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: Linux 内核和其他缺乏内置面向对象概念的 C 代码库中常用的一个常见方法是 *函数指针*。学会阅读这种习语是导航大多数大型 C 代码库的关键。通过理解如何在代码中读取提供的抽象，可以构建对内部
+    API 设计的理解。
 - en: '[PRE0]'
+  id: totrans-26
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: Example 2.1.1 Abstraction with function pointers
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 2.1.1 使用函数指针的抽象
 - en: Code such as the above is the simplest example of constructs used repeatedly
     throughout the Linux Kernel and other C programs. Let's have a look at some specific
     elements.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 上述代码是 Linux 内核和其他 C 程序中反复使用的结构的最简单示例。让我们看看一些具体的元素。
 - en: We start out with a structure that defines the API (`struct greet_api`). The
     functions whose names are encased in parentheses with a pointer marker describe
     a *function pointer*Often you will see that the names of the parameters are omitted,
@@ -142,8 +202,11 @@
     pointer describes the *prototype* of the function it must point to; pointing it
     at a function without the correct return type or parameters will generate a compiler
     warning at least; if left in code will likely lead to incorrect operation or crashes.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们从一个定义 API 的结构体开始（`struct greet_api`）。括号中带有指针标记的函数名称描述了一个 *函数指针*。通常你会看到省略了参数名称，只指定了参数类型。这允许实现者指定他们自己的参数名称，从而避免编译器警告。函数指针描述了它必须指向的函数的
+    *原型*；如果指向一个没有正确返回类型或参数的函数，至少会生成编译器警告；如果留在代码中，很可能会导致操作不正确或崩溃。
 - en: We then have our implementation of the API. Often for more complex functionality
     you will see an idiom where API implementation functions will only be a wrapper
     around other functions that are conventionally prepended with one or or two underscoresA
@@ -157,140 +220,210 @@
     projects, single-, double- or even triple-underscore function prefixes will mean
     different things, but universally it is a visual warning that the function is
     not supposed to be called directly from "beyond" the API.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 然后我们有我们的 API 实现。通常，对于更复杂的功能，你会看到一种习语，其中 API 实现函数将仅是围绕其他函数的包装，这些函数传统上以一个或两个下划线开头。一个双下划线函数
+    `__foo` 可以口语化地称为 "dunder foo"。（例如，`say_hello_fn()` 会调用另一个函数 `_say_hello_function()`）。这有几个用途；通常它与
+    API 的更简单、更小的部分（例如参数打包或检查）与更复杂的实现分离有关，这通常简化了内部工作方式的重大变化，同时确保 API 保持不变。然而，我们的实现非常简单，甚至不需要自己的支持函数。在不同的项目中，单下划线、双下划线或甚至三下划线函数前缀可能意味着不同的事情，但普遍来说，这是一个视觉警告，表明该函数不应该从
+    "API 之外" 直接调用。
 - en: Second to last, we fill out the function pointers in `struct greet_api greet_api`.
     The name of the function is a pointer; therefore there is no need to take the
     address of the function (i.e. `&say_hello_fn`).
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后一个，我们在 `struct greet_api greet_api` 中填充了函数指针。函数的名称是一个指针；因此不需要取函数的地址（即 `&say_hello_fn`）。
 - en: Finally we can call the API functions through the structure in `main`.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，我们可以通过 `main` 中的结构调用 API 函数。
 - en: 'You will see this idiom constantly when navigating the source code. The tiny
     example below is taken from `include/linux/virtio.h` in the Linux kernel source
     to illustrate:'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 当在源代码中导航时，你将经常看到这种习惯用法。下面的微小示例是从 Linux 内核源代码中的 `include/linux/virtio.h` 中取出的，以说明：
 - en: '[PRE1]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Example 2.1.2 Abstraction in `include/linux/virtio.h`
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 2.1.2 `include/linux/virtio.h` 中的抽象
 - en: It's only necessary to vaguely understand that this structure is a description
     of a virtual I/O device. We can see the user of this API (the device driver author)
     is expected to provide a number of functions that will be called under various
     conditions during system operation (when probing for new hardware, when hardware
     is removed, etc.). It also contains a range of data; structures which should be
     filled with relevant data.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 只需大致了解这个结构是虚拟 I/O 设备的描述即可。我们可以看到，使用此 API 的用户（设备驱动程序作者）预计将在系统操作的各种条件下调用一系列函数（当探测新硬件时，当硬件被移除时等）。它还包含一系列数据；结构，应填充相关数据。
 - en: Starting with descriptors like this is usually the easiest way to begin understanding
     the various layers of kernel code.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 从这样的描述符开始通常是开始理解内核代码各层最容易的方式。
 - en: 2.2 Libraries
+  id: totrans-38
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.2 库
 - en: Libraries have two roles which illustrate abstraction.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 库有两个角色，可以说明抽象。
 - en: Allow programmers to reuse commonly accessed code.
+  id: totrans-40
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 允许程序员重用常用代码。
 - en: Act as a *black box* implementing functionality for the programmer.
+  id: totrans-41
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 作为实现程序员功能的一个 *黑盒*。
 - en: For example, a library implementing access to the raw data in JPEG files has
     both the advantage that the many programs that wish to access image files can
     all use the same library and the programmers building these programs do not need
     to worry about the exact details of the JPEG file format, but can concentrate
     their efforts on what their program wants to do with the image.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，一个实现访问 JPEG 文件原始数据的库具有这样的优势：所有希望访问图像文件的程序都可以使用同一个库，而构建这些程序的程序员不需要担心 JPEG
+    文件格式的确切细节，而可以将精力集中在他们的程序想要对图像做什么。
 - en: 'The standard library of a UNIX platform is generically referred to as `libc`.
     It provides the basic interface to the system: fundamental calls such as `read()`,
     `write()` and `printf()`. This API is described in its entirety by a specification
     called `POSIX`. It is freely available online and describes the many calls that
     make up the standard UNIX API.'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: UNIX 平台的标准库通常被称为 `libc`。它提供了对系统的基本接口：如 `read()`、`write()` 和 `printf()` 等基本调用。这个
+    API 由一个称为 `POSIX` 的规范完整描述。它可以在网上免费获取，并描述了构成标准 UNIX API 的许多调用。
 - en: Most UNIX platforms broadly follow the POSIX standard, though often differ in
     small but sometimes important ways (hence the complexity of the various GNU autotools,
     which often try to abstract away these differences for you). Linux has many interfaces
     that are not specified by POSIX; writing applications that use them exclusively
     will make your application less portable.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 大多数 UNIX 平台广泛遵循 POSIX 标准，尽管在许多小但有时重要的方面存在差异（因此各种 GNU 自动工具的复杂性，它们经常试图为你抽象这些差异）。Linux
+    有许多 POSIX 没有指定的接口；仅使用这些接口编写应用程序将使你的应用程序的可移植性降低。
 - en: Libraries are a fundamental abstraction with many details. Later chapters will
     describe how libraries work in much greater detail.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 库是一个具有许多细节的基本抽象。后面的章节将更详细地描述库是如何工作的。
 - en: </main>
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 3 File Descriptors
+  id: totrans-48
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3 文件描述符
 - en: 'One of the first things a UNIX programmer learns is that every running program
     starts with three files already opened:'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: UNIX 程序员最初学到的一件事是，每个正在运行的程序都会预先打开三个文件：
 - en: Table 3.1 Standard Files Provided by Unix
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 3.1 Unix 提供的标准文件
 - en: '| Descriptive Name | Short Name | File Number | Description |'
+  id: totrans-51
   prefs: []
   type: TYPE_TB
+  zh: '| 描述名称 | 简称 | 文件编号 | 描述 |'
 - en: '| --- | --- | --- | --- |'
+  id: totrans-52
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- |'
 - en: '| Standard In | stdin | 0 | Input from the keyboard |'
+  id: totrans-53
   prefs: []
   type: TYPE_TB
+  zh: '| 标准输入 | stdin | 0 | 从键盘输入 |'
 - en: '| Standard Out | stdout | 1 | Output to the console |'
+  id: totrans-54
   prefs: []
   type: TYPE_TB
+  zh: '| 标准输出 | stdout | 1 | 输出到控制台 |'
 - en: '| Standard Error | stderr | 2 | Error output to the console |'
+  id: totrans-55
   prefs: []
   type: TYPE_TB
+  zh: '| 标准错误 | stderr | 2 | 错误输出到控制台 |'
 - en: <picture>![The standard files opened with any UNIX program.](stdfds.svg)</picture>Figure 3.1 Default
     Unix Files
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![任何UNIX程序打开的标准文件。](stdfds.svg)</picture>图3.1 默认Unix文件
 - en: This raises the question of what an *open file* represents. The value returned
     by an `open` call is termed a *file descriptor* and is essentially an index into
     an array of open files kept by the kernel.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 这引发了一个问题：*打开文件*代表什么。`open`调用返回的值被称为*文件描述符*，实际上是内核保持的打开文件数组中的一个索引。
 - en: <picture>![File descriptors associate the abstraction provided by device drivers
     with a file interface provided to a user.](file-descriptors.svg)</picture>
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![文件描述符将设备驱动程序提供的抽象与提供给用户的文件接口关联起来。](file-descriptors.svg)</picture>
 - en: File descriptors are an index into a file descriptor table stored by the kernel.
     The kernel creates a file descriptor in response to an `open` call and associates
     the file descriptor with some abstraction of an underlying file-like object, be
     that an actual hardware device, or a file system or something else entirely. Consequently
     a process's `read` or `write` calls that reference that file descriptor are routed
     to the correct place by the kernel to ultimately do something useful.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 文件描述符是内核存储的文件描述符表中的一个索引。内核在响应`open`调用时创建一个文件描述符，并将文件描述符与底层文件-like 对象的某种抽象相关联，无论是实际硬件设备、文件系统还是其他完全不同的东西。因此，一个进程的`read`或`write`调用，如果引用该文件描述符，将被内核路由到正确的地方，最终执行一些有用的操作。
 - en: Figure 3.2 Abstraction
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 图3.2 抽象
 - en: In short, the file descriptor is the gateway into the kernel's abstractions
     of underlying hardware. An overall view of the abstraction for physical-devices
     is shown in [Figure 3.2, Abstraction](#fd_abstraction).
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 简而言之，文件描述符是进入内核对底层硬件抽象的门户。物理设备的抽象概述如图[图3.2，抽象](#fd_abstraction)所示。
 - en: Starting at the lowest level, the operating system requires a programmer to
     create a *device driver* to be able to communicate with a hardware device. This
     device driver is written to an API provided by the kernel just like in [Example 2.1.2,
@@ -301,8 +434,10 @@
     to the analogous operations on the file descriptor. The device driver knows how
     to convert these generic requests into specific requests or commands for a particular
     device.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 从最低级别开始，操作系统要求程序员创建一个*设备驱动程序*以便能够与硬件设备通信。这个设备驱动程序被编写到内核提供的API中，就像在[示例2.1.2，`include/linux/virtio.h`中的抽象](csbu-print_split_005.html#virtio-abstraction)一样；设备驱动程序将提供一系列函数，这些函数将在内核响应各种需求时被调用。在上面的简化示例中，我们可以看到驱动程序提供了`read`和`write`函数，这些函数将在对文件描述符的类似操作时被调用。设备驱动程序知道如何将这些通用请求转换为特定设备的具体请求或命令。
 - en: To provide the abstraction to user-space, the kernel provides a file-interface
     via what is generically termed a *device layer*. Physical devices on the host
     are represented by a file in a special file system such as `/dev`. In UNIX-like
@@ -310,14 +445,20 @@
     number, which allow the kernel to associate particular nodes with their underlying
     driver. These can be identified via `ls` as illustrated in [Example 3.1, Example
     of major and minor numbers](#major-minor-numbers).
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了提供用户空间的抽象，内核通过所谓的*设备层*提供了一个文件接口。主机上的物理设备在特殊文件系统（如`/dev`）中用一个文件来表示。在类UNIX系统中，所谓的*设备节点*有一个称为*主次编号*的编号，这允许内核将特定的节点与其底层驱动程序关联起来。这些可以通过`ls`命令识别，如[示例3.1，主次编号示例](#major-minor-numbers)所示。
 - en: '[PRE2]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Example 3.1 Example of major and minor numbers
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例3.1 主次编号示例
 - en: This brings us to the file descriptor, which is the handle user-space uses to
     talk to the underlying device. In a broad sense, what happens when a file is `open`ed
     is that the kernel is using the path information to map the file descriptor with
@@ -326,16 +467,20 @@
     device node provides the information the kernel needs to find the correct device
     driver and complete the mapping. The kernel will then know how to route further
     calls such as `read` to the underlying functions provided by the device driver.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 这将我们引向文件描述符，它是用户空间用来与底层设备通信的句柄。从广义上讲，当文件被`open`时，内核正在使用路径信息将文件描述符映射到提供适当`read`和`write`等API的东西。当这个`open`是为设备（如上面的`/dev/sr0`）时，打开的设备节点的major和minor号提供了内核需要的信息，以找到正确的设备驱动程序并完成映射。然后内核将知道如何将进一步的调用，如`read`，路由到设备驱动程序提供的底层函数。
 - en: A non-device file operates similarly, although there are more layers in between.
     The abstraction here is the *mount point*; mounting a file system has the dual
     purpose of setting up a mapping so the file system knows the underlying device
     that provides the storage and the kernel knows that files opened under that mount-point
     should be directed to the file system driver. Like device drivers, file systems
     are written to a particular generic file system API provided by the kernel.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 非设备文件的操作方式类似，尽管中间有更多层。这里的抽象是*挂载点*；挂载文件系统具有双重目的，即设置映射以便文件系统知道提供存储的底层设备，内核知道在该挂载点下打开的文件应指向文件系统驱动程序。与设备驱动程序一样，文件系统是编写到内核提供的特定通用文件系统API上的。
 - en: There are indeed many other layers that complicate the picture in real-life.
     For example, the kernel will go to great efforts to cache as much data from disks
     as possible in otherwise-free memory; this provides many speed advantages. It
@@ -346,63 +491,91 @@
     which provide their own abstraction layers to write to. Thus, rather than writing
     directly to devices, file systems will go through these many layers. Understanding
     the kernel is to understand how these many APIs interrelate and coexist.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 确实存在许多其他层，这些层在现实生活中使情况变得复杂。例如，内核会不遗余力地将尽可能多的数据从磁盘缓存到其他空闲内存中；这提供了许多速度优势。它还会尝试以最有效的方式组织设备访问；例如，尝试对磁盘访问进行排序，以确保存储在物理上靠近的数据可以一起检索，即使请求没有按顺序到达。此外，许多设备属于更通用的类别，如USB或SCSI设备，它们提供自己的抽象层以进行写入。因此，而不是直接写入设备，文件系统将通过这些许多层。理解内核就是理解这些许多API如何相互关联和共存。
 - en: 3.1 The Shell
+  id: totrans-69
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.1 壳层
 - en: The shell is the gateway to interacting with the operating system. Be it `bash`,
     `zsh`, `csh` or any of the many other shells, they all fundamentally have only
     one major task — to allow you to execute programs (you will begin to understand
     how the shell actually does this when we talk about some of the internals of the
     operating system later).
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 壳层是交互操作系统的门户。无论是`bash`、`zsh`、`csh`还是许多其他壳层，它们在本质上只有一个主要任务——允许你执行程序（当你我们讨论操作系统的某些内部结构时，你将开始理解壳层实际上是如何做到这一点的）。
 - en: But shells do much more than allow you to simply execute a program. They have
     powerful abilities to redirect files, allow you to execute multiple programs simultaneously
     and script complete programs. These all come back to the *everything is a file*
     idiom.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是，壳层不仅仅允许你简单地执行程序。它们具有强大的重定向文件、允许你同时执行多个程序以及脚本完整程序的能力。这些都回到了“一切皆文件”的习语。
 - en: 3.1.1 Redirection
+  id: totrans-72
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.1.1 重定向
 - en: Often we do not want the standard file descriptors mentioned in [Section 3,
     File Descriptors](#file_descriptors) to point to their default places. For example,
     you may wish to capture all the output of a program into a file on disk or, alternatively,
     have it read its commands from a file you prepared earlier. Another useful task
     might like to pass the output of one program to the input of another. With the
     operating system, the shell facilitates all this and more.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 经常我们不想在[第3节，文件描述符](#file_descriptors)中提到的标准文件描述符指向它们的默认位置。例如，你可能希望将程序的所有输出捕获到磁盘上的一个文件中，或者，你也可以让它从你之前准备好的文件中读取命令。另一个有用的任务可能是将一个程序的输出传递给另一个程序作为输入。操作系统通过shell提供了所有这些以及更多功能。
 - en: Table 3.1.1.1 Standard Shell Redirection Facilities
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 表3.1.1.1 标准Shell重定向功能
 - en: '| Name | Command | Description | Example |'
+  id: totrans-75
   prefs: []
   type: TYPE_TB
+  zh: '| 名称 | 命令 | 描述 | 示例 |'
 - en: '| --- | --- | --- | --- |'
+  id: totrans-76
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- |'
 - en: '| Redirect to a file | `> filename` | Take all output from standard out and
     place it into `filename`. Note using `>>` will append to the file, rather than
     overwrite it. | `ls > filename` |'
+  id: totrans-77
   prefs: []
   type: TYPE_TB
+  zh: '| 重定向到文件 | `> 文件名` | 将所有标准输出内容放入`文件名`中。注意使用`>>`将内容追加到文件中，而不是覆盖它。 | `ls > 文件名`
+    |'
 - en: '| Read from a file | < `filename` | Copy all data from the file to the standard
     input of the program | `echo < filename` |'
+  id: totrans-78
   prefs: []
   type: TYPE_TB
+  zh: '| 从文件读取 | < `文件名` | 将文件中的所有数据复制到程序的标准输入 | `echo < 文件名` |'
 - en: '| Pipe | `program1 &#124; program2` | Take everything from standard out of
     `program1` and pass it to standard input of `program2` | `ls &#124; more` |'
+  id: totrans-79
   prefs: []
   type: TYPE_TB
+  zh: '| 管道 | `program1 &#124; program2` | 从`program1`的标准输出中获取所有内容，并将其传递到`program2`的标准输入
+    | `ls &#124; more` |'
 - en: 3.1.2 Implementing `pipe`
+  id: totrans-80
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.1.2 实现管道
 - en: The implementation of `ls | more` is just another example of the power of abstraction.
     What fundamentally happens here is that instead of associating the file descriptor
     for the standard-output with some sort of underlying device (such as the console,
@@ -411,20 +584,28 @@
     process can associate its standard *input* with the other side of this same buffer
     and effectively consume the output of the other process. This is illustrated in
     [Figure 3.1.2.1, A pipe in action](#process_pipe).
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ls | more` 的实现只是抽象力量强大性的另一个例子。在这里本质上发生的事情是，不是将标准输出文件描述符与某种底层设备（如控制台，用于输出到终端）关联起来，而是将描述符指向内核提供的一个内存缓冲区，通常称为`管道`。这里的技巧是，另一个进程可以将它的标准输入与这个相同缓冲区的另一端关联起来，并有效地消费另一个进程的输出。这如图[图3.1.2.1，管道操作](#process_pipe)所示。'
 - en: <picture>![The pipe is an in-memory buffer provided by the kernel which allows
     the output of one process to be consumed as the input to another.](pipe.svg)</picture>
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![管道是内核提供的内存缓冲区，允许一个进程的输出作为另一个进程的输入。](pipe.svg)</picture>
 - en: The pipe is an in-memory buffer that connects two processes together. file descriptors
     point to the pipe object, which buffers data sent to it (via a `write`) to be
     *drained* (via a `read`).
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 管道是一个连接两个进程的内存缓冲区。文件描述符指向管道对象，它缓冲发送给它（通过`write`）的数据，以便通过`read`进行*排空*。
 - en: Figure 3.1.2.1 A pipe in action
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 图3.1.2.1 管道操作
 - en: Writes to the pipe are stored by the kernel until a corresponding read from
     the other side *drains* the buffer. This is a very powerful concept and is one
     of the fundamental forms of *inter-process communication* or IPC in UNIX-like
@@ -441,13 +622,19 @@
     process does not continue. Once the print is done, the other process can write
     a message into the pipe, which effectively wakes up the requesting process and
     signals the work is done.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 向管道写入的数据会被内核存储，直到从另一侧进行相应的读取操作将缓冲区中的数据*排空*。这是一个非常强大的概念，也是UNIX-like操作系统中的基本进程间通信（IPC）形式之一。管道不仅允许数据传输，还可以作为信号通道。如果一个进程尝试从空管道中读取，它将默认*阻塞*或进入休眠状态，直到有数据可用（这一点在[第5章，进程](csbu-print_split_019.html#chapter04)中有更深入的讨论）。因此，两个进程可以通过管道来通信，表明某个操作已被执行，只需写入一个字节的数据；实际上数据的重要性并不大，管道中*任何*数据的存在都可以作为信号。例如，一个进程请求另一个进程打印一个文件——这需要一些时间。这两个进程可以在它们之间设置一个管道，请求进程在空管道上执行`read`操作；由于管道为空，这个调用会阻塞，进程不会继续执行。一旦打印完成，另一个进程可以向管道写入一条消息，这实际上会唤醒请求进程并表明工作已完成。
 - en: Allowing processes to pass data between each other like this springs another
     common UNIX idiom of small tools doing one particular thing. Chaining these small
     tools gives flexibility that a single monolithic tool often can not.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 允许进程以这种方式相互传递数据，又引发了另一个常见的UNIX惯用语：小型工具各自完成特定任务。将这些小型工具串联起来，可以提供单一大型工具通常无法提供的灵活性。
 - en: </main>
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>

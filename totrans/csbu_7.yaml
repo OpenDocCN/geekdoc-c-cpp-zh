@@ -1,20 +1,30 @@
 - en: <main class="calibre3">
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: Chapter 8. Behind the process
+  id: totrans-1
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 第8章. 过程背后的内容
 - en: </main>
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 1 Review of executable files
+  id: totrans-4
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 1 可执行文件回顾
 - en: We know that a program running in memory has two major components in *code*
     (also commonly known as a *text* for historical reasons) and *data*. We also know,
     however, an executable does not live its life in memory, but spends most of its
@@ -24,27 +34,39 @@
     referred to as a *binary* or an *executable*. The bits and bytes of the file are
     generally in a format ready to be placed in memory and interpreted directly by
     processor hardware.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们知道在内存中运行的程序有两个主要组件，*代码*（也常因历史原因被称为*文本*）和*数据*。然而，我们也知道，可执行文件并不生活在内存中，而是在磁盘上作为文件度过大部分生命，等待被加载和运行。由于文件本质上只是一个连续的位数组，所有系统都找到了在文件中组织代码和数据的办法，以便按需执行。这种文件格式通常被称为*二进制*或*可执行*。文件中的位和字节通常以可以直接放置在内存中并由处理器硬件直接解释的格式存在。
 - en: </main>
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 2 Representing executable files
+  id: totrans-8
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2 可执行文件的表示
 - en: 2.1 Three Standard Sections
+  id: totrans-9
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.1 三个标准部分
 - en: At a minimum, any executable file format will need to specify where the code
     and data are in the binary file. These are the two primary sections within an
     executable file.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 至少，任何可执行文件格式都需要指定代码和数据在二进制文件中的位置。这些是可执行文件中的两个主要部分。
 - en: One additional component we have not mentioned until now is storage space of
     uninitialised global variables. If we declare a variable and give it an initial
     value, this value needs to be stored in the executable file so that at program
@@ -56,12 +78,16 @@
     data. On program load the extra memory described by the BSS can be allocated (and
     set to zero!). BSS *probably* stands for Block Started by Symbol, an assembly
     command for a old IBM computer; the exact derivation is probably lost to history.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们之前没有提到的另一个组件是未初始化的全局变量的存储空间。如果我们声明一个变量并给它一个初始值，这个值需要存储在可执行文件中，以便在程序启动时可以将其初始化为正确的值。然而，许多变量在程序首次执行时是未初始化的（或为零）。在可执行文件中为这些变量预留空间，然后简单地存储零或NULL值是浪费空间，无谓地膨胀了磁盘上的可执行文件大小。因此，大多数二进制格式定义了“BSS”部分的概念，作为零初始化数据的占位符大小。在程序加载时，BSS描述的额外内存可以被分配（并设置为零！）BSS*可能*代表“由符号开始的块”，这是旧IBM计算机的汇编命令；确切的起源可能已经失传于历史。
 - en: 2.2 Binary Format
+  id: totrans-12
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.2 二进制格式
 - en: The executable is created by the toolchain from the source code. This file needs
     to be in a format explicitly defined such that the compiler can create it and
     the operating system can identify it and load into memory, turning it into a running
@@ -69,127 +95,184 @@
     be specific to the operating system, as we would not normally expect that a program
     compiled for one system will execute on another (for example, you don't expect
     your Windows programs to run on Linux, or your Linux programs to run on OS X).
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 可执行文件是由工具链从源代码创建的。这个文件需要以明确定义的形式存在，以便编译器可以创建它，操作系统可以识别它并将其加载到内存中，将其转换为操作系统可以管理的运行进程。这种*可执行文件格式*可以特定于操作系统，因为我们通常不会期望为某个系统编译的程序可以在另一个系统上执行（例如，你不希望你的Windows程序在Linux上运行，或者你的Linux程序在OS
+    X上运行）。
 - en: However, the common thread between all executable file formats is that they
     include a predefined, standardised header which describes how program code and
     data are stored in the rest of the file. In words, it would generally describe
     "the program code starts 20 bytes into this file, and is 50 kilobytes long. The
     program data follows it and is 20 kilobytes long".
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，所有可执行文件格式的共同点是它们都包含一个预定义、标准化的头文件，该头文件描述了程序代码和数据如何存储在文件的其余部分。用词来说，它通常会描述“程序代码从文件中的20个字节开始，长度为50千字节。程序数据随后，长度为20千字节”。
 - en: In recent times one particular format has become the de facto standard for executable
     representation for modern UNIX type systems. It is called the `Executable and
     Linker Format`, or ELF for short; we'll be looking at it in more detail soon.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 近年来，一种特定的格式已成为现代UNIX类型系统可执行表示的既定标准。它被称为“可执行和链接格式”，简称ELF；我们很快将更详细地探讨它。
 - en: 2.3 Binary Format History
+  id: totrans-16
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.3 二进制格式历史
 - en: 2.3.1 a.out
+  id: totrans-17
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.3.1 a.out
 - en: ELF was not always the standard; original UNIX systems used a file format called
     `a.out`. We can see the vestiges of this if you compile a program without the
     `-o` option to specify an output file name; the executable will be created with
     a default name of `a.out`In fact, `a.out` is the default output filename from
     the *linker*. The compiler generally uses randomly generated file names as intermediate
     files for assembly and object code..
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: ELF并非一直是标准；原始UNIX系统使用一种名为`a.out`的文件格式。如果你不使用`-o`选项来指定输出文件名编译程序，你将看到这种格式的残留；可执行文件将以默认名称`a.out`创建。实际上，`a.out`是链接器的默认输出文件名。编译器通常使用随机生成的文件名作为汇编和目标代码的中间文件。
 - en: '`a.out` is a very simple header format that only allows a single data, code
     and BSS section. As you will come to see, this is insufficient for modern systems
     with dynamic libraries.'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: '`a.out`是一个非常简单的头格式，只允许一个数据、代码和BSS部分。正如你将看到的，这对于具有动态库的现代系统来说是不够的。'
 - en: 2.3.2 COFF
+  id: totrans-20
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.3.2 COFF
 - en: The Common Object File Format, or COFF, was the precursor to ELF. Its header
     format was more flexible, allowing more (but limited) sections in the file.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 常见对象文件格式，或COFF，是ELF的前身。其头格式更灵活，允许文件中有更多的（但有限的）部分。
 - en: COFF also has difficulties with elegant support of shared libraries, and ELF
     was selected as an alternative implementation on Linux.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: COFF在优雅地支持共享库方面也存在困难，因此ELF被选为Linux上的替代实现。
 - en: However, COFF lives on in Microsoft Windows as the `Portable Executable` or
     PE format. PE is to Windows as ELF is to Linux.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，COFF在Microsoft Windows中以“可移植可执行文件”或PE格式继续存在。PE对于Windows来说，就像ELF对于Linux一样。
 - en: </main>
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 3 ELF
+  id: totrans-26
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3 ELF
 - en: ELF is an extremely flexible format for representing binary code in a system.
     By following the ELF standard you can represent a kernel binary just as easily
     as a normal executable or a system library. The same tools can be used to inspect
     and operate on all ELF files and developers who understand the ELF file format
     can translate their skills to most modern UNIX systems.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: ELF是一种非常灵活的格式，用于在系统中表示二进制代码。通过遵循ELF标准，你可以像表示普通可执行文件或系统库一样轻松地表示内核二进制文件。相同的工具可以用于检查和操作所有ELF文件，并且理解ELF文件格式的开发者可以将他们的技能应用到大多数现代UNIX系统。
 - en: ELF extends on COFF and gives the header sufficient flexibility to define an
     arbitrary number of sections, each with its own properties. This facilitates easier
     dynamic linking and debugging.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: ELF扩展了COFF，并为头提供了足够的灵活性，可以定义任意数量的部分，每个部分都有其自己的属性。这有助于简化动态链接和调试。
 - en: <picture>![ELF Overview](elf-overview.svg)</picture>Figure 3.1 ELF Overview
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![ELF概述](elf-overview.svg)</picture>图3.1 ELF概述
 - en: 3.1 ELF File Header
+  id: totrans-30
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.1 ELF文件头
 - en: Overall, the file has a *file header* which describes the file in general and
     then has pointers to each of the individual sections that make up the file. [Example 3.1.1,
     The ELF Header](#elf-header) shows the description as given in the API documentation
     for ELF32 (the 32-bit form of ELF). This is the layout of the C structure which
     defines a ELF header.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 总体而言，文件有一个*文件头*，它描述了文件的一般信息，然后指向构成文件的各个单独部分的指针。[示例3.1.1，ELF头](#elf-header)显示了API文档中给出的ELF32（ELF的32位形式）的描述。这是定义ELF头的C结构的布局。
 - en: '[PRE0]'
+  id: totrans-32
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: Example 3.1.1 The ELF Header
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例3.1.1 ELF头
 - en: '[PRE1]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Example 3.1.2 The ELF Header, as shown by readelf
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例3.1.2 readelf显示的ELF头
 - en: '[Example 3.1.2, The ELF Header, as shown by readelf](#readelf-elf-header) shows
     a human readable form as present by the readelf program, which is part of GNU
     binutils.'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '[示例3.1.2，readelf显示的ELF头](#readelf-elf-header)显示了readelf程序显示的易读形式，该程序是GNU binutils的一部分。'
 - en: The `e_ident` array is the first thing at the start of any ELF file, and always
     starts with a few "magic" bytes. The first byte is 0x7F and then the next three
     bytes are "ELF". You can inspect an ELF binary to see this for yourself with something
     like the `hexdump` command.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: '`e_ident`数组是任何ELF文件开始处的第一件事，并且始终以几个“魔数”字节开始。第一个字节是0x7F，然后接下来的三个字节是“ELF”。你可以使用类似`hexdump`命令的工具检查ELF二进制文件以查看这一点。'
 - en: '[PRE2]'
+  id: totrans-38
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Example 3.1.3 Inspecting the ELF magic number
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例3.1.3 检查ELF魔数
 - en: Note the 0x7F to start, then the ASCII encoded "ELF" string. Have a look at
     the standard and see what the rest of the array defines and what the values are
     in a binary.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意以 0x7F 开头，然后是 ASCII 编码的“ELF”字符串。查看标准，看看数组中定义了什么，以及二进制中的值是什么。
 - en: Next we have some flags for the type of machine this binary is created for.
     The first thing we can see is that ELF defines different type sized versions,
     one for 32 bit and one for 64 bit versions; here we inspect the 32 bit version.
@@ -197,41 +280,60 @@
     to be held in 64 bit variables. We can see that the binary has been created for
     a big endian machine that uses 2's complement to represent negative numbers. Skipping
     down a bit we can see the `Machine` tells us this is a PowerPC binary.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，我们有针对为该二进制创建的机器类型的标志。我们可以看到的第一件事是，ELF 定义了不同大小的版本，一个用于 32 位版本，一个用于 64 位版本；这里我们检查
+    32 位版本。区别主要在于在 64 位机器上，地址显然需要存储在 64 位变量中。我们可以看到，该二进制是为一个大端机器创建的，该机器使用二进制补码表示负数。向下跳一点，我们可以看到`Machine`告诉我们这是一个
+    PowerPC 二进制。
 - en: The apparently innocuous entry point address seems straight forward enough;
     this is the address in memory that the program code starts at. Beginning C programmers
     are told that *main()* is the first program called in your program. Using the
     entry point address we can actually verify that it *isn't*.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 表面上看似无害的入口点地址似乎足够直接；这是程序代码在内存中开始的位置。初学者程序员被告知`main()`是程序中第一个被调用的程序。使用入口点地址，我们实际上可以验证它*并不是*。
 - en: '[PRE3]'
+  id: totrans-43
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Example 3.1.4 Investigating the entry point
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.1.4 调查入口点
 - en: In [Example 3.1.4, Investigating the entry point](#entry-point) we can see that
     the entry point is actually a function called `_start`. Our program didn't define
     this at all, and the leading underscore suggests that it is in a separate *namespace*.
     We examine how a program starts up in detail in [Section 8.2, Starting the program](csbu-print_split_055.html#startup).
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[示例 3.1.4，调查入口点](#entry-point)中，我们可以看到入口点实际上是一个名为`_start`的函数。我们的程序根本未定义此函数，并且前导下划线表明它位于一个单独的*命名空间*中。我们详细探讨了程序如何启动，请参阅[第
+    8.2 节，启动程序](csbu-print_split_055.html#startup)。
 - en: After that the header contains pointers to where in the file other important
     parts of the ELF file start, like a table of contents.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 之后，头文件包含指向文件中其他重要部分的位置的指针，如目录表。
 - en: 3.2 Symbols and Relocations
+  id: totrans-47
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.2 符号和重定位
 - en: The ELF specification provides for *symbol tables* which are simply mappings
     of strings (symbols) to locations in the file. Symbols are required for linking;
     for example assigning a value to a variable `foo` declared as `extern int foo;`
     would require the linker to find the address of `foo`, which would involve looking
     up "foo" in the symbol table and finding the address.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: ELF 规范提供了*符号表*，它只是将字符串（符号）映射到文件中的位置。符号对于链接是必需的；例如，将声明为`extern int foo;`的变量`foo`分配一个值，需要链接器找到`foo`的地址，这将涉及在符号表中查找“foo”并找到地址。
 - en: Closely related to symbols are *relocations*. A relocation is simply a blank
     space left to be patched up later. In the previous example, until the address
     of `foo` is known it can not be used. However, on a 32-bit system, we know the
@@ -241,51 +343,73 @@
     of "foo" into the 4 bytes at this address". As mentioned, this requires the symbol
     "foo" to be resolved. [Section 2.1, Relocations](csbu-print_split_058.html#dynamic_relocations)
     contains further information on relocations.
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 与符号密切相关的是*重定位*。重定位简单地说就是留下一个空白空间，稍后进行修补。在先前的例子中，直到`foo`的地址已知，它才能被使用。然而，在 32
+    位系统上，我们知道`foo`的*地址*必须是一个 4 字节值，因此每当编译器需要使用该地址（例如，分配一个值）时，它只需留下 4 字节的空白空间，并保留一个重定位，这个重定位本质上是对链接器的指示：“将“foo”的实际值放入此地址的
+    4 个字节中”。如前所述，这需要解析符号“foo”。[第 2.1 节，重定位](csbu-print_split_058.html#dynamic_relocations)包含有关重定位的更多信息。
 - en: 3.3 Sections and Segments
+  id: totrans-50
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.3 节和段
 - en: The ELF format specifies two "views" of an ELF file — that which is used for
     linking and that which is used for execution. This affords significant flexibility
     for systems designers.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: ELF 格式指定了 ELF 文件的两种“视图”——用于链接的视图和用于执行的视图。这为系统设计者提供了显著的灵活性。
 - en: We talk about *sections* in object code waiting to be linked into an executable.
     One or more sections map to a *segment* in the executable.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们在对象代码中讨论*节*，这些节等待被链接到可执行文件中。一个或多个节映射到可执行文件中的*段*。
 - en: 3.3.1 Segments
+  id: totrans-53
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.3.1 段
 - en: As we have done before, it is sometimes easier to look at the higher level of
     abstraction (segments) before inspecting the lower layers.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如我们之前所做的那样，在检查底层之前，有时查看更高层次的抽象（段）会更简单。
 - en: As we mentioned the ELF file has an header that describes the overall layout
     of the file. The ELF header actually points to another group of headers called
     the *program headers*. These headers describe to the operating system anything
     that might be required for it to load the binary into memory and execute it. Segments
     are described by program headers, but so are some other things required to get
     the executable running.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如我们所提到的，ELF 文件有一个描述文件整体布局的头。ELF 头实际上指向另一组称为*程序头*的头。这些头描述了操作系统可能需要加载二进制文件到内存并执行的所有内容。段由程序头描述，但还有一些其他东西需要执行才能使可执行文件运行。
 - en: '[PRE4]'
+  id: totrans-56
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: Example 3.3.1.1 The Program Header
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.3.1.1 程序头
 - en: The definition of the program header is seen in [Example 3.3.1.1, The Program
     Header](#program-header). You might have noticed from the ELF header definition
     above how there were fields `e_phoff`, `e_phnum` and `e_phentsize`; these are
     simply the offset in the file where the program headers start, how many program
     headers there are and how big each program header is. With these three bits of
     information you can easily find and read the program headers.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 程序头的定义可以在[示例 3.3.1.1，程序头](#program-header)中看到。你可能已经注意到，在上面的 ELF 头定义中，有字段`e_phoff`、`e_phnum`和`e_phentsize`；这些字段简单地表示程序头在文件中的偏移量，程序头的数量以及每个程序头的大小。有了这三块信息，你可以轻松地找到并读取程序头。
 - en: Program headers more than just segments. The `p_type` field defines just what
     the program header is defining. For example, if this field is `PT_INTERP` the
     header is defined as meaning a string pointer to an *interpreter* for the binary
@@ -300,8 +424,10 @@
     usual interpreter of a binary file is the *dynamic loader*, so called because
     it takes the final steps to complete loading of the executable and prepare the
     binary image for running.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 程序头不仅仅是段。`p_type`字段定义了程序头具体定义的内容。例如，如果这个字段是`PT_INTERP`，则该头定义为一个指向二进制文件*解释器*的字符串指针。我们之前讨论了编译语言与解释语言的区别，并指出编译器构建的二进制文件可以独立运行。为什么还需要解释器呢？正如往常一样，真实情况要复杂一些。现代系统在加载可执行文件时希望具有灵活性，为此，一些信息只能在程序实际设置运行时才能充分获取。我们将在后续章节中看到这一点，其中我们将探讨动态链接。因此，可能需要对二进制文件进行一些小的修改，以便它在运行时能够正常工作。因此，二进制文件的通常解释器是*动态加载器*，之所以称为动态加载器，是因为它完成加载可执行文件的最后一步，并为运行准备二进制映像。
 - en: Segments are described with a value of `PT_LOAD` in the `p_type` field. Each
     segment is then described by the other fields in the program header. The `p_offset`
     field tells you how far into the file on disk the data for the segment is. The
@@ -315,63 +441,97 @@
     indicates the permissions on the segment. Execute, read and write permissions
     can be specified in any combination; for example code segments should be marked
     as read and execute only, data sections as read and write with no execute.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 段落由程序头中的 `p_type` 字段中的 `PT_LOAD` 值来描述。然后，每个段由程序头中的其他字段进行描述。`p_offset` 字段告诉您段的数据在磁盘文件中的位置。`p_vaddr`
+    字段告诉您数据在虚拟内存中的地址（`p_addr` 描述的是物理地址，这对于不实现虚拟内存的小型嵌入式系统来说非常有用）。两个标志 `p_filesz` 和
+    `p_memsz` 用来告诉您段在磁盘上的大小以及它在内存中应该有多大。如果内存大小大于磁盘大小，则重叠部分应填充零。这样，您可以通过不浪费空间为空全局变量腾出空间，从而在二进制文件中节省相当大的空间。最后，`p_flags`
+    指示段上的权限。执行、读取和写入权限可以以任何组合指定；例如，代码段应标记为只读和执行，数据段为可读可写且不可执行。
 - en: There are a few other segment types defined in the program headers, they are
     described more fully in the standards specification.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 程序头中定义了少数几种其他段类型，它们在标准规范中有更详细的描述。
 - en: 3.3.2 Sections
+  id: totrans-62
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.3.2 部分
 - en: As we have mentioned, sections make up segments. Sections are a way to organise
     the binary into logical areas to communicate information between the compiler
     and the linker. In some special binaries, such as the Linux kernel, sections are
     used in more specific ways (see [Section 6.2, Custom sections](csbu-print_split_053.html#extra_sections)).
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如我们提到的，部分构成了段。部分是一种将二进制文件组织成逻辑区域的方法，以便在编译器和链接器之间传递信息。在某些特殊的二进制文件中，例如 Linux
+    内核，部分被用于更具体的方式（参见 [部分 6.2，自定义部分](csbu-print_split_053.html#extra_sections)）。
 - en: We've seen how segments ultimately come down to a blob of data in a file on
     disk with some descriptions about where it should be loaded and what permissions
     it has. Sections have a similar header to segments, as shown in [Example 3.3.2.1,
     Sections](#section-header) .
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经看到，段最终归结为磁盘文件中的一个数据块，其中包含有关其加载位置和权限的一些描述。部分与段有类似的头信息，如 [示例 3.3.2.1，部分](#section-header)
+    所示。
 - en: '[PRE5]'
+  id: totrans-65
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Example 3.3.2.1 Sections
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.3.2.1 部分
 - en: Sections have a few more types defined for the `sh_type` field; for example
     a section of type `SH_PROGBITS` is defined as a section that hold binary data
     for use by the program. Other flags say if this section is a symbol table (used
     by the linker or debugger for example) or maybe something for the dynamic loader.
     There are also more attributes, such as the *allocate* attribute which flags that
     this section will need memory allocated for it.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 部分在 `sh_type` 字段中定义了更多类型；例如，类型为 `SH_PROGBITS` 的部分被定义为包含程序使用的二进制数据的部分。其他标志表示此部分是否为符号表（例如，由链接器或调试器使用）或可能是用于动态加载器的某些内容。还有更多属性，例如
+    *allocate* 属性，表示此部分将需要为其分配内存。
 - en: Below we will examine the program listed in [Example 3.3.2.2, Sections](#section)
     .
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 在下面，我们将检查 [示例 3.3.2.2，部分](#section) 中列出的程序。
 - en: '[PRE6]'
+  id: totrans-69
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: Example 3.3.2.2 Sections
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.3.2.2 部分
 - en: '[Example 3.3.2.3, Sections readelf output](#section-readelf) shows the output
     of readelf with some parts stripped clarity. Using this output we can analyse
     each part of our simple program and see where it ends up in the final output binary.'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: '[示例 3.3.2.3，readelf 输出部分](#section-readelf) 展示了 readelf 的输出，其中一些部分已被剥离以提高清晰度。使用此输出，我们可以分析我们简单程序中的每个部分，并查看它在最终输出二进制文件中的位置。'
 - en: '[PRE7]'
+  id: totrans-72
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: Example 3.3.2.3 Sections readelf output
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.3.2.3 部分 readelf 输出
 - en: Firstly, let us look at the variable `big_big_array`, which as the name suggests
     is a fairly large global array. If we skip down to the symbol table we can see
     that the variable is at location `0x100109cc` which we can correlate to the `.bss`
@@ -381,14 +541,20 @@
     have 10 megabytes of space allocated to it, when all of that space is going to
     be zero. Note that this section has a type of `NOBITS` meaning that it does not
     have any bytes on disk.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，让我们看看变量 `big_big_array`，正如其名称所暗示的那样，这是一个相当大的全局数组。如果我们跳到符号表，我们可以看到该变量位于地址
+    `0x100109cc`，我们可以将其与段列表中的 `.bss` 段相关联，因为它正好位于其下方 `0x100109c8`。注意其大小，以及它相当大。我们提到
+    BSS 是二进制图像的标准部分，因为要求磁盘上的二进制文件分配 10 兆字节的空间是愚蠢的，因为所有这些空间都将为零。注意这个部分有一个类型为 `NOBITS`，这意味着它没有在磁盘上的任何字节。
 - en: Thus the `.bss` section is defined for global variables whose value should be
     zero when the program starts. We have seen how the memory size can be different
     to the on disk size in our discussion of segments; variables being in the `.bss`
     section are an indication that they will be given zero value on program start.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，`.bss` 段是为全局变量定义的，这些变量的值在程序开始时应为零。我们在讨论段时已经看到内存大小可以与磁盘大小不同；变量位于 `.bss` 段是它们将在程序开始时赋予零值的指示。
 - en: The `a_string` variable lives in the `.sdata` section, which stands for *small
     data*. Small data (and the corresponding `.sbss` section) are sections available
     on some architectures where data can be reached by an offset from some known pointer.
@@ -400,39 +566,58 @@
     in registers `r1 = add r2,r3`) and can thus only offset a certain "small" distance
     from an address. We can also see that our `a_var_with_value` lives in the same
     place.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 变量 `a_string` 位于 `.sdata` 段，代表 *小数据*。小数据（以及相应的 `.sbss` 段）是在某些架构上可用的段，其中数据可以通过从某个已知指针的偏移量访问。这意味着可以将一个固定值添加到基址，这使得访问这些段中的数据更快，因为没有额外的查找和将地址加载到内存中所需的加载。大多数架构限制于可以添加到寄存器的立即值的大小（例如，如果执行指令
+    `r1 = add r2, 70;`，70 是一个 *立即值*，而不是说，将存储在寄存器中的两个值相加 `r1 = add r2,r3`）因此只能从地址偏移一定的“小”距离。我们还可以看到我们的
+    `a_var_with_value` 也位于同一位置。
 - en: '`main` however lives in the `.text` section, as we expect (remember the name
     "text" and "code" are used interchangeably to refer to a program in memory.'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，`main` 位于 `.text` 段，正如我们所期望的（记住“text”和“code”这两个名称可以互换用来指代内存中的程序）。
 - en: 3.3.3 Sections and Segments together
+  id: totrans-78
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.3.3 段和段一起
 - en: '[PRE8]'
+  id: totrans-79
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: Example 3.3.3.1 Sections and Segments
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.3.3.1 段和段
 - en: '[Example 3.3.3.1, Sections and Segments](#sections-segments) shows how `readelf`
     shows us the segments and section mappings in the ELF file for the binary `/bin/ls`.'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: '[示例 3.3.3.1，段和段](#sections-segments) 展示了 `readelf` 如何显示二进制文件 `/bin/ls` 中的段和段映射。'
 - en: Skipping to the bottom of the output, we can see what sections have been moved
     into what segments. So, for example the `.interp` section is placed into an `INTERP`
     flagged segment. Notice that readelf tells us it is requesting the interpreter
     `/lib/ld.so.1`; this is the dynamic linker which is run to prepare the binary
     for execution.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 跳到输出的底部，我们可以看到哪些段被移动到了哪些段。例如，`.interp` 段被放置在带有 `INTERP` 标志的段中。注意 readelf 告诉我们它正在请求解释器
+    `/lib/ld.so.1`；这是运行以准备二进制文件执行动态链接器。
 - en: Looking at the two `LOAD` segments we can see the distinction between text and
     data. Notice how the first one has only "read" and "execute" permissions, whilst
     the next one has read, write and execute permissions? These describe the code
     (r/w) and data (r/w/e) segments.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 查看两个 `LOAD` 段，我们可以看到文本和数据之间的区别。注意第一个只有一个“读取”和“执行”权限，而下一个有读取、写入和执行权限？这些描述了代码（r/w）和数据（r/w/e）段。
 - en: But data should not need to be executable! Indeed, on most architectures (for
     example, the most common x86) the data section will not be marked as having the
     data section executable. However, the example output above was taken from a PowerPC
@@ -443,29 +628,43 @@
     permissions for the GOT section, which you can see is embedded in the data segment.
     This should make sense after reading the dynamic linking chapter!. Such is the
     life of a systems programmer, where rules were made to be broken!
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是数据不应该需要可执行！实际上，在大多数架构（例如，最常用的 x86）中，数据段不会被标记为具有可执行的数据段。然而，上面的示例输出是从一个 PowerPC
+    机器上获取的，它有一个略微不同的编程模型（ABI，见下文），要求数据段可执行。对于那些好奇的人来说，PowerPC ABI 直接在 GOT 中调用动态库中的函数的存根，而不是通过单独的
+    PLT 条目进行跳转。因此，处理器需要 GOT 段的执行权限，您可以看到它嵌入在数据段中。在阅读了动态链接章节后，这应该是有意义的！这就是系统程序员的日常生活，规则就是为了被打破！
 - en: The other interesting thing to note is that the file size is the same as the
     memory size for the code segment, however memory size is greater than the file
     size for the data segment. This comes from the BSS section which holds zeroed
     global variables.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个值得注意的有趣之处是，文件大小与代码段的内存大小相同，然而内存大小大于数据段的文件大小。这来自 BSS 部分，它包含零初始化的全局变量。
 - en: </main>
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 4 ELF Executables
+  id: totrans-88
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 4 ELF 可执行文件
 - en: Executables are of course one of the primary uses of the ELF format. Contained
     within the *binary* is everything required for the operating system to execute
     the code as intended.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 可执行文件当然是 ELF 格式的主要用途之一。在 *二进制* 中包含了操作系统执行代码所需的所有内容。
 - en: Since an executable is designed to be run in a process with a unique address
     space (see [Chapter 6, Virtual Memory](csbu-print_split_028.html#chapter05)) the
     code can make assumptions about where the various parts of the program will be
@@ -478,43 +677,62 @@
     even if a bug allowed an attacker to introduce arbitrary data the pages backing
     it would not be marked with execute permissions, and most processors will hence
     disallow any execution of code in those pages).
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于可执行文件设计为在一个具有唯一地址空间的过程中运行（参见[第 6 章，虚拟内存](csbu-print_split_028.html#chapter05)），代码可以假设程序的各种部分将在内存中的何处加载。[示例
+    4.1，可执行文件的段](#elf_executable)展示了使用 readelf 工具检查可执行文件段的示例。我们可以看到 `LOAD` 段必须放置的虚拟地址。我们还可以看到，一个段是用于代码的——它只有读取和执行权限——另一个是用于数据的，不出所料，具有读取和写入权限，但重要的是没有执行权限（没有执行权限，即使存在漏洞允许攻击者引入任意数据，支持这些页面的页面也不会标记为具有执行权限，并且大多数处理器将因此禁止在这些页面中执行代码）。
 - en: '[PRE9]'
+  id: totrans-91
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: Example 4.1 Segments of an executable file
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 4.1 可执行文件的段
 - en: The program segments must be loaded at these addresses; the last step of the
     linker is to resolve most relocations ([Section 3.2, Symbols and Relocations](csbu-print_split_050.html#symbols_and_relocations))
     and patch them with the assumed absolute addresses — the data describing the relocation
     is then discarded in the final binary and there is no longer a way to find this
     information.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 程序段必须在这些地址上加载；链接器的最后一步是解决大多数重定位（[第 3.2 节，符号和重定位](csbu-print_split_050.html#symbols_and_relocations)）并将它们与假定的绝对地址修补——然后最终二进制中丢弃描述重定位的数据，并且不再有找到这些信息的方法。
 - en: In reality, executables generally have external dependencies on *shared libraries*,
     or pieces of common code abstracted and shared among the entire system — almost
     all of the confusing parts of [Example 4.1, Segments of an executable file](#elf_executable)
     relate to the use of shared libraries. Libraries are discussed in [Section 5,
     Libraries](csbu-print_split_052.html#libraries), dynamic libraries in [Chapter 9,
     Dynamic Linking](csbu-print_split_055.html#chapter08).
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 在现实中，可执行文件通常依赖于**共享库**的外部依赖，或者说是整个系统中抽象和共享的通用代码——[示例4.1，可执行文件的段](#elf_executable)中的大部分复杂部分都与共享库的使用有关。库在[第5节，库](csbu-print_split_052.html#libraries)中讨论，动态库在第9章[动态链接](csbu-print_split_055.html#chapter08)中讨论。
 - en: </main>
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 5 Libraries
+  id: totrans-97
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5 库
 - en: Developers soon tired of having to write everything from scratch, so one of
     the first inventions of computer science was *libraries*.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 开发者很快就厌倦了必须从头开始编写一切，因此计算机科学中的第一个发明之一就是**库**。
 - en: A library is simply a collection of functions which you can call from your program.
     Obviously a library has many advantages, not least of which is that you can save
     much time by reusing work someone else has already done and generally be more
@@ -522,52 +740,74 @@
     too, and you benefit from having them finding and fixing bugs). A library is exactly
     like an executable, except instead of running directly the library functions are
     invoked with parameters from your executable.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 库简单来说就是一组你可以从你的程序中调用的函数。显然，库有很多优点，其中最重要的可能是你可以通过重用别人已经完成的工作来节省大量时间，并且通常可以更有信心它有更少的错误（因为可能有很多其他人也使用这些库，并且你可以从他们找到和修复错误中受益）。库与可执行文件完全一样，只是库函数不是直接运行，而是通过从你的可执行文件中传递参数来调用。
 - en: 5.1 Static Libraries
+  id: totrans-100
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.1 静态库
 - en: The most straight forward way of using a library function is to have the object
     files from the library linked directly into your final executable, just as with
     those you have compiled yourself. When linked like this the library is called
     a *static* library, because the library will remain unchanged unless the program
     is recompiled.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用库函数最直接的方法是将库的对象文件直接链接到你的最终可执行文件中，就像你自己编译的那样。当以这种方式链接时，库被称为**静态**库，因为除非程序重新编译，否则库将保持不变。
 - en: This is the most straight forward way of using a library as the final result
     is a simple executable with no dependencies.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是最直接使用库的方法，因为最终结果是一个简单的可执行文件，没有依赖项。
 - en: 5.1.1 Inside static libraries
+  id: totrans-103
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 5.1.1 静态库内部
 - en: A static library is simply a group of object files. The object files are kept
     in an *archive*, which leads to their usual `.a` suffix extension. You can think
     of archives as similar to a `zip` file, but without compression.
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 静态库简单来说是一组对象文件。这些对象文件保存在一个**归档**中，这导致了它们通常的`.a`后缀扩展名。你可以把归档想象成类似于`zip`文件，但没有压缩。
 - en: Below we show the creation of basic static library and introduce some common
     tools for working with libraries.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面我们将展示基本静态库的创建，并介绍一些用于处理库的常用工具。
 - en: '[PRE10]'
+  id: totrans-106
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: Example 5.1.1.1 Creating and using a static library
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例5.1.1.1 创建和使用静态库
 - en: Firstly we compile our library to an object file, just as we have seen in the
     previous chapter.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，我们将编译我们的库到一个对象文件，就像我们在上一章中看到的那样。
 - en: Notice that we define the library API in the header file. The API consists of
     function definitions for the functions in the library; this is so that the compiler
     knows what types the functions take when building object files that reference
     the library (e.g. `program.c`, which `#include`s the header file).
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，我们在头文件中定义了库API。API由库中函数的定义组成；这样，编译器在构建引用库的对象文件（例如`program.c`，它包含了头文件）时，就知道函数的类型。
 - en: We create the library ar (short for "archive") command. By convention static
     library file names are prefixed with `lib` and have the extension `.a`. The `c`
     argument tells the program to create the archive, and `a` tells archive to add
@@ -579,8 +819,11 @@
     packages use an alternate but similar format called cpio. Of course the canonical
     application for keeping files together is the `tar` file, which is a common format
     to distribute source code.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们创建了一个名为`ar`（代表“归档”）的库命令。按照惯例，静态库文件名以`lib`为前缀，并具有`.a`扩展名。`c`参数告诉程序创建归档，而`a`参数告诉归档将指定的目标文件添加到库文件中。使用`ar`创建的归档在Linux系统中出现在几个不同的地方，而不仅仅是创建静态库。一个广泛使用的例子是Debian、Ubuntu和一些其他Linux系统中使用的`.deb`打包格式。`debs`使用归档将所有应用程序文件集中在一个包文件中。RedHat
+    RPM包使用一个类似但不同的格式，称为cpio。当然，将文件集中起来的规范应用是`tar`文件，这是一种常见的源代码分发格式。
 - en: Next we use the ranlib application to make a header in the library with the
     symbols of the object file contents. This helps the compiler to quickly reference
     symbols; in the case where we just have one this step may seem a little redundant;
@@ -588,97 +831,140 @@
     speed up finding references. We inspect this new header with the nm application.
     We see the `function` symbol for the `function()` function at offset zero, as
     we expect.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，我们使用ranlib应用程序在库中创建一个包含目标文件内容符号的头文件。这有助于编译器快速引用符号；如果我们只有一个符号，这一步可能看起来有点多余；然而，大型库可能有数千个符号，这意味着索引可以显著加快查找引用的速度。我们使用nm应用程序检查这个新的头文件。我们看到`function()`函数的`function`符号位于偏移量零处，正如我们所期望的。
 - en: You then specify the library to the compiler with `-lname` where name is the
     filename of the library without the prefix `lib`. We also provide an extra search
     directory for libraries, namely the current directory (`-L .`), since by default
     the current directory is not searched for libraries.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 然后，您使用`-lname`指定库给编译器，其中name是库的文件名，不包括前缀`lib`。我们还提供了一个额外的库搜索目录，即当前目录（`-L .`），因为默认情况下，当前目录不会被搜索库。
 - en: The final result is a single executable with our new library included.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 最终结果是包含我们的新库的单个可执行文件。
 - en: 5.1.2 Static Linking Drawbacks
+  id: totrans-114
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 5.1.2 静态链接的缺点
 - en: Static linking is very straight forward, but has a number of drawbacks.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 静态链接非常直接，但存在一些缺点。
 - en: There are two main disadvantages; firstly if the library code is updated (to
     fix a bug, say) you have to recompile your program into a new executable and secondly,
     every program in the system that uses that library contains a copy in its executable.
     This is very inefficient (and a pain if you find a bug and have to recompile,
     as per point one).
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 有两个主要缺点；首先，如果库代码被更新（比如修复一个错误），您必须重新编译您的程序到一个新的可执行文件中；其次，系统中使用该库的每个程序在其可执行文件中都包含一个副本。这非常低效（如果您发现一个错误并需要重新编译，这会非常痛苦，正如第一点所述）。
 - en: For example, the C library (glibc) is included in all programs, and provides
     all the common functions such as `printf`.
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，C库（glibc）包含在所有程序中，并提供所有常见函数，如`printf`。
 - en: 5.2 Shared Libraries
+  id: totrans-118
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.2 共享库
 - en: Shared libraries are an elegant way around the problems posed by a static library.
     A shared library is a library that is loaded dynamically at runtime for each application
     that requires it.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 共享库是解决静态库带来的问题的优雅方式。共享库是一个在运行时动态加载的库，每个需要它的应用程序都会加载它。
 - en: The application simply leaves pointers that it will require a certain library,
     and when the function call is made the library is loaded into memory and executed.
     If the library is already loaded for another application, the code can be shared
     between the two, saving considerable resources with commonly used libraries.
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 应用程序简单地留下指针，表明它将需要某个库，当函数调用发生时，该库被加载到内存中并执行。如果库已经被另一个应用程序加载，那么代码可以在两者之间共享，从而节省大量资源，特别是对于常用库。
 - en: This process, called dynamic linking, is one of the more intricate parts of
     a modern operating system. As such, we dedicate the next chapter to investigating
     the dynamic linking process.
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个过程，称为动态链接，是现代操作系统更复杂部分之一。因此，我们将在下一章中专门研究动态链接过程。
 - en: </main>
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 6 Extending ELF concepts
+  id: totrans-124
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 6 扩展 ELF 概念
 - en: 6.1 Debugging
+  id: totrans-125
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 6.1 调试
 - en: Traditionally the primary method of post mortem debugging is referred to as
     the *core dump*. The term *core* comes from the original physical characteristics
     of magnetic core memory, which uses the orientation of small magnetic rings to
     store state.
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统上，死后调试的主要方法被称为 *核心转储*。术语 *core* 来自于磁性核心存储器的原始物理特性，它使用小磁环的取向来存储状态。
 - en: Thus a core dump is simply a complete snapshot of the program as it was running
     at a particular time. A *debugger* can then be used to examine this dump and reconstruct
     the program state. [Example 6.1.1, Example of creating a core dump and using it
     with gdb](#coredump_gdb) shows a sample program that writes to a random memory
     location in order to force a crash. At this point the processes will be halted
     and a dump of the current state is recorded.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，核心转储（core dump）仅仅是程序在特定时间运行时的完整快照。然后可以使用调试器（*debugger*）来检查这个转储并重建程序状态。[示例
+    6.1.1，使用 gdb 创建核心转储的示例](#coredump_gdb) 展示了一个将数据写入随机内存位置的程序示例，以强制程序崩溃。在此点，进程将被停止，并记录当前状态。
 - en: '[PRE11]'
+  id: totrans-128
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: Example 6.1.1 Example of creating a core dump and using it with gdb
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.1.1 创建核心转储并使用 gdb 的示例
 - en: Thus a core-dump is just another ELF file with a range of sections understood
     to the debugger to represent parts of the running program.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，核心转储（core-dump）只是另一个具有一系列调试器理解的段的 ELF 文件，这些段代表正在运行的程序的部分。
 - en: 6.1.1 Symbols and Debugging Information
+  id: totrans-131
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 6.1.1 符号和调试信息
 - en: As [Example 6.1.1, Example of creating a core dump and using it with gdb](#coredump_gdb)
     shows, the debugger gdb requires the original executable and the core dump to
     reconstruct the environment for the debugging session. Note that the original
@@ -688,8 +974,12 @@
     currently hold which variables used in the code, size of variables, length of
     arrays, etc. It is generally in the standard *DWARF* format (a pun on the almost-synonym
     ELF).
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 如 [示例 6.1.1，使用 gdb 创建核心转储的示例](#coredump_gdb) 所示，调试器 gdb 需要原始可执行文件和核心转储来重建调试会话的环境。请注意，原始可执行文件是用
+    `-g` 标志构建的，该标志指示编译器包含所有 *调试信息*。这些额外的调试信息被保留在 ELF 文件的特殊部分中。它详细描述了诸如当前哪些寄存器值持有代码中使用的变量、变量的大小、数组长度等。它通常是标准的
+    *DWARF* 格式（几乎与 ELF 同义的玩笑）。
 - en: Including debugging information can make executable files and libraries very
     large; although this data is not required resident in memory for actually running
     it can still take up considerable disk space. Thus the usual process is to *strip*
@@ -702,15 +992,23 @@
     in the original executable, which contains a hash so that when a debugging sessions
     starts the debugger can be sure it associates the right debugging information
     with the right executable.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 包含调试信息可以使可执行文件和库变得非常大；尽管这些数据在实际运行时不需要驻留在内存中，但仍然可能占用相当大的磁盘空间。因此，通常的过程是从 ELF 文件中
+    *剥离* 这些信息。虽然可以安排同时发送已剥离和未剥离的文件，但大多数当前的二进制分发方法都提供单独的调试信息文件。可以使用 objcopy 工具提取调试信息（`--only-keep-debug`），然后通过添加链接到原始可执行文件中的这些已剥离信息（`--add-gnu-debuglink`）来执行此操作。完成此操作后，原始可执行文件中将出现一个名为
+    `.gnu_debuglink` 的特殊部分，其中包含一个散列值，以便在调试会话开始时，调试器可以确信它将正确的调试信息与正确的可执行文件关联起来。
 - en: '[PRE12]'
+  id: totrans-134
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: Example 6.1.1.1 Example of stripping debugging information into separate files
     using objcopy
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.1.1.1 使用 objcopy 将调试信息剥离到单独文件中的示例
 - en: Symbols take up much less space, but are also targets for removal from final
     output. Once the individual object files of an executable are linked into the
     single final image there is generally no need for most symbols to remain. As discussed
@@ -721,22 +1019,35 @@
     to be resolved at run-time (for *dynamic linking*, the focus of [Chapter 9, Dynamic
     Linking](csbu-print_split_055.html#chapter08)) but these are put in separate *dynamic*
     symbol tables so they will not be removed and render the final output useless.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 符号占用的空间要小得多，但也是最终输出中需要删除的目标。一旦可执行文件的各个单独对象文件链接到单个最终映像中，大多数符号通常就没有保留的必要了。如[第
+    3.2 节，符号和重定位](csbu-print_split_050.html#symbols_and_relocations)所述，符号是用于修复重定位条目的，但一旦完成这项工作，符号对于运行最终程序就不是严格必要的了。在
+    Linux 上，GNU 工具链的 strip 程序提供了删除符号的选项。请注意，一些符号在运行时需要解决（对于 *动态链接*，见[第 9 章，动态链接](csbu-print_split_055.html#chapter08)），但这些被放在单独的
+    *动态* 符号表中，因此它们不会被删除，也不会使最终输出变得无用。
 - en: 6.1.2 Inside coredumps
+  id: totrans-137
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 6.1.2 核心转储内部
 - en: A coredump is really just another ELF file; this illustrates the flexibility
     of ELF as a binary format.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: coredump 实际上只是另一个 ELF 文件；这说明了 ELF 作为二进制格式的灵活性。
 - en: '[PRE13]'
+  id: totrans-139
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: Example 6.1.2.1 Example of using readelf and eu-readelf to examine a coredump.
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.1.2.1 使用 readelf 和 eu-readelf 检查 coredump 的示例。
 - en: In [Example 6.1.2.1, Example of using readelf and eu-readelf to examine a coredump.](#coredump_internal)
     we can see an examination of the core file produced by [Example 6.1.1, Example
     of creating a core dump and using it with gdb](#coredump_gdb) using firstly the
@@ -744,14 +1055,20 @@
     in the file that may be required for loading an executable or library; it simply
     consists of a series of program headers describing `LOAD` segments. These segments
     are raw data dumps, created by the kernel, of the current memory allocations.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[示例 6.1.2.1，使用 readelf 和 eu-readelf 检查 coredump 的示例](#coredump_internal)中，我们可以看到使用
+    readelf 工具对由[示例 6.1.1，创建 coredump 并与 gdb 一起使用的示例](#coredump_gdb)产生的核心文件进行检查。文件中没有包含加载可执行文件或库可能需要的部分、重定位或其他无关信息；它仅仅由一系列描述
+    `LOAD` 段的程序头部组成。这些段是内核创建的当前内存分配的原始数据转储。
 - en: The other component of the core dump is the `NOTE` sections which contain data
     necessary for debugging but not necessarily captured in straight snapshot of the
     memory allocations. The eu-readelf program used in the second part of the figure
     provides a more complete view of the data by decoding it.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 核心转储的另一个组成部分是 `NOTE` 部分，它包含调试所需的数据，但不一定包含在内存分配的直接快照中。图中第二部分使用的 eu-readelf 程序通过解码提供了更完整的数据视图。
 - en: The `PRSTATUS` note gives a range of interesting information about the process
     as it was running; for example we can see from `cursig` that the program received
     a signal 11, or segmentation fault, as we would expect. Along with process number
@@ -759,8 +1076,11 @@
     values, the debugger can reconstruct the stack state and hence provide a *backtrace*;
     combined with the symbol and debugging information from the original binary the
     debugger can show exactly how you reached the current point of execution.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: '`PRSTATUS` 注释提供了关于正在运行的过程的一些有趣信息；例如，我们可以从 `cursig` 中看到程序收到了信号 11，即段错误，正如我们所预期的那样。除了进程号信息外，它还包括所有当前寄存器的转储。根据寄存器值，调试器可以重建堆栈状态，从而提供
+    *回溯*；结合来自原始二进制的符号和调试信息，调试器可以显示您是如何到达当前执行点的。'
 - en: Another interesting output is the current *auxiliary vector* (`AUXV`), discussed
     in [Section 8.1, Kernel communication to programs](csbu-print_split_055.html#auxv).
     The `386_TLS` describes *global descriptor table* entries used for the x86 implementation
@@ -769,20 +1089,31 @@
     for information on threadsFor a multi-threaded application, there would be duplicate
     entries for each thread running. The debugger will understand this, and it is
     how gdb implements the `thread` command to show and switch between threads.).
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个有趣的输出是当前的 *辅助向量* (`AUXV`)，在 [第 8.1 节，内核与程序的通信](csbu-print_split_055.html#auxv)
+    中讨论。`386_TLS` 描述了用于 x86 实现的 *全局描述符表* 条目，用于 *线程局部存储*（有关分段使用的更多信息，请参阅 [第 4.1.1.3
+    节，快速系统调用](csbu-print_split_019.html#fast_system_calls)；有关线程的信息，请参阅 [第 4.3.1.1
+    节，线程](csbu-print_split_024.html#threads)）。对于多线程应用程序，每个运行的线程都会有重复的条目。调试器会理解这一点，这也是
+    gdb 实现显示和切换线程的 `thread` 命令的方式。
 - en: The kernel creates the core dump file within the bounds of the current `ulimit`
     settings — since a program using a lot of memory could result in a very large
     dump, potentially filling up disk and making problems even worse, generally the
     `ulimit` is set low or even at zero, since most non-developers have little use
     for a core dump file. However the core dump remains the single most useful way
     to debug an unexpected situation in a postmortem fashion.
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 内核在当前 `ulimit` 设置的范围内创建核心转储文件——由于使用大量内存的程序可能会导致非常大的转储，从而可能填满磁盘并使问题更加严重，通常 `ulimit`
+    设置得较低，甚至为零，因为大多数非开发者很少使用核心转储文件。然而，核心转储仍然是调试意外情况的最有用方式之一。
 - en: 6.2 Custom sections
+  id: totrans-146
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 6.2 自定义部分
 - en: For the most part, organisation of code, data and symbols is something a programmer
     can leave up the toolchain defaults. However, there are times when it makes sense
     to extend or customise sections and their contents. One common example of this
@@ -793,31 +1124,47 @@
     standards. This means the methods of storing things like license information,
     authorship, dependencies and paramaters for the moudule can be uniquely and wholly
     defined by the kernel.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于代码、数据和符号的组织，程序员通常可以将其留给工具链默认设置。然而，有时扩展或自定义部分及其内容是有意义的。一个常见的例子是与 Linux 内核 *模块*
+    相关，这些模块用于动态地将驱动程序和其他功能加载到正在运行的内核中。因为这些模块不可移植，即它们只与一个固定的内核构建版本一起工作，所以模块与内核之间的接口可以是灵活的，并且不受特定标准的约束。这意味着存储诸如许可信息、作者身份、依赖关系和模块参数的方法可以由内核独特地完全定义。
 - en: The `modinfo` tool can inspect this information within a module and present
     it to the user. Below we use the example of the `FUSE` Linux kernel module, which
     allows user-space libraries to provide file-system implementations to the kernel.
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: '`modinfo` 工具可以在模块内部检查这些信息并向用户展示。以下我们以 `FUSE` Linux 内核模块为例，它允许用户空间库向内核提供文件系统实现。'
 - en: '[PRE14]'
+  id: totrans-149
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: Example 6.2.1 Example of `modinfo` output
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.2.1 `modinfo` 输出示例
 - en: As you can see above, `modinfo` is parsing the `.modinfo` section embedded within
     the module file to present the details of the module. [Example 6.2.2, Putting
     module info into sections](#modinfo_sections) shows how one field, the "author"
     is put into the module. The code mostly comes from `include/linux/module.h`.
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 如上所示，`modinfo` 正在解析模块文件中嵌入的 `.modinfo` 部分，以展示模块的详细信息。[示例 6.2.2，将模块信息放入部分](#modinfo_sections)
+    展示了如何将一个字段，“作者”，放入模块中。代码主要来自 `include/linux/module.h`。
 - en: '[PRE15]'
+  id: totrans-152
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: Example 6.2.2 Putting module info into sections
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.2.2 将模块信息放入部分
 - en: At first, this looks like a macro nightmare, but it can be unravelled step by
     step. Starting at the bottom, we see that `MODULE_AUTHOR` is a wrapper around
     the more generic `__MODULE_INFO` macro, which is where most of the magic happens.
@@ -828,111 +1175,165 @@
     other variables, but to stash it in its own ELF section called `.modinfo`. The
     other parameters stop the variable being optimised away because it looks unused
     and to ensure we pack the variables in next to each other by specifying the alignment.
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 起初，这看起来像是一个宏噩梦，但它可以一步一步地解开。从底部开始，我们看到 `MODULE_AUTHOR` 是一个围绕更通用的 `__MODULE_INFO`
+    宏的包装器，那里大部分的魔法发生。在那里，我们可以看到我们正在构建一个 `static const char []` 变量来保存字符串 `"author=Your
+    Name <your@name.com>"`。值得注意的是，该变量有一个额外的参数 `__attribute__((section(".modinfo")))`，它告诉编译器不要将此放入与所有其他变量一起的
+    `data` 部分，而是将其存储在其自己的 ELF 部分 `.modinfo` 中。其他参数阻止变量被优化掉，因为它看起来未使用，并确保通过指定对齐来将变量紧密打包在一起。
 - en: There is extensive use of *stringification* macros, which are rather arcane
     tricks used within the C pre-processor to ensure that strings and definitions
     can live together. The only other trick is the use of the `__COUNTER__` special
     define provided by `gcc`, which provides a unique, incrementing value each time
     it is called; this allows multiple `MODULE_AUTHOR` calls to in the one file and
     not end up with the same variable name.
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里广泛使用了 *字符串化* 宏，这些是 C 预处理器中使用的相当晦涩的技巧，用于确保字符串和定义可以共存。另一个技巧是使用 `gcc` 提供的 `__COUNTER__`
+    特殊定义，它在每次调用时提供一个唯一的递增值；这允许在一个文件中对多个 `MODULE_AUTHOR` 调用，而不会导致相同的变量名。
 - en: 'We can inspect the symbols placed in the final module to see the end result:'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以检查放置在最终模块中的符号，以查看最终结果：
 - en: '[PRE16]'
+  id: totrans-157
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: Example 6.2.3 Module symbols in `.modinfo` sections
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.2.3 `.modinfo` 中的模块符号
 - en: 6.3 Linker Scripts
+  id: totrans-159
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 6.3 链接脚本
 - en: In [Example 3.3.2.2, Sections](csbu-print_split_050.html#section) we described
     how sections make up segments in the final output. It is the job of the linker
     to build these sections into segments; to achieve this it uses a *linker script*
     which describes where segments start, what sections go into them and various other
     parameters.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 [示例 3.3.2.2，段](csbu-print_split_050.html#section) 中，我们描述了段如何组成最终输出中的段。这是链接器的任务，将这些部分构建成段；为了实现这一点，它使用一个
+    *链接脚本*，该脚本描述了段开始的位置、哪些部分放入其中以及各种其他参数。
 - en: '[Example 6.3.1, The default linker script](#linker-script) shows an extract
     of the default linker script, which the linker will show when given its verbose
     flag via specifying `-Wl,--verbose` to gcc. The default script is built-in to
     the linker and is based on the standard API definitions to create working user-space
     programs for the building platform.'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: '[示例 6.3.1，默认链接脚本](#linker-script) 展示了默认链接脚本的摘录，当通过指定 `-Wl,--verbose` 到 gcc
+    时，链接器会显示此脚本。默认脚本内置于链接器中，并基于标准 API 定义来创建适用于构建平台的用户空间程序。'
 - en: '[PRE17]'
+  id: totrans-162
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: Example 6.3.1 The default linker script
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 6.3.1 默认链接脚本
 - en: You can roughly see how the linker script specifies things like starting locations
     and what sections to group into various segments. In the same way `-Wl` is used
     to pass the `--verbose` to the linker via gcc, customised linker scripts can be
     provided by flags. Regular user-space developers are unlikely to need to override
     the default linker script. However, often very customised applications such as
     kernel builds require customised linker scripts.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以大致了解链接脚本如何指定诸如起始位置和将哪些部分组合到各种段中等内容。同样，使用 `-Wl` 通过 gcc 将 `--verbose` 传递给链接器，可以通过标志提供自定义的链接脚本。普通用户空间开发者不太可能需要覆盖默认链接脚本。然而，通常需要非常定制的应用程序，如内核构建，则需要自定义链接脚本。
 - en: </main>
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 7 ABIs
+  id: totrans-167
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 7 ABIs
 - en: An ABI is a term you will hear a lot about when working with systems programming.
     We have talked extensively about *API*, which are interfaces the programmer sees
     to your code.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 当进行系统编程时，你将经常听到 ABI 这个术语。我们已经广泛讨论了 *API*，这是程序员看到的与你的代码的接口。
 - en: ABI's refer to lower level interfaces which the compiler, operating system and,
     to some extent, processor, must agree on to communicate together. Below we introduce
     a number of concepts which are important to understanding ABI considerations.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: ABI（应用程序二进制接口）指的是编译器、操作系统以及在一定程度上处理器必须达成一致的低级接口，以便相互通信。下面我们将介绍一些对理解ABI考虑因素很重要的概念。
 - en: 7.1 Byte Order
+  id: totrans-170
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 7.1 字节序
 - en: Endianess
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 字节序
 - en: 7.2 Calling Conventions
+  id: totrans-172
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 7.2 调用约定
 - en: 7.2.1 Passing parameters
+  id: totrans-173
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 7.2.1 传递参数
 - en: registers or stack?
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 寄存器还是栈？
 - en: 7.2.2 Function Descriptors
+  id: totrans-175
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 7.2.2 函数描述符
 - en: On many architectures you must call a function through a *function descriptor*,
     rather than directly.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 在许多架构中，你必须通过一个*函数描述符*来调用一个函数，而不是直接调用。
 - en: For example, on IA64 a function descriptor consists of two components; the address
     of the function (that being a 64 bit, or 8 byte value) and the address of the
     *global pointer* (gp). The ABI specifies that r1 should always contain the gp
     value for a function. This means that when you call a function, it is the `callees`
     job to save their gp value, set r1 to be the new value (from the function descriptor)
     and `then` call the function.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，在IA64架构中，函数描述符由两个组件组成；函数的地址（这是一个64位，或8字节的值）和全局指针（gp）的地址。ABI指定r1应该始终包含函数的gp值。这意味着当你调用一个函数时，保存自己的gp值、将r1设置为新的值（来自函数描述符）并`然后`调用函数是调用者的责任。
 - en: This may seem like a strange way to do things, but it has very useful practical
     implications as you will see in the next chapter about global offset tables. On
     IA64 an `add` instruction can only take a maximum 22 bit *immediate value*Technically
@@ -940,85 +1341,119 @@
     into each bundle, and there is only enough room to keep a 22 bit value to keep
     the bundle together.. An immediate value is one that is specified directly, rather
     than in a register (e.g. in `add r1 + 100` 100 is the immediate value).
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种方法可能看起来有些奇怪，但它在实际应用中非常有用，你将在下一章关于全局偏移表的章节中看到。在IA64架构中，`add`指令只能接受最大22位的*立即值*。技术上这是因为IA64指令捆绑的方式。每个捆绑包中放入三个指令，而捆绑包中只有足够的空间来保持一个22位值，以保持捆绑包在一起。立即值是直接指定的值，而不是在寄存器中指定的（例如，在`add
+    r1 + 100`中，100是立即值）。
 - en: You might recognise 22 bits as being able to represent 4194304 bytes, or 4MB.
     Thus each function can directly offset into an area of memory 4MB big without
     having to take the penalty of loading any values into a register. If the compiler,
     linker and loader all agree on what the global pointer is pointing to (as specified
     in the ABI) performance can be improved by less loading.
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能已经注意到22位可以表示4194304字节，即4MB。因此，每个函数可以直接偏移到4MB大小的内存区域，而无需承担将任何值加载到寄存器的惩罚。如果编译器、链接器和加载器都同意全局指针指向的内容（如ABI中指定），则可以通过减少加载来提高性能。
 - en: </main>
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 8 Starting a process
+  id: totrans-182
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 8 启动进程
 - en: We mentioned before that simply saying the program starts with the `main()`
     function is not quite true. Below we examine what happens to a typical dynamically
     linked program when it is loaded and run (statically linked programs are similar
     but different XXX should we go into this?).
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们之前提到，简单地说程序从`main()`函数开始并不完全准确。下面我们将检查一个典型的动态链接程序在加载和运行时会发生什么（静态链接程序类似但有所不同
+    XXX 我们是否应该深入探讨这个问题？）。
 - en: Firstly, in response to an `exec` system call the kernel allocates the structures
     for a new process and reads the ELF file specified from disk.
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，内核响应`exec`系统调用，为新进程分配结构，并从磁盘读取指定的ELF文件。
 - en: We mentioned that ELF has a program interpreter field, `PT_INTERP`, which can
     be set to 'interpret' the program. For dynamically linked applications that interpreter
     is the dynamic linker, namely ld.so, which allows some of the linking process
     to be done on the fly before the program starts.
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们提到，ELF有一个程序解释器字段，`PT_INTERP`，可以设置为`interpret`程序。对于动态链接的应用程序，这个解释器是动态链接器，即ld.so，它允许在程序开始之前动态地完成一些链接过程。
 - en: In this case, the kernel *also* reads in the dynamic linker code, and starts
     the program from the entry point address as specified by it. We examine the role
     of the dynamic linker in depth in the next chapter, but suffice to say it does
     some setup like loading any libraries required by the application (as specified
     in the dynamic section of the binary) and then starts execution of the program
     binary at its entry point address (i.e. the `_init` function).
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这种情况下，内核*还*读取动态链接器代码，并从它指定的入口点地址启动程序。我们将在下一章深入探讨动态链接器的角色，但简而言之，它执行一些设置，例如加载应用程序所需的任何库（如二进制文件的动态部分中指定），然后从入口点地址启动程序二进制文件的执行（即`_init`函数）。
 - en: 8.1 Kernel communication to programs
+  id: totrans-187
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.1 内核与程序的通信
 - en: The kernel needs to communicate some things to programs when they start up;
     namely the arguments to the program, the current environment variables and a special
     structure called the `Auxiliary Vector` or `auxv` (you can request the the dynamic
     linker show you some debugging output of the `auxv` by specifying the environment
     value `LD_SHOW_AUXV=1`).
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 当程序启动时，内核需要将一些信息传递给程序；即程序的参数、当前环境变量以及一个称为`辅助向量`或`auxv`的特殊结构（你可以通过指定环境值`LD_SHOW_AUXV=1`来请求动态链接器显示一些`auxv`的调试输出）。
 - en: The arguments and environment at fairly straight forward, and the various incarnations
     of the `exec` system call allow you to specify these for the program.
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 参数和环境变量相当直接，`exec`系统调用的各种实现允许你为程序指定这些参数。
 - en: The kernel communicates this by putting all the required information on the
     stack for the newly created program to pick up. Thus when the program starts it
     can use its stack pointer to find the all the startup information required.
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 内核通过将所有必要信息放在新创建程序的栈上，以便程序可以拾取这些信息来传达这一点。因此，当程序启动时，它可以使用其栈指针找到所有必需的启动信息。
 - en: The auxiliary vector is a special structure that is for passing information
     directly from the kernel to the newly running program. It contains system specific
     information that may be required, such as the default size of a virtual memory
     page on the system or *hardware capabilities*; that is specific features that
     the kernel has identified the underlying hardware has that userspace programs
     can take advantage of.
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 辅助向量是一个特殊结构，用于将信息直接从内核传递到新运行的程序。它包含可能需要的一些系统特定信息，例如系统上虚拟内存页的默认大小或*硬件能力*；即内核已识别的底层硬件具有的特定功能，用户空间程序可以利用这些功能。
 - en: 8.1.1 Kernel Library
+  id: totrans-192
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 8.1.1 内核库
 - en: We mentioned previously that system calls are slow, and modern systems have
     mechanisms to avoid the overheads of calling a trap to the processor.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们之前提到系统调用很慢，现代系统有机制来避免调用处理器陷阱的开销。
 - en: In Linux, this is implemented by a neat trick between the dynamic loader and
     the kernel, all communicated with the AUXV structure. The kernel actually adds
     a small shared library into the address space of every newly created process which
@@ -1027,56 +1462,79 @@
     (being the creator of the library) can use it, otherwise it can use the old scheme
     of generating a trap. This library is named `linux-gate.so.1`, so called because
     it is a *gateway* to the inner workings of the kernel.
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Linux中，这是通过动态加载器和内核之间的一种巧妙技巧实现的，所有通信都通过AUXV结构进行。内核实际上将一个小型共享库添加到每个新创建的进程的地址空间中，该库包含一个为你执行系统调用的函数。这个系统的美妙之处在于，如果底层硬件支持快速系统调用机制，内核（作为库的创建者）可以使用它；否则，它可以使用生成陷阱的旧方案。这个库被命名为`linux-gate.so.1`，之所以这样命名，是因为它是进入内核内部工作原理的*门户*。
 - en: When the kernel starts the dynamic linker it adds an entry to the auxv called
     `AT_SYSINFO_EHDR`, which is the address in memory that the special kernel library
     lives in. When the dynamic linker starts it can look for the `AT_SYSINFO_EHDR`
     pointer, and if found load that library for the program. The program has no idea
     this library exists; this is a private arrangement between the dynamic linker
     and the kernel.
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 当内核启动动态链接器时，它会在`auxv`中添加一个条目，称为`AT_SYSINFO_EHDR`，这是特殊内核库在内存中的地址。当动态链接器启动时，它可以查找`AT_SYSINFO_EHDR`指针，如果找到，则为程序加载该库。程序并不知道这个库的存在；这是动态链接器和内核之间的一个私人安排。
 - en: We mentioned that programmers make system calls indirectly through calling functions
     in the system libraries, namely libc. libc can check to see if the special kernel
     binary is loaded, and if so use the functions within that to make system calls.
     As we mentioned, if the kernel determines the hardware is capable, this will use
     the fast system call method.
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们提到，程序员通过调用系统库中的函数间接进行系统调用，即调用 libc。libc 可以检查是否已加载特殊的内核二进制文件，如果是，则使用其中的函数进行系统调用。正如我们提到的，如果内核确定硬件具备条件，它将使用快速系统调用方法。
 - en: 8.2 Starting the program
+  id: totrans-197
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 8.2 程序启动
 - en: Once the kernel has loaded the interpreter it passes it to the entry point as
     given in the interpreter file (note will not examine how the dynamic linker starts
     at this stage; see [Chapter 9, Dynamic Linking](#chapter08) for a full discussion
     of dynamic linking). The dynamic linker will jump to the entry point address as
     given in the ELF binary.
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦内核加载了解释器，它将解释器传递给解释器文件中给出的入口点（注意，在此阶段不会检查动态链接器的启动方式；有关动态链接的完整讨论，请参阅第 9 章，动态链接）。动态链接器将跳转到
+    ELF 二进制中给出的入口点地址。
 - en: '[PRE18]'
+  id: totrans-199
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: Example 8.2.1 Disassembley of program startup
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 8.2.1 程序启动的拆解
 - en: Above we investigate the very simplest program. Using readelf we can see that
     the entry point is the `_start` function in the binary. At this point we can see
     in the disassembley some values are pushed onto the stack. The first value, `0x8048400`
     is the `__libc_csu_fini` function; `0x8048390` is the `__libc_csu_init` and then
     finally `0x8048368`, the `main()` function. After this the value `__libc_start_main`
     function is called.
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 如上所述，我们研究了非常简单的程序。使用 readelf 我们可以看到，入口点是二进制中的 `_start` 函数。在这个点上，我们可以看到在反汇编中一些值被推入栈中。第一个值
+    `0x8048400` 是 `__libc_csu_fini` 函数；`0x8048390` 是 `__libc_csu_init`，然后最后是 `0x8048368`，即
+    `main()` 函数。之后，调用 `__libc_start_main` 函数。
 - en: '`__libc_start_main` is defined in the glibc sources `sysdeps/generic/libc-start.c`.
     The file function is quite complicated and hidden between a large number of defines,
     as it needs to be portable across the very wide number of systems and architectures
     that glibc can run on. It does a number of specific things related to setting
     up the C library which the average programmer does not need to worry about. The
     next point where the library calls back into the program is to handle `init` code.'
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: '`__libc_start_main` 定义在 glibc 源文件 `sysdeps/generic/libc-start.c` 中。该文件中的函数相当复杂，隐藏在大量的定义之间，因为它需要在
+    glibc 可以运行的非常广泛的系统和架构之间保持可移植性。它执行了与设置 C 库相关的一系列特定操作，而普通程序员不需要担心这些操作。库回调到程序的下一个点是处理
+    `init` 代码。'
 - en: '`init` and `fini` are two special concepts that call parts of code in shared
     libraries that may need to be called before the library starts or if the library
     is unloaded respectively. You can see how this might be useful for library programmers
@@ -1084,28 +1542,41 @@
     the functions `_init` and `_fini` were looked for in the library; however this
     became somewhat limiting as everything was required to be in these functions.
     Below we will examine just how the `init`/`fini` process works.'
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: '`init` 和 `fini` 是两个特殊的概念，它们调用共享库中的代码部分，这些代码部分可能在库开始之前或库卸载时需要调用。你可以看到这对于库程序员来说可能很有用，可以在库启动时设置变量，或者在结束时进行清理。最初，在库中寻找
+    `_init` 和 `_fini` 函数；然而，这变得有些限制，因为所有内容都必须包含在这些函数中。下面我们将考察 `init`/`fini` 过程是如何工作的。'
 - en: At this stage we can see that the `__libc_start_main` function will receive
     quite a few input paramaters on the stack. Firstly it will have access to the
     program arguments, environment variables and auxiliary vector from the kernel.
     Then the initalization function will have pushed onto the stack addresses for
     functions to handle `init`, `fini`, and finally the address of the main function
     itself.
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个阶段，我们可以看到 `__libc_start_main` 函数将在栈上接收相当多的输入参数。首先，它将能够访问来自内核的程序参数、环境变量和辅助向量。然后，初始化函数将把处理
+    `init`、`fini` 的函数地址以及主函数本身的地址推入栈中。
 - en: We need some way to indicate in the source code that a function should be called
     by `init` or `fini`. With gcc we use *attributes* to label two functions as *constructors*
     and *destructors* in our main program. These terms are more commonly used with
     object oriented languages to describe object life cycles.
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们需要在源代码中找到一种方法来指示函数应由 `init` 或 `fini` 调用。使用 gcc，我们使用 *属性* 来标记主程序中的两个函数作为 *构造函数*
+    和 *析构函数*。这些术语在面向对象的语言中更常用，用于描述对象的生命周期。
 - en: '[PRE19]'
+  id: totrans-206
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: Example 8.2.2 Constructors and Destructors
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 8.2.2 构造函数和析构函数
 - en: The last value pushed onto the stack for the `__libc_start_main` was the initialisation
     function `__libc_csu_init`. If we follow the call chain through from `__libc_csu_init`
     we can see it does some setup and then calls the `_init` function in the executable.
@@ -1115,30 +1586,46 @@
     see that this starting address is in the `.ctors` section of the file; if we have
     a look inside this we see that it contains the first value `-1`, a function address
     (in big endian format) and the value zero.
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后压入 `__libc_start_main` 堆栈的值是初始化函数 `__libc_csu_init`。如果我们从 `__libc_csu_init`
+    跟踪调用链，我们可以看到它进行了一些设置，然后调用可执行文件中的 `_init` 函数。`_init` 函数最终调用一个名为 `__do_global_ctors_aux`
+    的函数。查看这个函数的反汇编代码，我们可以看到它似乎从地址 `0x804952c` 开始，循环读取值并调用它。我们可以看到这个起始地址位于文件的 `.ctors`
+    部分；如果我们查看它，我们可以看到它包含第一个值 `-1`，一个函数地址（以大端格式），以及值零。
 - en: The address in big endian format is `0x08048398`, or the address of `program_init`
     function! So the format of the `.ctors` section is firstly a -1, and then the
     address of functions to be called on initialisation, and finally a zero to indicate
     the list is complete. Each entry will be called (in this case we only have the
     one function).
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: 大端格式的地址是 `0x08048398`，或者 `program_init` 函数的地址！所以 `.ctors` 部分的格式首先是一个 `-1`，然后是初始化时需要调用的函数的地址，最后是一个零，表示列表结束。每个条目都将被调用（在这种情况下我们只有一个函数）。
 - en: Once `__libc_start_main` has completed with the `_init` call it *finally* calls
     the `main()` function! Remember that it had the stack setup initially with the
     arguments and environment pointers from the kernel; this is how main gets its
     `argc, argv[], envp[]` arguments. The process now runs and the setup phase is
     complete.
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦 `__libc_start_main` 通过 `_init` 调用完成，它最终会调用 `main()` 函数！记住，它最初是通过内核的参数和环境指针设置了堆栈；这就是
+    `main` 获取其 `argc, argv[], envp[]` 参数的方式。现在进程开始运行，设置阶段完成。
 - en: A similar process is enacted with the `.dtors` for destructors when the program
     exits. `__libc_start_main` calls these when the `main()` function completes.
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 当程序退出时，对 `.dtors` 进行类似的过程来执行析构函数。`__libc_start_main` 在 `main()` 函数完成后调用这些函数。
 - en: As you can see, a lot is done before the program gets to start, and even a little
     after you think it is finished!
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如你所见，在程序开始之前做了很多工作，甚至在你想它已经完成之后，还有一些工作要做！
 - en: </main>
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>

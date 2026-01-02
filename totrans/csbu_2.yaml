@@ -1,61 +1,89 @@
 - en: <main class="calibre3">
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: Chapter 3. Computer Architecture
+  id: totrans-1
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 第3章 计算机体系结构
 - en: </main>
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 1 The CPU
+  id: totrans-4
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 1 CPU
 - en: <picture>![](computer.svg)</picture>
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![](computer.svg)</picture>
 - en: The CPU performs instructions on values held in registers. This example shows
     firstly setting the value of R1 to 100, loading the value from memory location
     0x100 into R2, adding the two values together and placing the result in R3 and
     finally storing the new value (110) to R4 (for further use).
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: CPU对寄存器中持有的值执行指令。这个例子首先将R1的值设置为100，将内存位置0x100中的值加载到R2，将两个值相加并将结果放在R3中，最后将新的值（110）存储到R4（供进一步使用）。
 - en: Figure 1.1 The CPU
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 图1.1 CPU
 - en: To greatly simplify, a computer consists of a central processing unit (CPU)
     attached to memory. The figure above illustrates the general principle behind
     all computer operations.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 简而言之，计算机由一个连接到内存的中央处理单元（CPU）组成。上面的图示说明了所有计算机操作背后的基本原理。
 - en: The CPU executes instructions read from memory. There are two categories of
     instructions
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: CPU执行从内存中读取的指令。指令分为两类
 - en: Those that *load* values from memory into registers and *store* values from
     registers to memory.
+  id: totrans-10
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 那些从内存中将值加载到寄存器中，并将值从寄存器存储到内存中的。
 - en: Those that operate on values stored in registers. For example adding, subtracting
     multiplying or dividing the values in two registers, performing bitwise operations
     (and, or, xor, etc) or performing other mathematical operations (square root,
     sin, cos, tan, etc).
+  id: totrans-11
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 那些在寄存器中存储的值上操作的。例如，在两个寄存器中添加、减去、乘以或除以值，执行位操作（与、或、异或等）或执行其他数学操作（平方根、正弦、余弦、正切等）。
 - en: So in the example we are simply adding 100 to a value stored in memory, and
     storing this new result back into memory.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个例子中，我们只是将存储在内存中的值加上100，并将这个新的结果存储回内存。
 - en: 1.1 Branching
+  id: totrans-13
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.1 分支
 - en: Apart from loading or storing, the other important operation of a CPU is *branching*.
     Internally, the CPU keeps a record of the next instruction to be executed in the
     *instruction pointer*. Usually, the instruction pointer is incremented to point
@@ -63,118 +91,168 @@
     if a specific register is zero or if a flag is set and, if so, will modify the
     pointer to a different address. Thus the next instruction to execute will be from
     a different part of program; this is how loops and decision statements work.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了加载或存储之外，CPU的另一个重要操作是*分支*。内部，CPU记录下要执行的下一个指令的*指令指针*。通常，指令指针会增加以指向下一个指令的顺序；分支指令通常会检查特定寄存器是否为零或标志是否设置，如果是，则会将指针修改为不同的地址。因此，要执行的下一个指令将来自程序的另一部分；这就是循环和决策语句是如何工作的。
 - en: For example, a statement like `if (x==0)` might be implemented by finding the
     `or` of two registers, one holding `x` and the other zero; if the result is zero
     the comparison is true (i.e. all bits of `x` were zero) and the body of the statement
     should be taken, otherwise branch past the body code.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，一个像`if (x==0)`这样的语句可能通过找到两个寄存器的`or`来实现，一个寄存器持有`x`，另一个为零；如果结果是零，比较为真（即`x`的所有位都是零），则应采取语句的主体，否则跳过主体代码。
 - en: 1.2 Cycles
+  id: totrans-16
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.2 循环
 - en: We are all familiar with the speed of the computer, given in Megahertz or Gigahertz
     (millions or thousands of millions cycles per second). This is called the *clock
     speed* since it is the speed that an internal clock within the computer pulses.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们都熟悉计算机的速度，以兆赫兹或吉赫兹（每秒百万或十亿个周期）表示。这被称为*时钟速度*，因为它是指计算机内部时钟脉冲的速度。
 - en: The pulses are used within the processor to keep it internally synchronised.
     On each tick or pulse another operation can be started; think of the clock like
     the person beating the drum to keep the rower's oars in sync.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 脉冲在处理器内部用于保持内部同步。在每个滴答或脉冲之后，可以开始另一个操作；想想看，时钟就像敲鼓的人，以保持划船者的桨同步。
 - en: 1.3 Fetch, Decode, Execute, Store
+  id: totrans-19
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.3 取指令、解码、执行、存储
 - en: Executing a single instruction consists of a particular cycle of events; fetching,
     decoding, executing and storing.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 执行单个指令由一系列特定的事件周期组成；取指令、解码、执行和存储。
 - en: For example, to do the `add` instruction above the CPU must
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，要执行上面的`add`指令，CPU必须
 - en: 'Fetch : get the instruction from memory into the processor.'
+  id: totrans-22
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 取指令：将指令从内存中获取到处理器中。
 - en: 'Decode : internally decode what it has to do (in this case add).'
+  id: totrans-23
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 解码：内部解码它必须做什么（在这种情况下是添加）。
 - en: 'Execute : take the values from the registers, actually add them together'
+  id: totrans-24
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 执行：从寄存器中取值，实际上将它们相加
 - en: 'Store : store the result back into another register. You might also see the
     term *retiring* the instruction.'
+  id: totrans-25
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 存储：将结果存储回另一个寄存器。您也可能看到术语*退休*指令。
 - en: 1.3.1 Looking inside a CPU
+  id: totrans-26
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.3.1 查看CPU内部结构
 - en: Internally the CPU has many different sub components that perform each of the
     above steps, and generally they can all happen independently of each other. This
     is analogous to a physical production line, where there are many stations where
     each step has a particular task to perform. Once done it can pass the results
     to the next station and take a new input to work on.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 内部，CPU有许多不同的子组件，执行上述每一步，并且通常它们都可以相互独立地发生。这类似于一个物理生产线，其中有许多站点，每个站点都有特定的任务要执行。一旦完成，它可以将结果传递给下一个站点，并接收新的输入来处理。
 - en: <picture>![](block.svg)</picture>
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![](block.svg)</picture>
 - en: The CPU is made up of many different sub-components, each doing a dedicated
     task.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: CPU由许多不同的子组件组成，每个组件都执行特定的任务。
 - en: Figure 1.3.1.1 Inside the CPU
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 图1.3.1.1 CPU内部结构
 - en: '[Figure 1.3.1.1, Inside the CPU](#inside_the_cpu) shows a very simple block
     diagram illustrating some of the main parts of a modern CPU.'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图1.3.1.1，CPU内部结构](#inside_the_cpu)展示了一个非常简单的框图，说明了现代CPU的一些主要部分。'
 - en: You can see the instructions come in and are decoded by the processor. The CPU
     has two main types of registers, those for *integer* calculations and those for
     *floating point* calculations. Floating point is a way of representing numbers
     with a decimal place in binary form, and is handled differently within the CPU.
     *MMX* (multimedia extension) and *SSE* (Streaming Single Instruction Multiple
     Data) or *Altivec* registers are similar to floating point registers.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以看到指令进入并被处理器解码。CPU有两种主要类型的寄存器，一种是用于*整数*计算的寄存器，另一种是用于*浮点*计算的寄存器。浮点是一种用二进制形式表示带小数点的数字的方法，并在CPU内部以不同的方式处理。*MMX*（多媒体扩展）和*SSE*（流式单指令多数据）或*Altivec*寄存器与浮点寄存器类似。
 - en: A *register file* is the collective name for the registers inside the CPU. Below
     that we have the parts of the CPU which really do all the work.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: '*寄存器文件*是CPU内部寄存器的总称。在其下方，我们有CPU真正执行所有工作的部分。'
 - en: We said that processors are either loading or storing a value into a register
     or from a register into memory, or doing some operation on values in registers.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们说过，处理器要么将值加载到寄存器中，要么从寄存器中存储到内存中，要么对寄存器中的值执行某些操作。
 - en: The *Arithmetic Logic Unit* (ALU) is the heart of the CPU operation. It takes
     values in registers and performs any of the multitude of operations the CPU is
     capable of. All modern processors have a number of ALUs so each can be working
     independently. In fact, processors such as the Pentium have both *fast* and *slow*
     ALUs; the fast ones are smaller (so you can fit more on the CPU) but can do only
     the most common operations, slow ALUs can do all operations but are bigger.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '*算术逻辑单元*（ALU）是CPU操作的核心。它从寄存器中取值并执行CPU能够执行的各种操作。所有现代处理器都有多个ALU，因此它们可以独立工作。实际上，像Pentium这样的处理器既有*快速*ALU也有*慢速*ALU；快速的ALU更小（因此可以在CPU上放置更多），但只能执行最常见的操作，慢速ALU可以执行所有操作但体积更大。'
 - en: The *Address Generation Unit* (AGU) handles talking to cache and main memory
     to get values into the registers for the ALU to operate on and get values out
     of registers back into main memory.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '*地址生成单元*（AGU）负责与缓存和主内存通信，将值放入寄存器以供ALU操作，并将值从寄存器中取出放入主内存。'
 - en: Floating point registers have the same concepts, but use slightly different
     terminology for their components.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 浮点寄存器有相同的概念，但它们的组件使用略不同的术语。
 - en: 1.3.2 Pipelining
+  id: totrans-38
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.3.2 流水线
 - en: As we can see above, whilst the ALU is adding registers together is completely
     separate to the AGU writing values back to memory, so there is no reason why the
     CPU can not be doing both at once. We also have multiple ALUs in the system, each
@@ -185,16 +263,22 @@
     simplified view. The more stages that can be executed at the same time, the deeper
     the pipeline., and a processor that can do this is referred to as a *superscalar
     architecture*. All modern processors are superscalar.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如我们上面所看到的，虽然ALU在将寄存器相加与AGU将值写回内存是完全分开的，所以CPU没有理由不能同时做这两件事。我们系统中也有多个ALU，每个都可以独立处理不同的指令。最后，CPU可以在其浮点逻辑执行一些浮点操作的同时，整数指令也在进行中。这个过程被称为
+    *流水线*。实际上，任何现代处理器都可以流水线化更多阶段，上面我们只展示了一个非常简化的视图。可以同时执行更多阶段的处理器，其流水线更深，这样的处理器被称为
+    *超标量架构*。所有现代处理器都是超标量。
 - en: Another analogy might be to think of the pipeline like a hose that is being
     filled with marbles, except our marbles are instructions for the CPU. Ideally
     you will be putting your marbles in one end, one after the other (one per clock
     pulse), filling up the pipe. Once full, for each marble (instruction) you push
     in all the others will move to the next position and one will fall out the end
     (the result).
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个类比可能就是想象流水线就像一个正在被弹珠填满的水管，只不过我们的弹珠是CPU的指令。理想情况下，你会一个接一个地将弹珠（指令）放入一端（每个时钟脉冲一个），填满管道。一旦填满，对于每个你推入的弹珠（指令），其他的都会移动到下一个位置，一个会从末端掉出（结果）。
 - en: Branch instruction play havoc with this model however, since they may or may
     not cause execution to start from a different place. If you are pipelining, you
     will have to basically guess which way the branch will go, so you know which instructions
@@ -206,35 +290,52 @@
     since only the last time will you actually continue with the program. Conversely,
     if the processor has predicted incorrectly it has wasted a lot of time and has
     to clear the pipeline and start again.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 分支指令对这个模型造成了破坏，因为它们可能或可能不会导致执行从不同的地方开始。如果你在流水线中，你将不得不基本上猜测分支将走向哪个方向，这样你才知道要将哪些指令带入流水线。如果CPU预测正确，一切都会顺利！例如，Pentium这样的处理器使用
+    *跟踪缓存* 来跟踪分支的方向。很多时候，它可以通过记住其先前结果来预测分支将走向哪个方向。例如，在一个发生100次的循环中，如果你记得分支的最后结果，你将有99次是正确的，因为只有最后一次你实际上会继续程序。相反，如果处理器预测错误，它浪费了很多时间，不得不清空流水线并重新开始。
 - en: This process is usually referred to as a *pipeline flush* and is analogous to
     having to stop and empty out all your marbles from your hose!
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个过程通常被称为 *流水线刷新*，就像不得不停下来并清空你水管中的所有弹珠一样！
 - en: 1.3.2.1 Branch Prediction
+  id: totrans-43
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.3.2.1 分支预测
 - en: pipeline flush, predict taken, predict not taken, branch delay slots
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 流水线刷新，预测取，预测不取，分支延迟槽
 - en: 1.3.3 Reordering
+  id: totrans-45
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.3.3 重新排序
 - en: In fact, if the CPU is the hose, it is free to reorder the marbles within the
     hose, as long as they pop out the end in the same order you put them in. We call
     this *program order* since this is the order that instructions are given in the
     computer program.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 事实上，如果CPU是水管，它可以在不改变弹珠出水的顺序的情况下自由地重新排列水管内的弹珠。我们称之为 *程序顺序*，因为这是计算机程序中指令给出的顺序。
 - en: '[PRE0]'
+  id: totrans-47
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: Figure 1.3.3.1 Reorder buffer example
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 图1.3.3.1 重新排序缓冲区示例
 - en: Consider an instruction stream such as that shown in [Figure 1.3.3.1, Reorder
     buffer example](#reorder_buffer) Instruction 2 needs to wait for instruction 1
     to complete fully before it can start. This means that the pipeline has to *stall*
@@ -244,8 +345,10 @@
     swap instructions 2 and 3 we can get a much better ordering for the pipeline since
     the processor can be doing useful work rather than waiting for the pipeline to
     complete to get the result of a previous instruction.
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑一个指令流，例如[图1.3.3.1，重排序缓冲区示例](#reorder_buffer)中所示。指令2需要等待指令1完全完成才能开始。这意味着流水线必须*暂停*，等待计算出的值。同样，指令3和4依赖于*r7*。然而，指令2和3之间没有任何*依赖*；这意味着它们操作在完全独立的寄存器上。如果我们交换指令2和3，我们可以为流水线获得更好的排序，因为处理器可以执行有用的工作，而不是等待流水线完成以获取先前指令的结果。
 - en: However, when writing very low level code some instructions may require some
     security about how operations are ordered. We call this requirement *memory semantics*.
     If you require *acquire* semantics this means that for this instruction you must
@@ -254,84 +357,114 @@
     must see the current result. Another even stricter semantic is a *memory barrier*
     or *memory fence* which requires that operations have been committed to memory
     before continuing.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，在编写非常底层的代码时，某些指令可能需要关于操作顺序的一些安全性。我们称这种要求为*内存语义*。如果你需要*获取*语义，这意味着你必须确保所有先前指令的结果都已经完成。如果你需要*释放*语义，这意味着你表示所有在此指令之后的指令都必须看到当前的结果。还有一种更严格的语义是*内存屏障*或*内存栅栏*，它要求在继续之前将操作提交到内存。
 - en: On some architectures these semantics are guaranteed for you by the processor,
     whilst on others you must specify them explicitly. Most programmers do not need
     to worry directly about them, although you may see the terms.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 在某些体系结构中，这些语义由处理器保证，而在其他体系结构中，你必须明确指定它们。大多数程序员不需要直接担心这些，尽管你可能会看到这些术语。
 - en: 1.4 CISC v RISC
+  id: totrans-52
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.4 CISC v RISC
 - en: A common way to divide computer architectures is into *Complex Instruction Set
     Computer* (CISC) and *Reduced Instruction Set Computer* (RISC).
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 将计算机体系结构划分为*复杂指令集计算机*（CISC）和*精简指令集计算机*（RISC）是一种常见的方法。
 - en: Note in the first example, we have explicitly loaded values into registers,
     performed an addition and stored the result value held in another register back
     to memory. This is an example of a RISC approach to computing -- only performing
     operations on values in registers and explicitly loading and storing values to
     and from memory.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意在第一个例子中，我们明确地将值加载到寄存器中，执行了加法操作，并将另一个寄存器中持有的结果值存储回内存。这是一个RISC计算方法的例子——只对寄存器中的值执行操作，并明确地将值从内存加载到寄存器或从寄存器存储到内存。
 - en: A CISC approach may be only a single instruction taking values from memory,
     performing the addition internally and writing the result back. This means the
     instruction may take many cycles, but ultimately both approaches achieve the same
     goal.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: CISC方法可能只是单个指令，从内存中获取值，在内部执行加法操作，并将结果写回。这意味着指令可能需要很多周期，但最终这两种方法都达到了相同的目标。
 - en: All modern architectures would be considered RISC architecturesEven the most
     common architecture, the Intel Pentium, whilst having an instruction set that
     is categorised as CISC, internally breaks down instructions to RISC style sub-instructions
     inside the chip before executing..
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有现代体系结构都可以被认为是RISC体系结构，即使是最常见的体系结构，如Intel Pentium，虽然其指令集被归类为CISC，但在执行之前，芯片内部将指令分解为RISC风格的子指令。
 - en: There are a number of reasons for this
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 这有多个原因
 - en: Whilst RISC makes assembly programming becomes more complex, since virtually
     all programmers use high level languages and leave the hard work of producing
     assembly code to the compiler, so the other advantages outweigh this disadvantage.
+  id: totrans-58
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 虽然 RISC 使得汇编编程变得更加复杂，因为几乎所有程序员都使用高级语言，并将生成汇编代码的艰巨任务留给编译器，但其他优点超过了这一缺点。
 - en: Because the instructions in a RISC processor are much more simple, there is
     more space inside the chip for registers. As we know from the memory hierarchy,
     registers are the fastest type of memory and ultimately all instructions must
     be performed on values held in registers, so all other things being equal more
     registers leads to higher performance.
+  id: totrans-59
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 由于RISC处理器的指令更加简单，芯片内部有更多的空间用于寄存器。正如我们从内存层次结构中所知，寄存器是最快的内存类型，最终所有指令都必须在寄存器中持有的值上执行，所以在其他条件相同的情况下，更多的寄存器会导致更高的性能。
 - en: Since all instructions execute in the same time, pipelining is possible. We
     know pipelining requires streams of instructions being constantly fed into the
     processor, so if some instructions take a very long time and others do not, the
     pipeline becomes far to complex to be effective.
+  id: totrans-60
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 由于所有指令都在相同的时间内执行，因此流水线是可能的。我们知道流水线需要不断将指令流输入到处理器中，所以如果某些指令执行时间非常长，而其他指令则不，那么流水线就会变得过于复杂而无法有效工作。
 - en: 1.4.1 EPIC
+  id: totrans-61
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.4.1 EPIC
 - en: The Itanium processor, which is used in many example through this book, is an
     example of a modified architecture called Explicitly Parallel Instruction Computing.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本书的许多例子中使用的 Itanium 处理器是修改后的架构，称为显式并行指令计算（EPIC）的例子。
 - en: We have discussed how superscaler processors have pipelines that have many instructions
     in flight at the same time in different parts of the processor. Obviously for
     this to work as well as possible instructions should be given the processor in
     an order that can make best use of the available elements of the CPU.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经讨论了超标量处理器如何具有流水线，在处理器的不同部分同时有多个指令在飞行。显然，为了尽可能好地工作，应该按照可以最好利用CPU可用元素的顺序向处理器提供指令。
 - en: Traditionally organising the incoming instruction stream has been the job of
     the hardware. Instructions are issued by the program in a sequential manner; the
     processor must look ahead and try to make decisions about how to organise the
     incoming instructions.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统上，组织传入的指令流是硬件的工作。程序以顺序方式发出指令；处理器必须向前看并尝试就如何组织传入的指令做出决定。
 - en: The theory behind EPIC is that there is more information available at higher
     levels which can make these decisions better than the processor. Analysing a stream
     of assembly language instructions, as current processors do, loses a lot of information
@@ -340,14 +473,19 @@
     Notes version of the same. Both give you the same result, but the original has
     all sorts of extra information that sets the scene and gives you insight into
     the characters.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: EPIC背后的理论是，在更高的层面上有更多的信息可用，这可以使这些决策比处理器更好。像当前处理器那样分析汇编语言指令流，会丢失程序员在原始源代码中可能提供的大量信息。把它想象成研究莎士比亚的戏剧和阅读同一戏剧的
+    Cliff's Notes 版本之间的区别。两者都给出了相同的结果，但原始版本有各种各样的额外信息，这些信息设定了场景，并让你对角色有了深入了解。
 - en: Thus the logic of ordering instructions can be moved from the processor to the
     compiler. This means that compiler writers need to be smarter to try and find
     the best ordering of code for the processor. The processor is also significantly
     simplified, since a lot of its work has been moved to the compiler.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，指令排序的逻辑可以从处理器移动到编译器。这意味着编译器编写者需要更聪明，以尝试找到最适合处理器的代码排序。处理器本身也显著简化了，因为大量工作已经转移到编译器上。
 - en: Another term often used around EPIC is Very Long Instruction World (VLIW), which
     is where each instruction to the processor is extended to tell the processor about
     where it should execute the instruction in its internal units. The problem with
@@ -355,100 +493,142 @@
     is has been compiled for. Companies are always making revisions to hardware, and
     making customers recompile their application every single time, and maintain a
     range of different binaries was impractical.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 在EPIC周围经常使用的另一个术语是超长指令字（VLIW），这里的每个处理器指令都被扩展以告诉处理器在它的内部单元中应该在哪里执行指令。这种方法的问题在于，代码随后完全依赖于为它编译的处理器模型。公司总是在修改硬件，并要求客户每次都重新编译他们的应用程序，维护一系列不同的二进制文件是不切实际的。
 - en: EPIC solves this in the usual computer science manner by adding a layer of abstraction.
     Rather than explicitly specifying the exact part of the processor the instructions
     should execute on, EPIC creates a simplified view with a few core units like memory,
     integer and floating point.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: EPIC通过添加一层抽象来解决这个问题，通常采用计算机科学的方法。而不是明确指定指令应在处理器的哪个部分执行，EPIC创建了一个包含几个核心单元（如内存、整数和浮点数）的简化视图。
 - en: </main>
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 2 Memory
+  id: totrans-71
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2 内存
 - en: 2.1 Memory Hierarchy
+  id: totrans-72
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.1 内存层次结构
 - en: The CPU can only directly fetch instructions and data from cache memory, located
     directly on the processor chip. Cache memory must be loaded in from the main system
     memory (the Random Access Memory, or RAM). RAM however, only retains its contents
     when the power is on, so needs to be stored on more permanent storage.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: CPU只能直接从位于处理器芯片上的缓存内存中获取指令和数据。缓存内存必须从主系统内存（随机存取存储器，或RAM）中加载。然而，RAM只有在电源开启时才保留其内容，因此需要存储在更持久的存储器上。
 - en: We call these layers of memory the *memory hierarchy*
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将这些内存层次称为 *内存层次结构*
 - en: Table 2.1.1 Memory Hierarchy
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 表2.1.1 内存层次结构
 - en: '| Speed | Memory | Description |'
+  id: totrans-76
   prefs: []
   type: TYPE_TB
+  zh: '| 速度 | 内存 | 描述 |'
 - en: '| --- | --- | --- |'
+  id: totrans-77
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Fastest | Cache | Cache memory is memory actually embedded inside the CPU.
     Cache memory is very fast, typically taking only once cycle to access, but since
     it is embedded directly into the CPU there is a limit to how big it can be. In
     fact, there are several sub-levels of cache memory (termed L1, L2, L3) all with
     slightly increasing speeds. |'
+  id: totrans-78
   prefs: []
   type: TYPE_TB
+  zh: '| 最快 | 缓存 | 缓存内存实际上是嵌入在CPU内部的内存。缓存内存非常快，通常只需一个周期即可访问，但由于它直接嵌入到CPU中，因此其大小有限。实际上，缓存内存有多个子级别（称为L1、L2、L3），它们的速度略有增加。|'
 - en: '|  | RAM | All instructions and storage addresses for the processor must come
     from RAM. Although RAM is very fast, there is still some significant time taken
     for the CPU to access it (this is termed *latency*). RAM is stored in separate,
     dedicated chips attached to the motherboard, meaning it is much larger than cache
     memory. |'
+  id: totrans-79
   prefs: []
   type: TYPE_TB
+  zh: '|  | RAM | 处理器的所有指令和存储地址都必须来自RAM。尽管RAM非常快，但CPU访问它仍需要一些显著的时间（这被称为 *延迟*）。RAM存储在连接到主板的独立、专用芯片上，这意味着它比缓存内存大得多。|'
 - en: '| Slowest | Disk | We are all familiar with software arriving on a floppy disk
     or CDROM, and saving our files to the hard disk. We are also familiar with the
     long time a program can take to load from the hard disk -- having physical mechanisms
     such as spinning disks and moving heads means disks are the slowest form of storage.
     But they are also by far the largest form of storage. |'
+  id: totrans-80
   prefs: []
   type: TYPE_TB
+  zh: '| 最慢 | 磁盘 | 我们都熟悉软件通过软盘或CDROM到来，以及将我们的文件保存到硬盘上。我们也熟悉程序从硬盘加载所需的时间很长——具有旋转磁盘和移动头等物理机制意味着磁盘是存储速度最慢的形式。但它们也是迄今为止最大的存储形式。|'
 - en: The important point to know about the memory hierarchy is the trade offs between
     speed and size — the faster the memory the smaller it is. Of course, if you can
     find a way to change this equation, you'll end up a billionaire!
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于内存层次结构的重要一点是要了解速度和大小之间的权衡——内存越快，它就越小。当然，如果你能找到改变这个等式的方法，你最终会成为一个亿万富翁！
 - en: The reason caches are effective is because computer code generally exhibits
     two forms of locality
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 缓存之所以有效，是因为计算机代码通常表现出两种形式的局部性
 - en: '*Spatial* locality suggests that data within blocks is likely to be accessed
     together.'
+  id: totrans-83
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*空间* 局部性表明，块内的数据很可能一起被访问。'
 - en: '*Temporal* locality suggests that data that was used recently will likely be
     used again shortly.'
+  id: totrans-84
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*时间* 局部性表明，最近使用过的数据很可能会很快再次被使用。'
 - en: This means that benefits are gained by implementing as much quickly accessible
     memory (temporal) storing small blocks of relevant information (spatial) as practically
     possible.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 这意味着，通过尽可能实现快速访问的内存（时间）存储尽可能小的相关信息块（空间），可以获得好处。
 - en: 2.2 Cache in depth
+  id: totrans-86
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.2 缓存深入
 - en: Cache is one of the most important elements of the CPU architecture. To write
     efficient code developers need to have an understanding of how the cache in their
     systems works.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 缓存是CPU架构中最重要的元素之一。为了编写高效的代码，开发者需要了解他们系统中的缓存是如何工作的。
 - en: The cache is a very fast copy of the slower main system memory. Cache is much
     smaller than main memories because it is included inside the processor chip alongside
     the registers and processor logic. This is prime real estate in computing terms,
@@ -456,19 +636,25 @@
     find more and more ways to cram more and more transistors onto a chip cache sizes
     grow considerably, but even the largest caches are tens of megabytes, rather than
     the gigabytes of main memory or terabytes of hard disk otherwise common.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 缓存是较慢的主系统内存的非常快速的副本。由于它包含在处理器芯片上，与寄存器和处理器逻辑一起，因此缓存比主存储器小得多。这在计算术语中是黄金地段，其最大尺寸存在经济和物理限制。随着制造商找到越来越多在芯片上塞入更多晶体管的方法，缓存大小显著增长，但即使最大的缓存也只有几十兆字节，而不是主存储器的千兆字节或硬盘的兆字节。
 - en: The cache is made up of small chunks of mirrored main memory. The size of these
     chunks is called the *line size*, and is typically something like 32 or 64 bytes.
     When talking about cache, it is very common to talk about the line size, or a
     cache line, which refers to one chunk of mirrored main memory. The cache can only
     load and store memory in sizes a multiple of a cache line.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 缓存由主内存的小块镜像组成。这些块的大小称为*行大小*，通常是32或64字节。在谈论缓存时，通常谈论行大小或缓存行，它指的是主内存的一个块。缓存只能以缓存行大小的倍数加载和存储内存。
 - en: Caches have their own hierarchy, commonly termed L1, L2 and L3\. L1 cache is
     the fastest and smallest; L2 is bigger and slower, and L3 more so.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 缓存有自己的层次结构，通常称为L1、L2和L3。L1缓存是最快和最小的；L2更大但更慢，L3则更慢。
 - en: L1 caches are generally further split into instruction caches and data, known
     as the "Harvard Architecture" after the relay based Harvard Mark-1 computer which
     introduced it. Split caches help to reduce pipeline bottlenecks as earlier pipeline
@@ -478,17 +664,25 @@
     of the nature of instruction streaming; they are read-only so do not need expensive
     on-chip features such as multi-porting, nor need to handle handle sub-block reads
     because the instruction stream generally uses more regular sized accesses.
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: L1缓存通常进一步分为指令缓存和数据缓存，称为“哈佛架构”，这是基于继电器式哈佛Mark-1计算机引入的。分割缓存有助于减少流水线瓶颈，因为早期流水线阶段倾向于引用指令缓存，而后期阶段则引用数据缓存。除了减少对共享资源的竞争外，为指令提供单独的缓存还允许采用可能利用指令流性质的替代实现；它们是只读的，因此不需要昂贵的芯片功能，如多端口，也不需要处理子块读取，因为指令流通常使用更规则的访问大小。
 - en: <picture>![](sets.svg)</picture>
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: '![图片](sets.svg)'
 - en: A given cache line may find a valid home in one of the shaded entries.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定的缓存行可能在一个阴影条目中找到一个有效的家。
 - en: Figure 2.2.1 Cache Associativity
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2.2.1 缓存关联性
 - en: During normal operation the processor is constantly asking the cache to check
     if a particular address is stored in the cache, so the cache needs some way to
     very quickly find if it has a valid line present or not. If a given address can
@@ -502,22 +696,29 @@
     are being constantly updated they are said to *fight* over the cache line. Thus
     we can categorise caches into three general types, illustrated in [Figure 2.2.1,
     Cache Associativity](#cache_associativity).
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 在正常操作期间，处理器不断要求缓存检查特定地址是否存储在缓存中，因此缓存需要某种方法来非常快速地确定是否存在有效的行。如果给定地址可以在缓存中的任何位置进行缓存，每次引用时都需要搜索每个缓存行以确定命中或未命中。为了保持搜索速度快，这在缓存硬件中是并行进行的，但搜索每个条目通常对于合理大小的缓存来说成本太高，无法实现。因此，可以通过限制特定地址必须存在的位置来简化缓存。这是一个权衡；显然，缓存比系统内存小得多，所以一些地址必须*别名*其他地址。如果两个别名彼此的地址被不断更新，它们就被称为*争夺*缓存行。因此，我们可以将缓存分为三种一般类型，如图2.2.1，缓存关联性[Cache
+    Associativity](#cache_associativity)所示。
 - en: '*Direct mapped* caches will allow a cache line to exist only in a singe entry
     in the cache. This is the simplest to implement in hardware, but as illustrated
     in [Figure 2.2.1, Cache Associativity](#cache_associativity) there is no potential
     to avoid aliasing because the two shaded addresses must share the same cache line.'
+  id: totrans-96
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*直接映射*缓存将允许缓存行只存在于缓存中的一个单独条目中。这在硬件中实现起来最简单，但如图2.2.1，缓存相联性所示，由于两个阴影地址必须共享相同的缓存行，因此没有避免别名的潜力。'
 - en: '*Fully Associative* caches will allow a cache line to exist in any entry of
     the cache. This avoids the problem with aliasing, since any entry is available
     for use. But it is very expensive to implement in hardware because every possible
     location must be looked up simultaneously to determine if a value is in the cache.'
+  id: totrans-97
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*全相联*缓存将允许缓存行存在于缓存中的任何条目中。这避免了别名问题，因为任何条目都可以使用。但在硬件中实现起来非常昂贵，因为必须同时查找所有可能的位置以确定值是否在缓存中。'
 - en: '*Set Associative* caches are a hybrid of direct and fully associative caches,
     and allow a particular cache value to exist in some subset of the lines within
     the cache. The cache is divided into even compartments called *ways*, and a particular
@@ -527,15 +728,19 @@
     associative cache; in this case the two addresses have four possible locations,
     meaning only half the cache must be searched upon lookup. The more ways, the more
     possible locations and the less aliasing, leading to overall better performance.'
+  id: totrans-98
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*组相联*缓存是直接相联缓存和全相联缓存的一种混合，允许特定的缓存值存在于缓存中某些行的子集中。缓存被划分为称为*路*的偶数部分，特定的地址可以位于任何一路。因此，一个*n*路组相联缓存将允许缓存行存在于大小为总块数模n的集合中的任何条目中——[图2.2.1，缓存相联性](#cache_associativity)展示了一个样本8元素，4路组相联缓存；在这种情况下，两个地址有四个可能的位置，这意味着在查找时只需搜索缓存的一半。路越多，可能的位置越多，别名越少，从而整体性能更好。'
 - en: Once the cache is full the processor needs to get rid of a line to make room
     for a new line. There are many algorithms by which the processor can choose which
     line to evict; for example *least recently used* (LRU) is an algorithm where the
     oldest unused line is discarded to make room for the new line.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 当缓存已满时，处理器需要移除一行以腾出空间给新行。有许多算法可以让处理器选择移除哪一行；例如，*最近最少使用*（LRU）是一种算法，其中最老的未使用行被丢弃以腾出空间给新行。
 - en: When data is only read from the cache there is no need to ensure consistency
     with main memory. However, when the processor starts writing to cache lines it
     needs to make some decisions about how to update the underlying main memory. A
@@ -547,19 +752,25 @@
     lines that have been written but not committed to memory are referred to as *dirty*.
     The disadvantage is that when a cache entry is evicted, it may require two memory
     accesses (one to write dirty data main memory, and another to load the new data).
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 当数据只从缓存中读取时，没有必要确保与主内存的一致性。然而，当处理器开始写入缓存行时，它需要就如何更新底层主内存做出一些决定。*写通*缓存会在处理器更新缓存的同时直接将更改写入主系统内存。这比较慢，因为写入主内存的过程，正如我们所见，比较慢。或者，*写回*缓存会延迟将更改写入RAM，直到绝对必要时才进行。明显的优点是，当缓存条目被写入时，所需的内存访问较少。已写入但尚未提交到内存的缓存行被称为*脏数据*。缺点是，当缓存条目被移除时，可能需要两次内存访问（一次写入脏数据到主内存，另一次加载新数据）。
 - en: If an entry exists in both a higher-level and lower-level cache at the same
     time, we say the higher-level cache is *inclusive*. Alternatively, if the higher-level
     cache having a line removes the possibility of a lower level cache having that
     line, we say it is *exclusive*. This choice is discussed further in [Section 4.1.1.1,
     Cache exclusivity in SMP systems](csbu-print_split_014.html#cache_exclusivity_in_smp).
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果一个条目同时存在于高级缓存和低级缓存中，我们说高级缓存是*包含的*。或者，如果高级缓存具有一行并消除了低级缓存具有该行的可能性，我们说它是*排除的*。这个选择在[第4.1.1.1节，SMP系统中的缓存排他性](csbu-print_split_014.html#cache_exclusivity_in_smp)中进一步讨论。
 - en: 2.2.1 Cache Addressing
+  id: totrans-102
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.2.1 缓存寻址
 - en: So far we have not discussed how a cache decides if a given address resides
     in the cache or not. Clearly, caches must keep a directory of what data currently
     resides in the cache lines. The cache directory and data may co-located on the
@@ -568,49 +779,67 @@
     the L3 bus to access off-core memory. An arrangement like this can facilitate
     quicker hit/miss processing without the other costs of keeping the entire cache
     on-core.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 到目前为止，我们还没有讨论缓存如何决定给定的地址是否位于缓存中。显然，缓存必须保留一个目录，记录当前哪些数据位于缓存行中。缓存目录和数据可以位于处理器上，也可以是分开的——例如，在POWER5处理器的情况下，它有一个核心L3目录，但实际访问数据需要遍历L3总线来访问离核内存。这样的安排可以加快命中/未命中的处理速度，而无需承担保持整个缓存在核心的其他成本。
 - en: <picture>![](tags.svg)</picture>
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![](tags.svg)</picture>
 - en: Tags need to be checked in parallel to keep latency times low; more tag bits
     (i.e. less set associativity) requires more complex hardware to achieve this.
     Alternatively more set associativity means less tags, but the processor now needs
     hardware to multiplex the output of the many sets, which can also add latency.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 标签需要并行检查以保持低延迟时间；更多的标签位（即更少的组关联性）需要更复杂的硬件来实现这一点。或者，更多的组关联性意味着更少的标签，但处理器现在需要硬件来多路复用许多组的输出，这也可能增加延迟。
 - en: Figure 2.2.1.1 Cache tags
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2.2.1.1 缓存标签
 - en: To quickly decide if an address lies within the cache it is separated into three
     parts; the *tag* and the *index* and the *offset*.
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了快速判断地址是否位于缓存中，它被分为三部分；*标签*、*索引*和*偏移量*。
 - en: The offset bits depend on the line size of the cache. For example, a 32-byte
     line size would use the last 5-bits (i.e. 2⁵) of the address as the offset into
     the line.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 偏移位数取决于缓存的行大小。例如，32字节行大小将使用地址的最后5位（即2⁵）作为行内的偏移量。
 - en: The *index* is the particular cache line that an entry may reside in. As an
     example, let us consider a cache with 256 entries. If this is a direct-mapped
     cache, we know the data may reside in only one possible line, so the next 8-bits
     (2⁸) after the offset describe the line to check - between 0 and 255.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: '*索引*是条目可能驻留的特定缓存行。例如，让我们考虑一个有256个条目的缓存。如果这是一个直接映射缓存，我们知道数据可能只驻留在一条可能的行中，因此偏移量之后的下一个8位（2⁸）描述了要检查的行——介于0到255之间。'
 - en: Now, consider the same 256 element cache, but divided into two ways. This means
     there are two groups of 128 lines, and the given address may reside in either
     of these groups. Consequently only 7-bits are required as an index to offset into
     the 128-entry ways. For a given cache size, as we increase the number of ways,
     we decrease the number of bits required as an index since each way gets smaller.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，考虑相同的256元素缓存，但将其分为两种方式。这意味着有两组128行，给定的地址可能位于这两组中的任意一组。因此，只需要7位作为索引来偏移到128个条目的方式中。对于给定的缓存大小，随着方式的增加，我们减少作为索引所需的位数，因为每个方式都变得更小。
 - en: The cache directory still needs to check if the particular address stored in
     the cache is the one it is interested in. Thus the remaining bits of the address
     are the *tag* bits which the cache directory checks against the incoming address
     tag bits to determine if there is a cache hit or not. This relationship is illustrated
     in [Figure 2.2.1.1, Cache tags](#cache_tags).
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 缓存目录仍然需要检查缓存中存储的特定地址是否是它感兴趣的地址。因此，地址的剩余位是*标签*位，缓存目录将其与传入地址的标签位进行比较，以确定是否发生缓存命中。这种关系如图2.2.1.1“缓存标签”所示。
 - en: When there are multiple ways, this check must happen in parallel within each
     way, which then passes its result into a multiplexor which outputs a final *hit*
     or *miss* result. As describe above, the more associative a cache is, the less
@@ -618,99 +847,139 @@
     cache where no bits are used as index bits. The parallel matching of tags bits
     is the expensive component of cache design and generally the limiting factor on
     how many lines (i.e, how big) a cache may grow.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 当有多个方式时，这种检查必须在每个方式内并行进行，然后将其结果传递给一个多路复用器，输出最终的*命中*或*未命中*结果。如上所述，缓存越关联，所需的索引位数越少，标签位数越多——直到完全关联的缓存，其中不使用任何位作为索引位。标签位的并行匹配是缓存设计中的昂贵组件，通常也是缓存可能增长行数（即大小）的限制因素。
 - en: </main>
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 3 Peripherals and buses
+  id: totrans-115
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3 外设和总线
 - en: Peripherals are any of the many external devices that connect to your computer.
     Obviously, the processor must have some way of talking to the peripherals to make
     them useful.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 外设是连接到您计算机的许多外部设备之一。显然，处理器必须有一些与外围设备通信的方法，以便使它们有用。
 - en: The communication channel between the processor and the peripherals is called
     a *bus*.
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 处理器和外围设备之间的通信通道被称为**总线**。
 - en: 3.1 Peripheral Bus concepts
+  id: totrans-118
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.1 外设总线概念
 - en: A device requires both input and output to be useful. There are a number of
     common concepts required for useful communication with peripherals.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个设备需要输入和输出才能有用。与外围设备进行有效通信需要一些常见概念。
 - en: 3.1.1 Interrupts
+  id: totrans-120
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.1.1 中断
 - en: An interrupt allows the device to literally interrupt the processor to flag
     some information. For example, when a key is pressed, an interrupt is generated
     to deliver the key-press event to the operating system. Each device is assigned
     an interrupt by some combination of the operating system and BIOS.
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 中断允许设备实际上中断处理器以标记某些信息。例如，当按键被按下时，会生成一个中断将按键事件传递给操作系统。每个设备都由操作系统和BIOS的某种组合分配一个中断。
 - en: Devices are generally connected to an *programmable interrupt controller* (PIC),
     a separate chip that is part of the motherboard which buffers and communicates
     interrupt information to the main processor. Each device has a physical *interrupt
     line* between it an one of the PIC's provided by the system. When the device wants
     to interrupt, it will modify the voltage on this line.
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 设备通常连接到一个**可编程中断控制器**（PIC），这是一个作为主板一部分的独立芯片，它缓冲并传递中断信息到主处理器。每个设备都与系统提供的PIC之一之间有一个物理的**中断线**。当设备想要中断时，它会修改这条线上的电压。
 - en: A very broad description of the PIC's role is that it receives this interrupt
     and converts it to a message for consumption by the main processor. While the
     exact procedure varies by architecture, the general principle is that the operating
     system has configured an *interrupt descriptor table* which pairs each of the
     possible interrupts with a code address to jump to when the interrupt is received.
     This is illustrated in [Figure 3.1.1.1, Overview of handling an interrupt](#interrupt_handling).
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 对PIC角色的非常广泛的描述是，它接收这个中断并将其转换为供主处理器消费的消息。虽然具体过程因架构而异，但一般原则是操作系统已配置了一个**中断描述符表**，将每个可能的中断与接收中断时要跳转的代码地址配对。这如图[图3.1.1.1，处理中断概述](#interrupt_handling)所示。
 - en: Writing this *interrupt handler* is the job of the device driver author in conjunction
     with the operating system.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 编写这个**中断处理程序**是设备驱动程序作者与操作系统共同的任务。
 - en: <picture>![](interrupt.svg)</picture>
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: '![中断](interrupt.svg)'
 - en: A generic overview of handling an interrupt. The device raises the interrupt
     to the interrupt controller, which passes the information onto the processor.
     The processor looks at its descriptor table, filled out by the operating system,
     to find the code to handle the fault.
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 处理中断的通用概述。设备将中断提升到中断控制器，控制器将信息传递给处理器。处理器查看由操作系统填充的描述符表，以找到处理故障的代码。
 - en: Figure 3.1.1.1 Overview of handling an interrupt
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 图3.1.1.1 处理中断概述
 - en: Most drivers will split up handling of interrupts into *bottom* and *top* halves.
     The bottom half will acknowledge the interrupt, queue actions for processing and
     return the processor to what it was doing quickly. The top half will then run
     later when the CPU is free and do the more intensive processing. This is to stop
     an interrupt hogging the entire CPU.
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 大多数驱动程序会将中断处理分为**底部**和**顶部**两部分。底部部分将确认中断，排队处理动作，并快速将处理器返回到之前的状态。顶部部分将在CPU空闲时运行，执行更密集的处理。这是为了防止中断占用整个CPU。
 - en: 3.1.1.1 Saving state
+  id: totrans-129
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 3.1.1.1 保存状态
 - en: Since an interrupt can happen at any time, it is important that you can return
     to the running operation when finished handling the interrupt. It is generally
     the job of the operating system to ensure that upon entry to the interrupt handler,
     it saves any *state*; i.e. registers, and restores them when returning from the
     interrupt handler. In this way, apart from some lost time, the interrupt is completely
     transparent to whatever happens to be running at the time.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于中断可能随时发生，因此当处理完中断后能够返回到运行的操作是很重要的。通常，这是操作系统的职责，确保在进入中断处理程序时保存任何**状态**；即寄存器，并在从中断处理程序返回时恢复它们。这样，除了丢失一些时间外，中断对当时正在运行的操作是完全透明的。
 - en: 3.1.1.2 Interrupts v traps and exceptions
+  id: totrans-131
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 3.1.1.2 中断与陷阱和异常
 - en: While an interrupt is generally associated with an external event from a physical
     device, the same mechanism is useful for handling internal system operations.
     For example, if the processor detects conditions such as an access to invalid
@@ -721,58 +990,78 @@
     memory, as discussed in [Chapter 6, Virtual Memory](csbu-print_split_028.html#chapter05).
     Although generated internally rather than from an external source, the principles
     of asynchronously interrupting the running code remains the same.
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然中断通常与来自物理设备的外部事件相关联，但同样的机制也适用于处理内部系统操作。例如，如果处理器检测到诸如访问无效内存、尝试除以零或无效指令等条件，它可以内部提升一个*异常*由操作系统处理。这也是用于处理*系统调用*的机制，如[第3节，系统调用](csbu-print_split_018.html#system_calls)中所述，以及实现虚拟内存的机制，如[第6章，虚拟内存](csbu-print_split_028.html#chapter05)中所述。尽管这些中断是由内部生成而不是外部源，但异步中断运行代码的原则仍然是相同的。
 - en: 3.1.1.3 Types of interrupts
+  id: totrans-133
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 3.1.1.3 中断类型
 - en: There are two main ways of signalling interrupts on a line — *level* and *edge*
     triggered.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 在线上触发中断主要有两种方式——*电平*触发和*边缘*触发。
 - en: Level-triggered interrupts define voltage of the interrupt line being held high
     to indicate an interrupt is pending. Edge-triggered interrupts detect *transitions*
     on the bus; that is when the line voltage goes from low to high. With an edge-triggered
     interrupt, a square-wave pulse is detected by the PIC as signalling and interrupt
     has been raised.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 电平触发中断定义了中断线保持高电平的电压，以指示有中断待处理。边缘触发中断检测总线上的*转换*；也就是说，当线路电压从低到高变化时。在边缘触发中断中，PIC通过检测方波脉冲来识别中断已被提升。
 - en: The difference is pronounced when devices share an interrupt line. In a level-triggered
     system, the interrupt line will be high until all devices that have raised an
     interrupt have been processed and un-asserted their interrupt.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 当设备共享一个中断线时，差异尤为明显。在电平触发系统中，中断线将保持高电平，直到所有已引发中断的设备都被处理并取消其中断声明。
 - en: In an edge-triggered system, a pulse on the line will indicate to the PIC that
     an interrupt has occurred, which it will signal to the operating system for handling.
     However, if further pulses come in on the already asserted line from another device.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 在边缘触发系统中，线路上的脉冲将向PIC指示已发生中断，PIC将向操作系统发出信号以进行处理。然而，如果来自另一个设备的进一步脉冲出现在已经声明的中断线上。
 - en: The issue with level-triggered interrupts is that it may require some considerable
     amount of time to handle an interrupt for a device. During this time, the interrupt
     line remains high and it is not possible to determine if any other device has
     raised an interrupt on the line. This means there can be considerable unpredictable
     latency in servicing interrupts.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 电平触发中断的问题在于处理设备中断可能需要相当长的时间。在这段时间内，中断线保持高电平，无法确定是否有其他设备在该线上引发了中断。这意味着在服务中断时可能会有相当大的不可预测的延迟。
 - en: With edge-triggered interrupts, a long-running interrupt can be noticed and
     queued, but other devices sharing the line can still transition (and hence raise
     interrupts) while this happens. However, this introduces new problems; if two
     devices interrupt at the same time it may be possible to miss one of the interrupts,
     or environmental or other interference may create a *spurious* interrupt which
     should be ignored.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 在边缘触发中断中，一个长时间运行的中断可以被注意到并排队，但其他共享该线的设备仍然可以转换（因此引发中断），而这一过程正在进行。然而，这也引入了新的问题；如果两个设备同时中断，可能会错过其中一个中断，或者环境或其他干扰可能会创建一个应该被忽略的*虚假*中断。
 - en: 3.1.1.4 Non-maskable interrupts
+  id: totrans-140
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 3.1.1.4 不可屏蔽中断
 - en: It is important for the system to be able to *mask* or prevent interrupts at
     certain times. Generally, it is possible to put interrupts on hold, but a particular
     class of interrupts, called *non-maskable interrupts* (NMI), are the exception
     to this rule. The typical example is the *reset* interrupt.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于系统来说，能够在某些时候*屏蔽*或防止中断是很重要的。通常情况下，可以将中断挂起，但有一类特殊的中断，称为*不可屏蔽中断*（NMI），是这一规则的例外。典型的例子是*复位*中断。
 - en: NMIs can be useful for implementing things such as a system watchdog, where
     a NMI is raised periodically and sets some flag that must be acknowledged by the
     operating system. If the acknowledgement is not seen before the next periodic
@@ -781,102 +1070,146 @@
     to evaluate what code the processor is currently running; over time this builds
     a profile of what code is being run and create a very useful insight into system
     performance.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: NMI可以用于实现系统看门狗等功能，其中定期引发NMI并设置操作系统必须确认的一些标志。如果在下一个周期性NMI之前没有看到确认，则可以认为系统没有向前发展。另一种常见用途是分析系统。可以引发周期性NMI并用于评估处理器当前正在运行的代码；随着时间的推移，这将构建一个正在运行的代码配置文件，并为系统性能提供非常有用的见解。
 - en: 3.1.2 IO Space
+  id: totrans-143
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.1.2 I/O空间
 - en: Obviously the processor will need to communicate with the peripheral device,
     and it does this via IO operations. The most common form of IO is so called *memory
     mapped IO* where registers on the device are *mapped* into memory.
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 显然，处理器需要与外围设备通信，它通过I/O操作来完成。最常见的I/O形式是所谓的*内存映射I/O*，其中设备上的寄存器被*映射*到内存中。
 - en: 'This means that to communicate with the device, you need simply read or write
     to a specific address in memory. TODO: expand'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 这意味着要与设备通信，你只需简单地读取或写入内存中的特定地址。TODO：扩展
 - en: 3.2 DMA
+  id: totrans-146
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.2 DMA
 - en: Since the speed of devices is far below the speed of processors, there needs
     to be some way to avoid making the CPU wait around for data from devices.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于设备速度远低于处理器速度，需要有一种方法来避免CPU等待从设备获取数据。
 - en: Direct Memory Access (DMA) is a method of transferring data directly between
     an peripheral and system RAM.
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 直接内存访问（DMA）是在外围设备和系统RAM之间直接传输数据的方法。
 - en: The driver can setup a device to do a DMA transfer by giving it the area of
     RAM to put its data into. It can then start the DMA transfer and allow the CPU
     to continue with other tasks.
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 驱动程序可以通过提供放置数据的RAM区域来设置设备进行DMA传输。然后它可以启动DMA传输，并允许CPU继续执行其他任务。
 - en: Once the device is finished, it will raise an interrupt and signal to the driver
     the transfer is complete. From this time the data from the device (say a file
     from a disk, or frames from a video capture card) is in memory and ready to be
     used.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦设备完成，它将引发中断并通知驱动程序传输已完成。从这时起，设备的数据（例如来自磁盘的文件或视频捕获卡的帧）就在内存中，并准备好使用。
 - en: 3.3 Other Buses
+  id: totrans-151
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.3 其他总线
 - en: Other buses connect between the PCI bus and external devices.
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 其他总线连接在PCI总线和外部设备之间。
 - en: 3.3.1 USB
+  id: totrans-153
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.3.1 USB
 - en: 'From an operating system point of view, a USB device is a group of end-points
     grouped together into an interface. An end-point can be either *in* or *out* and
     hence transfers data in one direction only. End-points can have a number of different
     types:'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 从操作系统的角度来看，一个USB设备是一组端点组合成一个接口。端点可以是*输入*或*输出*，因此只能单向传输数据。端点可以有几种不同的类型：
 - en: '*Control* end-points are for configuring the device, etc.'
+  id: totrans-155
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*控制*端点是用于配置设备等。'
 - en: '*Interrupt* end-points are for transferring small amounts of data. They have
     higher priority than ...'
+  id: totrans-156
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*中断*端点用于传输少量数据。它们的优先级高于...'
 - en: '*Bulk* end-points, which transfer large amounts of data but do not get guaranteed
     time constraints.'
+  id: totrans-157
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*批量*端点，传输大量数据但不保证时间约束。'
 - en: '*Isochronous* transfers are high-priority real-time transfers, but if they
     are missed they are not re-tried. This is for streaming data like video or audio
     where there is no point sending data again.'
+  id: totrans-158
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*等时*传输是高优先级的实时传输，但如果错过了，则不会重试。这是用于流式传输数据（如视频或音频）的情况，再次发送数据没有意义。'
 - en: There can be many interfaces (made of multiple end-points) and interfaces are
     grouped into *configurations*. However most devices only have a single configuration.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以有多个接口（由多个端点组成），接口被分组到*配置*中。然而，大多数设备只有一个配置。
 - en: <picture>![](uhci.svg)</picture>
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![](uhci.svg)</picture>
 - en: An overview of a UCHI controller, taken from [Intel documentation](http://download.intel.com/technology/usb/UHCI11D.pdf)
     (http://download.intel.com/technology/usb/UHCI11D.pdf).
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: UCHI控制器的概述，摘自[英特尔文档](http://download.intel.com/technology/usb/UHCI11D.pdf) (http://download.intel.com/technology/usb/UHCI11D.pdf)。
 - en: Figure 3.3.1.1 Overview of a UHCI controller operation
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 图3.3.1.1 UHCI控制器操作概述
 - en: '[Figure 3.3.1.1, Overview of a UHCI controller operation](#uhci) shows an overview
     of a universal host controller interface, or UHCI. It provides an overview of
     how USB data is moved out of the system by a combination of hardware and software.
     Essentially, the software sets up a template of data in a specified format for
     the host controller to read and send across the USB bus.'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图3.3.1.1，UHCI控制器操作概述](#uhci)显示了通用主机控制器接口，或UHCI的概述。它概述了USB数据如何通过硬件和软件的组合从系统中移出。本质上，软件为主控制器设置了一个特定格式的数据模板，以便读取并发送通过USB总线。'
 - en: Starting at the top-left of the overview, the controller has a *frame* register
     with a counter which is incremented periodically — every millisecond. This value
     is used to index into a *frame list* created by software. Each entry in this table
@@ -884,82 +1217,112 @@
     and it is read by the host controller which is a separate chip the drives the
     USB bus. Software needs to schedule the work queues so that 90% of a frame time
     is given to isochronous data, and 10% left for interrupt, control and bulk data..
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 从概述的左上角开始，控制器有一个带有计数器的**帧**寄存器，该计数器会定期增加——每毫秒一次。这个值用于索引由软件创建的**帧列表**。表中每一项都指向一个**传输描述符**队列。软件在内存中设置这些数据，并由作为单独芯片的主控制器读取，该芯片驱动USB总线。软件需要调度工作队列，以便90%的帧时间用于等时数据，10%留作中断、控制和批量数据。
 - en: As you can see from the diagram, the way the data is linked means that transfer
     descriptors for isochronous data are associated with only one particular frame
     pointer — in other words only one particular time period — and after that will
     be discarded. However, the interrupt, control and bulk data are all *queued* after
     the isochronous data and thus if not transmitted in one frame (time period) will
     be done in the next.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 如从图中所示，数据的链接方式意味着等时数据的传输描述符仅与一个特定的帧指针相关联——换句话说，仅与一个特定的时间段相关联——之后将被丢弃。然而，中断、控制和批量数据都是在等时数据之后**排队**的，因此如果在一个帧（时间段）内没有传输，将在下一个帧（时间段）内完成。
 - en: The USB layer communicates through USB *request blocks*, or URBs. A URB contains
     information about what end-point this request relates to, data, any related information
     or attributes and a call-back function to be called when the URB is complete.
     USB drivers submit URBs in a fixed format to the USB core, which manages them
     in co-ordination with the USB host controller as above. Your data gets sent off
     to the USB device by the USB core, and when its done your call-back is triggered.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: USB层通过USB**请求块**，或URBs进行通信。一个URB包含有关此请求相关的端点、数据、任何相关信息或属性以及当URB完成时要调用的回调函数的信息。USB驱动程序以固定格式将URBs提交给USB核心，该核心与上述USB主机控制器协调管理它们。您的数据由USB核心发送到USB设备，完成后将触发回调。
 - en: </main>
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 4 Small to big systems
+  id: totrans-169
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 4 从小型到大型系统
 - en: As Moore's law has predicted, computing power has been growing at a furious
     pace and shows no signs of slowing down. It is relatively uncommon for any high
     end servers to contain only a single CPU. This is achieved in a number of different
     fashions.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 如摩尔定律所预测，计算能力一直在以惊人的速度增长，并且没有放缓的迹象。高端服务器仅包含单个CPU的情况相对较少。这是通过多种不同的方式实现的。
 - en: 4.1 Symmetric Multi-Processing
+  id: totrans-171
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 4.1 对称多处理
 - en: Symmetric Multi-Processing, commonly shortened to *SMP*, is currently the most
     common configuration for including multiple CPUs in a single system.
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 对称多处理，通常简称为**SMP**，是目前在单个系统中包含多个CPU的最常见配置。
 - en: The symmetric term refers to the fact that all the CPUs in the system are the
     same (e.g. architecture, clock speed). In a SMP system there are multiple processors
     that share other all other system resources (memory, disk, etc).
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 对称一词指的是系统中的所有CPU都是相同的（例如，架构、时钟速度）。在对称多处理系统中，有多个处理器共享其他所有系统资源（内存、磁盘等）。
 - en: 4.1.1 Cache Coherency
+  id: totrans-174
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.1.1 缓存一致性
 - en: For the most part, the CPUs in the system work independently; each has its own
     set of registers, program counter, etc. Despite running separately, there is one
     component that requires strict synchronisation.
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 在大多数情况下，系统中的CPU独立工作；每个都有自己的寄存器、程序计数器等。尽管它们独立运行，但有一个组件需要严格的同步。
 - en: This is the CPU cache; remember the cache is a small area of quickly accessible
     memory that mirrors values stored in main system memory. If one CPU modifies data
     in main memory and another CPU has an old copy of that memory in its cache the
     system will obviously not be in a consistent state. Note that the problem only
     occurs when processors are writing to memory, since if a value is only read the
     data will be consistent.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 这就是CPU缓存；记住缓存是一个快速可访问的小区域内存，它反映了存储在主系统内存中的值。如果一个CPU修改了主内存中的数据，而另一个CPU在其缓存中有一个该内存的旧副本，系统显然不会处于一致状态。请注意，问题仅在处理器向内存写入时才会发生，因为如果只读取值，数据将是一致的。
 - en: To co-ordinate keeping the cache coherent on all processors an SMP system uses
     *snooping*. Snooping is where a processor listens on a bus which all processors
     are connected to for cache events, and updates its cache accordingly.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了在所有处理器上协调保持缓存一致性，SMP系统使用**窥探**。窥探是指处理器监听所有处理器都连接到的总线上发生的缓存事件，并相应地更新其缓存。
 - en: One protocol for doing this is the *MOESI* protocol; standing for Modified,
     Owner, Exclusive, Shared, Invalid. Each of these is a state that a cache line
     can be in on a processor in the system. There are other protocols for doing as
     much, however they all share similar concepts. Below we examine MOESI so you have
     an idea of what the process entails.
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: 用于此目的的一个协议是**MOESI**协议；代表修改、所有者、独占、共享、无效。这些是系统中的处理器上缓存行可以处于的状态。然而，还有其他协议可以完成同样的工作，但它们都共享类似的概念。以下我们将检查MOESI，以便您了解这个过程涉及的内容。
 - en: When a processor requires reading a cache line from main memory, it firstly
     has to snoop all other processors in the system to see if they currently know
     anything about that area of memory (e.g. have it cached). If it does not exist
@@ -969,8 +1332,10 @@
     write back the modified cache to system memory (known as a *write-through* cache,
     because writes go through to main memory). Others will not, and leave the modified
     value only in the cache until it is evicted, when the cache becomes full for example.
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 当处理器需要从主内存读取缓存行时，它首先必须窥探系统中的所有其他处理器，以查看它们是否目前对该内存区域（例如，已将其缓存在缓存中）有任何了解。如果它不存在于任何其他进程中，那么处理器可以将内存加载到缓存中，并将其标记为**独占**。当它向缓存写入时，它随后将状态更改为**修改**。在这里，缓存的特定细节就发挥作用了；一些缓存会立即将修改后的缓存写回系统内存（称为**写通**缓存，因为写入会通过主内存）。而另一些则不会，并且仅在缓存中保留修改后的值，直到缓存被驱逐，例如当缓存变满时。
 - en: The other case is where the processor snoops and finds that the value is in
     another processors cache. If this value has already been marked as *modified*,
     it will copy the data into its own cache and mark it as *shared*. It will send
@@ -986,38 +1351,50 @@
     others will mark as *invalid* (note that if the cache line is *exclusive* the
     processor knows that no other processor is depending on it so can avoid sending
     an invalidate message).
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一种情况是处理器进行窥探并发现该值在另一个处理器的缓存中。如果这个值已经被标记为**修改**，它将数据复制到自己的缓存中，并将其标记为**共享**。它将向另一个处理器（我们从那里获取数据）发送消息，将其缓存行标记为**所有者**。现在想象系统中的第三个处理器也想使用那个内存。它将进行窥探并发现一个**共享**和一个**所有者**副本；因此，它将从**所有者**值中获取其值。当所有其他处理器都在读取值时，缓存行在系统中保持**共享**。然而，当一个处理器需要更新值时，它将通过系统发送一个**无效**消息。任何具有该缓存行的处理器都必须将其标记为无效，因为它不再反映“真实”值。当处理器发送无效消息时，它在自己的缓存中将缓存行标记为**修改**，而所有其他处理器都会将其标记为**无效**（注意，如果缓存行是**独占**的，处理器知道没有其他处理器依赖于它，因此可以避免发送无效消息）。
 - en: From this point the process starts all over. Thus whichever processor has the
     *modified* value has the responsibility of writing the true value back to RAM
     when it is evicted from the cache. By thinking through the protocol you can see
     that this ensures consistency of cache lines between processors.
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 从这个点开始，整个过程重新开始。因此，无论哪个处理器拥有*修改过的*值，都有责任在它从缓存中移除时将真实值写回RAM。通过思考协议，你可以看到这确保了处理器之间缓存行的连续性。
 - en: There are several issues with this system as the number of processors starts
     to increase. With only a few processors, the overhead of checking if another processor
     has the cache line (a read snoop) or invalidating the data in every other processor
     (invalidate snoop) is manageable; but as the number of processors increase so
     does the bus traffic. This is why SMP systems usually only scale up to around
     8 processors.
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着处理器数量的增加，这个系统存在几个问题。只有少数处理器时，检查另一个处理器是否拥有缓存行（读取监视）或使每个其他处理器中的数据无效（无效监视）的开销是可管理的；但随着处理器数量的增加，总线流量也随之增加。这就是为什么SMP系统通常只能扩展到大约8个处理器。
 - en: Having the processors all on the same bus starts to present physical problems
     as well. Physical properties of wires only allow them to be laid out at certain
     distances from each other and to only have certain lengths. With processors that
     run at many gigahertz the speed of light starts to become a real consideration
     in how long it takes messages to move around a system.
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 将所有处理器都放在同一个总线上也开始出现物理问题。导线的物理特性只允许它们以一定的距离排列，并且只能有一定的长度。对于运行在许多吉赫兹的处理器来说，光速开始成为消息在系统中移动所需时间的实际考虑因素。
 - en: Note that system software usually has no part in this process, although programmers
     should be aware of what the hardware is doing underneath in response to the programs
     they design to maximise performance.
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，系统软件通常不参与这个过程，尽管程序员应该意识到硬件在设计程序以最大化性能时在底层所做的事情。
 - en: 4.1.1.1 Cache exclusivity in SMP systems
+  id: totrans-185
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 4.1.1.1 SMP系统中的缓存排他性
 - en: In [Section 2.2, Cache in depth](csbu-print_split_012.html#cache_in_depth) we
     described *inclusive* v *exclusive* caches. In general, L1 caches are usually
     inclusive — that is all data in the L1 cache also resides in the L2 cache. In
@@ -1025,8 +1402,10 @@
     snoop memory traffic to maintain coherency, since any changes in L2 will be guaranteed
     to be reflected by L1\. This reduces the complexity of the L1 and de-couples it
     from the snooping process allowing it to be faster.
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[第2.2节，深入探讨缓存](csbu-print_split_012.html#cache_in_depth)中，我们描述了*包含*和*排除*缓存。一般来说，L1缓存通常是包含的——也就是说，L1缓存中的所有数据也存在于L2缓存中。在多处理器系统中，包含的L1缓存意味着只需要L2缓存检查内存流量以保持一致性，因为L2中的任何变化都将保证在L1中得到反映。这降低了L1的复杂性，并将其与监视过程解耦，使其更快。
 - en: Again, in general, most all modern high-end (e.g. not targeted at embedded)
     processors have a write-through policy for the L1 cache, and a write-back policy
     for the lower level caches. There are several reasons for this. Since in this
@@ -1037,47 +1416,63 @@
     L1 does not have to be concerned if it has outstanding dirty data, hence can pass
     the extra coherency logic to the L2 (which, as we mentioned, already has a larger
     part to play in cache coherency).
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次，一般来说，大多数现代高端（例如，不是针对嵌入式）处理器对L1缓存采用写通策略，而对低级缓存采用写回策略。这样做有几个原因。由于在这个处理器类别中，L2缓存几乎全部位于芯片上，并且通常相当快，因此L1写通带来的惩罚并不是主要考虑因素。此外，由于L1的大小较小，未来不太可能被读取的写入数据池可能会污染有限的L1资源。另外，如果L1有未处理的脏数据，写通L1不必担心，因此可以将额外的保持一致性的逻辑传递给L2（正如我们提到的，L2在缓存一致性中已经扮演了更大的角色）。
 - en: 4.1.2 Hyperthreading
+  id: totrans-188
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.1.2 超线程
 - en: Much of the time of a modern processor is spent waiting for much slower devices
     in the memory hierarchy to deliver data for processing.
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 现代处理器的大部分时间都花在等待内存层次结构中速度较慢的设备提供数据处理所需的数据上。
 - en: Thus strategies to keep the pipeline of the processor full are paramount. One
     strategy is to include enough registers and state logic such that two instruction
     streams can be processed at the same time. This makes one CPU look for all intents
     and purposes like two CPUs.
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，保持处理器流水线满载的策略至关重要。一种策略是包括足够的寄存器和状态逻辑，以便可以同时处理两个指令流。这使得一个CPU在所有意图和目的上看起来像两个CPU。
 - en: While each CPU has its own registers, they still have to share the core logic,
     cache and input and output bandwidth from the CPU to memory. So while two instruction
     streams can keep the core logic of the processor busier, the performance increase
     will not be as great has having two physically separate CPUs. Typically the performance
     improvement is below 20% (XXX check), however it can be drastically better or
     worse depending on the workloads.
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然每个CPU都有自己的寄存器，但它们仍然必须共享核心逻辑、缓存以及从CPU到内存的输入和输出带宽。因此，尽管两个指令流可以使处理器核心更忙碌，但性能提升不会像有两个物理上独立的CPU那样大。通常，性能提升低于20%（XXX检查），然而，它可以根据工作负载显著提高或降低。
 - en: 4.1.3 Multi Core
+  id: totrans-192
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.1.3 多核
 - en: With increased ability to fit more and more transistors on a chip, it became
     possible to put two or more processors in the same physical package. Most common
     is dual-core, where two processor cores are in the same chip. These cores, unlike
     hyperthreading, are full processors and so appear as two physically separate processors
     a la a SMP system.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着在芯片上放置更多和更多晶体管的能力增强，将两个或更多处理器放在同一个物理封装中成为可能。最常见的是双核，其中两个处理器核心位于同一芯片上。这些核心与超线程不同，它们是完整的处理器，因此看起来像SMP系统中的两个物理上独立的处理器。
 - en: While generally the processors have their own L1 cache, they do have to share
     the bus connecting to main memory and other devices. Thus performance is not as
     great as a full SMP system, but considerably better than a hyperthreading system
     (in fact, each core can still implement hyperthreading for an additional enhancement).
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然处理器通常有自己的L1缓存，但它们确实必须共享连接到主内存和其他设备的总线。因此，性能不如完整的SMP系统，但比超线程系统好得多（实际上，每个核心仍然可以实施超线程以实现额外的增强）。
 - en: Multi core processors also have some advantages not performance related. As
     we mentioned, external physical buses between processors have physical limits;
     by containing the processors on the same piece of silicon extremely close to each
@@ -1089,29 +1484,39 @@
     muti-processing practical in applications where it otherwise would not be, such
     as laptops. It is also considerably cheaper to only have to produce one chip rather
     than two.
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 多核处理器也有一些与性能无关的优势。正如我们提到的，处理器之间的外部物理总线有物理限制；通过将处理器放在同一块硅片上，彼此非常接近，可以解决这些问题中的某些问题。多核处理器的功耗远低于两个独立的处理器。这意味着需要散发的热量更少，这在数据中心应用中可以是一个很大的优势，因为计算机密集堆叠，冷却考虑因素可能很大。通过将核心放在同一个物理封装中，使得在笔记本电脑等应用中，它可以在其他情况下无法实现多处理。而且，只需要生产一个芯片而不是两个，这也大大降低了成本。
 - en: 4.2 Clusters
+  id: totrans-196
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 4.2 集群
 - en: Many applications require systems much larger than the number of processors
     a SMP system can scale to. One way of scaling up the system further is a *cluster*.
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多应用需要比SMP系统可以扩展的处理器数量多得多的系统。进一步扩展系统的一种方法是使用*集群*。
 - en: A cluster is simply a number of individual computers which have some ability
     to talk to each other. At the hardware level the systems have no knowledge of
     each other; the task of stitching the individual computers together is left up
     to software.
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 集群简单来说就是一些能够相互通信的独立计算机。在硬件层面，系统之间没有相互了解；将独立计算机连接在一起的任务留给了软件。
 - en: Software such as MPI allow programmers to write their software and then "farm
     out" parts of the program to other computers in the system. For example, image
     a loop that executes several thousand times performing independent action (that
     is no iteration of the loop affects any other iteration). With four computers
     in a cluster, the software could make each computer do 250 loops each.
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: 如MPI之类的软件允许程序员编写他们的软件，然后将程序的一部分“外包”给系统中的其他计算机。例如，想象一个执行数千次独立操作的循环（即循环的每次迭代都不会影响其他迭代）。在一个由四台计算机组成的集群中，软件可以使每台计算机执行250次循环。
 - en: The interconnect between the computers varies, and may be as slow as an internet
     link or as fast as dedicated, special buses (Infiniband). Whatever the interconnect,
     however, it is still going to be further down the memory hierarchy and much, much
@@ -1120,15 +1525,19 @@
     since each time this happens the software will need to request a copy of the data
     from the other computer, copy across the slow link and into local RAM before the
     processor can get any work done.
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 计算机之间的互连速度各不相同，可能慢到与互联网连接相当，也可能快到专用、特殊的总线（Infiniband）的速度。然而，无论哪种互连方式，它仍然位于内存层次结构的较低层，并且比RAM慢得多。因此，在需要每个CPU访问可能存储在另一台计算机RAM中的数据的情况下，集群的表现不会很好；因为每次发生这种情况时，软件都需要从另一台计算机请求数据的副本，通过慢速链路复制，并进入本地RAM，然后处理器才能开始工作。
 - en: However, many applications *do not* require this constant copying around between
     computers. One large scale example is SETI@Home, where data collected from a radio
     antenna is analysed for signs of Alien life. Each computer can be distributed
     a few minutes of data to analyse, and only needs report back a summary of what
     it found. SETI@Home is effectively a very large, dedicated cluster.
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，许多应用*并不*需要这种在计算机之间不断复制数据。一个大规模的例子是SETI@Home，其中从无线电天线收集的数据被分析以寻找外星生命的迹象。每台计算机可以分配几分钟的数据进行分析，并且只需要报告它发现了什么。SETI@Home实际上是一个非常大的、专用的集群。
 - en: Another application is rendering of images, especially for special effects in
     films. Each computer can be handed a single frame of the movie which contains
     the wire-frame models, textures and light sources which needs to be combined (rendered)
@@ -1137,12 +1546,16 @@
     until the final frame is ready to be sent back and combined into the move. For
     example the block-buster Lord of the Rings had their special effects rendered
     on a huge cluster running Linux.
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个应用是图像渲染，尤其是在电影中的特效。每台计算机可以处理电影的单帧，其中包含需要组合（渲染）成我们今天所看到的惊人特效的线框模型、纹理和光源。由于每一帧都是静态的，一旦计算机获得了初始输入，它就不需要更多的通信，直到最终帧准备好发送回并组合到电影中。例如，大片《指环王》的特效就是在运行Linux的巨大集群上渲染的。
 - en: 4.3 Non-Uniform Memory Access
+  id: totrans-203
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 4.3 非均匀内存访问
 - en: Non-Uniform Memory Access, more commonly abbreviated to NUMA, is almost the
     opposite of a cluster system mentioned above. As in a cluster system it is made
     up of individual nodes linked together, however the linkage between nodes is highly
@@ -1150,19 +1563,25 @@
     has no knowledge of the linkage between nodes, in a NUMA system the *software*
     has no (well, less) knowledge about the layout of the system and the hardware
     does all the work to link the nodes together.
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: 非均匀内存访问（Non-Uniform Memory Access），通常简称为NUMA，几乎是上述集群系统的对立面。与集群系统一样，它由相互连接的独立节点组成，然而节点之间的连接非常专业（并且昂贵！）。与集群系统中的硬件对节点之间的连接一无所知不同，在NUMA系统中，*软件*对系统的布局和硬件的了解（好吧，较少）并且硬件负责将节点连接在一起的所有工作。
 - en: The term *non uniform memory access* comes from the fact that RAM may not be
     local to the CPU and so data may need to be accessed from a node some distance
     away. This obviously takes longer, and is in contrast to a single processor or
     SMP system where RAM is directly attached and always takes a constant (uniform)
     time to access.
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: “非均匀内存访问”（non uniform memory access）这个术语来源于RAM可能不在CPU本地，因此可能需要从某个距离较远的节点访问数据。这显然需要更长的时间，与单处理器或SMP系统形成对比，在单处理器或SMP系统中，RAM是直接连接的，并且总是需要恒定（均匀）的时间来访问。
 - en: 4.3.1 NUMA Machine Layout
+  id: totrans-206
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.3.1 NUMA机器布局
 - en: With so many nodes talking to each other in a system, minimising the distance
     between each node is of paramount importance. Obviously it is best if every single
     node has a direct link to every other node as this minimises the distance any
@@ -1171,39 +1590,57 @@
     large supercomputers; if you remember your high school maths the problem is basically
     a combination taken two at a time (each node talking to another), and will grow
     `n!/2*(n-2)!`.
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: 在一个系统中，有如此多的节点相互通信，最小化每个节点之间的距离至关重要。显然，如果每个节点都能直接连接到其他所有节点，这将最小化任何节点查找数据所需经过的距离。然而，当节点数量开始增长到数百甚至数千时，这种情况并不实际，就像在大型超级计算机中那样；如果你还记得你的高中数学，这个问题基本上是每次取两个的组合（每个节点与其他节点通信），并且会增长到
+    `n!/2*(n-2)!`。
 - en: To combat this exponential growth alternative layouts are used to trade off
     the distance between nodes with the interconnects required. One such layout common
     in modern NUMA architectures is the hypercube.
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了对抗这种指数级增长，使用不同的布局来权衡节点之间的距离和所需的互连。在现代 NUMA 架构中常见的一种布局就是超立方体。
 - en: A hypercube has a strict mathematical definition (way beyond this discussion)
     but as a cube is a 3 dimensional counterpart of a square, so a hypercube is a
     4 dimensional counterpart of a cube.
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: 超立方体有一个严格的数学定义（远超出这次讨论的范围），但作为一个立方体是平方的三维对应物，所以超立方体是立方体的四维对应物。
 - en: <picture>![](hypercube.svg)</picture>
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![](hypercube.svg)</picture>
 - en: An example of a hypercube. Hypercubes provide a good trade off between distance
     between nodes and number of interconnections required.
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是一个超立方的例子。超立方体在节点之间的距离和所需的互连数量之间提供了一个良好的折衷方案。
 - en: Figure 4.3.1.1 A Hypercube
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 4.3.1.1 超立方体
 - en: Above we can see the outer cube contains four 8 nodes. The maximum number of
     paths required for any node to talk to another node is 3\. When another cube is
     placed inside this cube, we now have double the number of processors but the maximum
     path cost has only increased to 4\. This means as the number of processors grow
     by 2^n the maximum path cost grows only linearly.
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上面，我们可以看到外层立方体包含四个 8 节点的立方体。任何节点与其他节点通信所需的最大路径数是 3。当另一个立方体放置在这个立方体内部时，我们现在有双倍的处理器数量，但最大路径成本仅增加到
+    4。这意味着随着处理器数量以 2^n 的速度增长，最大路径成本仅线性增长。
 - en: 4.3.2 Cache Coherency
+  id: totrans-214
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.3.2 缓存一致性
 - en: Cache coherency can still be maintained in a NUMA system (this is referred to
     as a cache-coherent NUMA system, or ccNUMA). As we mentioned, the broadcast based
     scheme used to keep the processor caches coherent in an SMP system does not scale
@@ -1212,20 +1649,28 @@
     model*. In this model processors in the system communicate to special cache directory
     hardware. The directory hardware maintains a consistent picture to each processor;
     this abstraction hides the working of the NUMA system from the processor.
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 NUMA 系统中，缓存一致性仍然可以保持（这被称为缓存一致性 NUMA 系统，或 ccNUMA）。正如我们提到的，用于在 SMP 系统中保持处理器缓存一致性的基于广播的方案无法扩展到大型
+    NUMA 系统中的数百甚至数千个处理器。在 NUMA 系统中用于缓存一致性的一个常见方案被称为 *基于目录的模型*。在这个模型中，系统中的处理器与特殊的缓存目录硬件通信。目录硬件为每个处理器维护一个一致的图像；这种抽象隐藏了
+    NUMA 系统的工作原理，使其对处理器不可见。
 - en: The Censier and Feautrier directory based scheme maintains a central directory
     where each memory block has a flag bit known as the *valid bit* for each processor
     and a single *dirty* bit. When a processor reads the memory into its cache, the
     directory sets the valid bit for that processor.
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于 Censier 和 Feautrier 目录的方案维护一个中央目录，其中每个内存块都有一个标志位，称为每个处理器的 *有效位* 和一个单独的 *脏位*。当一个处理器将内存读入其缓存时，目录会设置该处理器的有效位。
 - en: When a processor wishes to write to the cache line the directory needs to set
     the dirty bit for the memory block. This involves sending an invalidate message
     to those processors who are using the cache line (and only those processors whose
     flag are set; avoiding broadcast traffic).
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 当一个处理器希望写入缓存行时，目录需要设置内存块的脏位。这涉及到向使用缓存行的那些处理器（以及只有那些标志位被设置的处理器）发送无效消息（避免广播流量）。
 - en: After this should any other processor try to read the memory block the directory
     will find the dirty bit set. The directory will need to get the updated cache
     line from the processor with the valid bit currently set, write the dirty data
@@ -1233,19 +1678,25 @@
     setting the valid bit for the requesting processor in the process. Note that this
     is transparent to the requesting processor and the directory may need to get that
     data from somewhere very close or somewhere very far away.
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: 在此之后，如果任何其他处理器尝试读取内存块，目录将发现脏位被设置。目录将需要从当前设置有效位的处理器获取更新的缓存行，将脏数据写回主内存，然后向请求的处理器提供该数据，并在过程中为请求的处理器设置有效位。请注意，这对请求的处理器和目录来说是透明的，目录可能需要从非常近或非常远的地方获取这些数据。
 - en: Obviously having thousands of processors communicating to a single directory
     does also not scale well. Extensions to the scheme involve having a hierarchy
     of directories that communicate between each other using a separate protocol.
     The directories can use a more general purpose communications network to talk
     between each other, rather than a CPU bus, allowing scaling to much larger systems.
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: 显然，有数千个处理器与单个目录通信也并不具有良好的可扩展性。该方案的扩展包括具有目录层次结构，这些目录使用单独的协议相互通信。目录可以使用更通用的通信网络来相互通信，而不是CPU总线，从而允许扩展到更大的系统。
 - en: 4.3.3 NUMA Applications
+  id: totrans-220
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.3.3 NUMA 应用
 - en: NUMA systems are best suited to the types of problems that require much interaction
     between processor and memory. For example, in weather simulations a common idiom
     is to divide the environment up into small "boxes" which respond in different
@@ -1257,160 +1708,226 @@
     process, each of which does not influence the other). A similar process might
     happen if you were modelling a car crash, where each small box of the simulated
     car folds in some way and absorbs some amount of energy.
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: NUMA系统最适合需要处理器和内存之间大量交互的问题类型。例如，在天气模拟中，常见的做法是将环境分成小的“盒子”，它们以不同的方式响应（例如，海洋和陆地反射或存储不同数量的热量）。随着模拟的进行，将输入小的变化以查看整体结果。由于每个盒子都会影响周围的盒子（例如，多一点阳光意味着特定的盒子会释放更多的热量，影响相邻的盒子），因此会有大量的通信（与渲染过程中的单个图像帧进行对比，每个图像帧都不会影响其他图像帧）。如果你在模拟汽车碰撞，每个模拟汽车的小盒子以某种方式折叠并吸收一定量的能量，也可能发生类似的过程。
 - en: Although the software has no directly knowledge that the underlying system is
     a NUMA system, programmers need to be careful when programming for the system
     to get maximum performance. Obviously keeping memory close to the processor that
     is going to use it will result in the best performance. Programmers need to use
     techniques such as *profiling* to analyse the code paths taken and what consequences
     their code is causing for the system to extract best performance.
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管软件没有直接了解底层系统是NUMA系统，程序员在编写系统代码以获得最佳性能时需要小心。显然，将内存保持在将要使用它的处理器附近将导致最佳性能。程序员需要使用诸如*性能分析*等技术来分析代码路径以及他们的代码对系统造成的影响，以提取最佳性能。
 - en: 4.4 Memory ordering, locking and atomic operations
+  id: totrans-223
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 4.4 内存排序、锁定和原子操作
 - en: The multi-level cache, superscalar multi-processor architecture brings with
     it some interesting issues relating to how a programmer sees the processor running
     code.
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: 多级缓存、超标量多处理器架构带来了与程序员如何看待处理器运行代码相关的一些有趣问题。
 - en: Imagine program code is running on two processors simultaneously, both processors
     sharing effectively one large area of memory. If one processor issues a store
     instruction, to put a register value into memory, when can it be sure that the
     other processor does a load of that memory it will see the correct value?
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 假想程序代码同时在两个处理器上运行，两个处理器实际上共享一个大型内存区域。如果一个处理器发出存储指令，将寄存器值放入内存，它何时可以确信另一个处理器在读取该内存时将看到正确的值？
 - en: In the simplest situation the system could guarantee that if a program executes
     a store instruction, any subsequent load instructions will see this value. This
     is referred to as *strict memory ordering*, since the rules allow no room for
     movement. You should be starting to realise why this sort of thing is a serious
     impediment to performance of the system.
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: 在最简单的情况下，系统可以保证如果程序执行了一个存储指令，任何后续的加载指令都将看到这个值。这被称为*严格的内存排序*，因为规则不允许有任何移动的空间。你应该开始意识到为什么这种事情会对系统的性能造成严重的阻碍。
 - en: Much of the time, the memory ordering is not required to be so strict. The programmer
     can identify points where they need to be sure that all outstanding operations
     are seen globally, but in between these points there may be many instructions
     where the semantics are not important.
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: 大多数时候，内存排序不需要如此严格。程序员可以确定需要确保所有未完成的操作都全局可见的点，但在这些点之间，可能有许多指令的语义并不重要。
 - en: Take, for example, the following situation.
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: 以以下情况为例。
 - en: '[PRE1]'
+  id: totrans-229
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Example 4.4.1 Memory Ordering
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例4.4.1 内存排序
 - en: In this example, we have two stores that can be done in any particular order,
     as it suits the processor. However, in the final case, the pointer must only be
     updated once the two previous stores are known to have been done. Otherwise another
     processor might look at the value of `p`, follow the pointer to the memory, load
     it, and get some completely incorrect value!
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个例子中，我们有两个可以以任何特定顺序执行的存储，因为这对处理器来说合适。然而，在最终情况下，指针必须在两个之前的存储已知已执行后才能更新。否则，另一个处理器可能会查看`p`的值，跟随指针到内存中，加载它，并得到一些完全错误的价值！
 - en: To indicate this, loads and stores have to have *semantics* that describe what
     behaviour they must have. Memory semantics are described in terms of *fences*
     that dictate how loads and stores may be reordered around the load or store.
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了表示这一点，加载和存储必须具有*语义*来描述它们必须具有的行为。内存语义是用*栅栏*来描述的，这些栅栏规定了加载和存储可以在加载或存储周围如何重排序。
 - en: By default, a load or store can be re-ordered anywhere.
+  id: totrans-233
   prefs: []
   type: TYPE_NORMAL
+  zh: 默认情况下，加载或存储可以在任何地方重排序。
 - en: '*Acquire* semantics is like a fence that only allows load and stores to move
     downwards through it. That is, when this load or store is complete you can be
     guaranteed that any later load or stores will see the value (since they can not
     be moved above it).'
+  id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: '*获取*语义就像一个只允许加载和存储向下通过它的栅栏。也就是说，当这个加载或存储完成时，你可以保证任何后续的加载或存储都将看到这个值（因为它们不能被移动到它上面）。'
 - en: '*Release* semantics is the opposite, that is a fence that allows any load or
     stores to be done before it (move upwards), but nothing before it to move downwards
     past it. Thus, when load or store with release semantics is processed, you can
     be store that any earlier load or stores will have been complete.'
+  id: totrans-235
   prefs: []
   type: TYPE_NORMAL
+  zh: '*释放*语义相反，即一个允许在它之前进行任何加载或存储的栅栏（向上移动），但没有任何东西在它之前向下移动过它。因此，当处理具有释放语义的加载或存储时，你可以确信任何更早的加载或存储都已经完成。'
 - en: <picture>![](memorder.svg)</picture>
+  id: totrans-236
   prefs: []
   type: TYPE_NORMAL
+  zh: '![内存排序](memorder.svg)'
 - en: An illustration of valid reorderings around operations with acquire and release
     semantics.
+  id: totrans-237
   prefs: []
   type: TYPE_NORMAL
+  zh: 在具有获取和释放语义的操作周围的合法重排序的示例。
 - en: Figure 4.4.1 Acquire and Release semantics
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: 图4.4.1 获取和释放语义
 - en: A *full memory fence* is a combination of both; where no loads or stores can
     be reordered in any direction around the current load or store.
+  id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: '*完整的内存栅栏*是两者的结合；在当前加载或存储周围，任何加载或存储都不能在任何方向上重排序。'
 - en: The strictest memory model would use a full memory fence for every operation.
     The weakest model would leave every load and store as a normal re-orderable instruction.
+  id: totrans-240
   prefs: []
   type: TYPE_NORMAL
+  zh: 严格的内存模型会在每个操作中使用完整的内存栅栏。最弱的模型会将每个加载和存储操作都视为一个普通的可重排序指令。
 - en: 4.4.1 Processors and memory models
+  id: totrans-241
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.4.1 处理器和内存模型
 - en: Different processors implement different memory models.
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: 不同的处理器实现不同的内存模型。
 - en: The x86 (and AMD64) processor has a quite strict memory model; all stores have
     release semantics (that is, the result of a store is guaranteed to be seen by
     any later load or store) but all loads have normal semantics. lock prefix gives
     memory fence.
+  id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: x86（和AMD64）处理器有一个相当严格的内存模型；所有存储都有释放语义（即存储的结果保证被任何后续的加载或存储看到），但所有加载都有正常语义。lock前缀提供内存栅栏。
 - en: Itanium allows all load and stores to be normal, unless explicitly told. XXX
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: Itanium允许所有加载和存储都是正常的，除非明确告知。XXX
 - en: 4.4.2 Locking
+  id: totrans-245
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.4.2 锁定
 - en: Knowing the memory ordering requirements of each architecture is not practical
     for all programmers, and would make programs difficult to port and debug across
     different processor types.
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 了解每个架构的内存排序要求对于所有程序员来说并不实用，并且会使程序难以在不同处理器类型之间移植和调试。
 - en: Programmers use a higher level of abstraction called *locking* to allow simultaneous
     operation of programs when there are multiple CPUs.
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: 程序员使用称为**锁定**的高级抽象级别，以便在存在多个CPU时允许程序同时运行。
 - en: When a program acquires a lock over a piece of code, no other processor can
     obtain the lock until it is released. Before any critical pieces of code, the
     processor must attempt to take the lock; if it can not have it, it does not continue.
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: 当一个程序在一段代码上获得锁时，其他处理器在释放锁之前无法获得该锁。在执行任何关键代码之前，处理器必须尝试获取锁；如果无法获取，则不会继续执行。
 - en: You can see how this is tied into the naming of the memory ordering semantics
     in the previous section. We want to ensure that before we *acquire* a lock, no
     operations that should be protected by the lock are re-ordered before it. This
     is how acquire semantics works.
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以看到这与上一节中内存排序语义的命名是如何联系在一起的。我们希望在获取锁之前，不应该被锁保护的任何操作在它之前被重新排序。这就是获取语义的工作方式。
 - en: Conversely, when we *release* the lock, we must be sure that every operation
     we have done whilst we held the lock is complete (remember the example of updating
     the pointer previously?). This is release semantics.
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: 相反，当我们**释放**锁时，我们必须确保在我们持有锁期间所进行的每个操作都已经完成（还记得之前更新指针的例子吗？）。这就是释放语义。
 - en: There are many software libraries available that allow programmers to not have
     to worry about the details of memory semantics and simply use the higher level
     of abstraction of `lock()` and `unlock()`.
+  id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: 有许多软件库可供程序员使用，允许他们不必担心内存语义的细节，而只需使用更高层次的抽象`lock()`和`unlock()`。
 - en: 4.4.2.1 Locking difficulties
+  id: totrans-252
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 4.4.2.1 锁定困难
 - en: Locking schemes make programming more complicated, as it is possible to *deadlock*
     programs. Imagine if one processor is currently holding a lock over some data,
     and is currently waiting for a lock for some other piece of data. If that other
     processor is waiting for the lock the first processor holds before unlocking the
     second lock, we have a deadlock situation. Each processor is waiting for the other
     and neither can continue without the others lock.
+  id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: 锁定方案使得编程变得更加复杂，因为程序可能会发生**死锁**。想象一下，如果一个处理器目前正持有某些数据的锁，并且正在等待获取其他数据的锁。如果那个其他处理器在解锁第二个锁之前等待获取第一个处理器持有的锁，我们就遇到了死锁情况。每个处理器都在等待另一个处理器，并且没有其他处理器可以不获得对方的锁而继续执行。
 - en: Often this situation arises because of a subtle *race condition*; one of the
     hardest bugs to track down. If two processors are relying on operations happening
     in a specific order in time, there is always the possibility of a race condition
@@ -1419,8 +1936,10 @@
     out. What will often happen is a deadlock situation like above. It is for this
     reason that program ordering needs to be ensured by semantics, and not by relying
     on one time specific behaviours. (XXX not sure how i can better word that).
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种情况通常是由于微妙的**竞态条件**引起的；这是最难追踪的bug之一。如果两个处理器依赖于在特定时间顺序中发生的操作，那么总有可能发生竞态条件。来自不同星系中爆炸恒星的高能伽马射线可能会击中其中一个处理器，使其跳过一个节拍，从而打乱操作的顺序。通常会发生的情况是像上面那样的死锁情况。正因为如此，程序顺序需要通过语义来确保，而不是依赖于特定时间的行为。
 - en: A similar situation is the opposite of deadlock, called *livelock*. One strategy
     to avoid deadlock might be to have a "polite" lock; one that you give up to anyone
     who asks. This politeness might cause two threads to be constantly giving each
@@ -1428,61 +1947,85 @@
     work done and be finished with the lock (a similar situation in real life might
     be two people who meet at a door at the same time, both saying "no, you first,
     I insist". Neither ends up going through the door!).
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: 类似的情况是死锁的对立面，称为**活锁**。避免死锁的一种策略可能是拥有一个“礼貌”的锁；一个你可以给予任何请求者的锁。这种礼貌可能会导致两个线程不断地互相给予锁，但没有任何一个线程能够长时间持有锁来完成关键工作并结束锁（现实生活中类似的情况可能是两个人同时到达一扇门前，都坚持说“不，你先，我坚持”。结果两个人都没有通过门！）。
 - en: 4.4.2.2 Locking strategies
+  id: totrans-256
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 4.4.2.2 锁定策略
 - en: Underneath, there are many different strategies for implementing the behaviour
     of locks.
+  id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: 在底层，有许多不同的策略来实现锁的行为。
 - en: A simple lock that simply has two states - locked or unlocked, is referred to
     as a *mutex* (short for mutual exclusion; that is if one person has it the other
     can not have it).
+  id: totrans-258
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个简单的锁，只有两种状态——锁定或解锁，被称为**互斥锁**（缩写为互斥；也就是说，如果一个人有它，另一个人就不能有它）。
 - en: There are, however, a number of ways to implement a mutex lock. In the simplest
     case, we have what its commonly called a *spinlock*. With this type of lock, the
     processor sits in a tight loop waiting to take the lock; equivalent to it saying
     "can I have it now" constantly much as a young child might ask of a parent.
+  id: totrans-259
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，有几种方法可以实现互斥锁。在最简单的情况下，我们有什么通常称为**自旋锁**。使用这种类型的锁，处理器会坐在一个紧密的循环中等待获取锁；相当于它不断地说“我现在可以吗”，就像一个小孩可能会向父母询问一样。
 - en: The problem with this strategy is that it essentially wastes time. Whilst the
     processor is sitting constantly asking for the lock, it is not doing any useful
     work. For locks that are likely to be only held locked for a very short amount
     of time this may be appropriate, but in many cases the amount of time the lock
     is held might be considerably longer.
+  id: totrans-260
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种策略的问题在于它本质上浪费了时间。当处理器不断坐着请求锁时，它并没有做任何有用的工作。对于可能只短暂持有锁的锁，这可能合适，但在许多情况下，锁被持有的时间可能会更长。
 - en: Thus another strategy is to *sleep* on a lock. In this case, if the processor
     can not have the lock it will start doing some other work, waiting for notification
     that the lock is available for use (we see in future chapters how the operating
     system can switch processes and give the processor more work to do).
+  id: totrans-261
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，另一种策略是在锁上**睡眠**。在这种情况下，如果处理器不能获得锁，它将开始做一些其他工作，等待通知锁可用（我们将在未来的章节中看到操作系统如何切换进程并给处理器更多的工作做）。
 - en: A mutex is however just a special case of a *semaphore*, famously invented by
     the Dutch computer scientist Dijkstra. In a case where there are multiple resources
     available, a semaphore can be set to count accesses to the resources. In the case
     where the number of resources is one, you have a mutex. The operation of semaphores
     can be detailed in any algorithms book.
+  id: totrans-262
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，互斥锁（mutex）实际上只是**信号量**的一个特例，由荷兰计算机科学家迪杰斯特拉（Dijkstra）著名地发明。在存在多个资源可用的情况下，信号量可以被设置为计数对资源的访问次数。在资源数量为一种情况下，你就有了一个互斥锁。信号量的操作可以在任何算法书中详细说明。
 - en: These locking schemes still have some problems however. In many cases, most
     people only want to read data which is updated only rarely. Having all the processors
     wanting to only read data require taking a lock can lead to *lock contention*
     where less work gets done because everyone is waiting to obtain the same lock
     for some data.
+  id: totrans-263
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，这些锁定方案仍然存在一些问题。在许多情况下，大多数人只想读取很少更新的数据。所有处理器都只想读取数据并需要获取锁可能会导致**锁竞争**，因为工作做得更少，因为每个人都正在等待获取相同数据的同一把锁。
 - en: 4.4.3 Atomic Operations
+  id: totrans-264
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.4.3 原子操作
 - en: Explain what it is.
+  id: totrans-265
   prefs: []
   type: TYPE_NORMAL
+  zh: 解释一下它是什么。
 - en: </main>
+  id: totrans-266
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>

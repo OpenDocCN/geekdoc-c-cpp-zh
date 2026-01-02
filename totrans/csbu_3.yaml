@@ -1,182 +1,261 @@
 - en: <main class="calibre3">
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: Chapter 4. The Operating System
+  id: totrans-1
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 第4章. 操作系统
 - en: </main>
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 1 The role of the operating system
+  id: totrans-4
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 1 操作系统的角色
 - en: The operating system underpins the entire operation of the modern computer.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 操作系统支撑着现代计算机的整个运行。
 - en: 1.1 Abstraction of hardware
+  id: totrans-6
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.1 硬件抽象
 - en: The fundamental operation of the operating system (OS) is to abstract the hardware
     to the programmer and user. The operating system provides generic interfaces to
     services provided by the underlying hardware.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 操作系统（OS）的基本操作是将硬件抽象给程序员和用户。操作系统提供了通用的接口，用于访问底层硬件提供的服务。
 - en: In a world without operating systems, every programmer would need to know the
     most intimate details of the underlying hardware to get anything to run. Worse
     still, their programs would not run on other hardware, even if that hardware has
     only slight differences.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 在没有操作系统的世界里，每个程序员都需要了解底层硬件的最亲密细节才能让任何东西运行。更糟糕的是，即使硬件只有细微的差异，他们的程序也无法在其他硬件上运行。
 - en: 1.2 Multitasking
+  id: totrans-9
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.2 多任务处理
 - en: We expect modern computers to do many different things at once, and we need
     some way to arbitrate between all the different programs running on the system.
     It is the operating systems job to allow this to happen seamlessly.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们期望现代计算机同时做很多事情，我们需要一种方式来仲裁系统上运行的所有不同程序。这是操作系统的任务，使其无缝发生。
 - en: The operating system is responsible for *resource management* within the system.
     Many tasks will be competing for the resources of the system as it runs, including
     processor time, memory, disk and user input. The job of the operating system is
     to arbitrate these resources to the multiple tasks and allow them access in an
     orderly fashion. You have probably experienced when this *fails* as it usually
     ends up with your computer crashing (the famous "blue screen of death" for example).
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 操作系统负责系统内的**资源管理**。当系统运行时，许多任务将竞争系统的资源，包括处理器时间、内存、磁盘和用户输入。操作系统的任务是仲裁这些资源分配给多个任务，并允许它们有序地访问。你可能经历过这种**失败**的情况，因为它通常会导致你的电脑崩溃（例如著名的“蓝屏死机”）。
 - en: 1.3 Standardised Interfaces
+  id: totrans-12
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.3 标准化接口
 - en: Programmers want to write programs that will run on as many different hardware
     platforms as possible. By having operating system support for standardised interfaces,
     programmers can get this functionality.
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 程序员希望编写可以在尽可能多的不同硬件平台上运行的程序。通过操作系统对标准化接口的支持，程序员可以获得这种功能。
 - en: For example, if the function to open a file on one system is `open()`, on another
     is `open_file()` and on yet another `openf()` programmers will have the dual problem
     of having to remember what each system does and their programs will not work on
     multiple systems.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，如果一个系统上打开文件的函数是`open()`，另一个是`open_file()`，还有另一个是`openf()`，程序员将面临双重问题：必须记住每个系统做了什么，而且他们的程序在多个系统上无法工作。
 - en: The Portable Operating System Interface (POSIX)
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 可移植操作系统接口（POSIX）
 - en: The X comes from *Unix*, from which the standard grew. Today, POSIX is the same
     thing as the Single UNIX Specification Version 3 or ISO/IEC 9945:2002\. This is
     a free standard, available online.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: X来自*Unix*，标准就是从Unix发展而来的。今天，POSIX与单一UNIX规范版本3或ISO/IEC 9945:2002相同。这是一个免费标准，可在网上获取。
 - en: Once upon a time, the Single UNIX specification and the POSIX Standards were
     separate entities. The Single UNIX specification was released by a consortium
     called the "Open Group", and was freely available as per their requirements. The
     latest version is The Single Unix Specification Version 3.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 从前，单一UNIX规范和POSIX标准是分开的实体。单一UNIX规范由一个名为“开放集团”的财团发布，并且根据他们的要求免费提供。最新版本是单一UNIX规范版本3。
 - en: The IEEE POSIX standards were released as IEEE Std 1003.[insert various years,
     revisions here], and were not freely available. The latest version is IEEE 1003.1-2001
     and is equivalent to the Single Unix Specification Version 3.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: IEEE POSIX标准作为IEEE Std 1003.[插入各种年份、修订版本]，并且并非免费提供。最新版本是IEEE 1003.1-2001，等同于单一UNIX规范版本3。
 - en: Thus finally the two separate standards were merged into what is known as the
     Single UNIX Specification Version 3, which is also standardised by the ISO under
     ISO/IEC 9945:2002\. This happened early in 2002\. So when people talk about POSIX,
     SUS3 or ISO/IEC 9945:2002 they all mean the same thing!
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，这两个单独的标准最终合并成了所谓的单一UNIX规范版本3，该规范也被ISO在ISO/IEC 9945:2002下标准化。这发生在2002年初。所以当人们谈论POSIX、SUS3或ISO/IEC
+    9945:2002时，它们都指同一件事！
 - en: is a very important standard implemented by UNIX type operating systems. Microsoft
     Windows has similar proprietary standards.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 是UNIX类型操作系统实现的一个非常重要的标准。Microsoft Windows有类似的自有标准。
 - en: 1.4 Security
+  id: totrans-21
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.4 安全性
 - en: On multi-user systems, security is very important. As the arbitrator of access
     to the system the operating system is responsible for ensuring that only those
     with the correct permissions can access resources.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 在多用户系统中，安全性非常重要。作为系统访问的仲裁者，操作系统负责确保只有那些拥有正确权限的人才能访问资源。
 - en: For example if a file is owned by one user, another user should not be allowed
     to open and read it. However there also need to be mechanisms to share that file
     safely between the users should they want it.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，如果一个文件属于一个用户，另一个用户不应被允许打开和读取它。然而，也需要有机制在用户想要共享该文件时安全地将其共享。
 - en: Operating systems are large and complex programs, and often security issues
     will be found. Often a virus or worm will take advantage of these bugs to access
     resources it should not be allowed to, such as your files or network connection;
     to fight them you must install *patches* or updates provided by your operating
     system vendor.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 操作系统是大型且复杂的程序，并且通常会发现安全问题。通常，病毒或蠕虫会利用这些漏洞来访问它不应被允许访问的资源，例如您的文件或网络连接；为了对抗它们，您必须安装操作系统供应商提供的*补丁*或更新。
 - en: 1.5 Performance
+  id: totrans-25
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.5 性能
 - en: As the operating system provides so many services to the computer, its performance
     is critical. Many parts of the operating system run extremely frequently, so even
     an overhead of just a few processor cycles can add up to a big decrease in overall
     system performance.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于操作系统为计算机提供了如此多的服务，其性能至关重要。操作系统的许多部分运行频率极高，因此即使是仅仅几个处理器的周期开销也可能导致整体系统性能的大幅下降。
 - en: The operating system needs to exploit the features of the underlying hardware
     to make sure it is getting the best possible performance for the operations, and
     consequently systems programmers need to understand the intimate details of the
     architecture they are building for.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 操作系统需要利用底层硬件的功能，以确保它为操作获得最佳性能，因此系统程序员需要了解他们正在构建的架构的密切细节。
 - en: In many cases the systems programmers job is about deciding on policies for
     the system. Often the case that the side effects of making one part of the operating
     system run faster will make another part run slower or less efficiently. Systems
     programmers need to understand all these trade offs when they are building their
     operating system.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 在许多情况下，系统程序员的职责是决定系统的策略。通常情况下，使操作系统的一部分运行更快可能会使另一部分运行得更慢或效率更低。系统程序员在构建他们的操作系统时需要理解所有这些权衡。
 - en: </main>
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 2 Operating System Organisation
+  id: totrans-31
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2 操作系统组织
 - en: The operating system is roughly organised as in the figure below.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 操作系统的组织结构大致如图下所示。
 - en: <picture>![](kernel.svg)</picture>
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: '![内核](kernel.svg)'
 - en: The organisation of the kernel. Processes the kernel is running live in *userspace*,
     and the kernel talks both directly to hardware and through *drivers*.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 内核的组织结构。内核正在运行的进程在*用户空间*中，内核直接与硬件通信，并通过*驱动程序*进行通信。
 - en: Figure 2.1 The Operating System
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 图2.1 操作系统
 - en: 2.1 The Kernel
+  id: totrans-36
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.1 内核
 - en: The kernel *is* the operating system. As the figure illustrates, the kernel
     communicates to hardware both directly and through *drivers*.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 内核*是*操作系统。如图所示，内核直接与硬件通信，并通过*驱动程序*进行通信。
 - en: Just as the kernel abstracts the hardware to user programs, drivers abstract
     hardware to the kernel. For example there are many different types of graphic
     card, each one with slightly different features. As long as the kernel exports
     an API, people who have access to the specifications for the hardware can write
     drivers to implement that API. This way the kernel can access many different types
     of hardware.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如内核将硬件抽象化以供用户程序使用一样，驱动程序将硬件抽象化以供内核使用。例如，有各种不同类型的显卡，每种显卡都有略微不同的功能。只要内核导出API，能够访问硬件规格的人就可以编写驱动程序来实现该API。这样，内核就可以访问许多不同类型的硬件。
 - en: The kernel is generally what we called *privileged*. As you will learn, the
     hardware has important roles to play in running multiple tasks and keeping the
     system secure, but these rules do not apply to the kernel. We know that the kernel
@@ -186,56 +265,76 @@
     chances are the entire system will become useless. Similarly security issues can
     be exploited by user processes to escalate themselves to the privilege level of
     the kernel; at that point they can access any part of the system completely unchecked.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 内核通常是我们所说的**特权**。正如你将学到的，硬件在运行多个任务和保持系统安全方面发挥着重要作用，但这些规则并不适用于内核。我们知道内核必须处理崩溃的程序（记住，操作系统的工作是仲裁同一系统上运行的多个程序，并且不能保证它们的行为），但如果操作系统的任何内部部分崩溃，整个系统可能变得毫无用处。同样，安全问题也可能被用户进程利用，将自己提升到内核的特权级别；到那时，它们可以完全不受检查地访问系统的任何部分。
 - en: 2.1.1 Monolithic v Microkernels
+  id: totrans-40
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.1.1 单一内核与微内核
 - en: One debate that is often comes up surrounding operating systems is whether the
     kernel should be a *microkernel* or *monolithic*.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 围绕操作系统的一个经常出现的辩论是内核应该是**微内核**还是**单一内核**。
 - en: The monolithic approach is the most common, as taken by most common Unixes (such
     as Linux). In this model the core privileged kernel is large, containing hardware
     drivers, file system accesses controls, permissions checking and services such
     as Network File System (NFS).
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 单一内核方法是最常见的，如大多数常见的Unix系统（如Linux）所采用。在这个模型中，核心特权内核很大，包含硬件驱动程序、文件系统访问控制、权限检查以及如网络文件系统（NFS）等服务。
 - en: Since the kernel is always privileged, if any part of it crashes the whole system
     has the potential to come to a halt. If one driver has a bug, it can overwrite
     any memory in the system with no problems, ultimately causing the system to crash.
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于内核始终是特权的，如果它的任何部分崩溃，整个系统有可能停止运行。如果一个驱动程序有错误，它可以毫无问题地覆盖系统中的任何内存，最终导致系统崩溃。
 - en: A microkernel architecture tries to minimise this possibility by making the
     privileged part of the kernel as small as possible. This means that most of the
     system runs as unprivileged programs, limiting the harm that any one crashing
     component can influence. For example, drivers for hardware can run in separate
     processes, so if one goes astray it can not overwrite any memory but that allocated
     to it.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 微内核架构试图通过尽可能缩小内核的特权部分来最小化这种可能性。这意味着大多数系统作为非特权程序运行，限制了任何崩溃组件可能造成的损害。例如，硬件驱动程序可以在单独的进程中运行，所以如果一个走偏了，它就不能覆盖分配给它的任何内存。
 - en: Whilst this sounds like the most obvious idea, the problem comes back two main
     issues
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然这听起来是最明显的主意，但问题又回到了两个主要问题上。
 - en: Performance is decreased. Talking between many different components can decrease
     performance.
+  id: totrans-46
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 性能会降低。在许多不同的组件之间进行通信会降低性能。
 - en: It is slightly more difficult for the programmer.
+  id: totrans-47
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 对于程序员来说，这稍微有些困难。
 - en: Both of these criticisms come because to keep separation between components
     most microkernels are implemented with a *message passing* based system, commonly
     referred to as *inter-process communication* or IPC. Communicating between individual
     components happens via discrete messages which must be bundled up, sent to the
     other component, unbundled, operated upon, re-bundled up and sent back, and then
     unbundled again to get the result.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两种批评都源于为了保持组件之间的分离，大多数微内核都是基于**消息传递**的系统实现的，通常被称为**进程间通信**或IPC。各个组件之间的通信是通过离散的消息进行的，这些消息必须打包，发送到另一个组件，解包，操作，重新打包并发送回去，然后再解包以获取结果。
 - en: This is a lot of steps for what might be a fairly simple request from a foreign
     component. Obviously one request might make the other component do more requests
     of even more components, and the problem can multiply. Slow message passing implementations
@@ -243,21 +342,29 @@
     and the concepts of passing messages are slightly harder for programmers to program
     for. The enhanced protection from having components run separately was not sufficient
     to overcome these hurdles in early microkernel systems, so they fell out of fashion.
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 这对于来自外部组件的简单请求来说是一大堆步骤。显然，一个请求可能会使另一个组件对更多组件进行更多请求，问题会成倍增加。慢消息传递实现在很大程度上是早期微内核系统性能不佳的原因，传递消息的概念对于程序员来说编程稍微困难一些。组件分别运行的增强保护在早期微内核系统中不足以克服这些障碍，因此它们已经不再流行。
 - en: In a monolithic kernel, calls between components are simple function calls,
     as all programmers are familiar with.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 在单核内核中，组件之间的调用是简单的函数调用，因为所有程序员都熟悉这种方式。
 - en: There is no definitive answer as to which is the best organisation, and it has
     started many arguments in both academic and non-academic circles. Hopefully as
     you learn more about operating systems you will be able to make up your own mind!
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于哪种组织方式最好，并没有一个确定的答案，它已经在学术界和非学术界引发了众多争论。希望随着你对操作系统的了解越来越多，你将能够形成自己的观点！
 - en: 2.1.1.1 Modules
+  id: totrans-52
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 2.1.1.1 模块
 - en: The Linux kernel implements a module system, where drivers can be loaded into
     the running kernel "on the fly" as they are required. This is good in that drivers,
     which make up a large part of operating system code, are not loaded for devices
@@ -265,34 +372,49 @@
     kernel possible (i.e. runs on lots of different hardware, such as RedHat or Debian)
     can include most drivers as modules which are only loaded if the system it is
     running on has the hardware available.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: Linux 内核实现了一个模块系统，其中驱动程序可以在需要时“即时”加载到正在运行的内核中。这很好，因为驱动程序构成了操作系统代码的大部分，但不会为系统中不存在的设备加载。那些想要创建尽可能通用的内核的人（即，在许多不同的硬件上运行，如
+    RedHat 或 Debian）可以将大多数驱动程序作为模块包含在内，这些模块只有在系统上运行的硬件可用时才会加载。
 - en: However, the modules are loaded directly in the privileged kernel and operate
     at the same privilege level as the rest of the kernel, so the system is still
     considered a monolithic kernel.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，模块是直接加载到特权内核中，并且与内核的其他部分处于相同的权限级别，因此系统仍然被视为一个单核内核。
 - en: 2.1.2 Virtualisation
+  id: totrans-55
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.1.2 虚拟化
 - en: Closely related to kernel is the concept of virtualisation of hardware. Modern
     computers are very powerful, and often it is useful to not think of them as one
     whole system but split a single physical computer up into separate "virtual" machines.
     Each of these virtual machines looks for all intents and purposes as a completely
     separate machine, although physically they are all in the same box, in the same
     place.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 与内核紧密相关的是硬件虚拟化的概念。现代计算机非常强大，通常将其视为一个整体系统并不总是有用的，而是将单个物理计算机分割成多个“虚拟”机器。从所有意图和目的来看，这些虚拟机看起来都是一个完全独立的机器，尽管它们在物理上都在同一个盒子里，同一个地方。
 - en: <picture>![](virtual.svg)</picture>
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![](virtual.svg)</picture>
 - en: Some different virtualisation methods.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些不同的虚拟化方法。
 - en: Figure 2.1.2.1 The Operating System
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 2.1.2.1 操作系统
 - en: This can be organised in many different ways. In the simplest case, a small
     *virtual machine monitor* can run directly on the hardware and provide an interface
     to the guest operating systems running on top. This VMM is often often called
@@ -303,16 +425,22 @@
     what appears to be a complete system. It intercepts operations between the guest
     operating system and hardware and only presents a subset of the system resources
     to each.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 这可以通过许多不同的方式来组织。在 simplest case，一个小的 *虚拟机监控器* 可以直接在硬件上运行，并为运行在其上的客户操作系统提供一个接口。这个
+    VMM 通常被称为 hypervisor（来自“supervisor”一词）。实际上，hypervisor 与微内核有很多共同之处；两者都力求成为小的层，以安全的方式向其上层的层提供硬件。实际上，上层的操作系统可能根本不知道
+    hypervisor 是否存在，因为 hypervisor 展示的是一个看似完整的系统。它拦截客户操作系统和硬件之间的操作，并且只向每个操作系统呈现系统资源的一个子集。
 - en: This is often used on large machines (with many CPUs and much RAM) to implement
     *partitioning*. This means the machine can be split up into smaller virtual machines.
     Often you can allocate more resources to running systems on the fly, as requirements
     dictate. The hypervisors on many large IBM machines are actually quite complicated
     affairs, with many millions of lines of code. It provides a multitude of system
     management services.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 这通常用于大型机器（具有许多CPU和大量RAM）以实现*分区*。这意味着机器可以被分割成更小的虚拟机。通常，可以根据需求动态分配更多资源给正在运行的系统。许多大型IBM机器上的虚拟机管理程序实际上相当复杂，拥有数百万行代码。它提供了多种系统管理服务。
 - en: Another option is to have the operating system be aware of the underlying hypervisor,
     and request system resources through it. This is sometimes referred to as *paravirtualisation*
     due to its halfway nature. This is similar to the way early versions of the Xen
@@ -320,8 +448,10 @@
     since the operating system is explicitly asking for system resources from the
     hypervisor when required, rather than the hypervisor having to work things out
     dynamically.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个选项是操作系统意识到底层虚拟机管理程序，并通过它请求系统资源。由于其折衷性质，这有时被称为*半虚拟化*。这与早期版本的Xen系统的工作方式相似，是一种折衷方案。它希望提供更好的性能，因为操作系统在需要时明确从虚拟机管理程序请求系统资源，而不是虚拟机管理程序必须动态解决问题。
 - en: Finally, you may have a situation where an application running on top of the
     existing operating system presents a virtualised system (including CPU, memory,
     BIOS, disk, etc) which a plain operating system can run on. The application converts
@@ -332,13 +462,17 @@
     an entirely different architecture all together, as you can dynamically translate
     the instructions from one processor type to another (as the Rosetta system does
     with Apple software which moved from the PowerPC processor to Intel based processors).
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，你可能遇到的情况是，在现有操作系统之上运行的应用程序提供了一个虚拟化系统（包括CPU、内存、BIOS、磁盘等），普通操作系统可以在其上运行。该应用程序通过现有操作系统将请求转换为硬件，通过底层硬件。这与VMWare的工作方式相似。这种方法有很多开销，因为应用程序进程必须模拟整个系统并将所有内容转换为底层操作系统的请求。然而，这让你可以模拟一个完全不同的架构，因为你可以动态地将指令从一种处理器类型转换为另一种（就像Rosetta系统在苹果软件从PowerPC处理器迁移到基于Intel的处理器时所做的那样）。
 - en: Performance is major concern when using any of these virtualisation techniques,
     as what were once fast operations directly on hardware need to make their way
     through layers of abstraction.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 在使用这些虚拟化技术时，性能是一个主要关注点，因为曾经直接在硬件上快速执行的操作现在需要通过抽象层层层传递。
 - en: Intel have discussed hardware support for virtualisation soon to be coming in
     their latest processors. These extensions work by raising a special exception
     for operations that might require the intervention of a virtual machine monitor.
@@ -346,168 +480,236 @@
     running on it, but when that application makes requests for resources that might
     be shared between other guest operating systems, the virtual machine monitor can
     be invoked.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 英特尔讨论了在最新处理器中即将推出的虚拟化硬件支持。这些扩展通过为可能需要虚拟机监控器干预的操作引发特殊异常来实现。因此，处理器对在其上运行的应用程序来说看起来与非虚拟化处理器相同，但当该应用程序请求可能与其他虚拟操作系统共享的资源时，虚拟机监控器可以被调用。
 - en: This provides superior performance because the virtual machine monitor does
     not need to monitor every operation to see if it is safe, but can wait until the
     processor notifies that something *unsafe* has happened.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 这提供了优越的性能，因为虚拟机监控器不需要监控每个操作以查看其是否安全，而可以等待处理器通知发生*不安全*的情况。
 - en: 2.1.2.1 Covert Channels
+  id: totrans-67
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 2.1.2.1 隐蔽通道
 - en: This is a digression, but an interesting security flaw relating to virtualised
     machines. If the partitioning of the system is not static, but rather *dynamic*,
     there is a potential security issue involved.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是一个离题的话题，但与虚拟化机器相关的有趣安全漏洞。如果系统的分区不是静态的，而是*动态的*，那么就存在潜在的安全问题。
 - en: In a dynamic system, resources are allocated to the operating systems running
     on top as required. Thus if one is doing particularly CPU intensive operations
     whilst the other is waiting on data to come from disks, more of the CPU power
     will be given to the first task. In a static system, each would get 50% an the
     unused portion would go to waste.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 在一个动态系统中，资源根据需要分配给运行在其上的操作系统。因此，如果一个正在进行特别密集的CPU操作，而另一个正在等待从磁盘来的数据，那么更多的CPU功率将分配给第一个任务。在一个静态系统中，每个都会得到50%，未使用的部分将浪费掉。
 - en: Dynamic allocation actually opens up a communications channel between the two
     operating systems. Anywhere that two states can be indicated is sufficient to
     communicate in binary. Imagine both systems are extremely secure, and no information
     should be able to pass between one and the other, ever. Two people with access
     could collude to pass information between themselves by writing two programs that
     try to take large amounts of resources at the same time.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态分配实际上在两个操作系统之间打开了一个通信通道。任何可以表示两种状态的地方都足以进行二进制通信。想象一下，两个系统都非常安全，而且不应该有任何信息能够在它们之间传递，永远不应该。两个有权访问的人可以通过编写两个尝试同时占用大量资源的程序来串通彼此传递信息。
 - en: When one takes a large amount of memory there is less available for the other.
     If both keep track of the maximum allocations, a bit of information can be transferred.
     Say they make a pact to check every second if they can allocate this large amount
     of memory. If the target can, that is considered binary 0, and if it can not (the
     other machine has all the memory), that is considered binary 1\. A data rate of
     one bit per second is not astounding, but information is flowing.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 当占用大量内存时，其他可用的内存就减少了。如果两者都跟踪最大分配量，就可以传递一些信息。比如说，他们达成协议，每隔一秒检查一次是否可以分配这么大的内存。如果目标可以，那么这被认为是二进制0，如果它不能（另一台机器已经占用了所有内存），那么这被认为是二进制1。每秒一个比特的数据速率并不令人惊讶，但信息正在流动。
 - en: This is called a *covert channel*, and whilst admittedly far-fetched there have
     been examples of security breaches from such mechanisms. It just goes to show
     that the life of a systems programmer is never simple!
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 这被称为*隐蔽通道*，虽然承认有些牵强，但确实有通过这种机制造成安全漏洞的例子。这仅仅表明，系统程序员的生涯永远不是简单的！
 - en: 2.2 Userspace
+  id: totrans-73
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.2 用户空间
 - en: We call the theoretical place where programs are run by the user *userspace*.
     Each program runs in userspace, talking to the kernel through *system calls* (discussed
     below).
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们称用户通过用户空间运行程序的理论位置为*用户空间*。每个程序都在用户空间运行，通过*系统调用*（下面将讨论）与内核通信。
 - en: As previously discussed, userspace is *unprivileged*. User programs can only
     do a limited range of things, and should never be able to crash other programs,
     even if they crash themselves.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 如前所述，用户空间是*非特权*的。用户程序只能做有限范围内的事情，而且永远不应该能够崩溃其他程序，即使它们自己崩溃。
 - en: </main>
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 3 System Calls
+  id: totrans-78
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3 系统调用
 - en: 3.1 Overview
+  id: totrans-79
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.1 概述
 - en: System calls are how userspace programs interact with the kernel. The general
     principle behind how they work is described below.
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 系统调用是用户空间程序与内核交互的方式。它们工作背后的基本原则如下所述。
 - en: 3.1.1 System call numbers
+  id: totrans-81
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.1.1 系统调用号
 - en: Each and every system call has a *system call number* which is known by both
     the userspace and the kernel. For example, both know that system call number 10
     is `open()`, system call number 11 is `read()`, etc.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 每一个系统调用都有一个*系统调用号*，这个号是用户空间和内核都知道的。例如，两者都知道系统调用号10是`open()`，系统调用号11是`read()`，等等。
 - en: The *Application Binary Interface* (ABI) is very similar to an API but rather
     than being for software is for hardware. The API will define which register the
     system call number should be put in so the kernel can find it when it is asked
     to do the system call.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: '*应用程序二进制接口*（ABI）与API非常相似，但它是为硬件而不是软件设计的。API将定义系统调用号应该放在哪个寄存器中，以便内核在请求执行系统调用时能够找到它。'
 - en: 3.1.2 Arguments
+  id: totrans-84
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.1.2 参数
 - en: System calls are no good without arguments; for example `open()` needs to tell
     the kernel exactly *what* file to open. Once again the ABI will define which registers
     arguments should be put into for the system call.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 系统调用没有参数是不行的；例如`open()`需要告诉内核确切地*打开*什么文件。再次强调，ABI将定义应该将参数放入哪个寄存器以供系统调用使用。
 - en: 3.1.3 The trap
+  id: totrans-86
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.1.3 中断
 - en: To actually perform the system call, there needs to be some way to communicate
     to the kernel we wish to make a system call. All architectures define an instruction,
     usually called `break` or something similar, that signals to the hardware we wish
     to make a system call.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 要实际执行系统调用，需要有一种方式与内核通信，表明我们想要进行系统调用。所有架构都定义了一个指令，通常称为`break`或类似名称，它向硬件发出信号，表明我们想要进行系统调用。
 - en: Specifically, this instruction will tell the hardware to modify the instruction
     pointer to point to the kernels system call handler (when the operating system
     sets its self up it tells the hardware where its system call handler lives). So
     once the userspace calls the break instruction, it has lost control of the program
     and passed it over to the kernel.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 具体来说，这条指令会告诉硬件修改指令指针，使其指向内核的系统调用处理程序（当操作系统设置自身时，它会告诉硬件其系统调用处理程序的位置）。因此，一旦用户空间调用中断指令，它就失去了对程序的掌控，并将其传递给了内核。
 - en: The rest of the operation is fairly straight forward. The kernel looks in the
     predefined register for the system call number, and looks it up in a table to
     see which function it should call. This function is called, does what it needs
     to do, and places its return value into *another* register defined by the ABI
     as the return register.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 其余的操作相当直接。内核会在预定义的寄存器中查找系统调用号，并在表中查找它应该调用的函数。这个函数被调用，执行它需要执行的操作，并将它的返回值放入由ABI定义的另一个寄存器中，作为返回寄存器。
 - en: The final step is for the kernel to make a jump instruction back to the userspace
     program, so it can continue off where it left from. The userpsace program gets
     the data it needs from the return register, and continues happily on its way!
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后一步是内核跳转回用户空间程序，以便它可以从上次离开的地方继续执行。用户空间程序从返回寄存器中获取所需的数据，并继续愉快地前进！
 - en: Although the details of the process can get quite hairy, this is basically all
     their is to a system call.
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然进程的细节可能会变得相当复杂，但系统调用基本上就是如此。
 - en: 3.1.4 libc
+  id: totrans-92
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.1.4 libc
 - en: Although you can do all of the above by hand for each system call, system libraries
     usually do most of the work for you. The standard library that deals with system
     calls on UNIX like systems is `libc`; we will learn more about its roles in future
     weeks.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管你可以为每个系统调用手动完成所有这些操作，但系统库通常为你完成大部分工作。处理UNIX-like系统上系统调用的标准库是`libc`；我们将在未来的几周中了解更多关于其角色的信息。
 - en: 3.2 Analysing a system call
+  id: totrans-94
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.2 分析系统调用
 - en: As the system libraries usually deal with making systems call for you, we need
     to do some low level hacking to illustrate exactly how the system calls work.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于系统库通常负责为你处理系统调用，我们需要进行一些低级黑客行为来展示系统调用是如何工作的。
 - en: We will illustrate how probably the most simple system call, `getpid()`, works.
     This call takes no arguments and returns the ID of the currently running program
     (or process; we'll look more at the process in later weeks).
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将展示最简单的系统调用之一，`getpid()`，是如何工作的。这个调用不接受任何参数，并返回当前运行程序的ID（或进程；我们将在接下来的几周中更详细地探讨进程）。
 - en: '[PRE0]'
+  id: totrans-97
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: Example 3.2.1 getpid() example
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.2.1 getpid()示例
 - en: We start by writing a small C program which we can start to illustrate the mechanism
     behind system calls. The first thing to note is that there is a `syscall` argument
     provided by the system libraries for directly making system calls. This provides
@@ -519,170 +721,238 @@
     call can be cached, so if it is run twice the system library will not take the
     penalty of having to make an entire system call to find out the same information
     again.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们首先编写一个小型的C程序，以此来开始展示系统调用背后的机制。首先要注意的是，系统库提供了一个名为`syscall`的参数，用于直接进行系统调用。这为程序员提供了一个简单的方法，可以直接进行系统调用，而无需了解在他们的硬件上执行调用所需的精确汇编语言例程。那么我们为什么要使用`getpid()`呢？首先，在代码中使用符号函数名更清晰。然而，更重要的是，`getpid()`在不同的系统上可能以非常不同的方式工作。例如，在Linux上，`getpid()`调用可以被缓存，所以如果它运行两次，系统库将不会再次承受整个系统调用的惩罚，以找到相同的信息。
 - en: By convention under Linux, system calls numbers are defined in the `asm/unistd.h`
     file from the kernel source. Being in the `asm` subdirectory, this is different
     for each architecture Linux runs on. Again by convention, system calls numbers
     are given a `#define` name consisting of `__NR_`. Thus you can see our code will
     be making the `getpid` system call, storing the value in `pid`.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据 Linux 的惯例，系统调用号在内核源代码的 `asm/unistd.h` 文件中定义。由于位于 `asm` 子目录下，每个 Linux 运行的架构都有所不同。再次根据惯例，系统调用号被赋予一个由
+    `__NR_` 组成的 `#define` 名称。因此，你可以看到我们的代码将执行 `getpid` 系统调用，并将值存储在 `pid` 中。
 - en: We will have a look at how several architectures implement this code under the
     hood. We're going to look at real code, so things can get quite hairy. But stick
     with it -- this is *exactly* how your system works!
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将查看几种架构在底层如何实现这段代码。我们将查看真实代码，所以事情可能会变得相当复杂。但请坚持下去——这正是你的系统是如何工作的！
 - en: 3.2.1 PowerPC
+  id: totrans-102
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.2.1 PowerPC
 - en: PowerPC is a RISC architecture common in older Apple computers, and the core
     of devices such as the latest version of the Xbox.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: PowerPC 是一种 RISC 架构，常见于较老的苹果电脑，以及最新版本的 Xbox 等设备的内核。
 - en: '[PRE1]'
+  id: totrans-104
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Example 3.2.1.1 PowerPC system call example
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.2.1.1 PowerPC 系统调用示例
 - en: This code snippet from the kernel header file `asm/unistd.h` shows how we can
     implement system calls on PowerPC. It looks very complicated, but it can be broken
     down step by step.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个来自内核头文件 `asm/unistd.h` 的代码片段展示了我们如何在 PowerPC 上实现系统调用。它看起来非常复杂，但可以一步一步地分解。
 - en: Firstly, jump to the end of the example where the `_syscallN` macros are defined.
     You can see there are many macros, each one taking progressively one more argument.
     We'll concentrate on the most simple version, `_syscall0` to start with. It only
     takes two arguments, the return type of the system call (e.g. a C `int` or `char`,
     etc) and the name of the system call. For `getpid` this would be done as `_syscall0(int,getpid)`.
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，跳转到定义 `_syscallN` 宏的示例末尾。你可以看到有很多宏，每个宏都逐渐多一个参数。我们将从最简单的版本 `_syscall0` 开始。它只接受两个参数，系统调用的返回类型（例如
+    C 语言的 `int` 或 `char` 等）和系统调用的名称。对于 `getpid`，这将是通过 `_syscall0(int,getpid)` 来实现的。
 - en: Easy so far! We now have to start pulling apart `__syscall_nr` macro. This is
     not dissimilar to where we were before, we take the number of arguments as the
     first parameter, the type, name and then the actual arguments.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 到目前为止都很简单！我们现在必须开始分解 `__syscall_nr` 宏。这与我们之前的位置不太一样，我们取参数的数量作为第一个参数，类型、名称，然后是实际的参数。
 - en: The first step is declaring some names for registers. What this essentially
     does is says `__sc_0` refers to `r0` (i.e. register 0). The compiler will usually
     use registers how it wants, so it is important we give it constraints so that
     it doesn't decide to go using register we need in some ad-hoc manner.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一步是声明一些寄存器的名称。这本质上就是声明 `__sc_0` 指的是 `r0`（即寄存器 0）。编译器通常会按照自己的意愿使用寄存器，因此我们很重要的一点是要给它一些约束，这样它就不会决定以某种临时方式使用我们需要的寄存器。
 - en: We then call `sc_loadargs` with the interesting `##` parameter. That is just
     a *paste* command, which gets replaced by the `nr` variable. Thus for our example
     it expands to `__sc_loadargs_0(name, args);`. `__sc_loadargs` we can see below
     sets `__sc_0` to be the system call number; notice the paste operator again with
     the `__NR_` prefix we talked about, and the variable name that refers to a specific
     register.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 然后我们用有趣的 `##` 参数调用 `sc_loadargs`。这只是一个 *粘贴* 命令，它会被 `nr` 变量替换。因此，对于我们的示例，它扩展为
+    `__sc_loadargs_0(name, args);`。下面我们可以看到 `__sc_loadargs` 将 `__sc_0` 设置为系统调用号；注意再次出现的粘贴操作符，以及我们之前提到的
+    `__NR_` 前缀和引用特定寄存器的变量名。
 - en: So, all this tricky looking code actually does is puts the system call number
     in register 0! Following the code through, we can see that the other macros will
     place the system call arguments into `r3` through `r7` (you can only have a maximum
     of 5 arguments to your system call).
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，所有这些看起来很棘手的代码实际上只是将系统调用号放入寄存器 0！跟随代码，我们可以看到其他宏会将系统调用参数放入 `r3` 到 `r7`（你的系统调用最多只能有
+    5 个参数）。
 - en: Now we are ready to tackle the `__asm__` section. What we have here is called
     *inline assembly* because it is assembler code mixed right in with source code.
     The exact syntax is a little to complicated to go into right here, but we can
     point out the important parts.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们已经准备好处理 `__asm__` 部分。这里我们称之为 *内联汇编*，因为它是在源代码中混合了汇编代码。确切的语法在这里过于复杂，但我们可以指出重要的部分。
 - en: Just ignore the `__volatile__` bit for now; it is telling the compiler that
     this code is unpredictable so it shouldn't try and be clever with it. Again we'll
     start at the end and work backwards. All the stuff after the colons is a way of
     communicating to the compiler about what the inline assembly is doing to the CPU
     registers. The compiler needs to know so that it doesn't try using any of these
     registers in ways that might cause a crash.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在先忽略`__volatile__`部分；它是在告诉编译器这段代码是不可预测的，因此它不应该试图对它做任何聪明的事情。我们再次从结尾开始，逆向工作。冒号后面的所有内容都是一种方式，用来向编译器传达内联汇编对CPU寄存器所做的事情。编译器需要知道这一点，这样它就不会尝试以可能导致崩溃的方式使用这些寄存器。
 - en: But the interesting part is the two assembly statements in the first argument.
     The one that does all the work is the `sc` call. That's all you need to do to
     make your system call!
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 但有趣的部分是第一个参数中的两个汇编语句。做所有工作的那个是`sc`调用。这就是你需要做的所有事情来执行你的系统调用！
 - en: So what happens when this call is made? Well, the processor is interrupted knows
     to transfer control to a specific piece of code setup at system boot time to handle
     interrupts. There are many interrupts; system calls are just one. This code will
     then look in register 0 to find the system call number; it then looks up a table
     and finds the right function to jump to to handle that system call. This function
     receives its arguments in registers 3 - 7.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 当这个调用被调用时会发生什么？好吧，处理器被中断，知道将控制权转移到系统启动时设置的特定代码块，以处理中断。有许多中断；系统调用只是其中之一。然后这段代码会在寄存器0中查找系统调用号；然后查找表，找到跳转到以处理该系统调用的正确函数。这个函数在其寄存器3-7中接收其参数。
 - en: So, what happens once the system call handler runs and completes? Control returns
     to the next instruction after the `sc`, in this case a *memory fence* instruction.
     What this essentially says is "make sure everything is committed to memory"; remember
     how we talked about pipelines in the superscalar architecture? This instruction
     ensures that everything we think has been written to memory actually has been,
     and isn't making its way through a pipeline somewhere.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 那么，系统调用处理程序运行并完成后会发生什么？控制权返回到`sc`之后的下一个指令，在这种情况下是一个*内存栅栏*指令。这个指令本质上说的是“确保一切都已经提交到内存”；还记得我们关于超标量架构中的流水线吗？这个指令确保我们认为已经写入内存的每一件事实际上都已经写入，并且没有在某个流水线中传递。
 - en: Well, we're almost done! The only thing left is to return the value from the
     system call. We see that `__sc_ret` is set from r3 and `__sc_err` is set from
     r0. This is interesting; what are these two values all about?
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 好吧，我们几乎完成了！剩下要做的就是从系统调用中返回值。我们看到`__sc_ret`是从r3设置的，而`__sc_err`是从r0设置的。这很有趣；这两个值究竟是什么意思？
 - en: One is the return value, and one is the error value. Why do we need two variables?
     System calls can fail, just as any other function. The problem is that a system
     call can return any possible value; we can not say "a negative value indicates
     failure" since a negative value might be perfectly acceptable for some particular
     system call.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个是返回值，另一个是错误值。为什么我们需要两个变量？系统调用可能会失败，就像任何其他函数一样。问题是系统调用可以返回任何可能的值；我们不能说“负值表示失败”，因为对于某些特定的系统调用，负值可能是完全可接受的。
 - en: So our system call function, before returning, ensures its result is in register
     r3 and any error code is in register r0\. We check the error code to see if the
     top bit is set; this would indicate a negative number. If so, we set the global
     `errno` value to it (this is the standard variable for getting error information
     on call failure) and set the return to be `-1`. Of course, if a valid result is
     received we return it directly.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，我们的系统调用函数在返回之前，确保其结果在寄存器r3中，任何错误代码在寄存器r0中。我们检查错误代码以查看最高位是否被设置；这将表示一个负数。如果是这样，我们将全局`errno`值设置为它（这是获取调用失败错误信息的标准变量）并将返回值设置为`-1`。当然，如果收到有效结果，我们直接返回它。
 - en: So our calling function should check the return value is not `-1`; if it is
     it can check errno to find the exact reason why the call failed.
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，我们的调用函数应该检查返回值不是`-1`；如果是，它可以检查`errno`来找到调用失败的确切原因。
 - en: And that is an entire system call on a PowerPC!
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 那就是一个在PowerPC上的整个系统调用！
 - en: 3.2.2 x86 system calls
+  id: totrans-122
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.2.2 x86系统调用
 - en: Below we have the same interface as implemented for the x86 processor.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面我们有与为x86处理器实现的相同接口。
 - en: '[PRE2]'
+  id: totrans-124
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Example 3.2.2.1 x86 system call example
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例3.2.2.1 x86系统调用示例
 - en: The x86 architecture is very different from the PowerPC that we looked at previously.
     The x86 is classed as a CISC processor as opposed to the RISC PowerPC, and has
     dramatically less registers.
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: x86 架构与我们之前所探讨的 PowerPC 架构非常不同。x86 被归类为 CISC 处理器，与 RISC 的 PowerPC 相比，它具有显著更少的寄存器。
 - en: Start by looking at the most simple `_syscall0` macro. It simply calls the `int`
     instruction with a value of `0x80`. This instruction makes the CPU raise interrupt
     0x80, which will jump to code that handles system calls in the kernel.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，让我们看看最简单的 `_syscall0` 宏。它只是调用 `int` 指令，值为 `0x80`。这条指令使 CPU 引发中断 0x80，这将跳转到内核中处理系统调用的代码。
 - en: We can start inspecting how to pass arguments with the longer macros. Notice
     how the PowerPC implementation cascaded macros downwards, adding one argument
     per time. This implementation has slightly more copied code, but is a little easier
     to follow.
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以从检查如何使用较长的宏传递参数开始。注意 PowerPC 实现是如何向下级联宏的，每次添加一个参数。这种实现有稍微多一点复制的代码，但稍微容易一些。
 - en: x86 register names are based around letters, rather than the numerical based
     register names of PowerPC. We can see from the zero argument macro that only the
     `A` register gets loaded; from this we can tell that the system call number is
     expected in the `EAX` register. As we start loading registers in the other macros
     you can see the short names of the registers in the arguments to the `__asm__`
     call.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: x86 寄存器名称基于字母，而不是 PowerPC 的基于数字的寄存器名称。我们可以从零参数宏中看到，只有 `A` 寄存器被加载；从这个我们可以推断出系统调用号预期在
+    `EAX` 寄存器中。当我们开始在其他宏中加载寄存器时，你可以看到 `__asm__` 调用参数中的寄存器短名称。
 - en: We see something a little more interesting in `__syscall6`, the macro taking
     6 arguments. Notice the `push` and `pop` instructions? These work with the stack
     on x86, "pushing" a value onto the top of the stack in memory, and popping the
@@ -691,14 +961,20 @@
     in (the `mov` instruction), make our system call and then restore the original
     value into `ebp`. Here you can see the disadvantage of not having enough registers;
     stores to memory are expensive so the more you can avoid them, the better.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 `__syscall6` 中，我们看到一些更有趣的东西，这是一个接受 6 个参数的宏。注意 `push` 和 `pop` 指令吗？这些指令与 x86
+    上的栈一起工作，将值“推”到内存栈的顶部，并将值从栈中“弹出”到内存。因此，在拥有六个寄存器的情况下，我们需要将 `ebp` 寄存器的值存储在内存中，将我们的参数放入（使用
+    `mov` 指令），执行系统调用，然后将原始值恢复到 `ebp`。在这里，你可以看到没有足够寄存器的缺点；存储到内存是昂贵的，所以你能避免的越多越好。
 - en: Another thing you might notice there is nothing like the *memory fence* instruction
     we saw previously with the PowerPC. This is because on x86 the effect of all instructions
     will be guaranteed to be visible when the complete. This is easier for the compiler
     (and programmer) to program for, but offers less flexibility.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一件你可能注意到的事情是，没有像 PowerPC 中我们之前看到的 *内存栅栏* 指令。这是因为 x86 上所有指令的效果在完成时都将得到保证可见。这对编译器（和程序员）来说更容易编程，但提供了更少的灵活性。
 - en: The only thing left to contrast is the return value. On the PowerPC we had two
     registers with return values from the kernel, one with the value and one with
     an error code. However on x86 we only have one return value that is passed into
@@ -711,61 +987,89 @@
     add an offset to their return value to force it to always be positive; it is up
     to the userspace to realise this and subtract this constant value to get back
     to the "real" value.
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 剩下的唯一需要对比的是返回值。在 PowerPC 中，我们有两个寄存器用于从内核获取返回值，一个用于存储值，另一个用于存储错误代码。然而，在 x86 中，我们只有一个返回值，它被传递到
+    `__syscall_return`。这个宏将返回值转换为 `unsigned long` 并将其与一个（架构和内核相关的）可能表示错误代码的负值范围进行比较（注意，`errno`
+    的值是正的，所以内核的负结果会被取反）。然而，这意味着系统调用不能返回小的负值，因为它们与错误代码无法区分。一些有此要求的系统调用，如 `getpriority()`，会在它们的返回值上添加一个偏移量，以确保它始终为正；用户空间需要意识到这一点，并减去这个常数值以获得“真实”的值。
 - en: </main>
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 4 Privileges
+  id: totrans-135
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 4 权限
 - en: 4.1 Hardware
+  id: totrans-136
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 4.1 硬件
 - en: We mentioned how one of the major tasks of the operating system is to implement
     security; that is to not allow one application or user to interfere with any other
     that is running in the system. This means applications should not be able to overwrite
     each others memory or files, and only access system resources as dictated by system
     policy.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们提到操作系统的主要任务之一是实现安全性；也就是说，不允许一个应用程序或用户干扰系统中运行的任何其他应用程序。这意味着应用程序不应能够覆盖彼此的内存或文件，并且只能按照系统策略访问系统资源。
 - en: However, when an application is running it has exclusive use of the processor.
     We see how this works when we examine processes in the next chapter. Ensuring
     the application only accesses memory it owns is implemented by the virtual memory
     system, which we examine in the chapter after next. The essential point is that
     the hardware is responsible for enforcing these rules.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，当应用程序运行时，它对处理器有独占使用权。我们将在下一章中查看进程时了解这一点是如何工作的。确保应用程序只访问它拥有的内存是通过虚拟内存系统实现的，我们将在下一章中对其进行考察。基本点是硬件负责强制执行这些规则。
 - en: The system call interface we have examined is the gateway to the application
     getting to system resources. By forcing the application to request resources through
     a system call into the kernel, the kernel can enforce rules about what sort of
     access can be provided. For example, when an application makes an `open()` system
     call to open a file on disk, it will check the permissions of the user against
     the file permissions and allow or deny access.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们所考察的系统调用接口是应用程序获取系统资源的门户。通过强制应用程序通过系统调用向内核请求资源，内核可以强制执行有关可以提供何种访问的规则。例如，当应用程序执行`open()`系统调用以在磁盘上打开文件时，它将检查用户的权限与文件权限是否匹配，并允许或拒绝访问。
 - en: 4.1.1 Privilege Levels
+  id: totrans-140
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.1.1 权限级别
 - en: Hardware protection can usually be seen as a set of concentric rings around
     a core set of operations.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 硬件保护通常可以看作是在一组核心操作周围的一系列同心环。
 - en: <picture>![](priv.svg)</picture>
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: '![图片](priv.svg)'
 - en: Privilege levels on x86
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: x86的权限级别
 - en: Figure 4.1.1.1 Rings
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 图4.1.1.1 环
 - en: In the inner most ring are the most protected instructions; those that only
     the kernel should be allowed to call. For example, the `HLT` instruction to halt
     the processor should not be allowed to be run by a user application, since it
@@ -776,23 +1080,31 @@
     in the operating system similar to the system call handler. The operating system
     will then probably terminate the program, usually giving the user some error about
     how the application has crashed.
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 在最内层环中是受保护程度最高的指令；只有内核应该被允许调用的指令。例如，用于停止处理器的`HLT`指令不应允许用户应用程序运行，因为这会停止整个计算机的工作。然而，当计算机合法关闭时，内核需要能够调用这个指令。当“顽皮”的应用程序无论如何调用这个指令时会发生什么？硬件通常会引发异常，这涉及到跳转到操作系统中指定的处理程序，类似于系统调用处理程序。然后操作系统可能会终止程序，通常会给用户一些关于应用程序如何崩溃的错误信息。
 - en: Each inner ring can access any instructions protected by a further out ring,
     but not any protected by a further in ring. Not all architectures have multiple
     levels of rings as above, but most will either provide for at least a "kernel"
     and "user" level.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个内层环都可以访问由更外层环保护的任何指令，但不能访问由更内层环保护的指令。并非所有架构都具有如上所述的多级环，但大多数至少会提供“内核”和“用户”级别。
 - en: 4.1.1.1 386 protection model
+  id: totrans-147
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 4.1.1.1 386保护模型
 - en: The 386 protection model has four rings, though most operating systems (such
     as Linux and Windows) only use two of the rings to maintain compatibility with
     other architectures that do now allow as many discrete protection levels.
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 386保护模型有四个环，尽管大多数操作系统（如Linux和Windows）只使用其中的两个环以与其他架构保持兼容，这些架构现在不允许有如此多的离散保护级别。
 - en: 386 maintains privileges by making each piece of application code running in
     the system have a small descriptor, called a *code descriptor*, which describes,
     amongst other things, its privilege level. When running application code makes
@@ -800,12 +1112,16 @@
     the privilege level of the target is checked. If it is higher than the currently
     running code, the jump is disallowed by the hardware (and the application will
     crash).
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 386通过为系统内运行的每一块应用程序代码创建一个小的描述符，称为*代码描述符*，来维护权限。该描述符描述了其权限级别，以及其他一些信息。当应用程序代码跳转到由其代码描述符描述的区域之外的其他代码时，会检查目标代码的权限级别。如果目标权限级别高于当前运行的代码，硬件将不允许跳转（并且应用程序将崩溃）。
 - en: 4.1.1.2 Raising Privilege
+  id: totrans-150
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 4.1.1.2 提升权限
 - en: Applications may only raise their privilege level by specific calls that allow
     it, such as the instruction to implement a system call. These are usually referred
     to as a *call gate* because they function just as a physical gate; a small entry
@@ -818,37 +1134,51 @@
     it has permissions to do any operation it wants; when it is finished it will return
     control back to the application which will again be running with its lower privilege
     level.
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 应用程序只能通过允许其提升权限的特定调用来提升其权限级别，例如实现系统调用的指令。这些通常被称为*调用门*，因为它们的功能就像一个物理门；一个穿过其他方面不可穿透的墙的小入口。当调用该指令时，我们已经看到硬件如何完全停止运行的应用程序并将控制权交给内核。内核必须充当看门人；确保没有恶意的东西通过这个门。这意味着它必须仔细检查系统调用参数，以确保它不会陷入做不应该做的事情（如果可能的话，那将是一个安全漏洞）。由于内核在最内层环中运行，它有权执行任何它想要的操作；当它完成时，它将控制权返回给应用程序，应用程序将再次以较低的权限级别运行。
 - en: 4.1.1.3 Fast System Calls
+  id: totrans-152
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 4.1.1.3 快速系统调用
 - en: One problem with traps as described above is that they are very expensive for
     the processor to implement. There is a lot of state to be saved before context
     can switch. Modern processors have realised this overhead and strive to reduce
     it.
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 如上所述，陷阱的一个问题是它们对处理器来说非常昂贵。在可以切换上下文之前，有很多状态需要保存。现代处理器已经意识到这种开销，并努力减少它。
 - en: To understand the call-gate mechanism described above requires investigation
     of the ingenious but complicated segmentation scheme used by the processor. The
     original reason for segmentation was to be able to use more than the 16 bits available
     in a register for an address, as illustrated in [Figure 4.1.1.3.1, x86 Segmentation
     Addressing](#x86_segmentation).
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 要理解上述的调用门机制，需要调查处理器使用的巧妙但复杂的分段方案。分段的原意是为了能够使用比寄存器中可用的16位更多的位来表示地址，如[图4.1.1.3.1，x86分段寻址](#x86_segmentation)所示。
 - en: <picture>![](ia32-segmentation.svg)</picture>
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: '![图片](ia32-segmentation.svg)'
 - en: Segmentation expanding the address space of a processor by dividing it into
     chunks. The processor keeps special segment registers, and addresses are specified
     by a segment register and offset combination. The value of the segment register
     is added to the offset portion to find a final address.
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 分段通过将处理器地址空间划分为块来扩展处理器地址空间。处理器保留特殊的段寄存器，地址通过段寄存器和偏移量的组合来指定。将段寄存器的值加到偏移量部分，以找到最终的地址。
 - en: Figure 4.1.1.3.1 x86 Segmentation Addressing
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 图4.1.1.3.1 x86分段寻址
 - en: When x86 moved to 32 bit registers, the segmentation scheme remained but in
     a different format. Rather than fixed segment sizes, segments are allowed to be
     any size. This means the processor needs to keep track of all these different
@@ -858,36 +1188,48 @@
     are the segments the process can access (there are also *local* descriptor tables,
     and it all interacts with task state segments, but that's not important now).
     The overall situation is illustrated in [Figure 4.1.1.3.2, x86 segments](#x86_segments).
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 当x86迁移到32位寄存器时，分段方案保持不变，但格式不同。而不是固定段大小，段可以是任何大小。这意味着处理器需要跟踪所有这些不同的段及其大小，它使用*描述符*来做到这一点。对所有人可用的段描述符保存在*全局描述符表*或简称GDT中。每个进程都有一些寄存器，它们指向GDT中的条目；这些是进程可以访问的段（还有*局部*描述符表，以及它与任务状态段的所有交互，但那不是现在的重要问题）。整体情况在[图4.1.1.3.2，x86段](#x86_segments)中得到了说明。
 - en: <picture>![](ia32-segments.svg)</picture>
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: '![图片](ia32-segments.svg)'
 - en: x86 segments in action. Notice how a "far-call" passes via a call-gate which
     redirects to a segment of code running at a lower ring level. The only way to
     modify the code-segment selector, implicitly used for all code addresses, is via
     the call mechanism. Thus the call-gate mechanism ensures that to choose a new
     segment descriptor, and hence possibly change protection levels, you must transition
     via a known entry point.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: x86段在实际操作中的表现。注意“远调用”是如何通过调用门传递的，该调用门将重定向到运行在较低环级别的代码段。唯一修改代码段选择器（隐式用于所有代码地址）的方法是通过调用机制。因此，调用门机制确保要选择新的段描述符，并可能更改保护级别，您必须通过已知的入口点进行转换。
 - en: Figure 4.1.1.3.2 x86 segments
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 图4.1.1.3.2 x86段
 - en: Since the operating system assigns the segment registers as part of the process
     state, the processor hardware knows what segments of memory the currently running
     process can access and can enforce *protection* to ensure the process doesn't
     touch anything it is not supposed to. If it does go out of bounds, you receive
     a *segmentation fault*, which most programmers are familiar with.
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于操作系统将段寄存器作为进程状态的一部分进行分配，处理器硬件知道当前运行进程可以访问哪些内存段，并且可以执行*保护*以确保进程不会触及它不应该触及的内容。如果它超出了范围，你会收到一个*段错误*，这是大多数程序员都熟悉的。
 - en: The picture becomes more interesting when running code needs to make calls into
     code that resides in *another* segment. As discussed in [Section 4.1.1.1, 386
     protection model](#x86_protection), x86 does this with *rings*, where ring 0 is
     the highest permission, ring 3 is the lowest, and inner rings can access outer
     rings but not vice-versa.
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 当运行代码需要调用位于*另一个*段的代码时，情况变得更加有趣。如[第4.1.1.1节，386保护模型](#x86_protection)所述，x86使用*环*来实现这一点，其中环0是最高权限，环3是最低权限，内环可以访问外环，但反之则不行。
 - en: As discussed in [Section 4.1.1.2, Raising Privilege](#raising_privilege), when
     ring 3 code wants to jump into ring 0 code, it is essentially modifying its code
     segment selector to point to a different segment. To do this, it must use a special
@@ -897,21 +1239,28 @@
     ring 0 segment, which is responsible for maintaining integrity (e.g. not reading
     arbitrary and possibly malicious code and executing it. Of course nefarious attackers
     will always look for ways to make your code do what you did not intend it to!).
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 如[第4.1.1.2节，提升权限](#raising_privilege)所述，当环3代码想要跳转到环0代码时，它实际上是在修改其代码段选择器，使其指向不同的段。为了做到这一点，它必须使用一个特殊的*远调用*指令，硬件确保它通过调用门。运行进程没有其他方式来选择新的代码段描述符，因此处理器将在环0段中已知的偏移处开始执行代码，该段负责保持完整性（例如，不读取任意和可能恶意的代码并执行它。当然，恶意攻击者总是会寻找方法让您的代码执行您不希望它执行的操作！）。
 - en: This allows a whole hierarchy of segments and permissions between them. You
     might have noticed a cross segment call sounds exactly like a system call. If
     you've ever looked at Linux x86 assembly the standard way to make a system call
     is `int 0x80`, which raises interrupt `0x80`. An interrupt stops the processor
     and goes to an interrupt gate, which then works the same as a call gate -- it
     changes privilege level and bounces you off to some other area of code .
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 这允许在段之间以及它们之间的权限之间存在整个层次结构。你可能已经注意到，跨段调用听起来就像系统调用。如果你曾经以标准方式查看过 Linux x86 汇编，那么执行系统调用的标准方法是
+    `int 0x80`，这会引发中断 `0x80`。中断会停止处理器并转到中断门，然后它的工作方式与调用门相同——它会改变特权级别并将你弹射到代码的另一个区域。
 - en: The problem with this scheme is that it is *slow*. It takes a lot of effort
     to do all this checking, and many registers need to be saved to get into the new
     code. And on the way back out, it all needs to be restored again.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种方案的问题在于它很**慢**。进行所有这些检查需要付出很多努力，并且需要保存许多寄存器以进入新代码。在返回的过程中，所有这些都需要被恢复。
 - en: On a modern x86 system segmentation and the four-level ring system is not used
     thanks to virtual memory, discussed fully in [Chapter 6, Virtual Memory](csbu-print_split_028.html#chapter05).
     The only thing that really happens with segmentation switching is system calls,
@@ -922,8 +1271,13 @@
     — that is the possibility of transitioning into any segment at any ring level
     — and restricting the call to only transition to ring 0 code at a specific segment
     and offset, as stored in registers.
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 在现代 x86 系统中，由于虚拟内存的存在，不再使用分段和四级环系统，这在[第 6 章，虚拟内存](csbu-print_split_028.html#chapter05)中已充分讨论。分段切换真正发生的事情只是系统调用，这本质上是从模式
+    3（用户空间）切换到模式 0 并跳转到内核内部的系统调用处理程序代码。因此，处理器提供了额外的**快速系统调用**指令，称为 `sysenter`（以及 `sysexit`
+    以返回），通过消除远调用的通用性——即在任何环级别转换到任何段的可能性——并将调用限制为仅转换到特定段和偏移处的环 0 代码，从而在寄存器中存储，来加快整个过程，相对于
+    `int 0x80` 调用。
 - en: Because the general nature has been replaced with so much prior-known information,
     the whole process can be speed up, and hence we have a the aforementioned *fast
     system call*. The other thing to note is that state is not preserved when the
@@ -931,30 +1285,47 @@
     it also means it is free to only save as little state as is required to do the
     job, so can be much more efficient about it. This is a very RISC philosophy, and
     illustrates how the line blurs between RISC and CISC processors.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于通用性已被大量已知信息所取代，整个过程可以加快，因此我们有了前面提到的**快速系统调用**。值得注意的是，当内核获得控制权时，状态不会被保留。内核必须小心不要破坏状态，但这同时也意味着它只需保存完成工作所需的最少状态，因此可以在这方面更加高效。这是一个非常
+    RISC 的哲学，并说明了 RISC 和 CISC 处理器之间的界限是如何模糊的。
 - en: For more information on how this is implemented in the Linux kernel, see [Section 8.1.1,
     Kernel Library](csbu-print_split_055.html#kernel_library).
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于如何在 Linux 内核中实现这一点的更多信息，请参阅[第 8.1.1 节，内核库](csbu-print_split_055.html#kernel_library)。
 - en: 4.2 Other ways of communicating with the kernel
+  id: totrans-170
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 4.2 与内核的其他通信方式
 - en: 4.2.1 ioctl
+  id: totrans-171
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.2.1 ioctl
 - en: about ioctls
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于 ioctl
 - en: 4.3 File Systems
+  id: totrans-173
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 4.3 文件系统
 - en: about proc, sysfs, debugfs, etc
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于 proc、sysfs、debugfs 等
 - en: </main>
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>

@@ -1,85 +1,129 @@
 - en: <main class="calibre3">
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: Chapter 2. Binary and Number Representation
+  id: totrans-1
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 第二章 二进制和数字表示
 - en: </main>
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 1 Binary — the basis of computing
+  id: totrans-4
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 1 二进制——计算的基础
 - en: 1.1 Binary Theory
+  id: totrans-5
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.1 二进制理论
 - en: 1.1.1 Introduction
+  id: totrans-6
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.1.1 简介
 - en: Binary is a base-2 number system that uses two mutually exclusive states to
     represent information. A binary number is made up of elements called *bits* where
     each bit can be in one of the two possible states. Generally, we represent them
     with the numerals `1` and `0`. We also talk about them being true and false. Electrically,
     the two states might be represented by high and low voltages or some form of switch
     turned on or off.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 二进制是一种基数为2的数字系统，它使用两种互斥的状态来表示信息。一个二进制数由称为*比特*的元素组成，每个比特可以处于两种可能状态之一。通常，我们用数字`1`和`0`来表示它们。我们也谈论它们是真是假。从电的角度来看，这两种状态可能由高电压和低电压或某种形式的开关打开或关闭来表示。
 - en: We build binary numbers the same way we build numbers in our traditional base
     10 system. However, instead of a one's column, a 10's column, a 100's column (and
     so on) we have a one's column, a two's columns, a four's column, an eight's column,
     and so on, as illustrated below.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们构建二进制数的方式与我们构建传统十进制系统中的数的方式相同。然而，我们不是有一个个位、十位、百位（等等），而是有一个个位、二位、四位、八位，等等，如下所示。
 - en: Table 1.1.1.1 Binary
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 表1.1.1.1 二进制
 - en: '| 2^(...) | 2⁶ | 2⁵ | 2⁴ | 2³ | 2² | 2¹ | 2⁰ |'
+  id: totrans-10
   prefs: []
   type: TYPE_TB
+  zh: '| 2^(...) | 2⁶ | 2⁵ | 2⁴ | 2³ | 2² | 2¹ | 2⁰ |'
 - en: '| ... | 64 | 32 | 16 | 8 | 4 | 2 | 1 |'
+  id: totrans-11
   prefs: []
   type: TYPE_TB
+  zh: '| ... | 64 | 32 | 16 | 8 | 4 | 2 | 1 |'
 - en: For example, to represent the number 203 in base 10, we know we place a `3`
     in the `1's` column, a `0` in the `10's` column and a `2` in the `100's` column.
     This is expressed with exponents in the table below.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，要表示十进制中的数字203，我们知道我们在个位上放置一个`3`，在十位上放置一个`0`，在百位上放置一个`2`。这在下表中的指数中得到了表达。
 - en: Table 1.1.1.2 203 in base 10
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 表1.1.1.2 十进制中的203
 - en: '| 10² | 10¹ | 10⁰ |'
+  id: totrans-14
   prefs: []
   type: TYPE_TB
+  zh: '| 10² | 10¹ | 10⁰ |'
 - en: '| 2 | 0 | 3 |'
+  id: totrans-15
   prefs: []
   type: TYPE_TB
+  zh: '| 2 | 0 | 3 |'
 - en: Or, in other words, 2 × 10² + 3 × 10⁰ = 200 + 3 = 203\. To represent the same
     thing in binary, we would have the following table.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 或者换句话说，2 × 10² + 3 × 10⁰ = 200 + 3 = 203。要在二进制中表示相同的内容，我们将有以下的表格。
 - en: Table 1.1.1.3 203 in base 2
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 表1.1.1.3 2进制的203
 - en: '| 2⁷ | 2⁶ | 2⁵ | 2⁴ | 2³ | 2² | 2¹ | 2⁰ |'
+  id: totrans-18
   prefs: []
   type: TYPE_TB
+  zh: '| 2⁷ | 2⁶ | 2⁵ | 2⁴ | 2³ | 2² | 2¹ | 2⁰ |'
 - en: '| 1 | 1 | 0 | 0 | 1 | 0 | 1 | 1 |'
+  id: totrans-19
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | 1 | 0 | 0 | 1 | 0 | 1 | 1 |'
 - en: That equates to 2⁷ + 2⁶ + 2³+2¹ + 2⁰ = 128 + 64 + 8 + 2 + 1 = 203.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 这等于 2⁷ + 2⁶ + 2³ + 2¹ + 2⁰ = 128 + 64 + 8 + 2 + 1 = 203。
 - en: 1.1.2 The basis of computing
+  id: totrans-21
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.1.2 计算的基础
 - en: You may be wondering how a simple number is the basis of all the amazing things
     a computer can do. Believe it or not, it is! The processor in your computer has
     a complex but ultimately limited set of *instructions* it can perform on values
@@ -90,15 +134,19 @@
     mean "add 5 and 2 and store the output somewhere". The reality is of course much
     more complicated (see [Chapter 3, Computer Architecture](csbu-print_split_009.html#chapter02))
     but, in a nutshell, this is what a computer is.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能想知道一个简单的数字是如何成为计算机能够做到所有这些奇妙事情的基础的。信不信由你，它确实是！你电脑中的处理器可以执行一系列复杂但最终有限的指令，如加法、乘法等。本质上，每个这样的指令都被分配了一个数字，这样整个程序（将这个加到那个上，乘以那个，除以这个等等）就可以用一个数字流来表示。例如，如果处理器知道操作`2`是加法，那么`252`可能意味着“将5和2相加并将结果存储在某处”。当然，现实情况要复杂得多（参见[第三章，计算机架构](csbu-print_split_009.html#chapter02)），但简而言之，这就是计算机的工作原理。
 - en: In the days of punch-cards, one could see with their eye the one's and zero's
     that make up the program stream by looking at the holes present on the card. Of
     course this moved to being stored via the polarity of small magnetic particles
     rather quickly (tapes, disks) and onto the point today that we can carry unimaginable
     amounts of data in our pocket.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 在穿孔卡片的时代，人们可以通过观察卡片上的孔洞来直接看到构成程序流的1和0。当然，这种存储方式很快演变为通过小磁粒的极性来存储（磁带、磁盘），并且发展到今天，我们可以在口袋里携带难以想象的大量数据。
 - en: Translating these numbers to something useful to humans is what makes a computer
     so useful. For example, screens are made up of millions of discrete *pixels*,
     each too small for the human eye to distinguish but combining to make a complete
@@ -110,99 +158,137 @@
     numbers, formatted correctly, the video hardware in your computer can convert
     those numbers to electrical signals to turn on and off individual pixels and hence
     display an image.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 将这些数字翻译成对人类有用的东西，这就是计算机之所以有用的原因。例如，屏幕由数百万个离散的*像素*组成，每个像素太小，人眼无法分辨，但组合起来可以形成一个完整的图像。通常每个像素都有一定的红色、绿色和蓝色成分，这些成分构成了其显示颜色。当然，这些值可以用数字表示，当然也可以用二进制表示！因此，任何图像都可以分解成数百万个单独的点，每个点由一个表示像素红色、绿色和蓝色值的*元组*表示。因此，给定一个这样的数字的长字符串，格式正确，你电脑中的视频硬件可以将这些数字转换为电信号，以打开和关闭单个像素，从而显示图像。
 - en: As you read on, we will build up the entire modern computing environment from
     this basic building block; *from the bottom-up* if you will!
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着你的阅读继续，我们将从这个基本构建块构建整个现代计算环境；如果你愿意的话，就是从下往上！
 - en: 1.1.3 Bits and Bytes
+  id: totrans-26
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.1.3 位和字节
 - en: As discussed above, we can essentially choose to represent anything by a number,
     which can be converted to binary and operated on by the computer. For example,
     to represent all the letters of the alphabet we would need at least enough different
     combinations to represent all the lower case letters, the upper case letters,
     numbers and punctuation, plus a few extras. Adding this up means we need probably
     around 80 different combinations.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 如上所述，我们可以选择用数字来表示任何东西，这些数字可以转换为二进制并由计算机操作。例如，要表示所有字母表中的字母，我们需要至少有足够的不同组合来表示所有小写字母、大写字母、数字和标点符号，再加上一些额外的组合。加起来意味着我们可能需要大约80种不同的组合。
 - en: If we have two bits, we can represent four possible unique combinations (`00
     01 10 11`). If we have three bits, we can represent 8 different combinations.
     In general, with `n` bits we can represent `2^n` unique combinations.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们有两位，我们可以表示四种可能的唯一组合（`00 01 10 11`）。如果我们有三个位，我们可以表示8种不同的组合。一般来说，有`n`位，我们可以表示`2^n`种唯一组合。
 - en: 8 bits gives us `2⁸ = 256` unique representations, more than enough for our
     alphabet combinations. We call a group of 8 bits a *byte*. Guess how big a C `char`
     variable is? One byte.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 8位给我们`2⁸ = 256`种唯一表示，对于我们字母组合来说已经足够多了。我们称8位为一组*字节*。猜一下C语言中的`char`变量有多大？一个字节。
 - en: 1.1.3.1 ASCII
+  id: totrans-30
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.1.3.1 ASCII
 - en: Given that a byte can represent any of the values 0 through 255, anyone could
     arbitrarily make up a mapping between characters and numbers. For example, a video
     card manufacturer could decide that `1` represents `A`, so when value `1` is sent
     to the video card it displays a capital 'A' on the screen. A printer manufacturer
     might decide for some obscure reason that `1` represented a lower-case 'z', meaning
     that complex conversions would be required to display and print the same thing.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于一个字节可以表示从0到255的任何值，任何人都可以任意地创建字符和数字之间的映射。例如，一个显卡制造商可能会决定`1`代表`A`，所以当发送值`1`到显卡时，它会在屏幕上显示大写字母`A`。一个打印机制造商可能出于某种奇怪的原因决定`1`代表小写字母`z`，这意味着需要复杂的转换才能显示和打印相同的内容。
 - en: To avoid this happening, the *American Standard Code for Information Interchange*
     or ASCII was invented. This is a *7-bit* code, meaning there are 2⁷ or 128 available
     codes.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了避免这种情况发生，发明了*美国信息交换标准代码*或ASCII。这是一个*7位*代码，意味着有2⁷或128个可用的代码。
 - en: The range of codes is divided up into two major parts; the non-printable and
     the printable. Printable characters are things like characters (upper and lower
     case), numbers and punctuation. Non-printable codes are for control, and do things
     like make a carriage-return, ring the terminal bell or the special `NULL` code
     which represents nothing at all.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 代码的范围分为两大类；不可打印的和可打印的。可打印字符包括字母（大写和小写）、数字和标点符号。不可打印代码用于控制，例如实现回车、响铃终端或表示什么都没有的特殊`NULL`代码。
 - en: 127 unique characters is sufficient for American English, but becomes very restrictive
     when one wants to represent characters common in other languages, especially Asian
     languages which can have many thousands of unique characters.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 127个独特的字符对于美式英语来说足够了，但当需要表示其他语言中常见的字符时，尤其是亚洲语言，它们可能拥有成千上万的独特字符，这就会变得非常受限。
 - en: To alleviate this, modern systems are moving away from ASCII to *Unicode*, which
     can use up to 4 bytes to represent a character, giving *much* more room!
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了缓解这个问题，现代系统正在从ASCII转向*Unicode*，它可以使用多达4字节来表示一个字符，从而提供*更多*的空间！
 - en: 1.1.3.2 Parity
+  id: totrans-36
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.1.3.2 奇偶校验
 - en: ASCII, being only a 7-bit code, leaves one bit of the byte spare. This can be
     used to implement *parity* which is a simple form of error checking. Consider
     a computer using punch-cards for input, where a hole represents 1 and no hole
     represents 0\. Any inadvertent covering of a hole will cause an incorrect value
     to be read, causing undefined behaviour.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: ASCII仅是一个7位代码，字节中留有一个比特是空闲的。这可以用来实现*奇偶校验*，这是一种简单的错误检查形式。考虑一个使用穿孔卡片作为输入的计算机，其中孔代表1，没有孔代表0。任何不慎覆盖孔都会导致读取到错误值，从而引起未定义的行为。
 - en: Parity allows a simple check of the bits of a byte to ensure they were read
     correctly. We can implement either *odd* or *even* parity by using the extra bit
     as a *parity bit*.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 奇偶校验允许对字节的比特进行简单检查，以确保它们被正确读取。我们可以通过使用额外的比特作为*奇偶校验位*来实现*奇偶校验*。
 - en: In odd parity, if the number of 1's in the 7 bits of information is odd, the
     parity bit is set, otherwise it is not set. Even parity is the opposite; if the
     number of 1's is even the parity bit is set to 1.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 在奇偶校验中，如果7位信息中1的数量是奇数，则奇偶校验位被设置，否则不被设置。偶数奇偶校验正好相反；如果1的数量是偶数，则奇偶校验位被设置为1。
 - en: In this way, the flipping of one bit will case a parity error, which can be
     detected.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 以这种方式，单个比特的翻转将导致奇偶校验错误，这可以被检测到。
 - en: XXX more about error correcting
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: XXX更多关于错误纠正的内容
 - en: 1.1.3.3 16, 32 and 64 bit computers
+  id: totrans-42
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.1.3.3 16位、32位和64位计算机
 - en: Numbers do not fit into bytes; hopefully your bank balance in dollars will need
     more range than can fit into one byte! All most all general-purpose architectures
     are at least *32 bit* computers. This means that their internal registers are
@@ -211,18 +297,24 @@
     make up words in a sentence, except in computing every word has the same size!
     The size of a C `int` variable is 32 bits. Modern architectures are 64 bits, which
     doubles the size the processor works with to 8 bytes.
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 数字无法适应字节；希望你的美元银行余额需要比一个字节能容纳的范围更大！几乎所有通用架构至少都是*32位*计算机。这意味着它们的内部寄存器宽度为32位（或4字节），并且操作通常在32位值上执行。我们将4字节称为*字*；这类似于语言中，字母（比特）组成句子中的单词，但在计算中每个单词都有相同的大小！C语言中的`int`变量大小为32位。现代架构是64位，这使处理器处理的大小增加到8字节。
 - en: 1.1.3.4 Kilo, Mega and Giga Bytes
+  id: totrans-44
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.1.3.4 千字节、兆字节和吉字节
 - en: Computers deal with a lot of bytes; that's what makes them so powerful! We need
     a way to talk about large numbers of bytes, and a natural way is to use the "International
     System of Units" (SI) prefixes as used in most other scientific areas. So for
     example, kilo refers to 10³ or 1000 units, as in a kilogram has 1000 grams.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 计算机处理大量的字节；这就是它们如此强大的原因！我们需要一种方式来谈论大量字节，而一种自然的方式是使用“国际单位制”（SI）前缀，正如在大多数其他科学领域所使用的那样。例如，千字节指的是10³或1000个单位，就像千克有1000克一样。
 - en: 1000 is a nice round number in base 10, but in binary it is `1111101000` which
     is not a particularly "round" number. However, 1024 (or 2^(10)) is a round number
     — (`10000000000` — and happens to be quite close to the base 10 meaning value
@@ -234,37 +326,59 @@
     of 10 remains functionally close to the SI base 10 value, although each increasing
     factor diverges slightly further from the base SI meaning. Thus the SI base-10
     units are "close enough" and have become the commonly used for base 2 values.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 1000是一个在十进制中很漂亮的整数，但在二进制中它是`1111101000`，这不是一个特别“漂亮”的数字。然而，1024（或2^(10)）是一个漂亮的数字——(`10000000000`——并且碰巧非常接近“千”的十进制意义值（1000而不是1024）。因此，1024字节自然被称为千字节。下一个SI单位是“兆”对于`10⁶`，前缀以10³的倍数向上继续（对应于在写大数时通常的每三位数字分组）。碰巧的是，`2^(20)`又接近SI基10的定义；1048576与1000000相比。通过10的幂次增加2的基数单位在功能上仍然接近SI基10值，尽管每个增加的因子都稍微偏离了基SI意义。因此，SI基10单位“足够接近”并且已成为基2值的常用单位。
 - en: Table 1.1.3.4.1 Base 2 and 10 factors related to bytes
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 表1.1.3.4.1 与字节相关的2和10的基数因子
 - en: '| Name | Base 2 Factor | Bytes | Close Base 10 Factor | Base 10 bytes |'
+  id: totrans-48
   prefs: []
   type: TYPE_TB
+  zh: '| 名称 | 2的基数因子 | 字节 | 接近的十进制因子 | 十进制字节 |'
 - en: '| --- | --- | --- | --- | --- |'
+  id: totrans-49
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- | --- |'
 - en: '| 1 Kilobyte | 2^(10) | 1,024 | 10³ | 1,000 |'
+  id: totrans-50
   prefs: []
   type: TYPE_TB
+  zh: '| 1 千字节 | 2^(10) | 1,024 | 10³ | 1,000 |'
 - en: '| 1 Megabyte | 2^(20) | 1,048,576 | 10⁶ | 1,000,000 |'
+  id: totrans-51
   prefs: []
   type: TYPE_TB
+  zh: '| 1 兆字节 | 2^(20) | 1,048,576 | 10⁶ | 1,000,000 |'
 - en: '| 1 Gigabyte | 2^(30) | 1,073,741,824 | 10⁹ | 1,000,000,000 |'
+  id: totrans-52
   prefs: []
   type: TYPE_TB
+  zh: '| 1 吉字节 | 2^(30) | 1,073,741,824 | 10⁹ | 1,000,000,000 |'
 - en: '| 1 Terabyte | 2^(40) | 1,099,511,627,776 | 10^(12) | 1,000,000,000,000 |'
+  id: totrans-53
   prefs: []
   type: TYPE_TB
+  zh: '| 1 太字节 | 2^(40) | 1,099,511,627,776 | 10^(12) | 1,000,000,000,000 |'
 - en: '| 1 Petabyte | 2^(50) | 1,125,899,906,842,624 | 10^(15) | 1,000,000,000,000,000
     |'
+  id: totrans-54
   prefs: []
   type: TYPE_TB
+  zh: '| 1 皮字节 | 2^(50) | 1,125,899,906,842,624 | 10^(15) | 1,000,000,000,000,000
+    |'
 - en: '| 1 Exabyte | 2^(60) | 1,152,921,504,606,846,976 | 10^(18) | 1,000,000,000,000,000,000
     |'
+  id: totrans-55
   prefs: []
   type: TYPE_TB
+  zh: '| 1 艾字节 | 2^(60) | 1,152,921,504,606,846,976 | 10^(18) | 1,000,000,000,000,000,000
+    |'
 - en: It can be very useful to commit the base 2 factors to memory as an aid to quickly
     correlate the relationship between number-of-bits and "human" sizes. For example,
     we can quickly calculate that a 32 bit computer can address up to four gigabytes
@@ -274,353 +388,550 @@
     in working out just how big a number this is. To get a feel for how big that number
     is, calculate how long it would take to count to `2^(64)` if you incremented once
     per second.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 将2的基数因子记住作为快速关联比特数和“人类”大小之间关系的辅助工具非常有用。例如，我们可以快速计算出32位计算机可以寻址高达四千兆字节的内存，通过注意到`2^(32)`可以重新组合为`2^((2
+    + 30))`或`2² × 2^(30)`，这正好是`4 × 2^(30)`，其中我们知道`2^(30)`是千兆字节。64位值可以类似地寻址高达16泽字节（`2⁴
+    × 2^(60)`）；你可能对计算出这个数字有多大感兴趣。为了了解这个数字有多大，如果你每秒增加一次，计算一下要数到`2^(64)`需要多长时间。
 - en: 1.1.3.5 Kilo, Mega and Giga Bits
+  id: totrans-57
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.1.3.5 千字节、兆字节和吉字节
 - en: Apart from the confusion related to the overloading of SI units between binary
     and base 10, capacities will often be quoted in terms of *bits* rather than bytes.
     Generally this happens when talking about networking or storage devices; you may
     have noticed that your ADSL connection is described as something like 1500 kilobits/second.
     The calculation is simple; multiply by 1000 (for the kilo), divide by 8 to get
     bytes and then 1024 to get kilobytes (so 1500 kilobits/s=183 kilobytes per second).
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了二进制和十进制SI单位之间的混淆之外，容量通常以*比特*而不是字节来表示。通常这种情况发生在谈论网络或存储设备时；你可能已经注意到你的ADSL连接被描述为类似1500千比特/秒的东西。计算很简单；乘以1000（对于千字节），除以8得到字节，然后乘以1024得到千字节（因此1500千比特/秒=183千字节/秒）。
 - en: The SI standardisation body has recognised these dual uses and has specified
     unique prefixes for binary usage. Under the standard 1024 bytes is a `kibibyte`,
     short for *kilo binary* byte (shortened to KiB). The other prefixes have a similar
     prefix (Mebibyte, MiB, for example). Tradition largely prevents use of these terms,
     but you may seem them in some literature.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 国际单位制标准化机构已经认可了这些双重用途，并指定了二进制使用的唯一前缀。根据标准，1024 字节是一个 `kibibyte`，简称 *kilo binary*
+    字节（缩写为 KiB）。其他前缀有类似的缩写（例如，Mebibyte，MiB）。传统上阻止使用这些术语，但您可能在某些文献中看到它们。
 - en: 1.1.3.6 Conversion
+  id: totrans-60
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.1.3.6 转换
 - en: The easiest way to convert between bases is to use a computer, after all, that's
     what they're good at! However, it is often useful to know how to do conversions
     by hand.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 转换进制之间最简单的方法是使用计算机，毕竟这是它们的强项！然而，了解如何手动进行转换通常很有用。
 - en: The easiest method to convert between bases is *repeated division*. To convert,
     repeatedly divide the quotient by the base, until the quotient is zero, making
     note of the remainders at each step. Then, write the remainders in reverse, starting
     at the bottom and appending to the right each time. An example should illustrate;
     since we are converting to binary we use a base of 2.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 在进制之间转换的最简单方法是 *重复除法*。转换时，反复将商除以基数，直到商为零，并记录每一步的余数。然后，将余数反向写出，从底部开始，每次都添加到右边。以下是一个例子；由于我们要转换为二进制，我们使用基数为
+    2。
 - en: Table 1.1.3.6.1 Convert 203 to binary
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 1.1.3.6.1 将 203 转换为二进制
 - en: '| Quotient |  | Remainder |  |'
+  id: totrans-64
   prefs: []
   type: TYPE_TB
+  zh: '| 商 |  | 余数 |  |'
 - en: '| --- | --- | --- | --- |'
+  id: totrans-65
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- |'
 - en: '| 203[10] ÷ 2 = | 101 | 1 |  |'
+  id: totrans-66
   prefs: []
   type: TYPE_TB
+  zh: '| 203[10] ÷ 2 = | 101 | 1 |  |'
 - en: '| 101[10] ÷ 2 = | 50 | 1 | ↑ |'
+  id: totrans-67
   prefs: []
   type: TYPE_TB
+  zh: '| 101[10] ÷ 2 = | 50 | 1 | ↑ |'
 - en: '| 50[10] ÷ 2 = | 25 | 0 | ↑ |'
+  id: totrans-68
   prefs: []
   type: TYPE_TB
+  zh: '| 50[10] ÷ 2 = | 25 | 0 | ↑ |'
 - en: '| 25[10] ÷ 2 = | 12 | 1 | ↑ |'
+  id: totrans-69
   prefs: []
   type: TYPE_TB
+  zh: '| 25[10] ÷ 2 = | 12 | 1 | ↑ |'
 - en: '| 12[10] ÷ 2 = | 6 | 0 | ↑ |'
+  id: totrans-70
   prefs: []
   type: TYPE_TB
+  zh: '| 12[10] ÷ 2 = | 6 | 0 | ↑ |'
 - en: '| 6[10] ÷ 2 = | 3 | 0 | ↑ |'
+  id: totrans-71
   prefs: []
   type: TYPE_TB
+  zh: '| 6[10] ÷ 2 = | 3 | 0 | ↑ |'
 - en: '| 3[10] ÷ 2 = | 1 | 1 | ↑ |'
+  id: totrans-72
   prefs: []
   type: TYPE_TB
+  zh: '| 3[10] ÷ 2 = | 1 | 1 | ↑ |'
 - en: '| 1[10] ÷ 2 = | 0 | 1 | ↑ |'
+  id: totrans-73
   prefs: []
   type: TYPE_TB
+  zh: '| 1[10] ÷ 2 = | 0 | 1 | ↑ |'
 - en: Reading from the bottom and appending to the right each time gives `11001011`,
     which we saw from the previous example was 203.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 从底部开始读取并每次向右添加，得到 `11001011`，这是我们之前例子中看到的 203。
 - en: 1.1.4 Boolean Operations
+  id: totrans-75
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.1.4 布尔运算
 - en: George Boole was a mathematician who discovered a whole area of mathematics
     called *Boolean Algebra*. Whilst he made his discoveries in the mid 1800's, his
     mathematics are the fundamentals of all computer science. Boolean algebra is a
     wide ranging topic, we present here only the bare minimum to get you started.
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 乔治·布尔是一位数学家，他发现了一个被称为 *布尔代数* 的整个数学领域。虽然他在 19 世纪中叶做出了这些发现，但他的数学是所有计算机科学的基础。布尔代数是一个广泛的主题，我们在这里只介绍最基本的内容，以帮助您入门。
 - en: Boolean operations simply take a particular input and produce a particular output
     following a rule. For example, the simplest boolean operation, `not` simply inverts
     the value of the input operand. Other operands usually take two inputs, and produce
     a single output.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 布尔运算简单地根据规则接受特定的输入并产生特定的输出。例如，最简单的布尔运算 `not` 简单地反转输入操作数的值。其他操作数通常接受两个输入，并产生单个输出。
 - en: The fundamental Boolean operations used in computer science are easy to remember
     and listed below. We represent them below with *truth tables*; they simply show
     all possible inputs and outputs. The term *true* simply reflects `1` in binary.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 计算机科学中使用的根本布尔运算很容易记住，下面列出。我们用 *真值表* 表示它们；它们简单地显示了所有可能的输入和输出。术语 *真* 简单地反映了二进制中的
+    `1`。
 - en: 1.1.4.1 Not
+  id: totrans-79
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.1.4.1 非
 - en: Usually represented by `!`, `not` simply inverts the value, so `0` becomes `1`
     and `1` becomes `0`
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常用 `!` 表示，`not` 简单地反转值，所以 `0` 变为 `1`，`1` 变为 `0`
 - en: Table 1.1.4.1.1 Truth table for *not*
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 1.1.4.1.1 *非* 运算的真值表
 - en: '| Input | Output |'
+  id: totrans-82
   prefs: []
   type: TYPE_TB
+  zh: '| 输入 | 输出 |'
 - en: '| --- | --- |'
+  id: totrans-83
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| `1` | `0` |'
+  id: totrans-84
   prefs: []
   type: TYPE_TB
+  zh: '| `1` | `0` |'
 - en: '| `0` | `1` |'
+  id: totrans-85
   prefs: []
   type: TYPE_TB
+  zh: '| `0` | `1` |'
 - en: 1.1.4.2 And
+  id: totrans-86
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.1.4.2 与
 - en: To remember how the and operation works think of it as "if one input *and* the
     other are true, result is true
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 要记住与运算的工作方式，可以将其想象为“如果两个输入都为真，则结果为真”
 - en: Table 1.1.4.2.1 Truth table for *and*
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 1.1.4.2.1 *与* 运算的真值表
 - en: '| Input 1 | Input 2 | Output |'
+  id: totrans-89
   prefs: []
   type: TYPE_TB
+  zh: '| 输入 1 | 输入 2 | 输出 |'
 - en: '| --- | --- | --- |'
+  id: totrans-90
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| `0` | `0` | `0` |'
+  id: totrans-91
   prefs: []
   type: TYPE_TB
+  zh: '| `0` | `0` | `0` |'
 - en: '| `1` | `0` | `0` |'
+  id: totrans-92
   prefs: []
   type: TYPE_TB
+  zh: '| `1` | `0` | `0` |'
 - en: '| `0` | `1` | `0` |'
+  id: totrans-93
   prefs: []
   type: TYPE_TB
+  zh: '| `0` | `1` | `0` |'
 - en: '| `1` | `1` | `1` |'
+  id: totrans-94
   prefs: []
   type: TYPE_TB
+  zh: '| `1` | `1` | `1` |'
 - en: 1.1.4.3 Or
+  id: totrans-95
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.1.4.3 或
 - en: To remember how the `or` operation works think of it as "if one input *or* the
     other input is true, the result is true
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 要记住或运算的工作方式，可以将其想象为“如果任一输入或另一个输入为真，则结果为真”
 - en: Table 1.1.4.3.1 Truth table for *or*
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 1.1.4.3.1 *或* 运算的真值表
 - en: '| Input 1 | Input 2 | Output |'
+  id: totrans-98
   prefs: []
   type: TYPE_TB
+  zh: '| 输入 1 | 输入 2 | 输出 |'
 - en: '| --- | --- | --- |'
+  id: totrans-99
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| `0` | `0` | `0` |'
+  id: totrans-100
   prefs: []
   type: TYPE_TB
+  zh: '| `0` | `0` | `0` |'
 - en: '| `1` | `0` | `1` |'
+  id: totrans-101
   prefs: []
   type: TYPE_TB
+  zh: '| `1` | `0` | `1` |'
 - en: '| `0` | `1` | `1` |'
+  id: totrans-102
   prefs: []
   type: TYPE_TB
+  zh: '| `0` | `1` | `1` |'
 - en: '| `1` | `1` | `1` |'
+  id: totrans-103
   prefs: []
   type: TYPE_TB
+  zh: '| `1` | `1` | `1` |'
 - en: 1.1.4.4 Exclusive Or (xor)
+  id: totrans-104
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.1.4.4 异或（xor）
 - en: Exclusive or, written as `xor` is a special case of `or` where the output is
     true if one, and *only* one, of the inputs is true. This operation can surprisingly
     do many interesting tricks, but you will not see a lot of it in the kernel.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 异或，写作 `xor`，是 `or` 的一个特殊情况，其中如果只有一个输入为真，输出才是真的。这个操作可以出人意料地做很多有趣的事情，但在内核中你不会看到很多。
 - en: Table 1.1.4.4.1 Truth table for *xor*
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 1.1.4.4.1 *异或（xor）* 的真值表
 - en: '| Input 1 | Input 2 | Output |'
+  id: totrans-107
   prefs: []
   type: TYPE_TB
+  zh: '| 输入 1 | 输入 2 | 输出 |'
 - en: '| --- | --- | --- |'
+  id: totrans-108
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| `0` | `0` | `0` |'
+  id: totrans-109
   prefs: []
   type: TYPE_TB
+  zh: '| `0` | `0` | `0` |'
 - en: '| `1` | `0` | `1` |'
+  id: totrans-110
   prefs: []
   type: TYPE_TB
+  zh: '| `1` | `0` | `1` |'
 - en: '| `0` | `1` | `1` |'
+  id: totrans-111
   prefs: []
   type: TYPE_TB
+  zh: '| `0` | `1` | `1` |'
 - en: '| `1` | `1` | `0` |'
+  id: totrans-112
   prefs: []
   type: TYPE_TB
+  zh: '| `1` | `1` | `0` |'
 - en: 1.1.5 How computers use boolean operations
+  id: totrans-113
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.1.5 计算机如何使用布尔操作
 - en: Believe it or not, essentially everything your computer does comes back to the
     above operations. For example, the half adder is a type of circuit made up from
     boolean operations that can add bits together (it is called a half adder because
     it does not handle carry bits). Put more half adders together, and you will start
     to build something that can add together long binary numbers. Add some external
     memory, and you have a computer.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 信不信由你，本质上你计算机做的每一件事都回到了上述操作。例如，半加器是由布尔操作组成的一种电路，可以组合位（它被称为半加器，因为它不处理进位位）。将更多的半加器组合起来，你将开始构建可以组合长二进制数的东西。添加一些外部存储器，你就有了计算机。
 - en: Electronically, the boolean operations are implemented in *gates* made by *transistors*.
     This is why you might have heard about transistor counts and things like Moore's
     Law. The more transistors, the more gates, the more things you can add together.
     To create the modern computer, there are an awful lot of gates, and an awful lot
     of transistors. Some of the latest Itanium processors have around 460 million
     transistors.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 在电子学中，布尔操作是通过由 *晶体管* 制成的 *门* 来实现的。这就是为什么你可能听说过晶体管数量和摩尔定律之类的事情。晶体管越多，门越多，你可以组合的东西就越多。为了创建现代计算机，需要大量的门和晶体管。一些最新的
+    Itanium 处理器大约有 4.6 亿个晶体管。
 - en: 1.1.6 Working with binary in C
+  id: totrans-116
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.1.6 在 C 语言中处理二进制
 - en: In C we have a direct interface to all of the above operations. The following
     table describes the operators
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C 语言中，我们直接接口到上述所有操作。以下表格描述了运算符
 - en: Table 1.1.6.1 Boolean operations in C
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 1.1.6.1 C 语言中的布尔操作
 - en: '| Operation | Usage in C |'
+  id: totrans-119
   prefs: []
   type: TYPE_TB
+  zh: '| 操作 | C 语言中的用法 |'
 - en: '| --- | --- |'
+  id: totrans-120
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| `not` | `!` |'
+  id: totrans-121
   prefs: []
   type: TYPE_TB
+  zh: '| `not` | `!` |'
 - en: '| `and` | `&` |'
+  id: totrans-122
   prefs: []
   type: TYPE_TB
+  zh: '| `and` | `&` |'
 - en: '| `or` | `&#124;` |'
+  id: totrans-123
   prefs: []
   type: TYPE_TB
+  zh: '| `or` | `&#124;` |'
 - en: '| `xor` | `^` |'
+  id: totrans-124
   prefs: []
   type: TYPE_TB
+  zh: '| `xor` | `^` |'
 - en: We use these operations on variables to modify the bits within the variable.
     Before we see examples of this, first we must divert to describe hexadecimal notation.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们使用这些操作在变量上修改变量内的位。在我们看到这个例子之前，首先我们必须转向描述十六进制表示法。
 - en: 1.2 Hexadecimal
+  id: totrans-126
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.2 十六进制
 - en: Hexadecimal refers to a base 16 number system. We use this in computer science
     for only one reason, it makes it easy for humans to think about binary numbers.
     Computers only ever deal in binary and hexadecimal is simply a shortcut for us
     humans trying to work with the computer.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 十六进制指的是十六进制数系统。我们在计算机科学中只使用它一个原因，那就是它使人类更容易思考二进制数。计算机只处理二进制，而十六进制只是我们人类试图与计算机一起工作的一个捷径。
 - en: So why base 16? Well, the most natural choice is base 10, since we are used
     to thinking in base 10 from our every day number system. But base 10 does not
     work well with binary -- to represent 10 different elements in binary, we need
     four bits. Four bits, however, gives us sixteen possible combinations. So we can
     either take the very tricky road of trying to convert between base 10 and binary,
     or take the easy road and make up a base 16 number system -- hexadecimal!
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 所以为什么是十六进制呢？好吧，最自然的选择是十进制，因为我们习惯于从我们的日常数字系统中以十进制思考。但是十进制与二进制不兼容——为了在二进制中表示 10
+    个不同的元素，我们需要四个位。然而，四个位给了我们十六种可能的组合。所以我们可以选择一条非常棘手的道路，尝试在十进制和二进制之间转换，或者选择一条简单的道路，创建一个十六进制的数制——十六进制！
 - en: Hexadecimal uses the standard base 10 numerals, but adds `A B C D E F` which
     refer to `10 11 12 13 14 15` (n.b. we start from zero).
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 十六进制使用标准的十进制数，但增加了 `A B C D E F`，它们分别代表 `10 11 12 13 14 15`（注意：我们是从零开始的）。
 - en: Traditionally, any time you see a number prefixed by `0x` this will denote a
     hexadecimal number.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统上，任何以 `0x` 前缀的数字都将表示十六进制数。
 - en: As mentioned, to represent 16 different patterns in binary, we would need exactly
     four bits. Therefore, each hexadecimal numeral represents exactly four bits. You
     should consider it an exercise to learn the following table off by heart.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 如前所述，为了在二进制中表示16种不同的模式，我们需要正好四个比特。因此，每个十六进制数字正好代表四个比特。你应该将学习以下表格作为一项练习来记忆。
 - en: Table 1.2.1 Hexadecimal, Binary and Decimal
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 表1.2.1 十六进制、二进制和十进制
 - en: '| Hexadecimal | Binary | Decimal |'
+  id: totrans-133
   prefs: []
   type: TYPE_TB
+  zh: '| 十六进制 | 二进制 | 十进制 |'
 - en: '| --- | --- | --- |'
+  id: totrans-134
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| `0` | `0000` | `0` |'
+  id: totrans-135
   prefs: []
   type: TYPE_TB
+  zh: '| `0` | `0000` | `0` |'
 - en: '| `1` | `0001` | `1` |'
+  id: totrans-136
   prefs: []
   type: TYPE_TB
+  zh: '| `1` | `0001` | `1` |'
 - en: '| `2` | `0010` | `2` |'
+  id: totrans-137
   prefs: []
   type: TYPE_TB
+  zh: '| `2` | `0010` | `2` |'
 - en: '| `3` | `0011` | `3` |'
+  id: totrans-138
   prefs: []
   type: TYPE_TB
+  zh: '| `3` | `0011` | `3` |'
 - en: '| `4` | `0100` | `4` |'
+  id: totrans-139
   prefs: []
   type: TYPE_TB
+  zh: '| `4` | `0100` | `4` |'
 - en: '| `5` | `0101` | `5` |'
+  id: totrans-140
   prefs: []
   type: TYPE_TB
+  zh: '| `5` | `0101` | `5` |'
 - en: '| `6` | `0110` | `6` |'
+  id: totrans-141
   prefs: []
   type: TYPE_TB
+  zh: '| `6` | `0110` | `6` |'
 - en: '| `7` | `0111` | `7` |'
+  id: totrans-142
   prefs: []
   type: TYPE_TB
+  zh: '| `7` | `0111` | `7` |'
 - en: '| `8` | `1000` | `8` |'
+  id: totrans-143
   prefs: []
   type: TYPE_TB
+  zh: '| `8` | `1000` | `8` |'
 - en: '| `9` | `1001` | `9` |'
+  id: totrans-144
   prefs: []
   type: TYPE_TB
+  zh: '| `9` | `1001` | `9` |'
 - en: '| `A` | `1010` | `10` |'
+  id: totrans-145
   prefs: []
   type: TYPE_TB
+  zh: '| `A` | `1010` | `10` |'
 - en: '| `B` | `1011` | `11` |'
+  id: totrans-146
   prefs: []
   type: TYPE_TB
+  zh: '| `B` | `1011` | `11` |'
 - en: '| `C` | `1100` | `12` |'
+  id: totrans-147
   prefs: []
   type: TYPE_TB
+  zh: '| `C` | `1100` | `12` |'
 - en: '| `D` | `1101` | `13` |'
+  id: totrans-148
   prefs: []
   type: TYPE_TB
+  zh: '| `D` | `1101` | `13` |'
 - en: '| `E` | `1110` | `14` |'
+  id: totrans-149
   prefs: []
   type: TYPE_TB
+  zh: '| `E` | `1110` | `14` |'
 - en: '| `F` | `1111` | `15` |'
+  id: totrans-150
   prefs: []
   type: TYPE_TB
+  zh: '| `F` | `1111` | `15` |'
 - en: Of course there is no reason not to continue the pattern (say, assign G to the
     value 16), but 16 values is an excellent trade off between the vagaries of human
     memory and the number of bits used by a computer (occasionally you will also see
@@ -630,143 +941,209 @@
     numeral, convert it as per the table and join them all together (so `0xAB12` ends
     up as the 16-bit binary number `1010101100010010`). We can use the reverse to
     convert from binary back to hexadecimal.
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，没有必要继续这种模式（比如说，将G分配给值16），但16个值在人类记忆的不可预测性和计算机使用的比特数之间是一个很好的权衡（偶尔你也会看到基数为8，例如在UNIX下的文件权限）。我们只是用更多的数字来表示更多的比特数。例如，一个16比特的变量可以表示为`0xAB12`，要找到它的二进制表示，只需将每个单独的数字转换，按照表格进行转换，并将它们全部连接起来（所以`0xAB12`最终成为16比特的二进制数`1010101100010010`）。我们可以使用相反的方法将二进制转换回十六进制。
 - en: We can also use the same repeated division scheme to change the base of a number.
     For example, to find 203 in hexadecimal
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们也可以使用相同的重复除法方案来改变一个数的基数。例如，要找到十六进制的203
 - en: Table 1.2.2 Convert 203 to hexadecimal
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 表1.2.2 将203转换为十六进制
 - en: '| Quotient |  | Remainder |  |'
+  id: totrans-154
   prefs: []
   type: TYPE_TB
+  zh: '| 商 |  | 余数 |  |'
 - en: '| --- | --- | --- | --- |'
+  id: totrans-155
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- |'
 - en: '| 203[10] ÷ 16 = | 12 | 11 (0xB) |  |'
+  id: totrans-156
   prefs: []
   type: TYPE_TB
+  zh: '| 203[10] ÷ 16 = | 12 | 11 (0xB) |  |'
 - en: '| 12[10] ÷ 16 = | 0 | 12 (0xC) | ↑ |'
+  id: totrans-157
   prefs: []
   type: TYPE_TB
+  zh: '| 12[10] ÷ 16 = | 0 | 12 (0xC) | ↑ |'
 - en: Hence 203 in hexadecimal is `0xCB`.
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，十六进制的203表示为`0xCB`。
 - en: 1.3 Practical Implications
+  id: totrans-159
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.3 实际应用
 - en: 1.3.1 Use of binary in code
+  id: totrans-160
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.3.1 二进制在代码中的应用
 - en: Whilst binary is the underlying language of every computer, it is entirely practical
     to program a computer in high level languages without knowing the first thing
     about it. However, for the low level code we are interested in a few fundamental
     binary principles are used repeatedly.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然二进制是每个计算机的底层语言，但实际上，即使不了解任何关于它的东西，也可以用高级语言编写计算机程序。然而，对于我们所感兴趣的底层代码，一些基本的二进制原则被反复使用。
 - en: 1.3.2 Masking and Flags
+  id: totrans-162
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.3.2 掩码和标志
 - en: 1.3.2.1 Masking
+  id: totrans-163
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.3.2.1 掩码
 - en: In low level code, it is often important to keep your structures and variables
     as space efficient as possible. In some cases, this can involve effectively packing
     two (generally related) variables into one.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 在低级代码中，尽可能保持你的结构和变量空间效率是很重要的。在某些情况下，这可能涉及到有效地将两个（通常相关的）变量打包到一个中。
 - en: Remember each bit represents two states, so if we know a variable only has,
     say, 16 possible states it can be represented by 4 bits (i.e. 2⁴=16 unique values).
     But the smallest type we can declare in C is 8 bits (a `char`), so we can either
     waste four bits, or find some way to use those left over bits.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 记住每个比特代表两种状态，所以如果我们知道一个变量只有，比如说，16种可能的状态，它可以由4比特表示（即2⁴=16个唯一值）。但是，C语言中最小的类型是8比特（一个`char`），所以我们要么浪费四个比特，要么找到某种方法来使用这些剩余的比特。
 - en: We can easily do this by the process of *masking*. This uses the rules of logical
     operations to extract values.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以通过掩码过程轻松做到这一点。这使用逻辑运算的规则来提取值。
 - en: The process is illustrated in the figure below. We can keep two separate 4-bit
     values "inside" a single 8-bit character. We consider the upper four-bits as one
     value (blue) and the lower 4-bits (red) as another. To extract the lower four
     bits, we set our mask to have the lower-4 bits set to `1` (`0x0F`). Since the
     `logical and` operation will only set the bit if *both* bits are `1`, those bits
     of the mask set to `0` effectively hide the bits we are not interested in.
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的图示说明了这个过程。我们可以在单个8位字符中“内部”保持两个独立的4位值。我们将高四位视为一个值（蓝色），将低四位（红色）视为另一个值。为了提取低四位，我们将掩码设置为低4位设置为`1`（`0x0F`）。由于`逻辑与`操作只有当*两个*位都是`1`时才会设置位，因此掩码中设置为`0`的位实际上隐藏了我们不感兴趣的位。
 - en: <picture>![By using a mask consisting of all 1's and the logical and operation,
     we can extract only the bits we are interested in.](masking.svg)</picture>Figure 1.3.2.1.1 Masking
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![通过使用由所有1组成的掩码和逻辑与操作，我们可以提取我们感兴趣的位。](masking.svg)</picture>图 1.3.2.1.1
+    掩码
 - en: To get the top (blue) four bits, we would invert the mask; in other words, set
     the top 4 bits to `1` and the lower 4-bits to `0`. You will note this gives a
     result of `1010 0000` (or, in hexadecimal `0xA0`) when really we want to consider
     this as a unique 4-bit value `1010` (`0x0A`). To get the bits into the right position
     we use the `right shift` operation 4 times, giving a final value of `0000 1010`.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 要获取最高（蓝色）的四位，我们需要反转掩码；换句话说，将最高4位设置为`1`，将较低的4位设置为`0`。你会注意到这给出了`1010 0000`的结果（或者，用十六进制表示为`0xA0`），但实际上我们希望将其视为一个独特的4位值`1010`（`0x0A`）。为了将位放到正确的位置，我们使用`右移`操作4次，得到最终的值为`0000
+    1010`。
 - en: '[PRE0]'
+  id: totrans-170
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: Example 1.3.2.1.1 Using masks
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 1.3.2.1.1 使用掩码
 - en: '*Setting* the bits requires the `logical or` operation. However, rather than
     using `1`''s as the mask, we use `0`''s. You should draw a diagram similar to
     the above figure and work through setting bits with the `logical or` operation.'
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: '*设置*位需要使用`逻辑或`操作。然而，我们不是使用`1`作为掩码，而是使用`0`。你应该画一个类似于上图那样的图，并通过使用`逻辑或`操作来设置位。'
 - en: 1.3.2.2 Flags
+  id: totrans-173
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 1.3.2.2 标志
 - en: Often a program will have a large number of variables that only exist as *flags*
     to some condition. For example, a state machine is an algorithm that transitions
     through a number of different states but may only be in one at a time. Say it
     has 8 different states; we could easily declare 8 different variables, one for
     each state. But in many cases it is better to declare *one 8 bit variable* and
     assign each bit to *flag* flag a particular state.
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常，一个程序会有许多变量，这些变量仅作为某些条件的*标志*存在。例如，状态机是一种算法，它通过多个不同的状态进行转换，但一次可能只处于一个状态。假设它有8个不同的状态；我们可以很容易地声明8个不同的变量，每个状态一个。但在许多情况下，声明*一个8位变量*并将每个位分配给*标志*，将每个位分配给表示特定状态的标志会更好。
 - en: Flags are a special case of masking, but each bit represents a particular boolean
     state (on or off). An *n* bit variable can hold *n* different flags. See the code
     example below for a typical example of using flags -- you will see variations
     on this basic code very often.
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 标志是掩码的特殊情况，但每个位代表一个特定的布尔状态（开启或关闭）。一个*n*位变量可以存储*n*个不同的标志。请参见下面的代码示例，以了解使用标志的典型示例--你将非常频繁地看到这种基本代码的变体。
 - en: '[PRE1]'
+  id: totrans-176
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Example 1.3.2.2.1 Using flags</main>
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 1.3.2.2.1 使用标志</main>
 - en: <main class="calibre3">
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 2 Types and Number Representation
+  id: totrans-179
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2 类型和数字表示
 - en: 2.1 C Standards
+  id: totrans-180
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.1 C标准
 - en: Although a slight divergence, it is important to understand a bit of history
     about the C language.
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然略有分歧，但了解C语言的一些历史是很重要的。
 - en: C is the common languge of the systems programming world. Every operating system
     and its associated system libraries in common use is written in C, and every system
     provides a C compiler. To stop the language diverging across each of these systems
     where each would be sure to make numerous incompatible changes, a strict standard
     has been written for the language.
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: C语言是系统编程领域的通用语言。每个操作系统及其常用的相关系统库都是用C语言编写的，每个系统都提供了一个C编译器。为了防止这些系统中的语言发生分歧，每个系统都可能会做出许多不兼容的更改，因此为该语言制定了一个严格的标准。
 - en: Officially this standard is known as ISO/IEC 9899:1999(E), but is more commonly
     referred to by its shortened name *C99*. The standard is maintained by the International
     Standards Organisation (ISO) and the full standard is available for purchase online.
@@ -775,8 +1152,12 @@
     standard. The standard documentation is very technical, and details most every
     part of the language. For example it explains the syntax (in Backus Naur form),
     standard `#define` values and how operations should behave.
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 官方上这个标准被称为 ISO/IEC 9899:1999(E)，但更常见的是用其缩写名 *C99*。该标准由国际标准化组织（ISO）维护，完整的标准可以在网上购买。较旧的标准版本，如
+    C89（1989 年发布的 C99 的前身）和 ANSI C，现在不再普遍使用，并被包含在最新的标准中。标准文档非常技术性，详细说明了语言的各个方面。例如，它解释了语法（以
+    Backus Naur 形式），标准的 `#define` 值以及操作应该如何表现。
 - en: It is also important to note what the C standards does *not* define. Most importantly
     the standard needs to be appropriate for every architecture, both present and
     future. Consequently it takes care *not* to define areas that are architecture
@@ -785,12 +1166,17 @@
     the standard will mention that a particular operation or construct has an unspecified
     or implementation dependent result. Obviously the programmer can not depend on
     these outcomes if they are to write portable code.
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 也很重要的是要注意 C 标准没有定义的内容。最重要的是，标准需要适用于所有架构，包括现有的和未来的。因此，它注意不要定义依赖于架构的领域。C 标准和底层架构之间的“粘合剂”是应用程序二进制接口（或
+    ABI），我们将在下面讨论。在几个地方，标准会提到某个特定操作或构造有一个未指定或实现依赖的结果。显然，如果程序员要编写可移植的代码，他们不能依赖于这些结果。
 - en: 2.1.1 GNU C
+  id: totrans-185
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.1.1 GNU C
 - en: The GNU C Compiler, more commonly referred to as gcc, almost completely implements
     the C99 standard. However it also implements a range of extensions to the standard
     which programmers will often use to gain extra functionality, at the expense of
@@ -799,18 +1185,25 @@
     common extension being used in this area being inline assembly code. Programmers
     should read the gcc documentation and understand when they may be using features
     that diverge from the standard.
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: GNU C 编译器，更常见地被称为 gcc，几乎完全实现了 C99 标准。然而，它也实现了一系列对标准的扩展，程序员经常使用这些扩展来获得额外的功能，但牺牲了迁移到另一个编译器的可移植性。这些扩展通常与非常底层的代码相关，在系统编程领域中更为常见；这个领域中最常见的扩展是内联汇编代码。程序员应该阅读
+    gcc 文档，并理解他们何时可能在使用与标准不同的功能。
 - en: gcc can be directed to adhere strictly to the standard (the `-std=c99` flag
     for example) and warn or create an error when certain things are done that are
     not in the standard. This is obviously appropriate if you need to ensure that
     you can move your code easily to another compiler.
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: gcc 可以被设置为严格遵循标准（例如 `-std=c99` 标志），当执行某些不在标准中的操作时，会发出警告或创建错误。这显然是合适的，如果你需要确保你的代码可以轻松地迁移到另一个编译器。
 - en: 2.2 Types
+  id: totrans-188
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.2 类型
 - en: As programmers, we are familiar with using variables to represent an area of
     memory to hold a value. In a *typed* language, such as C, every variable must
     be declared with a *type*. The type tells the compiler about what we expect to
@@ -818,18 +1211,25 @@
     this usage and check that the programmer does not violate the rules of the type.
     In the example below, we see an example of the space allocated for some common
     types of variables.
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为程序员，我们熟悉使用变量来表示一个内存区域以存储值。在 *类型化* 语言，如 C 中，每个变量都必须使用 *类型* 声明。类型告诉编译器我们期望在变量中存储什么；编译器可以为此用途分配足够的空间，并检查程序员是否违反了类型的规则。在下面的例子中，我们可以看到为一些常见的变量类型分配的空间示例。
 - en: <picture>![The processor sees memory only a row of bytes. Adding types to variables
     helps the compiler ensure that code is acting correctly. Above illustrates some
     common types, and how they map to memory.](types.svg)</picture>Figure 2.2.1 Types
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![处理器只看到一行的内存。给变量添加类型有助于编译器确保代码正在正确执行。上图展示了常见的类型，以及它们如何映射到内存中。](types.svg)</picture>图
+    2.2.1 类型
 - en: The C99 standard purposely only mentions the *smallest* possible size of each
     of the types defined for C. This is because across different processor architectures
     and operating systems the best size for types can be wildly different.
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: C99标准故意只提到了为C定义的每种类型的*最小*可能大小。这是因为跨不同的处理器架构和操作系统，类型的最优大小可能会有很大的不同。
 - en: To be completely safe programmers need to never assume the size of any of their
     variables, however a functioning system obviously needs agreements on what sizes
     types are going to be used in the system. Each architecture and operating system
@@ -837,103 +1237,157 @@
     in the details between the C standard and the requirements of the underlying hardware
     and operating system. An ABI is written for a specific processor and operating
     system combination.
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了完全安全，程序员需要永远不要假设任何变量的大小，然而一个正常工作的系统显然需要就系统中将要使用的类型大小达成一致。每个架构和操作系统都遵循一个*应用程序二进制接口*或*ABI*。一个系统的ABI在C标准和底层硬件及操作系统的需求之间填充了细节。ABI是为特定的处理器和操作系统组合编写的。
 - en: Table 2.2.1 Standard Integer Types and Sizes
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 表2.2.1 标准整数类型和大小
 - en: '| Type | C99 minimum size (bits) | Common size (32 bit architecture) |'
+  id: totrans-194
   prefs: []
   type: TYPE_TB
+  zh: '| 类型 | C99最小大小（位） | 常见大小（32位架构） |'
 - en: '| --- | --- | --- |'
+  id: totrans-195
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| `char` | 8 | 8 |'
+  id: totrans-196
   prefs: []
   type: TYPE_TB
+  zh: '| `char` | 8 | 8 |'
 - en: '| `short` | 16 | 16 |'
+  id: totrans-197
   prefs: []
   type: TYPE_TB
+  zh: '| `short` | 16 | 16 |'
 - en: '| `int` | 16 | 32 |'
+  id: totrans-198
   prefs: []
   type: TYPE_TB
+  zh: '| `int` | 16 | 32 |'
 - en: '| `long` | 32 | 32 |'
+  id: totrans-199
   prefs: []
   type: TYPE_TB
+  zh: '| `long` | 32 | 32 |'
 - en: '| `long long` | 64 | 64 |'
+  id: totrans-200
   prefs: []
   type: TYPE_TB
+  zh: '| `long long` | 64 | 64 |'
 - en: '| Pointers | Implementation dependent | 32 |'
+  id: totrans-201
   prefs: []
   type: TYPE_TB
+  zh: '| 指针 | 实现相关 | 32 |'
 - en: Above we can see the only divergence from the standard is that `int` is commonly
     a 32 bit quantity, which is twice the strict minimum 16 bit size that the C99
     requires.
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: 如上所示，与标准唯一的不同是`int`通常是一个32位量，这是C99要求的严格最小16位大小的两倍。
 - en: Pointers are really just an address (i.e. their value is an address and thus
     "points" somewhere else in memory) therefore a pointer needs to be sufficient
     in size to be able to address any memory in the system.
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: 指针实际上只是一个地址（即它们的值是一个地址，因此“指向”内存中的另一个位置），因此指针需要足够大，以便能够访问系统中的任何内存。
 - en: 2.2.1 64 bit
+  id: totrans-204
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.2.1 64位
 - en: One area that causes confusion is the introduction of 64 bit computing. This
     means that the processor can handle addresses 64 bits in length (specifically
     the registers are 64 bits wide; a topic we discuss in [Chapter 3, Computer Architecture](#chapter02)).
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个引起混淆的领域是64位计算的引入。这意味着处理器可以处理64位长度的地址（特别是寄存器是64位宽；这是我们在[第3章，计算机架构](#chapter02)中讨论的主题）。
 - en: This firstly means that all pointers are required to be a 64 bits wide so they
     can represent any possible address in the system. However, system implementers
     must then make decisions about the size of the other types. Two common models
     are widely used, as shown below.
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 这首先意味着所有指针都需要是64位宽，以便它们可以表示系统中的任何可能的地址。然而，系统实现者必须就其他类型的大小做出决定。以下两种常用模型被广泛使用。
 - en: Table 2.2.1.1 Standard Scalar Types and Sizes
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: 表2.2.1.1标准标量类型和大小
 - en: '| Type | C99 minimum size (bits) | Common size (LP64) | Common size (Windows)
     |'
+  id: totrans-208
   prefs: []
   type: TYPE_TB
+  zh: '| 类型 | C99最小大小（位） | 常见大小（LP64） | 常见大小（Windows） |'
 - en: '| --- | --- | --- | --- |'
+  id: totrans-209
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- |'
 - en: '| `char` | 8 | 8 | 8 |'
+  id: totrans-210
   prefs: []
   type: TYPE_TB
+  zh: '| `char` | 8 | 8 | 8 |'
 - en: '| `short` | 16 | 16 | 16 |'
+  id: totrans-211
   prefs: []
   type: TYPE_TB
+  zh: '| `short` | 16 | 16 | 16 |'
 - en: '| `int` | 16 | 32 | 32 |'
+  id: totrans-212
   prefs: []
   type: TYPE_TB
+  zh: '| `int` | 16 | 32 | 32 |'
 - en: '| `long` | 32 | 64 | 32 |'
+  id: totrans-213
   prefs: []
   type: TYPE_TB
+  zh: '| `long` | 32 | 64 | 32 |'
 - en: '| `long long` | 64 | 64 | 64 |'
+  id: totrans-214
   prefs: []
   type: TYPE_TB
+  zh: '| `long long` | 64 | 64 | 64 |'
 - en: '| Pointers | Implementation dependent | 64 | 64 |'
+  id: totrans-215
   prefs: []
   type: TYPE_TB
+  zh: '| 指针 | 实现相关 | 64 | 64 |'
 - en: You can see that in the LP64 (long-pointer 64) model `long` values are defined
     to be 64 bits wide. This is different to the 32 bit model we showed previously.
     The LP64 model is widely used on UNIX systems.
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以看到，在LP64（长指针64）模型中，`long`值被定义为64位宽。这与我们之前展示的32位模型不同。LP64模型在UNIX系统中广泛使用。
 - en: In the other model, `long` remains a 32 bit value. This maintains maximum compatibility
     with 32 code. This model is in use with 64 bit Windows.
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 在另一种模型中，`long`保持32位值。这保持了与32位代码的最大兼容性。这种模型在64位Windows中使用。
 - en: There are good reasons why the size of `int` was not increased to 64 bits in
     either model. Consider that if the size of `int` is increased to 64 bits you leave
     programmers no way to obtain a 32 bit variable. The only possibly is redefining
     `shorts` to be a larger 32 bit type.
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: 有很好的理由说明为什么在两种模型中`int`的大小都没有增加到64位。考虑一下，如果`int`的大小增加到64位，程序员将没有方法获得32位变量。唯一可能的方法是将`short`重新定义为更大的32位类型。
 - en: A 64 bit variable is so large that it is not generally required to represent
     many variables. For example, loops very rarely repeat more times than would fit
     in a 32 bit variable (4294967296 times!). Images usually are usually represented
@@ -947,70 +1401,97 @@
     of the Windows API was originally written to use long variables on a 32 bit system
     and hence does not require the extra bits this saves considerable wasted space
     in the system without having to re-write all the API.
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: 64位变量非常大，通常不需要表示许多变量。例如，循环很少会重复超过32位变量能容纳的次数（4294967296次！）！图像通常使用每个红色、绿色和蓝色值8位，以及额外的8位用于额外的（alpha通道）信息；总共32位。因此，在许多情况下，使用64位变量至少会浪费至少32位（如果不是更多）。不仅如此，整数数组的大小现在也翻倍了。这意味着程序需要更多的系统内存（以及更多的缓存；在第3章，计算机架构中详细讨论），而实际上并没有真正的改进。出于同样的原因，Windows选择保持其长值作为32位；因为Windows
+    API的大部分最初是为在32位系统上使用长变量而编写的，因此不需要额外的位，这可以在不重写所有API的情况下节省大量的空间。
 - en: If we consider the proposed alternative where `short` was redefined to be a
     32 bit variable; programmers working on a 64 bit system could use it for variables
     they know are bounded to smaller values. However, when moving back to a 32 bit
     system their same `short` variable would now be only 16 bits long, a value which
     is much more realistically overflowed (65536).
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们考虑一个替代方案，其中 `short` 被重新定义为32位变量；在64位系统上工作的程序员可以使用它来表示他们知道是有限制的小值变量。然而，当回到32位系统时，他们相同的
+    `short` 变量现在只有16位长，这是一个很容易溢出的值（65536）。
 - en: By making a programmer request larger variables when they know they will be
     needed strikes a balance with respect to portability concerns and wasting space
     in binaries.
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 当程序员知道需要更大的变量时，请求更大的变量在可移植性和二进制文件空间浪费之间取得平衡。
 - en: 2.2.2 Type qualifiers
+  id: totrans-222
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.2.2 类型限定符
 - en: The C standard also talks about some qualifiers for variable types. For example
     `const` means that a variable will never be modified from its original value and
     `volatile` suggests to the compiler that this value might change outside program
     execution flow so the compiler must be careful not to re-order access to it in
     any way.
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: C标准还讨论了变量类型的某些限定符。例如，`const` 表示变量将永远不会从其原始值被修改，而 `volatile` 则向编译器暗示这个值可能会在程序执行流程之外改变，因此编译器必须小心不要以任何方式重新排序对其的访问。
 - en: '`signed` and `unsigned` are probably the two most important qualifiers; and
     they say if a variable can take on a negative value or not. We examine this in
     more detail below.'
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: '`signed` 和 `unsigned` 可能是两个最重要的限定符；它们表示变量是否可以取负值。我们将在下面更详细地探讨这一点。'
 - en: Qualifiers are all intended to pass extra information about how the variable
     will be used to the compiler. This means two things; the compiler can check if
     you are violating your own rules (e.g. writing to a `const` value) and it can
     make optimisations based upon the extra knowledge (examined in later chapters).
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 限定符的目的是向编译器传递关于变量如何使用的额外信息。这意味着两件事；编译器可以检查你是否违反了自己的规则（例如，向一个 `const` 值写入）并且它可以基于额外的知识进行优化（在后面的章节中探讨）。
 - en: 2.2.3 Standard Types
+  id: totrans-226
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.2.3 标准类型
 - en: C99 realises that all these rules, sizes and portability concerns can become
     very confusing very quickly. To help, it provides a series of special types which
     can specify the exact properties of a variable. These are defined in `<stdint.h>`
     and have the form `qtypes_t` where `q` is a qualifier, `type` is the base type,
     `s` is the width in bits and `_t` is an extension so you know you are using the
     C99 defined types.
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: C99意识到所有这些规则、大小和可移植性关注点可能会很快变得非常混乱。为了帮助，它提供了一系列特殊类型，可以指定变量的确切属性。这些类型在 `<stdint.h>`
+    中定义，形式为 `qtypes_t`，其中 `q` 是限定符，`type` 是基本类型，`s` 是位数，`_t` 是扩展，这样你知道你正在使用C99定义的类型。
 - en: So for example `uint8_t` is an unsigned integer exactly 8 bits wide. Many other
     types are defined; the complete list is detailed in C99 17.8 or (more cryptically)
     in the header file. Note that C99 also has portability helpers for `printf`. The
     `PRI` macros in `<inttypes.h>` can be used as specifiers for types of specified
     sizes. Again see the standard or pull apart the headers for full information.
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，`uint8_t`是一个宽度正好为8位的无符号整数。还定义了许多其他类型；完整的列表在C99 17.8中详细说明，或者（更隐晦地）在头文件中。请注意，C99还为`printf`提供了可移植性辅助工具。`<inttypes.h>`中的`PRI`宏可以用作指定大小的类型的说明符。再次查看标准或拆解头文件以获取完整信息。
 - en: It is up to the system implementing the C99 standard to provide these types
     for you by mapping them to appropriate sized types on the target system; on Linux
     these headers are provided by the system libraries.
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: 提供这些类型供您使用，将它们映射到目标系统上的适当大小的类型，是系统实现C99标准的事情；在Linux上，这些头文件由系统库提供。
 - en: 2.2.4 Types in action
+  id: totrans-230
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.2.4 类型应用
 - en: Below in [Example 2.2.4.1, Example of warnings when types are not matched](#type-warnings)
     we see an example of how types place restrictions on what operations are valid
     for a variable, and how the compiler can use this information to warn when variables
@@ -1026,244 +1507,368 @@
     in the foot by doing this cast and ignoring the compiler warning since the smaller
     variable can not hold all the information from the pointer and we end up with
     an invalid address.
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[示例 2.2.4.1，类型不匹配时的警告示例](#type-warnings)中，我们看到一个例子，说明了类型如何对变量的有效操作施加限制，以及编译器如何利用这些信息来警告变量使用不当的情况。在这个代码中，我们首先将一个整数值赋给一个`char`变量。由于`char`变量较小，我们丢失了整数的正确值。进一步向下，我们尝试将一个`char`指针赋值到我们指定的`integer`内存中。这个操作是可以完成的；但是它是不安全的。第一个例子是在32位奔腾机器上运行的，并返回了正确的值。然而，正如第二个例子所示，在64位安腾机器上，指针是64位（8字节）长，而整数只有4字节长。显然，8字节不能放入4字节中！我们可以尝试通过在赋值之前进行*类型转换*来“欺骗”编译器；请注意，在这种情况下，我们通过进行这种转换并忽略编译器警告而自食其果，因为较小的变量不能存储指针的所有信息，我们最终得到一个无效的地址。
 - en: '[PRE2]'
+  id: totrans-232
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: '[PRE3]'
+  id: totrans-233
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Example 2.2.4.1 Example of warnings when types are not matched
+  id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 2.2.4.1 类型不匹配时的警告示例
 - en: 2.3 Number Representation
+  id: totrans-235
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.3 数字表示
 - en: 2.3.1 Negative Values
+  id: totrans-236
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.3.1 负值
 - en: With our modern base 10 numeral system we indicate a negative number by placing
     a minus (`-`) sign in front of it. When using binary we need to use a different
     system to indicate negative numbers.
+  id: totrans-237
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用我们现代的十进制数制，我们在负数前面放置一个减号（`-`）来表示负数。当使用二进制时，我们需要使用不同的系统来表示负数。
 - en: There is only one scheme in common use on modern hardware, but C99 defines three
     acceptable methods for negative value representation.
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: 现代硬件上只有一个常用的方案，但C99定义了三种可接受的负值表示方法。
 - en: 2.3.1.1 Sign Bit
+  id: totrans-239
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 2.3.1.1 符号位
 - en: The most straight forward method is to simply say that one bit of the number
     indicates either a negative or positive value depending on it being set or not.
+  id: totrans-240
   prefs: []
   type: TYPE_NORMAL
+  zh: 最直接的方法是简单地说，数字的一个位表示该数是负数还是正数，取决于该位是否被设置。
 - en: This is analogous to mathematical approach of having a `+` and `-`. This is
     fairly logical, and some of the original computers did represent negative numbers
     in this way. But using binary numbers opens up some other possibilities which
     make the life of hardware designers easier.
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: 这与数学方法中的`+`和`-`类似。这是相当合理的，一些原始计算机也是以这种方式表示负数的。但是使用二进制数打开了一些其他可能性，这使得硬件设计者的生活更容易。
 - en: However, notice that the value `0` now has two equivalent values; one with the
     sign bit set and one without. Sometimes these values are referred to as `+0` and
     `-0` respectively.
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，请注意，现在值`0`有两个等效值；一个设置了符号位，一个没有设置。有时这些值分别被称为`+0`和`-0`。
 - en: 2.3.1.2 One's Complement
+  id: totrans-243
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 2.3.1.2 一的补码
 - en: One's complement simply applies the *not* operation to the positive number to
     represent the negative number. So, for example the value -90 (-0x5A) is represented
     by `~01011010 = 10100101`The `~` operator is the C language operator to apply
     `NOT` to the value. It is also occasionally called the one's complement operator,
     for obvious reasons now!
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: 原码只是将正数应用`NOT`操作来表示负数。例如，值-90（-0x5A）被表示为`~01011010 = 10100101`。`~`操作符是C语言中应用`NOT`的运算符。它也偶尔被称为原码操作符，原因很明显！
 - en: With this scheme the biggest advantage is that to add a negative number to a
     positive number no special logic is required, except that any additional carry
     left over must be added back to the final value. Consider
+  id: totrans-245
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用这种方案，最大的优点是，在将负数加到正数上时，不需要特殊的逻辑，除了任何额外的进位必须加回到最终值。考虑
 - en: Table 2.3.1.2.1 One's Complement Addition
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 表2.3.1.2.1 原码加法
 - en: '| Decimal | Binary | Op |'
+  id: totrans-247
   prefs: []
   type: TYPE_TB
+  zh: '| 十进制 | 二进制 | 操作 |'
 - en: '| --- | --- | --- |'
+  id: totrans-248
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| -90 | 10100101 | + |'
+  id: totrans-249
   prefs: []
   type: TYPE_TB
+  zh: '| -90 | 10100101 | + |'
 - en: '| 100 | 01100100 |  |'
+  id: totrans-250
   prefs: []
   type: TYPE_TB
+  zh: '| 100 | 01100100 |  |'
 - en: '| --- | -------- |  |'
+  id: totrans-251
   prefs: []
   type: TYPE_TB
+  zh: '| --- | -------- |  |'
 - en: '| 10 | ¹00001001 | 9 |'
+  id: totrans-252
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | ¹00001001 | 9 |'
 - en: '|  | 00001010 | 10 |'
+  id: totrans-253
   prefs: []
   type: TYPE_TB
+  zh: '|  | 00001010 | 10 |'
 - en: If you add the bits one by one, you find you end up with a carry bit at the
     end (highlighted above). By adding this back to the original we end up with the
     correct value, 10
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你逐位相加，你会发现你最终会在末尾得到一个进位位（如上所示）。通过将这个进位位加回到原始值，我们得到正确的值，10
 - en: Again we still have the problem with two zeros being represented. Again no modern
     computer uses one's complement, mostly because there is a better scheme.
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次，我们仍然有两个零的表示问题。现代计算机几乎都不使用原码，主要是因为有一个更好的方案。
 - en: 2.3.1.3 Two's Complement
+  id: totrans-256
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 2.3.1.3 二进制补码
 - en: Two's complement is just like one's complement, except the negative representation
     has *one* added to it and we discard any left over carry bit. So to continue with
     the example from before, `-90` would be `~01011010+1=10100101+1 = 10100110`.
+  id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: 二进制补码与原码类似，只是负数的表示中加上了`1`，并且我们丢弃任何多余的进位位。所以，继续之前的例子，`-90`将被表示为`~01011010+1=10100101+1
+    = 10100110`。
 - en: This means there is a slightly odd symmetry in the numbers that can be represented;
     for example with an 8 bit integer we have `2^⁸ = 256` possible values; with our
     sign bit representation we could represent -127 thru 127 but with two's complement
     we can represent -127 thru 128\. This is because we have removed the problem of
     having two zeros; consider that "negative zero" is `(~00000000 +1)=(11111111+1)=00000000`
     (note discarded carry bit).
+  id: totrans-258
   prefs: []
   type: TYPE_NORMAL
+  zh: 这意味着可表示的数字存在一种略微奇特的对称性；例如，对于8位整数，我们有`2^8 = 256`种可能的值；使用符号位表示法，我们可以表示从-127到127，但使用二进制补码，我们可以表示从-127到128。这是因为我们消除了有两个零的问题；考虑“负零”是`(~00000000
+    +1)=(11111111+1)=00000000`（注意丢弃的进位位）。
 - en: Table 2.3.1.3.1 Two's Complement Addition
+  id: totrans-259
   prefs: []
   type: TYPE_NORMAL
+  zh: 表2.3.1.3.1 二进制补码加法
 - en: '| Decimal | Binary | Op |'
+  id: totrans-260
   prefs: []
   type: TYPE_TB
+  zh: '| 十进制 | 二进制 | 操作 |'
 - en: '| --- | --- | --- |'
+  id: totrans-261
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| -90 | 10100110 | + |'
+  id: totrans-262
   prefs: []
   type: TYPE_TB
+  zh: '| -90 | 10100110 | + |'
 - en: '| 100 | 01100100 |  |'
+  id: totrans-263
   prefs: []
   type: TYPE_TB
+  zh: '| 100 | 01100100 |  |'
 - en: '| --- | -------- |  |'
+  id: totrans-264
   prefs: []
   type: TYPE_TB
+  zh: '| --- | -------- |  |'
 - en: '| 10 | 00001010 |  |'
+  id: totrans-265
   prefs: []
   type: TYPE_TB
+  zh: '| 10 | 00001010 |  |'
 - en: You can see that by implementing two's complement hardware designers need only
     provide logic for addition circuits; subtraction can be done by two's complement
     negating the value to be subtracted and then adding the new value.
+  id: totrans-266
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以看到，通过实现二进制补码，硬件设计者只需要提供加法电路的逻辑；减法可以通过二进制补码对要减去的值取反，然后添加新值来完成。
 - en: Similarly you could implement multiplication with repeated addition and division
     with repeated subtraction. Consequently two's complement can reduce all simple
     mathematical operations down to addition!
+  id: totrans-267
   prefs: []
   type: TYPE_NORMAL
+  zh: 类似地，你也可以通过重复加法实现乘法，通过重复减法实现除法。因此，二进制补码可以将所有简单的数学运算简化为加法！
 - en: All modern computers use two's complement representation.
+  id: totrans-268
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有现代计算机都使用二进制补码表示。
 - en: 2.3.1.3.1 Sign-extension
+  id: totrans-269
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 2.3.1.3.1 符号扩展
 - en: Because of two's complement format, when increasing the size of signed value,
     it is important that the additional bits be *sign-extended*; that is, copied from
     the top-bit of the existing value.
+  id: totrans-270
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于二进制补码格式，当增加有符号值的位数时，重要的是要确保额外的位被*符号扩展*；也就是说，从现有值的最高位复制过来。
 - en: For example, the value of an 32-bit `int` `-10` would be represented in two's
     complement binary as `11111111111111111111111111110110`. If one were to cast this
     to a 64-bit `long long int`, we would need to ensure that the additional 32-bits
     were set to `1` to maintain the same sign as the original.
+  id: totrans-271
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，一个32位的`int`类型`-10`在二进制补码表示中为`11111111111111111111111111110110`。如果将这个值转换为64位的`long
+    long int`，我们需要确保额外的32位被设置为`1`以保持与原始值相同的符号。
 - en: Thanks to two's complement, it is sufficient to take the top bit of the existing
     value and replace all the added bits with this value. This processes is referred
     to as *sign-extension* and is usually handled by the compiler in situations as
     defined by the language standard, with the processor generally providing special
     instructions to take a value and sign-extended it to some larger value.
+  id: totrans-272
   prefs: []
   type: TYPE_NORMAL
+  zh: 多亏了二进制补码，我们只需要取现有值的最高位，并用这个值替换所有添加的位。这个过程被称为 *符号扩展*，通常由编译器在语言标准定义的情况下处理，处理器通常提供特殊的指令来取一个值并将其符号扩展到更大的值。
 - en: 2.3.2 Floating Point
+  id: totrans-273
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.3.2 浮点数
 - en: So far we have only discussed integer or whole numbers; the class of numbers
     that can represent decimal values is called *floating point*.
+  id: totrans-274
   prefs: []
   type: TYPE_NORMAL
+  zh: 到目前为止，我们只讨论了整数或整个数字；可以表示小数值的数字类别称为 *浮点数*。
 - en: To create a decimal number, we require some way to represent the concept of
     the decimal place in binary. The most common scheme for this is known as the *IEEE-754
     floating point standard* because the standard is published by the Institute of
     Electric and Electronics Engineers. The scheme is conceptually quite simple and
     is somewhat analogous to "scientific notation".
+  id: totrans-275
   prefs: []
   type: TYPE_NORMAL
+  zh: 要创建一个十进制数，我们需要某种方式来表示二进制中的小数点概念。最常用的方案被称为 *IEEE-754 浮点标准*，因为该标准由电气和电子工程师协会发布。该方案在概念上相当简单，并且在某种程度上类似于“科学记数法”。
 - en: In scientific notation the value `123.45` might commonly be represented as `1.2345x10²`.
     We call `1.2345` the *mantissa* or *significand*, `10` is the *radix* and `2`
     is the *exponent*.
+  id: totrans-276
   prefs: []
   type: TYPE_NORMAL
+  zh: 在科学记数法中，数值 `123.45` 通常表示为 `1.2345x10²`。我们称 `1.2345` 为 *尾数* 或 *有效数字*，`10` 是 *基数*，而
+    `2` 是 *指数*。
 - en: In the IEEE floating point model, we break up the available bits to represent
     the sign, mantissa and exponent of a decimal number. A decimal number is represented
     by `sign × significand × 2^^(exponent)`.
+  id: totrans-277
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 IEEE 浮点模型中，我们将可用的位拆分来表示十进制数的符号、尾数和指数。一个十进制数由 `sign × significand × 2^^(exponent)`
+    表示。
 - en: The sign bit equates to either `1` or `-1`. Since we are working in binary,
     we always have the implied radix of `2`.
+  id: totrans-278
   prefs: []
   type: TYPE_NORMAL
+  zh: 符号位等于 `1` 或 `-1`。由于我们在二进制中工作，我们始终有隐含的基数 `2`。
 - en: There are differing widths for a floating point value -- we examine below at
     only a 32 bit value. More bits allows greater precision.
+  id: totrans-279
   prefs: []
   type: TYPE_NORMAL
+  zh: 浮点数的宽度可能不同——我们下面只考察 32 位值。更多的位允许更高的精度。
 - en: Table 2.3.2.1 IEEE Floating Point
+  id: totrans-280
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 2.3.2.1 IEEE 浮点数
 - en: '| Sign | Exponent | Significand/Mantissa |'
+  id: totrans-281
   prefs: []
   type: TYPE_TB
+  zh: '| 符号 | 指数 | 尾数/尾数 |'
 - en: '| --- | --- | --- |'
+  id: totrans-282
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- | --- | --- | --- |'
 - en: '| S | EEEEEEEE | MMMMMMMMMMMMMMMMMMMMMMM |'
+  id: totrans-283
   prefs: []
   type: TYPE_TB
+  zh: '| S | EEEEEEEE | MMMMMMMMMMMMMMMMMMMMMMM |'
 - en: The other important factor is *bias* of the exponent. The exponent needs to
     be able to represent both positive and negative values, thus an implied value
     of `127` is subtracted from the exponent. For example, an exponent of `0` has
     an exponent field of `127`, `128` would represent `1` and `126` would represent
     `-1`.
+  id: totrans-284
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个重要因素是指数的 *偏置*。指数需要能够表示正负值，因此从指数中减去一个隐含的 `127` 值。例如，指数为 `0` 时，指数字段为 `127`，`128`
+    表示 `1`，而 `126` 表示 `-1`。
 - en: Each bit of the significand adds a little more precision to the values we can
     represent. Consider the scientific notation representation of the value `198765`.
     We could write this as `1.98765x10⁶`, which corresponds to a representation below
+  id: totrans-285
   prefs: []
   type: TYPE_NORMAL
+  zh: 尾数的每一位都会使我们可以表示的值增加一点精度。考虑数值 `198765` 的科学记数法表示，我们可以将其写成 `1.98765x10⁶`，这对应于以下表示
 - en: Table 2.3.2.2 Scientific Notation for 1.98765x10^6
+  id: totrans-286
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 2.3.2.2 1.98765x10^6 的科学记数法
 - en: '| 10⁰ | . | 10^(-1) | 10^(-2) | 10^(-3) | 10^(-4) | 10^(-5) |'
+  id: totrans-287
   prefs: []
   type: TYPE_TB
+  zh: '| 10⁰ | . | 10^(-1) | 10^(-2) | 10^(-3) | 10^(-4) | 10^(-5) |'
 - en: '| --- | --- | --- | --- | --- | --- | --- |'
+  id: totrans-288
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- | --- | --- | --- |'
 - en: '| 1 | . | 9 | 8 | 7 | 6 | 5 |'
+  id: totrans-289
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | . | 9 | 8 | 7 | 6 | 5 |'
 - en: Each additional digit allows a greater range of decimal values we can represent.
     In base 10, each digit after the decimal place increases the precision of our
     number by 10 times. For example, we can represent `0.0` through `0.9` (10 values)
@@ -1272,34 +1877,50 @@
     precision, we only get two times the precision, as illustrated in the table below.
     This means that our binary representation does not always map in a straight-forward
     manner to a decimal representation.
+  id: totrans-290
   prefs: []
   type: TYPE_NORMAL
+  zh: 每增加一位数字，我们就可以表示更多的十进制值。在十进制中，小数点后的每一位数字将我们的数字精度提高10倍。例如，我们可以用一个十进制小数位表示`0.0`到`0.9`（10个值），用两个十进制小数位表示`0.00`到`0.99`（100个值），以此类推。在二进制中，而不是每个额外的数字给我们10倍的精度，我们只得到两倍的精度，如下表所示。这意味着我们的二进制表示并不总是直接映射到十进制表示。
 - en: Table 2.3.2.3 Significands in binary
+  id: totrans-291
   prefs: []
   type: TYPE_NORMAL
+  zh: 表2.3.2.3 二进制中的有效数字
 - en: '| 2⁰ | . | 2^(-1) | 2^(-2) | 2^(-3) | 2^(-4) | 2^(-5) |'
+  id: totrans-292
   prefs: []
   type: TYPE_TB
+  zh: '| 2⁰ | . | 2^(-1) | 2^(-2) | 2^(-3) | 2^(-4) | 2^(-5) |'
 - en: '| --- | --- | --- | --- | --- | --- | --- |'
+  id: totrans-293
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- | --- | --- | --- |'
 - en: '| 1 | . | 1/2 | 1/4 | 1/8 | 1/16 | 1/32 |'
+  id: totrans-294
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | . | 1/2 | 1/4 | 1/8 | 1/16 | 1/32 |'
 - en: '| 1 | . | 0.5 | 0.25 | 0.125 | 0.0625 | 0.03125 |'
+  id: totrans-295
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | . | 0.5 | 0.25 | 0.125 | 0.0625 | 0.03125 |'
 - en: With only one bit of precision, our fractional precision is not very big; we
     can only say that the fraction is either `0` or `0.5`. If we add another bit of
     precision, we can now say that the decimal value is one of either `0,0.25,0.5,0.75`.
     With another bit of precision we can now represent the values `0,0.125,0.25,0.375,0.5,0.625,0.75,0.875`.
+  id: totrans-296
   prefs: []
   type: TYPE_NORMAL
+  zh: 仅使用一位精度，我们的分数精度并不大；我们只能说分数是`0`或`0.5`。如果我们增加一位精度，现在我们可以说出十进制值是`0,0.25,0.5,0.75`中的任何一个。再增加一位精度，我们现在可以表示的值有`0,0.125,0.25,0.375,0.5,0.625,0.75,0.875`。
 - en: Increasing the number of bits therefore allows us greater and greater precision.
     However, since the range of possible numbers is infinite we will never have enough
     bits to represent *any* possible value.
+  id: totrans-297
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，增加位数可以让我们获得更高的精度。然而，由于可能数字的范围是无限的，我们将永远没有足够的位数来表示*任何*可能的值。
 - en: For example, if we only have two bits of precision and need to represent the
     value `0.3` we can only say that it is closest to `0.25`; obviously this is insufficient
     for most any application. With 22 bits of significand we have a much finer resolution,
@@ -1309,14 +1930,20 @@
     bits allows a tremendous precision and should be suitable for all but the most
     demanding of applications (XXX is this sufficient to represent a length to less
     than the size of an atom?)
+  id: totrans-298
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，如果我们只有两位精度，需要表示`0.3`这个值，我们只能说它最接近`0.25`；显然，这对于大多数应用来说是不够的。如果我们有22位有效数字，我们就有更高的分辨率，但对于大多数应用来说仍然不够。`double`值将有效数字位数增加到52（它也增加了指数值的范围）。一些硬件有84位的浮点数，具有完整的64位有效数字。64位提供了巨大的精度，应该适合除了最苛刻的应用之外的所有应用（XXX这足以表示小于原子大小的长度吗？）
 - en: '[PRE4]'
+  id: totrans-299
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: Example 2.3.2.1 Floats versus Doubles
+  id: totrans-300
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例2.3.2.1 浮点数与双精度浮点数
 - en: A practical example is illustrated above. Notice that for the default 6 decimal
     places of precision given by `printf` both answers are the same, since they are
     rounded up correctly. However, when asked to give the results to a larger precision,
@@ -1324,108 +1951,165 @@
     using `doubles` has a more accurate result, but it is still not *exactly* correct.
     We can also see that programmers not explicitly dealing with `float` values still
     have problems with precision of variables!
+  id: totrans-301
   prefs: []
   type: TYPE_NORMAL
+  zh: 上面的实际例子说明了这一点。注意，对于`printf`默认提供的6位精度，两个答案都是相同的，因为它们都正确地四舍五入。然而，当要求提供更高精度的结果时，在这种情况下是20位十进制精度，我们可以看到结果开始发散。使用`doubles`的代码有更准确的结果，但它仍然不是*完全*正确的。我们还可以看到，没有明确处理`float`值的程序员仍然会遇到变量精度的问题！
 - en: 2.3.2.1 Normalised Values
+  id: totrans-302
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 2.3.2.1 规范化值
 - en: In scientific notation, we can represent a value in many different ways. For
     example, `10023x10^⁰ = 1002.3x10¹ = 100.23x10²`. We thus define the *normalised*
     version as the one where `1/radix <= significand < 1`. In binary this ensures
     that the leftmost bit of the significand is *always one*. Knowing this, we can
     gain an extra bit of precision by having the standard say that the leftmost bit
     being one is implied.
+  id: totrans-303
   prefs: []
   type: TYPE_NORMAL
+  zh: 在科学记数法中，我们可以用许多不同的方式表示一个值。例如，`10023x10^0 = 1002.3x10^1 = 100.23x10^2`。因此，我们定义
+    *标准化* 版本为 `1/radix <= 尾数 < 1` 的那个版本。在二进制中，这确保了尾数的最左位总是 *一个*。了解这一点后，我们可以通过标准规定最左位为隐含的一位来获得额外的精度。
 - en: Table 2.3.2.1.1 Example of normalising 0.375
+  id: totrans-304
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 2.3.2.1.1 标准化 0.375 的示例
 - en: '| 2⁰ | . | 2^(-1) | 2^(-2) | 2^(-3) | 2^(-4) | 2^(-5) | Exponent | Calculation
     |'
+  id: totrans-305
   prefs: []
   type: TYPE_TB
+  zh: '| 2^0 | . | 2^(-1) | 2^(-2) | 2^(-3) | 2^(-4) | 2^(-5) | 指数 | 计算 |'
 - en: '| --- | --- | --- | --- | --- | --- | --- | --- | --- |'
+  id: totrans-306
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- | --- | --- | --- | --- | --- |'
 - en: '| 0 | . | 0 | 1 | 1 | 0 | 0 | 2^⁰ | (0.25+0.125) × 1 = 0.375 |'
+  id: totrans-307
   prefs: []
   type: TYPE_TB
+  zh: '| 0 | . | 0 | 1 | 1 | 0 | 0 | 2^0 | (0.25+0.125) × 1 = 0.375 |'
 - en: '| 0 | . | 1 | 1 | 0 | 0 | 0 | 2^^(-1) | (0.5+0.25)×.5=0.375 |'
+  id: totrans-308
   prefs: []
   type: TYPE_TB
+  zh: '| 0 | . | 1 | 1 | 0 | 0 | 0 | 2^(-1) | (0.5+0.25)×0.5=0.375 |'
 - en: '| 1 | . | 1 | 0 | 0 | 0 | 0 | 2^^(-2) | (1+0.5)×0.25=0.375 |'
+  id: totrans-309
   prefs: []
   type: TYPE_TB
+  zh: '| 1 | . | 1 | 0 | 0 | 0 | 0 | 2^(-2) | (1+0.5)×0.25=0.375 |'
 - en: As you can see above, we can make the value normalised by moving the bits upwards
     as long as we compensate by increasing the exponent.
+  id: totrans-310
   prefs: []
   type: TYPE_NORMAL
+  zh: 如上图所示，我们可以通过增加指数来补偿，将位向上移动，从而使值标准化。
 - en: 2.3.2.1.1 Normalisation Tricks
+  id: totrans-311
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 2.3.2.1.1 标准化技巧
 - en: A common problem programmers face is finding the first set bit in a bitfield.
     Consider the bitfield `0100`; from the right the first set bit would be bit `2`
     (starting from zero, as is conventional).
+  id: totrans-312
   prefs: []
   type: TYPE_NORMAL
+  zh: 程序员常见的问题之一是找到位域中的第一个置位。考虑位域 `0100`；从右向左，第一个置位将是位 `2`（从零开始，这是惯例）。
 - en: The standard way to find this value is to shift right, check if the uppermost
     bit is a `1` and either terminate or repeat. This is a slow process; if the bitfield
     is 64 bits long and only the very last bit is set, you must go through all the
     preceding 63 bits!
+  id: totrans-313
   prefs: []
   type: TYPE_NORMAL
+  zh: 查找此值的标准方法是向右移位，检查最高位是否为 `1`，然后终止或重复。这是一个缓慢的过程；如果位域长度为 64 位，而只有最后一个位被置位，你必须遍历所有前面的
+    63 位！
 - en: However, if this bitfield value were the signficand of a floating point number
     and we were to normalise it, the value of the exponent would tell us how many
     times it was shifted. The process of normalising a number is generally built into
     the floating point hardware unit on the processor, so operates very fast; usually
     much faster than the repeated shift and check operations.
+  id: totrans-314
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，如果这个位域值是浮点数的尾数，并且我们要对其进行标准化，则指数的值将告诉我们它被移动了多少次。数字标准化的过程通常内置在处理器的浮点硬件单元中，因此运行非常快；通常比重复移位和检查操作快得多。
 - en: The example program below illustrates two methods of finding the first set bit
     on an Itanium processor. The Itanium, like most server processors, has support
     for an 80-bit *extended* floating point type, with a 64-bit significand. This
     means a `unsigned long` neatly fits into the significand of a `long double`. When
     the value is loaded it is normalised, and and thus by reading the exponent value
     (minus the 16 bit bias) we can see how far it was shifted.
+  id: totrans-315
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例程序说明了在 Itanium 处理器上查找第一个置位位的两种方法。Itanium，像大多数服务器处理器一样，支持 80 位的 *扩展* 浮点类型，具有
+    64 位的尾数。这意味着 `unsigned long` 可以完美地适应 `long double` 的尾数。当值被加载时，它是标准化的，因此通过读取指数值（减去
+    16 位偏移量）我们可以看到它移动了多远。
 - en: '[PRE5]'
+  id: totrans-316
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Example 2.3.2.1.1.1 Program to find first set bit
+  id: totrans-317
   prefs: []
   type: TYPE_NORMAL
+  zh: 2.3.2.1.1.1 查找第一个置位位的程序
 - en: 2.3.2.2 Bringing it together
+  id: totrans-318
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 2.3.2.2 将内容整合
 - en: In the example code below we extract the components of a floating point number
     and print out the value it represents. This will only work for a 32 bit floating
     point value in the IEEE format; however this is common for most architectures
     with the `float` type.
+  id: totrans-319
   prefs: []
   type: TYPE_NORMAL
+  zh: 在下面的示例代码中，我们提取浮点数的组成部分并打印出它所表示的值。这仅适用于 IEEE 格式的 32 位浮点值；然而，这对于大多数具有 `float`
+    类型的架构来说很常见。
 - en: '[PRE6]'
+  id: totrans-320
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: Example 2.3.2.2.1 Examining Floats
+  id: totrans-321
   prefs: []
   type: TYPE_NORMAL
+  zh: 2.3.2.2.1 检查浮点数
 - en: Sample output of the value `8.45`, which we previously examined, is shown below.
+  id: totrans-322
   prefs: []
   type: TYPE_NORMAL
+  zh: 之前我们考察过的值 `8.45` 的样本输出如下所示。
 - en: '[PRE7]'
+  id: totrans-323
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: Example 2.3.2.2.2 Analysis of `8.45`
+  id: totrans-324
   prefs: []
   type: TYPE_NORMAL
+  zh: 2.3.2.2.2 分析 `8.45`
 - en: From this example, we get some idea of how the inaccuracies creep into our floating
     point numbers.
+  id: totrans-325
   prefs: []
   type: TYPE_NORMAL
+  zh: 从这个例子中，我们可以了解浮点数中的不精确是如何逐渐渗透进来的。
 - en: </main>
+  id: totrans-326
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>

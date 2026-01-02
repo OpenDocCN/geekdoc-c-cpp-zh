@@ -1,76 +1,108 @@
 - en: <main class="calibre3">
+  id: totrans-0
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: Chapter 9. Dynamic Linking
+  id: totrans-1
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 第九章。动态链接
 - en: </main>
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 1 Code Sharing
+  id: totrans-4
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 1 代码共享
 - en: We know that for the operating system code is considered read only, and separate
     from data. It seems logical then that if programs can not modify code and have
     large amounts of common code, instead of replicating it for every executable it
     should be shared between many executables.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们知道对于操作系统，代码被认为是只读的，并且与数据分开。因此，如果程序不能修改代码并且有大量公共代码，那么它应该被许多可执行文件共享，而不是为每个可执行文件复制它，这似乎是合理的。
 - en: With virtual memory this can be easily done. The physical pages of memory the
     library code is loaded into can be easily referenced by any number of virtual
     pages in any number of address spaces. So while you only have one physical copy
     of the library code in system memory, every process can have access to that library
     code at any virtual address it likes.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用虚拟内存，这可以很容易地完成。库代码加载到的物理页面可以通过任何数量的虚拟页面在任何数量的地址空间中轻松引用。因此，尽管你只有一个库代码的物理副本在系统内存中，但每个进程都可以在任何它喜欢的虚拟地址上访问那个库代码。
 - en: Thus people quickly came up with the idea of a *shared library* which, as the
     name suggests, is shared by multiple executables. Each executable contains a reference
     essentially saying "I need library foo". When the program is loaded, it is up
     to the system to either check if some other program has already loaded the code
     for library foo into memory, and thus share it by mapping pages into the executable
     for that physical memory, or otherwise load the library into memory for the executable.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，人们很快就想出了*共享库*的概念，正如其名所示，它被多个可执行文件共享。每个可执行文件都包含一个基本引用，表示“我需要库foo”。当程序被加载时，系统需要检查是否有其他程序已经将库foo的代码加载到内存中，并因此通过将页面映射到该物理内存的可执行文件中共享它，或者否则将库加载到可执行文件的内存中。
 - en: This process is called *dynamic linking* because it does part of the linking
     process "on the fly" as programs are executed in the system.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个过程被称为*动态链接*，因为它在程序在系统中执行时“即时”完成部分链接过程。
 - en: 1.1 Dynamic Library Details
+  id: totrans-9
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.1 动态库细节
 - en: Libraries are very much like a program that never gets started. They have code
     and data sections (functions and variables) just like every executable; but no
     where to start running. They just provide a library of functions for developers
     to call.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 库非常类似于一个永远不会启动的程序。它们有代码和数据部分（函数和变量），就像每个可执行文件一样；但没有开始运行的地方。它们只是为开发者提供函数库以供调用。
 - en: Thus ELF can represent a dynamic library just as it does an executable. There
     are some fundamental differences, such as there is no pointer to where execution
     should start, but all shared libraries are just ELF objects like any other executable.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，ELF可以像表示可执行文件一样表示动态库。有一些基本区别，例如没有指向执行开始位置的指针，但所有共享库都像任何其他可执行文件一样是ELF对象。
 - en: The ELF header has two mutually exclusive flags, `ET_EXEC` and `ET_DYN` to mark
     an ELF file as either an executable or a shared object file.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: ELF头有两个互斥标志，`ET_EXEC`和`ET_DYN`，用于标记ELF文件是可执行文件还是共享对象文件。
 - en: 1.2 Including libraries in an executable
+  id: totrans-13
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 1.2 在可执行文件中包含库
 - en: 1.2.1 Compilation
+  id: totrans-14
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.2.1 编译
 - en: When you compile your program that uses a dynamic library, object files are
     left with references to the library functions just as for any other external reference.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 当你编译使用动态库的程序时，对象文件会保留对库函数的引用，就像对任何其他外部引用一样。
 - en: You need to include the *header* for the library so that the compiler knows
     the specific types of the functions you are calling. Note the compiler only needs
     to know the types associated with a function (such as, it takes an `int` and returns
@@ -83,147 +115,219 @@
     This is clearly not acceptable, as the pointer will thus not point to valid memory.
     The C99 standard has changed such that you are required to specify the types of
     included functions.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 你需要包含库的 *头文件*，这样编译器才知道你调用函数的具体类型。注意编译器只需要知道与函数相关的类型（例如，它接受一个 `int` 并返回一个 `char
+    *`），以便它可以为函数调用正确地分配空间。这并不是 C 标准一直以来的情况。以前，编译器会假设它不知道的任何函数都返回一个 `int`。在 32 位系统上，指针的大小与
+    `int` 的大小相同，所以没有问题。然而，在 64 位系统上，指针的大小通常是 `int` 的大两倍，所以如果函数实际上返回一个指针，它的值将被破坏。这显然是不可接受的，因为指针将不会指向有效的内存。C99
+    标准已经改变，要求你指定包含函数的类型。
 - en: 1.2.2 Linking
+  id: totrans-17
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 1.2.2 链接
 - en: Even though the *dynamic linker* does a lot of the work for shared libraries,
     the traditional linker still has a role to play in creating the executable.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管动态链接器为共享库做了很多工作，但传统的链接器在创建可执行文件时仍然扮演着一定的角色。
 - en: The traditional linker needs to leave a pointer in the executable so that the
     dynamic linker knows what library will satisfy the dependencies at runtime.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 传统的链接器需要在可执行文件中留下一个指针，这样动态链接器就知道在运行时将满足依赖关系的库是什么。
 - en: The `dynamic` section of the executable requires a `NEEDED` entry for each shared
     library that the executable depends on.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 可执行文件的 `dynamic` 部分需要为可执行文件依赖的每个共享库提供一个 `NEEDED` 条目。
 - en: Again, we can inspect these fields with the `readelf` program. Below we have
     a look at a very standard binary, `/bin/ls`
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次，我们可以使用 `readelf` 程序来检查这些字段。下面我们查看一个非常标准的二进制文件，`/bin/ls`
 - en: '[PRE0]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: Example 1.2.2.1 Specifying Dynamic Libraries
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 1.2.2.1 指定动态库
 - en: You can see that it specifies three libraries. The most common library shared
     by most, if not all, programs on the system is `libc`. There are also some other
     libraries that the program needs to run correctly.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以看到它指定了三个库。在系统中，如果不是所有，那么大多数程序共享的最常见的库是 `libc`。还有一些其他库，程序需要它们才能正确运行。
 - en: Reading the ELF file directly is sometimes useful, but the usual way to inspect
     a dynamically linked executable is via `ldd`. `ldd` "walks" the dependencies of
     libraries for you; that is if a library depends on another library, it will show
     it to you.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 直接读取 ELF 文件有时很有用，但检查动态链接可执行文件通常是通过 `ldd` 来完成的。`ldd` "遍历"库的依赖关系为你；也就是说，如果一个库依赖于另一个库，它将显示给你。
 - en: '[PRE1]'
+  id: totrans-26
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Example 1.2.2.2 Looking at dynamic libraries
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 1.2.2.2 查看动态库
 - en: We can see above that `libpthread` has been required from somewhere. If we do
     a little digging, we can see that the requirement comes from `librt`.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以看到上面已经从某处要求了 `libpthread`。如果我们稍作调查，我们可以看到这个需求来自 `librt`。
 - en: </main>
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 2 The Dynamic Linker
+  id: totrans-31
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 2 动态链接器
 - en: The dynamic linker is the program that manages shared dynamic libraries on behalf
     of an executable. It works to load libraries into memory and modify the program
     at runtime to call the functions in the library.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态链接器是代表可执行文件管理共享动态库的程序。它负责将库加载到内存中，并在运行时修改程序以调用库中的函数。
 - en: ELF allows executables to specify an *interpreter*, which is a program that
     should be used to run the executable. The compiler and static linker set the interpreter
     of executables that rely on dynamic libraries to be the dynamic linker.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: ELF 允许可执行文件指定一个 *解释器*，这是一个应该用来运行可执行文件的程序。编译器和静态链接器将依赖于动态库的可执行文件的解释器设置为动态链接器。
 - en: '[PRE2]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Example 2.1 Checking the program interpreter
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 2.1 检查程序解释器
 - en: You can see above that the interpreter is set to be /lib/ld-linux-ia64.so.2,
     which is the dynamic linker. When the kernel loads the binary for execution, it
     will check if the `PT_INTERP` field is present, and if so load what it points
     to into memory and start it.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以看到上面的解释器被设置为 /lib/ld-linux-ia64.so.2，这是动态链接器。当内核加载二进制文件以执行时，它将检查 `PT_INTERP`
+    字段是否存在，如果存在，则将其指向的内容加载到内存中并启动它。
 - en: We mentioned that dynamically linked executables leave behind references that
     need to be fixed with information that isn't available until runtime, such as
     the address of a function in a shared library. The references that are left behind
     are called *relocations*.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们提到，动态链接的可执行文件会留下需要用运行时才可用的信息来修复的引用，例如共享库中函数的地址。留下的这些引用被称为*重定位*。
 - en: 2.1 Relocations
+  id: totrans-38
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.1 重定位
 - en: The essential part of the dynamic linker is fixing up addresses at runtime,
     which is the only time you can know for certain where you are loaded in memory.
     A relocation can simply be thought of as a note that a particular address will
     need to be fixed at load time. Before the code is ready to run you will need to
     go through and read all the relocations and fix the addresses it refers to to
     point to the right place.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态链接器的基本部分是在运行时修复地址，这是唯一可以确定你在内存中加载位置的时候。重定位可以简单地被视为一个笔记，表明某个地址在加载时将需要被修复。在代码准备好运行之前，你需要遍历所有重定位，修复它所引用的地址，使其指向正确的地方。
 - en: Table 2.1.1 Relocation Example
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 表2.1.1 重定位示例
 - en: '| Address | Action |'
+  id: totrans-41
   prefs: []
   type: TYPE_TB
+  zh: '| 地址 | 操作 |'
 - en: '| --- | --- |'
+  id: totrans-42
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| 0x123456 | Address of symbol "x" |'
+  id: totrans-43
   prefs: []
   type: TYPE_TB
+  zh: '| 0x123456 | 符号"x"的地址 |'
 - en: '| 0x564773 | Function X |'
+  id: totrans-44
   prefs: []
   type: TYPE_TB
+  zh: '| 0x564773 | 函数X |'
 - en: There are many types of relocation for each architecture, and each types exact
     behaviour is documented as part of the ABI for the system. The definition of a
     relocation is quite straight forward.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个架构都有许多种重定位类型，每种类型的精确行为都作为系统ABI的一部分进行了文档化。重定位的定义相当直接。
 - en: '[PRE3]'
+  id: totrans-46
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Example 2.1.1 Relocation as defined by ELF
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例2.1.1 由ELF定义的重定位
 - en: The `r_offset` field refers to the offset in the file that needs to be fixed
     up. The `r_info` field specifies the type of relocation which describes what exactly
     must be done to fix this code up. The simplest relocation usually defined for
     an architecture is simply the value of the symbol. In this case you simply substitute
     the address of the symbol at the location specified, and the relocation has been
     "fixed-up".
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: '`r_offset`字段指的是文件中需要修复的偏移量。`r_info`字段指定了重定位的类型，它描述了为了修复这段代码必须执行的确切操作。对于某个架构来说，最简单的重定位通常定义为符号的值。在这种情况下，你只需将符号的地址替换到指定的位置，重定位就已被“修复”。'
 - en: The two types, one with an addend and one without specify different ways for
     the relocation to operate. An addend is simply something that should be added
     to the fixed up address to find the correct address. For example, if the relocation
     is for the symbol `i` because the original code is doing something like `i[8]`
     the addend will be set to 8\. This means "find the address of `i`, and go 8 past
     it".
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两种类型，一种带有加数，一种不带，指定了重定位操作的不同方式。加数简单来说就是应该加到修复地址上以找到正确地址的东西。例如，如果重定位是为了符号`i`，因为原始代码正在执行类似`i[8]`的操作，那么加数将被设置为8。这意味着“找到`i`的地址，然后过去8个位置”。
 - en: That addend value needs to be stored somewhere. The two solutions are covered
     by the two forms. In the `REL` form the addend is actually store in the program
     code in the place where the fixed up address should be. This means that to fix
@@ -231,91 +335,130 @@
     up to get any addend, store that, find the "real" address, add the addend to it
     and then write it back (over the addend). The `RELA` format specifies the addend
     right there in the relocation.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 那个加数值需要存储在某个地方。这两种解决方案分别由两种形式涵盖。在`REL`形式中，加数实际上存储在程序代码中，在应该放置修复地址的地方。这意味着要正确地修复地址，你需要首先读取你即将修复的内存以获取任何加数，存储它，找到“真实”的地址，将加数加到它上面，然后写回（覆盖加数）。`RELA`格式指定了重定位中的加数。
 - en: The trade offs of each approach should be clear. With `REL` you need to do an
     extra memory reference to find the addend before the fixup, but you don't waste
     space in the binary because you use relocation target memory. With `RELA` you
     keep the addend with the relocation, but waste that space in the on disk binary.
     Most modern systems use `RELA` relocations.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 每种方法的权衡应该很清楚。使用`REL`时，你需要进行额外的内存引用来找到修复前的加数，但你不会在二进制文件中浪费空间，因为你使用了重定位目标内存。使用`RELA`时，你将加数与重定位一起保留，但在磁盘上的二进制文件中浪费了空间。大多数现代系统使用`RELA`重定位。
 - en: 2.1.1 Relocations in action
+  id: totrans-52
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 2.1.1 重定位的实际应用
 - en: The example below shows how relocations work. We create two very simple shared
     libraries and reference one from in the other.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的示例展示了重定位是如何工作的。我们创建了两个非常简单的共享库，并在其中一个中引用了另一个。
 - en: '[PRE4]'
+  id: totrans-54
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: Example 2.1.1.1 Specifying Dynamic Libraries
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例2.1.1.1 指定动态库
 - en: We thus have one relocation in `addendtest.so` of type `R_IA64_DIR64LSB`. If
     you look this up in the IA64 ABI, the acronym can be broken down to
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，在`addendtest.so`中有一个类型为`R_IA64_DIR64LSB`的重定位。如果你在IA64 ABI中查找这个缩写，它可以分解为
 - en: '*R_IA64* : all relocations start with this prefix.'
+  id: totrans-57
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*R_IA64* : 所有重定位都以这个前缀开始。'
 - en: '*DIR64* : a 64 bit direct type relocation'
+  id: totrans-58
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*DIR64* : 64位直接类型重定位'
 - en: '*LSB* : Since IA64 can operate in big and little endian modes, this relocation
     is little endian (least significant byte).'
+  id: totrans-59
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*LSB* : 由于IA64可以在大端和小端模式下运行，这个重定位是小端（最低有效字节）。'
 - en: The ABI continues to say that that relocation means "the value of the symbol
     pointed to by the relocation, plus any addend". We can see we have an addend of
     8, since `sizeof(int) == 4` and we have moved two int's into the array (`*j =
     i + 2`). So at runtime, to fix this relocation you need to find the address of
     symbol `i` and put its value, plus 8 into `0x104f8`.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: ABI继续说明，重定位意味着“重定位所指向的符号的值，加上任何加数”。我们可以看到我们有一个8的加数，因为`sizeof(int) == 4`，并且我们已经将两个int移动到数组中（`*j
+    = i + 2`）。所以，在运行时，要修复这个重定位，你需要找到符号`i`的内存地址，并将它的值加上8放入`0x104f8`。
 - en: 2.2 Position Independence
+  id: totrans-61
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 2.2 位置无关性
 - en: In an *executable* file, the code and data segment is given a specified base
     address in virtual memory. The executable code is not shared, and each executable
     gets its own fresh address space. This means that the compiler knows exactly where
     the data section will be, and can reference it directly.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 *可执行文件* 中，代码和数据段在虚拟内存中给定一个指定的基址。可执行代码不可共享，每个可执行文件都获得自己的地址空间。这意味着编译器确切地知道数据段在哪里，可以直接引用它。
 - en: Libraries have no such guarantee. They can know that their data section will
     be a specified *offset* from the base address; but exactly where that base address
     is can only be known at runtime.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 库没有这样的保证。它们可以知道它们的数据段将是从基址开始的指定 *偏移量*；但确切的位置只能在运行时知道。
 - en: Consequently all libraries must be produced with code that can execute no matter
     where it is put into memory, known as *position independent code* (or PIC for
     short). Note that the data section is still a fixed offset from the code section;
     but to actually find the address of data the offset needs to be added to the load
     address.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，所有库都必须生成可以在内存中任何位置执行的代码，这被称为 *位置无关代码*（或PIC）。请注意，数据段仍然是从代码段的固定偏移量；但要找到数据的确切地址，需要将偏移量加到加载地址上。
 - en: </main>
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 3 Global Offset Tables
+  id: totrans-67
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 3 全局偏移表
 - en: You might have noticed a critical problem with relocations when thinking about
     the goals of a shared library. We mentioned previously that the big advantage
     of a shared library with virtual memory is that multiple programs can use the
     code in memory by sharing of pages.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能在考虑共享库的目标时注意到了重定位的一个关键问题。我们之前提到，具有虚拟内存的共享库的一个大优势是多个程序可以通过页面共享来使用内存中的代码。
 - en: The problem stems from the fact that libraries have no guarantee about where
     they will be put into memory. The dynamic linker will find the most convenient
     place in virtual memory for each library required and place it there. Think about
@@ -325,76 +468,112 @@
     potentially be a hog and write a *huge* library, not leaving enough space for
     other libraries! And chances are, your program doesn't ever want to use that library
     anyway.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 问题源于库没有关于它们将在内存中放置位置的保证。动态链接器将为每个所需的库在虚拟内存中找到最方便的位置并将其放置在那里。想想如果这种情况不发生会发生什么；系统中的每个库都需要自己的虚拟内存块，以便不重叠。每次向系统中添加新的库时，都需要分配。有人可能会写一个
+    *巨大的* 库，没有为其他库留下足够的空间！而且，你的程序可能根本不想使用那个库。
 - en: Thus, if you modify the code of a shared library with a relocation, that code
     no longer becomes sharable. We've lost the advantage of our shared library.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，如果你修改了带有重定位的共享库代码，那么这段代码就不再可共享了。我们失去了共享库的优势。
 - en: Below we explain the mechanism for doing this.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面我们解释实现这一机制的方法。
 - en: 3.1 The Global Offset Table
+  id: totrans-72
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 3.1 全局偏移表
 - en: So imagine the situation where we take the value of a symbol. With only relocations,
     we would have the dynamic linker look up the memory address of that symbol and
     re-write the code to load that address.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 所以想象一下这样的情况，我们取一个符号的值。只有重定位的话，动态链接器会查找该符号的内存地址，并重新编写代码来加载该地址。
 - en: A fairly straight forward enhancement would be to set aside space in our binary
     to hold the address of that symbol, and have the dynamic linker put the address
     there rather than in the code directly. This way we never need to touch the code
     part of the binary.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个相当直接的功能增强是在我们的二进制文件中预留空间来保存该符号的地址，并让动态链接器将地址放在那里而不是直接放在代码中。这样我们就永远不需要触摸二进制文件的代码部分。
 - en: The area that is set aside for these addresses is called the Global Offset Table,
     or GOT. The GOT lives in a section of the ELF file called `.got`.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 为这些地址预留的区域称为全局偏移表，或 GOT。GOT 位于 ELF 文件的 `.got` 部分。
 - en: <picture>![To keep code (green) sharable, we define process private areas to
     which we can store the addresses of common variables. This allows us to load the
     code anywhere in the process address space whilst still sharing the underlying
     physical pages.](got-plt.svg)</picture>Figure 3.1.1 Memory access via the GOT
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: '![为了保持代码（绿色）可共享，我们定义了进程私有区域，我们可以将公共变量的地址存储在其中。这允许我们在进程地址空间的任何位置加载代码，同时仍然共享底层物理页面。](got-plt.svg)图
+    3.1.1 通过 GOT 的内存访问'
 - en: The GOT is private to each process, and the process must have write permissions
     to it. Conversely the library code is shared and the process should have only
     read and execute permissions on the code; it would be a serious security breach
     if the process could modify code.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: GOT 对每个进程是私有的，并且进程必须对其有写权限。相反，库代码是共享的，进程应该只有对代码的读和执行权限；如果进程可以修改代码，那将是一个严重的安全漏洞。
 - en: 3.1.1 The GOT in action
+  id: totrans-78
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 3.1.1 GOT 的作用
 - en: '[PRE5]'
+  id: totrans-79
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Example 3.1.1.1 Using the GOT
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.1.1.1 使用 GOT
 - en: Above we create a simple shared library which refers to an external symbol.
     We do not know the address of this symbol at compile time, so we leave it for
     the dynamic linker to fix up at runtime.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上面，我们创建了一个简单的共享库，它引用了一个外部符号。我们在编译时不知道这个符号的地址，所以我们将其留给动态链接器在运行时修复。
 - en: But we want our code to remain sharable, in case other processes want to use
     our code as well.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 但我们希望我们的代码保持可共享，以防其他进程也想使用我们的代码。
 - en: The disassembly reveals just how we do this with the `.got`. On IA64 (the architecture
     which the library was compiled for) the register `r1` is known as the *global
     pointer* and always points to where the `.got` section is loaded into memory.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 反汇编揭示了我们是如何使用 `.got` 来做到这一点的。在 IA64（库编译的架构）中，寄存器 `r1` 被称为 *全局指针*，总是指向 `.got`
+    部分被加载到内存的位置。
 - en: If we have a look at the `readelf` output we can see that the `.got` section
     starts 0x10570 bytes past where library was loaded into memory. Thus if the library
     were to be loaded into memory at address 0x6000000000000000 the `.got` would be
     at 0x6000000000010570, and register `r1` would always point to this address.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们查看 `readelf` 输出，我们可以看到 `.got` 部分从库被加载到内存中的位置开始偏移了 0x10570 字节。因此，如果库被加载到内存地址
+    0x6000000000000000，`.got` 将位于 0x6000000000010570，寄存器 `r1` 总是指向这个地址。
 - en: Working backwards through the disassembly, we can see that we store the value
     100 into the memory address held in register `r15`. If we look back we can see
     that register 15 holds the value of the memory address stored in register 14\.
@@ -402,221 +581,322 @@
     number to register 1\. The GOT is simply a big long list of entries, one for each
     external variable. This means that the GOT entry for the external variable `i`
     is stored 24 bytes (that is 3 64 bit addresses).
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过反汇编回溯，我们可以看到我们将值 100 存储在寄存器 `r15` 所持有的内存地址中。如果我们回顾一下，我们可以看到寄存器 15 持有寄存器 14
+    中存储的内存地址的值。再往回一步，我们看到我们通过向寄存器 1 加一个小的数字来找到这个地址。GOT 简单来说是一个长长的条目列表，每个外部变量一个。这意味着外部变量
+    `i` 的 GOT 条目存储了 24 字节（即 3 个 64 位地址）。
 - en: '[PRE6]'
+  id: totrans-86
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: Example 3.1.1.2 Relocations against the GOT
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 3.1.1.2 对 GOT 的重定位
 - en: We can also check out the relocation for this entry too. The relocation says
     "replace the value at offset 10588 with the memory location that symbol i is stored
     at".
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们也可以检查这个条目的重定位。重定位说明“将偏移量 10588 处的值替换为符号 i 存储的内存位置”。
 - en: We know that the `.got` starts at offset 0x10570 from the previous output. We
     have also seen how the code loads an address 0x18 (24 in decimal) past this, giving
     us an address of 0x10570 + 0x18 = 0x10588 ... the address which the relocation
     is for!
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们知道 `.got` 从上一个输出的偏移量 0x10570 开始。我们也看到了代码如何加载比这多 0x18（十进制的 24）的地址，给我们一个地址 0x10570
+    + 0x18 = 0x10588 ... 这就是重定位的地址！
 - en: So before the program begins, the dynamic linker will have fixed up the relocation
     to ensure that the value of the memory at offset 0x10588 is the address of the
     global variable `i`!
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，在程序开始之前，动态加载器将修复重定位，以确保内存偏移量0x10588处的值是全局变量`i`的地址！
 - en: </main>
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 4 Libraries
+  id: totrans-93
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 4 库
 - en: 4.1 The Procedure Lookup Table
+  id: totrans-94
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 4.1 程序查找表（PLT）
 - en: Libraries may contain many functions, and a program may end up including many
     libraries to get its work done. A program may only use one or two functions from
     each library of the many available, and depending on the run-time path through
     the code may use some functions and not others.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 库可能包含许多函数，一个程序可能需要包含许多库来完成其工作。一个程序可能只使用每个库中可用的一个或两个函数，并且根据代码的运行时路径，可能使用一些函数而不用其他函数。
 - en: As we have seen, the process of dynamic linking is a fairly computationally
     intensive one, since it involves looking up and searching through many tables.
     Anything that can be done to reduce the overheads will increase performance.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如我们所见，动态链接的过程是一个相当计算密集型的过程，因为它涉及到查找和搜索许多表。任何可以减少开销的事情都会提高性能。
 - en: The Procedure Lookup Table (PLT) facilitates what is called *lazy binding* in
     programs. Binding is synonymous with the fix-up process described above for variables
     located in the GOT. When an entry has been "fixed-up" it is said to be "bound"
     to its real address.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 程序查找表（PLT）促进了程序中所谓的“惰性绑定”。绑定与上述GOT中变量定位的修复过程同义。当一个条目被“修复”后，它就被说成是“绑定”到其实际地址。
 - en: As we mentioned, sometimes a program will include a function from a library
     but never actually call that function, depending on user input. The process of
     binding this function is quite intensive, involving loading code, searching through
     tables and writing memory. To go through the process of binding a function that
     is not used is simply a waste of time.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如我们提到的，有时一个程序会从一个库中包含一个函数，但实际上从未调用过该函数，这取决于用户输入。绑定此函数的过程相当复杂，涉及到加载代码、搜索表和写入内存。通过绑定一个未使用的函数的过程纯粹是浪费时间。
 - en: Lazy binding defers this expense until the actual function is called by using
     a PLT.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 惰性绑定通过使用PLT将这种开销推迟到实际函数被调用时。
 - en: Each library function has an entry in the PLT, which initially points to some
     special dummy code. When the program calls the function, it actually calls the
     PLT entry (in the same was as variables are referenced through the GOT).
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个库函数在PLT中都有一个条目，最初指向一些特殊的虚拟代码。当程序调用函数时，它实际上调用PLT条目（就像变量通过GOT引用一样）。
 - en: This dummy function will load a few parameters that need to be passed to the
     dynamic linker for it to resolve the function and then call into a special lookup
     function of the dynamic linker. The dynamic linker finds the real address of the
     function, and writes that location into the calling binary over the top of the
     dummy function call.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个虚拟函数将加载一些需要传递给动态加载器的参数，以便它能够解析函数，然后调用动态加载器的特殊查找函数。动态加载器找到函数的真实地址，并将该位置写入调用二进制文件中虚拟函数调用的上方。
 - en: Thus, the next time the function is called the address can be loaded without
     having to go back into the dynamic loader again. If a function is never called,
     then the PLT entry will never be modified but there will be no runtime overhead.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，下次函数被调用时，可以加载地址而无需再次进入动态加载器。如果一个函数从未被调用，那么PLT条目将不会被修改，但不会有运行时开销。
 - en: 4.1.1 The PLT in action
+  id: totrans-103
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.1.1 PLT的实际应用
 - en: Things start to get a bit hairy here! If nothing else, you should begin to appreciate
     that there is a fair bit of work in resolving a dynamic symbol!
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里的事情开始变得有点复杂！至少，你应该开始欣赏解析动态符号所涉及的相当多的工作！
 - en: Let us consider the simple "hello World" application. This will only make one
     library call to `printf` to output the string to the user.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们考虑简单的“Hello World”应用程序。这个程序只会调用一次库中的`printf`函数，将字符串输出给用户。
 - en: '[PRE7]'
+  id: totrans-106
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: Example 4.1.1.1 Hello World PLT example
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 4.1.1.1 “Hello World” PLT 示例
 - en: We can see above that we have a `R_IA64_IPLTLSB` relocation for our `printf`
     symbol. This is saying "put the address of symbol printf into memory address 0x6000000000000f10".
     We have to start digging deeper to find the exact procedure that gets us the function.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们在上面可以看到，我们有一个针对`printf`符号的`R_IA64_IPLTLSB`重定位。这意味着“将符号printf的地址放入内存地址0x6000000000000f10”。我们必须深入挖掘以找到获取函数的确切过程。
 - en: Below we have a look at the disassembly of the `main()` function of the program.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面我们查看程序`main()`函数的汇编代码。
 - en: '[PRE8]'
+  id: totrans-110
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: Example 4.1.1.2 Hello world main()
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例4.1.1.2 Hello world main()
 - en: The call to 0x4000000000000520 must be us calling the `printf` function. We
     can find out where this is by looking at the sections with `readelf`.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 对0x4000000000000520的调用必须是我们调用`printf`函数。我们可以通过查看`readelf`的输出找到这个位置。
 - en: '[PRE9]'
+  id: totrans-113
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: Example 4.1.1.3 Hello world sections
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例4.1.1.3 Hello world部分
 - en: That address is (unsurprisingly) in the `.plt` section. So there we have our
     call into the PLT! But we're not satisfied with that, let's keep digging further
     to see what we can uncover. We disassemble the `.plt` section to see what that
     call actually does.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个地址（不出所料）在`.plt`部分。所以，我们在这里调用了PLT！但我们并不满足于此，让我们继续深入挖掘，看看我们能发现什么。我们反汇编`.plt`部分，看看这个调用实际上做了什么。
 - en: '[PRE10]'
+  id: totrans-116
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: Example 4.1.1.4 Hello world PLT
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例4.1.1.4 Hello world PLT
 - en: Let us step through the instructions. Firstly, we add 80 to the value in r1,
     storing it in r15\. We know from before that r1 will be pointing to the GOT, so
     this is saying "store in r15 80 bytes into the GOT". The next thing we do is load
     into r16 the value stored in this location in the GOT, and post increment the
     value in r15 by 8 bytes. We then store r1 (the location of the GOT) in r14 and
     set r1 to be the value in the next 8 bytes after r15\. Then we branch to r16.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们逐步执行指令。首先，我们将80加到`r1`中的值，将其存储在`r15`中。我们知道之前`r1`将指向GOT，所以这是说“在GOT中存储80个字节到`r15`”。接下来，我们将GOT中这个位置的值加载到`r16`中，并将`r15`中的值增加8个字节。然后我们将GOT的位置（`r1`）存储在`r14`中，并将`r1`设置为`r15`之后下一个8字节的值。然后我们跳转到`r16`。
 - en: In the previous chapter we discussed how functions are actually called through
     a function descriptor which contains the function address and the address of the
     global pointer. Here we can see that the PLT entry is first loading the function
     value, moving on 8 bytes to the second part of the function descriptor and then
     loading that value into the op register before calling the function.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上一章中，我们讨论了函数实际上是通过一个包含函数地址和全局指针地址的函数描述符来调用的。在这里，我们可以看到PLT条目首先加载函数值，然后移动8个字节到函数描述符的第二部分，然后将该值加载到操作寄存器中，最后调用函数。
 - en: But what exactly are we loading? We know that r1 will be pointing to the GOT.
     We go 80 bytes past the got (0x50)
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 但我们到底在加载什么呢？我们知道`r1`将指向GOT。我们在GOT之后走80个字节（0x50）。
 - en: '[PRE11]'
+  id: totrans-121
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: Example 4.1.1.5 Hello world GOT
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例4.1.1.5 Hello world GOT
 - en: 0x6000000000000ec0 + 0x50 = 0x6000000000000f10, or the `.IA_64.pltoff` section.
     Now we're starting to get somewhere!
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 0x6000000000000ec0 + 0x50 = 0x6000000000000f10，或者`.IA_64.pltoff`部分。现在我们开始有所进展了！
 - en: We can decode the objdump output so we can see exactly what is being loaded
     here. Swapping the byte order of the first 8 bytes `f0 04 00 00 00 00 00 40` we
     end up with `0x4000000000004f0`. Now that address looks familiar! Looking back
     up at the assemble output of the PLT we see that address.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以解码objdump的输出，这样我们就可以看到这里具体加载了什么。交换前8个字节`f0 04 00 00 00 00 00 40`的顺序，我们得到`0x4000000000004f0`。现在这个地址看起来很熟悉！回顾PLT的汇编输出，我们看到这个地址。
 - en: The code at `0x4000000000004f0` firstly puts a zero value into r15, and then
     branches back to `0x40000000000004c0`. Wait a minute! That's the start of our
     PLT section.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: '`0x4000000000004f0`地址处的代码首先将零值放入`r15`，然后跳转回`0x40000000000004c0`。等等！那是我们PLT部分的开始。'
 - en: We can trace this code through too. Firstly we save the value of the global
     pointer (`r2`) then we load three 8 byte values into `r16`, `r17` and finally,
     `r1`. We then branch to the address in `r17`. What we are seeing here is the actual
     call into the dynamic linker!
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们也可以跟踪这段代码。首先，我们保存全局指针（`r2`）的值，然后我们将三个8字节值加载到`r16`、`r17`和最后，`r1`。然后我们跳转到`r17`中的地址。我们在这里看到的是对动态链接器的实际调用！
 - en: We need to delve into the ABI to understand exactly what is being loaded at
     this point. The ABI says two things -- dynamically linked programs must have a
     special section (called the `DT_IA_64_PLT_RESERVE` section) that can hold three
     8 byte values. There is a pointer where this reserved area in the dynamic segment
     of the binary.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们需要深入研究ABI（应用程序二进制接口）来了解在这个点上具体加载了什么。ABI说明了两点——动态链接程序必须有一个特殊的部分（称为`DT_IA_64_PLT_RESERVE`部分），它可以存储三个8字节的值。在二进制的动态段中有一个指针指向这个预留区域。
 - en: '[PRE12]'
+  id: totrans-128
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: Example 4.1.1.6 Dynamic Segment
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例4.1.1.6 动态段
 - en: Do you notice anything about it? Its the same value as the GOT. This means that
     the first three 8 byte entries in the GOT are actually the reserved area; thus
     will always be pointed to by the global pointer.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 你注意到什么了吗？它的值与GOT相同。这意味着GOT中的前三个8字节条目实际上是预留区域；因此，它们总是由全局指针指向。
 - en: When the dynamic linker starts it is its duty to fill these values in. The ABI
     says that the first value will be filled in by the dynamic linker giving this
     *module* a unique ID. The second value is the global pointer value for the dynamic
     linker, and the third value is the address of the function that finds and fixes
     up the symbol.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 当动态链接器启动时，它的职责是填写这些值。ABI说第一个值将由动态链接器填写，给这个 *模块* 一个唯一的ID。第二个值是动态链接器的全局指针值，第三个值是找到并修复符号的函数的地址。
 - en: '[PRE13]'
+  id: totrans-132
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: Example 4.1.1.7 Code in the dynamic linker for setting up special values (from
     libc `sysdeps/ia64/dl-machine.h`)
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 4.1.1.7 动态链接器中设置特殊值的代码（来自 libc `sysdeps/ia64/dl-machine.h`）
 - en: We can see how this gets setup by the dynamic linker by looking at the function
     that does this for the binary. The `reserve` variable is set from the PLT_RESERVE
     section pointer in the binary. The unique value (put into `reserve[0]`) is the
@@ -624,95 +904,136 @@
     within `glibc` for shared objects. We then put in the address of `_dl_runtime_resolve`
     to the second value (assuming we are not using profiling). `reserve[2]` is finally
     set to gp, which has been found from r2 with the `__asm__` call.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以通过查看为二进制文件执行此操作的函数来了解这是如何由动态链接器设置的。`reserve` 变量是从二进制文件中的PLT_RESERVE部分指针设置的。唯一值（放入
+    `reserve[0]`）是此对象的*链接映射*的地址。链接映射是 `glibc` 内部对共享对象的内部表示。然后我们将 `_dl_runtime_resolve`
+    的地址放入第二个值（假设我们没有使用分析）。`reserve[2]` 最终被设置为 gp，这是通过 `__asm__` 调用从 r2 中找到的。
 - en: Looking back at the ABI, we see that the `relocation index` for the entry must
     be placed in `r15` and the unique identifier must be passed in `r16`.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 回顾一下ABI，我们看到入口点的重定位索引必须放在 `r15` 中，而唯一标识符必须通过 `r16` 传递。
 - en: '`r15` has previously been set in the stub code, before we jumped back to the
     start of the PLT. Have a look down the entries, and notice how each PLT entry
     loads `r15` with an incremented value? It should come as no surprise if you look
     at the relocations the `printf` relocation is number zero.'
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: '`r15` 在存根代码中之前已经被设置，在我们跳回到PLT的起始处之前。向下查看条目，注意每个PLT条目是如何将 `r15` 加载为一个递增值的？如果你查看重定位，`printf`
+    重定位是编号零，这应该不会让你感到惊讶。'
 - en: '`r16` we load up from the values that have been initialised by the dynamic
     linker, as previously discussed. Once that is ready, we can load the function
     address and global pointer and branch into the function.'
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: '`r16` 我们从动态链接器初始化的值中加载，正如之前所讨论的。一旦准备好，我们就可以加载函数地址和全局指针，并跳转到该函数。'
 - en: What happens at this point is the dynamic linker function `_dl_runtime_resolve`
     is run. It finds the relocation; remember how the relocation specified the name
     of the symbol? It uses this name to find the right function; this might involve
     loading the library from disk if it is not already in memory, or otherwise sharing
     the code.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这一点上发生的事情是动态链接器函数 `_dl_runtime_resolve` 被运行。它找到重定位；还记得重定位是如何指定符号名称的吗？它使用这个名称来找到正确的函数；这可能涉及到从磁盘加载库（如果它尚未在内存中），或者以其他方式共享代码。
 - en: The relocation record provides the dynamic linker with the address it needs
     to "fix up"; remember it was in the GOT and loaded by the initial PLT stub? This
     means that after the first time the function is called, the *second* time it is
     loaded it will get the direct address of the function; short circuiting the dynamic
     linker.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 重定位记录为动态链接器提供了它需要的“修复”地址；记得它是在GOT中，并且由初始PLT存根加载的吗？这意味着在函数第一次被调用后，第二次加载它将获得函数的直接地址；绕过动态链接器。
 - en: 4.1.2 Summary
+  id: totrans-140
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 4.1.2 概述
 - en: You've seen the *exact* mechanism behind the PLT, and consequently the inner
     workings of the dynamic linker. The important points to remember are
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 你已经看到了PLT背后的*确切*机制，以及动态链接器的内部工作原理。需要记住的重要点是
 - en: Library calls in your program actually call a stub of code in the PLT of the
     binary.
+  id: totrans-142
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 你的程序中的库调用实际上调用二进制PLT中的存根代码。
 - en: That stub code loads an address and jumps to it.
+  id: totrans-143
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 那个存根代码加载一个地址并跳转到它。
 - en: Initially, that address points to a function in the dynamic linker which is
     capable of looking up the "real" function, given the information in the relocation
     entry for that function.
+  id: totrans-144
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 初始时，该地址指向动态链接器中的一个函数，该函数能够根据该函数的重定位条目中的信息查找“真实”的函数。
 - en: The dynamic linker re-writes the address that the stub code reads, so that the
     next time the function is called it will go straight to the right address.
+  id: totrans-145
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 动态链接器重写存根代码读取的地址，这样下次调用该函数时，它将直接跳转到正确的地址。
 - en: </main>
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: 5 Working with libraries and the linker
+  id: totrans-148
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 5 与库和链接器一起工作
 - en: The presence of the dynamic linker provides both some advantages we can utilise
     and some extra issues that need to be resolved to get a functional system.
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态链接器的存在为我们提供了可以利用的一些优势，以及需要解决的一些额外问题，以获得一个功能性的系统。
 - en: 5.1 Library versions
+  id: totrans-150
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.1 库版本
 - en: One potential issue is different versions of libraries. With only static libraries
     there is much less potential for problems, as all library code is built directly
     into the binary of the application. If you want to use a new version of the library
     you need to recompile it into a new binary, replacing the old one.
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个潜在的问题是库的不同版本。只有静态库时，出现问题的可能性要小得多，因为所有库代码都是直接构建到应用程序的二进制文件中的。如果你想使用库的新版本，你需要将其重新编译到一个新的二进制文件中，替换旧的版本。
 - en: This is obviously fairly impractical for common libraries, the most common of
     course being libc which is included in most all applications. If it were only
     available as a static library any change would require every single application
     in the system be rebuilt.
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 这对于常见的库来说显然相当不实用，最常见的是当然包括在大多数应用程序中的 libc。如果它只能作为静态库提供，任何更改都需要系统中每个应用程序都重新构建。
 - en: However, changes in the way the dynamic library work could cause multiple problems.
     In the best case, the modifications are completely compatible and nothing externally
     visible is changed. On the other hand the changes might cause the application
@@ -722,39 +1043,55 @@
     nasty bug to try and track down; when an application crashes you can use a debugger
     to isolate where the error occurs whilst data corruption or modification may only
     show up in seemingly unrelated parts of the application.
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，动态库工作方式的变化可能会引起多个问题。在最好的情况下，修改是完全兼容的，并且没有外部可见的变化。另一方面，变化可能会导致应用程序崩溃；例如，如果一个函数曾经接受一个
+    `int`，现在改为接受一个 `int *`。更糟糕的是，新的库版本可能已经改变了语义，突然开始静默地返回不同的、可能是错误的价值。这可能会是一个非常棘手的错误，尝试追踪它；当应用程序崩溃时，你可以使用调试器来隔离错误发生的位置，而数据损坏或修改可能只会在应用程序看似无关的部分显示出来。
 - en: The dynamic linker requires a way to determine the version of libraries within
     the system so that newer revisions can be identified. There are a number of schemes
     a modern dynamic linker can use to find the right versions of libraries.
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 动态链接器需要一种方法来确定系统内库的版本，以便可以识别新修订版本。现代动态链接器可以使用多种方案来找到库的正确版本。
 - en: 5.1.1  `sonames`
+  id: totrans-155
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 5.1.1  `sonames`
 - en: Using `sonames` we can add some extra information to a library to help identify
     versions.
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用 `sonames` 我们可以向库中添加一些额外信息，以帮助识别版本。
 - en: As we have seen previously, an application lists the libraries it requires in
     `DT_NEEDED` fields in the dynamic section of the binary. The actual library is
     held in a file on disc, usually in `/lib` for core system libraries or `/usr/lib`
     for optional libraries.
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如我们之前所看到的，应用程序在二进制文件的动态部分中的 `DT_NEEDED` 字段中列出它所需的库。实际的库存储在磁盘上的一个文件中，通常在 `/lib`
+    中为内核系统库，或在 `/usr/lib` 中为可选库。
 - en: To allow multiple versions of the library to exist on disk, they obviously require
     differing file names. The `soname` scheme uses a combination of names and file
     system links to build a hierarchy of libraries.
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了允许库的多个版本存在于磁盘上，它们显然需要不同的文件名。`soname` 方案通过名称和文件系统链接的组合来构建库的层次结构。
 - en: This is done by introducing the concept of *major* and *minor* library revisions.
     A minor revision is one wholly backwards compatible with a previous version of
     the library; this usually consists of only bug fixes. A major revision is therefore
     any revision that is not compatible; e.g. changes the inputs to functions or the
     way a function behaves.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是通过引入 *主要* 和 *次要* 库修订的概念来实现的。一个次要修订是与库的先前版本完全向后兼容的；这通常只包括错误修复。因此，任何不兼容的修订都是主要修订；例如，更改函数的输入或函数的行为方式。
 - en: As each library revision, major or minor, will need to be kept in a separate
     file on disk, this forms the basis of the library hierarchy. The library name
     is by convention `libNAME.so.MAJOR.MINOR`You can optionally have a *release* as
@@ -763,35 +1100,47 @@
     linked against this file we would have the same issue as with a static library;
     every time a minor change happened we would need to rebuild the application to
     point to the new library.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于每个库版本（无论是主要版本还是次要版本）都需要在磁盘上单独保存到一个文件中，这构成了库层次结构的基础。按照惯例，库的名称是`libNAME.so.MAJOR.MINOR`。你可以选择在次要数字之后有一个*发布*作为最终的标识符。通常这足以区分所有不同的库版本。然而，如果每个应用程序都直接链接到这个文件，我们就会遇到与静态库相同的问题；每次发生次要更改时，我们都需要重新构建应用程序以指向新的库。
 - en: What we really want to refer to is the *major* number of the library. If this
     changes, we reasonably are required to recompile our application, since we need
     to make sure our program is still compatible with the new library.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们真正想要引用的是库的*主要*号。如果这个数字发生变化，我们合理地需要重新编译我们的应用程序，因为我们需要确保我们的程序仍然与新库兼容。
 - en: Thus the `soname` is the `libNAME.so.MAJOR`. The `soname` should be set in the
     `DT_SONAME` field of the dynamic section in a shared library; the library author
     can specify this version when they build the library.
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，`soname`是`libNAME.so.MAJOR`。`soname`应该在共享库的动态部分的`DT_SONAME`字段中设置；库作者可以在构建库时指定这个版本。
 - en: Thus each minor version library file on disc can specify the same major version
     number in its `DT_SONAME` field, allowing the dynamic linker to know that this
     particular library file implements a particular major revision of the library
     API and ABI.
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，磁盘上的每个次要版本库文件都可以在其`DT_SONAME`字段中指定相同的较大版本号，这样动态链接器就可以知道这个特定的库文件实现了库API和ABI的特定主要版本。
 - en: To keep track of this, an application called ldconfig is commonly run to create
     symbolic links named for the major version to the latest minor version on the
     system. ldconfig works by running through all the libraries that implement a particular
     major revision number, and then picks out the one with the highest minor revision.
     It then creates a symbolic link from `libNAME.so.MAJOR` to the actual library
     file on disc, i.e. `libNAME.so.MAJOR.MINOR`.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了跟踪这一点，通常会运行一个名为ldconfig的应用程序来创建指向系统上最新次要版本的以主要版本命名的符号链接。ldconfig通过遍历实现特定主要修订号的库，然后选择具有最高次要修订号的库。然后，它创建一个从`libNAME.so.MAJOR`到磁盘上实际库文件的符号链接，即`libNAME.so.MAJOR.MINOR`。
 - en: 'XXX : talk about libtool versions'
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 'XXX : 讨论libtool版本'
 - en: The final piece of the hierarchy is the *compile name* for the library. When
     you compile your program, to link against a library you use the `-lNAME` flag,
     which goes off searching for the `libNAME.so` file in the library search path.
@@ -803,38 +1152,52 @@
     possible that the latest library on the system may not be the one you wish to
     always compile against; for example if the latest installed library were a development
     version not appropriate for general use.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 层次结构的最后一部分是库的*编译名称*。当你编译程序时，要链接到库，你使用`-lNAME`标志，它会搜索库搜索路径中的`libNAME.so`文件。然而，请注意，我们没有指定任何版本号；我们只想链接到系统上的最新库。创建编译`libNAME.so`名称和系统上最新库代码之间的符号链接是库安装过程的责任。通常这由你的包管理系统（dpkg或rpm）处理。这不是一个自动化的过程，因为系统上最新的库可能不是你总是想编译的库；例如，如果最新安装的库是一个开发版本，不适合一般使用。
 - en: The general process is illustrated below.
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下图示了整个过程。
 - en: <picture>![Describing the soname system](libs.svg)</picture>Figure 5.1.1.1 
     `sonames`
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: <picture>![描述soname系统](libs.svg)</picture>图 5.1.1.1  `sonames`
 - en: 5.1.1.1 How the dynamic linker looks up libraries
+  id: totrans-169
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 5.1.1.1 动态链接器如何查找库
 - en: When the application starts, the dynamic linker looks at the `DT_NEEDED` field
     to find the required libraries. This field contains the `soname` of the library,
     so the next step is for the dynamic linker to walk through all the libraries in
     its search path looking for it.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 当应用程序启动时，动态链接器查看`DT_NEEDED`字段以找到所需的库。该字段包含库的`soname`，因此下一步是动态链接器遍历其搜索路径中的所有库以查找它。
 - en: This process conceptually involves two steps. Firstly the dynamic linker needs
     to search through all the libraries to find those that implement the given `soname`.
     Secondly the file names for the minor revisions need to be compared to find the
     latest version, which is then ready to be loaded.
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个过程在概念上涉及两个步骤。首先，动态链接器需要搜索所有库以找到实现给定`soname`的库。其次，需要比较次要版本的文件名以找到最新版本，然后就可以加载了。
 - en: We mentioned previously that there is a symbolic link setup by ldconfig between
     the library `soname` and the latest minor revision. Thus the dynamic linker should
     need to only follow that link to find the correct file to load, rather than having
     to open all possible libraries and decide which one to go with each time the application
     is required.
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们之前提到，ldconfig在库的`soname`和最新次要版本之间设置了一个符号链接。因此，动态链接器只需要跟随该链接来找到正确的文件进行加载，而不是每次应用程序需要时都要打开所有可能的库并决定使用哪一个。
 - en: Since file system access is so slow, ldconfig also creates a *cache* of libraries
     installed in the system. This cache is simply a list of `soname`s of libraries
     available to the dynamic linker and a pointer to the major version link on disk,
@@ -843,248 +1206,360 @@
     in the file `/etc/ldconfig.so.cache`. If the library is not found in the cache
     the dynamic linker will fall back to the slower option of walking the file system,
     thus it is important to re-run ldconfig when new libraries are installed.
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于文件系统访问非常慢，ldconfig还创建了一个系统上安装的库的*缓存*。这个缓存只是一个动态链接器可用的库的`soname`列表以及指向磁盘上主要版本链接的指针，从而节省了动态链接器读取整个目录的文件来定位正确链接的需要。您可以使用/sbin/ldconfig
+    -p来分析它；它实际上位于文件`/etc/ldconfig.so.cache`中。如果库未在缓存中找到，动态链接器将回退到较慢的选项，即遍历文件系统，因此当安装新库时重新运行ldconfig非常重要。
 - en: 5.2 Finding symbols
+  id: totrans-174
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 5.2 寻找符号
 - en: We've already discussed how the dynamic linker gets the address of a library
     function and puts it in the PLT for the program to use. But so far we haven't
     discussed just *how* the dynamic linker finds the address of the function. The
     whole process is called *binding*, because the symbol name is bound to the address
     it represents.
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经讨论了动态链接器如何获取库函数的地址并将其放入程序的PLT中。但到目前为止，我们还没有讨论动态链接器是如何找到函数地址的。整个过程被称为*绑定*，因为符号名称被绑定到它所代表的地址。
 - en: The dynamic linker has a few pieces of information; firstly the *symbol* that
     it is searching for, and secondly a list of libraries that that symbol might be
     in, as defined by the `DT_NEEDED` fields in the binary.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 符号表中的动态链接器有一些信息；首先，它正在搜索的*符号*，其次是一个符号可能存在的库列表，如二进制中的`DT_NEEDED`字段所定义的。
 - en: Each shared object library has a section, marked `SHT_DYNSYM` and called `.dynsym`
     which is the minimal set of symbols required for dynamic linking -- that is any
     symbol in the library that may be called by an external program.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个共享对象库都有一个标记为`SHT_DYNSYM`并称为`.dynsym`的部分，这是动态链接所需的最小符号集——也就是说，库中任何可能被外部程序调用的符号。
 - en: 5.2.1 Dynamic Symbol Table
+  id: totrans-178
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 5.2.1 动态符号表
 - en: In fact, there are three sections that all play a part in describing the dynamic
     symbols. Firstly, let us look at the definition of a symbol from the ELF specification
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上，有三个部分都参与了描述动态符号。首先，让我们看看ELF规范中对符号的定义
 - en: '[PRE14]'
+  id: totrans-180
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: Example 5.2.1.1 Symbol definition from ELFTable 5.2.1.1 ELF symbol fields
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例5.2.1.1 从ELF符号表中定义符号
 - en: '| Field | Value |'
+  id: totrans-182
   prefs: []
   type: TYPE_TB
+  zh: '| 字段 | 值 |'
 - en: '| --- | --- |'
+  id: totrans-183
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| `st_name` | An *index to the string table* |'
+  id: totrans-184
   prefs: []
   type: TYPE_TB
+  zh: '| `st_name` | 字符串表的*索引* |'
 - en: '| `st_value` | Value - in a relocatable shared object this holds the offset
     from the section of index given in `st_shndx` |'
+  id: totrans-185
   prefs: []
   type: TYPE_TB
+  zh: '| `st_value` | 值 - 在可重定位的共享对象中，这包含从`st_shndx`中给出的索引部分的偏移量 |'
 - en: '| `st_size` | Any associated size of the symbol |'
+  id: totrans-186
   prefs: []
   type: TYPE_TB
+  zh: '| `st_size` | 符号相关的任何大小 |'
 - en: '| `st_info` | Information on the binding of the symbol (described below) and
     what type of symbol this is (a function, object, etc). |'
+  id: totrans-187
   prefs: []
   type: TYPE_TB
+  zh: '| `st_info` | 符号绑定信息（如下所述）以及此符号的类型（函数、对象等）|'
 - en: '| `st_other` | Not currently used |'
+  id: totrans-188
   prefs: []
   type: TYPE_TB
+  zh: '| `st_other` | 目前未使用 |'
 - en: '| `st_shndx` | Index of the section this symbol resides in (see `st_value`
     |'
+  id: totrans-189
   prefs: []
   type: TYPE_TB
+  zh: '| `st_shndx` | 符号所在的节索引（见 `st_value` |'
 - en: As you can see, the actual string of the symbol name is held in a separate section
     (`.dynstr`; the entry in the `.dynsym` section only holds an index into the string
     section. This creates some level of overhead for the dynamic linker; the dynamic
     linker must read all of the symbol entries in the `.dynsym` section and then follow
     the index pointer to find the symbol name for comparison.
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 如您所见，符号名称的实际字符串保存在一个单独的节（`.dynstr`；`.dynsym` 节中的条目仅包含字符串节的索引。这为动态链接器创建了一些开销；动态链接器必须读取
+    `.dynsym` 节中的所有符号条目，然后跟随索引指针找到用于比较的符号名称。
 - en: To speed this process up, a third section called `.hash` is introduced, containing
     a *hash table* of symbol names to symbol table entries. This hash table is pre-computed
     when the library is built and allows the dynamic linker to find the symbol entry
     much faster, generally with only one or two lookups.
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了加快这个过程，引入了一个名为 `.hash` 的第三部分，其中包含符号名称到符号表条目的哈希表。这个哈希表在库构建时预先计算，使得动态链接器能够更快地找到符号条目，通常只需要一两次查找。
 - en: 5.2.2 Symbol Binding
+  id: totrans-192
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 5.2.2 符号绑定
 - en: Whilst we usually say the process of finding the address of a symbol refers
     is the process of binding that symbol, the *symbol binding* has a separate meaning.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然我们通常说查找符号地址的过程是绑定该符号的过程，但 *符号绑定* 有一个不同的含义。
 - en: The binding of a symbol dictates its external visibility during the dynamic
     linking process. A *local* symbol is not visible outside the object file it is
     defined in. A *global* symbol is visible to other object files, and can satisfy
     undefined references in other objects.
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: 符号的绑定决定了它在动态链接过程中的外部可见性。一个 *局部* 符号在其定义的对象文件之外是不可见的。一个 *全局* 符号对其他对象文件可见，并且可以满足其他对象中的未定义引用。
 - en: A *weak* reference is a special type of lower priority global reference. This
     means it is designed to be overridden, as we will see shortly.
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个 *弱引用* 是一种特殊类型的低优先级全局引用。这意味着它被设计为可以被覆盖，正如我们很快就会看到的。
 - en: Below we have an example C program which we analyse to inspect the symbol bindings.
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面我们有一个示例 C 程序，我们分析它以检查符号绑定。
 - en: '[PRE15]'
+  id: totrans-197
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: Example 5.2.2.1 Examples of symbol bindings
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 5.2.2.1 示例 5.2.2.1 符号绑定示例
 - en: Notice the use of `#pragma` to define the weak symbol. A `pragma` is a way of
     communicating extra information to the compiler; its use is not common but occasionally
     is required to get the compiler to do out of the ordinary operations.x
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意使用 `#pragma` 来定义弱符号。`pragma` 是向编译器传达额外信息的一种方式；它的使用并不常见，但有时是必需的，以便让编译器执行非标准操作。
 - en: We inspect the symbols with two different tools; in both cases the binding is
     shown in the second column; the codes should be quite straight forward (are are
     documented in the tools man page).
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们使用两种不同的工具检查符号；在两种情况下，绑定都显示在第二列；代码应该是相当直接的（在工具的手册页中有文档）。
 - en: 5.2.2.1 Overriding symbols
+  id: totrans-201
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 5.2.2.1 覆盖符号
 - en: It is often very useful for a programmer to be able to *override* a symbol in
     a library; that is to subvert the normal symbol with a different definition.
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于程序员来说，能够覆盖库中的符号通常非常有用；也就是说，用不同的定义来颠覆正常的符号。
 - en: We mentioned that the order that libraries is searched is given by the order
     of the `DT_NEEDED` fields within the library. However, it is possible to insert
     libraries as the *last* libraries to be searched; this means that any symbols
     within them will be found as the final reference.
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们提到库的搜索顺序由库中 `DT_NEEDED` 字段的顺序给出。然而，可以将库作为最后搜索的库插入；这意味着它们中的任何符号都将作为最终引用找到。
 - en: This is done via an environment variable called `LD_PRELOAD` which specifies
     libraries that the linker should load last.
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: 这通过一个名为 `LD_PRELOAD` 的环境变量来完成，该变量指定了链接器应该最后加载的库。
 - en: '[PRE16]'
+  id: totrans-205
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: Example 5.2.2.1.1 Example of `LD_PRELOAD`
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 5.2.2.1.1 示例 5.2.2.1.1 `LD_PRELOAD` 示例
 - en: In the above example we override the `getpid` function to print out a small
     statement when it is called. We use the `dlysm` function provided by `libc` with
     an argument telling it to continue on and find the *next* symbol called `getpid`.
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上面的例子中，我们覆盖了 `getpid` 函数，以便在调用时打印出一个小声明。我们使用 `libc` 提供的 `dlysm` 函数，并通过一个参数告诉它继续查找下一个名为
+    `getpid` 的符号。
 - en: 5.2.2.1.1 Weak symbols over time
+  id: totrans-208
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 5.2.2.1.1 随时间变化的弱符号
 - en: The concept of the *weak* symbol is that the symbol is marked as a lower priority
     and can be overridden by another symbol. Only if no other implementation is found
     will the weak symbol be the one that it used.
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: '*弱* 符号的概念是，符号被标记为低优先级，可以被另一个符号覆盖。只有在没有找到其他实现时，弱符号才会被使用。'
 - en: The logical extension of this for the dynamic loader is that all libraries should
     be loaded, and any weak symbols in those libraries should be ignored for normal
     symbols in any other library. This was indeed how weak symbol handling was originally
     implemented in Linux by glibc.
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于动态加载器来说，这一逻辑的扩展是所有库都应该被加载，并且那些库中的任何弱符号都应该被忽略，以便处理任何其他库中的正常符号。这确实是 Linux 上
+    glibc 最初实现弱符号处理的方式。
 - en: However, this was actually incorrect to the letter of the Unix standard at the
     time (*SysVr4*). The standard actually dictates that weak symbols should only
     be handled by the *static* linker; they should remain irrelevant to the dynamic
     linker (see the section on binding order below).
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，这实际上与当时 Unix 标准的字面意思不符 (*SysVr4*)。标准实际上规定，弱符号应由 *静态* 链接器处理；它们应该与动态链接器无关（参见下面的绑定顺序部分）。
 - en: At the time, the Linux implementation of making the dynamic linker override
     weak symbols matched with SGI's IRIX platform, but differed to others such as
     Solaris and AIX. When the developers realised this behaviour violated the standard
     it was reversed, and the old behaviour relegated to requiring a special environment
     flag (*LD_DYNAMIC_WEAK*) be set.
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: 当时，Linux 实现动态链接器覆盖弱符号与 SGI 的 IRIX 平台相匹配，但与其他平台如 Solaris 和 AIX 不同。当开发者意识到这种行为违反了标准时，它被逆转了，旧的行为被降级为需要设置特殊的环境标志
+    (*LD_DYNAMIC_WEAK*)。
 - en: 5.2.2.2 Specifying binding order
+  id: totrans-213
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 5.2.2.2 指定绑定顺序
 - en: We have seen how we can override a function in another library by *preloading*
     another shared library with the same symbol defined. The symbol that gets resolved
     as the final one is the last one in the order that the dynamic loader loads the
     libraries.
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经看到，我们可以通过 *预加载* 另一个具有相同符号定义的共享库来覆盖另一个库中的函数。最终解析的符号是动态加载器加载库的顺序中的最后一个。
 - en: Libraries are loaded in the order they are specified in the `DT_NEEDED` flag
     of the binary. This in turn is decided from the order that libraries are passed
     in on the command line when the object is built. When symbols are to be located,
     the dynamic linker starts at the last loaded library and works backwards until
     the symbol is found.
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: 库的加载顺序是它们在二进制文件的 `DT_NEEDED` 标志中指定的顺序。这反过来又是由构建对象时在命令行上传递的库的顺序决定的。当要定位符号时，动态链接器从最后加载的库开始，反向工作，直到找到符号。
 - en: Some shared libraries, however, need a way to override this behaviour. They
     need to say to the dynamic linker "look first inside me for these symbols, rather
     than working backwards from the last loaded library". Libraries can set the `DT_SYMBOLIC`
     flag in their dynamic section header to get this behaviour (this is usually set
     by passing the `-Bsymbolic` flag on the static linkers command line when building
     the shared library).
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，一些共享库需要一种方法来覆盖这种行为。它们需要告诉动态链接器“首先在我内部查找这些符号，而不是从最后加载的库反向工作”。库可以通过在它们的动态节标题中设置
+    `DT_SYMBOLIC` 标志来获得这种行为（这通常是通过在构建共享库时在静态链接器命令行上传递 `-Bsymbolic` 标志来设置的）。
 - en: What this flag is doing is controlling *symbol visibility*. The symbols in the
     library can not be overridden so could be considered private to the library that
     is being loaded.
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个标志的作用是控制 *符号可见性*。库中的符号不能被覆盖，因此可以被认为是加载的库的私有符号。
 - en: However, this loses a lot of granularity since the library is either flagged
     for this behaviour, or it is not. A better system would allow us to make some
     symbols private and some symbols public.
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，这失去了很多粒度，因为库要么被标记为这种行为，要么没有被标记。一个更好的系统会允许我们使一些符号私有，而使一些符号公共。
 - en: 5.2.2.3 Symbol Versioning
+  id: totrans-219
   prefs:
   - PREF_H5
   type: TYPE_NORMAL
+  zh: 5.2.2.3 符号版本化
 - en: That better system comes from symbol versioning. With symbol versioning we specify
     some extra input to the static linker to give it some more information about the
     symbols in our shared library.
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: 更好的系统来自符号版本化。通过符号版本化，我们向静态链接器提供一些额外的输入，以便它对我们的共享库中的符号有更多的信息。
 - en: '[PRE17]'
+  id: totrans-221
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: Example 5.2.2.3.1 Example of symbol versioning
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: 示例 5.2.2.3.1 符号版本化的示例
 - en: In the simplest case as above, we simply state if the symbol is *global* or
     *local*. Thus in the case above the `foo` function is most likely a support function
     for `test_foo`; whilst we are happy for the overall functionality of the `test_foo`
     function to be overridden, if we do use the shared library version it needs to
     have unaltered access nobody should modify the support function.
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: 在最简单的情况下，如上所述，我们只需声明符号是*全局*还是*局部*。因此，在上面的例子中，`foo`函数很可能是`test_foo`的支持函数；虽然我们很高兴让`test_foo`函数的整体功能被覆盖，但如果我们确实使用了共享库版本，它需要保持未更改的访问权限，任何人都不能修改支持函数。
 - en: This allows us to keep our *namespace* better organised. Many libraries might
     want to implement something that could be named like a common function like `read`
     or `write`; however if they all did the actual version given to the program might
     be completely wrong. By specifying symbols as *local* only the developer can be
     sure that nothing will conflict with that internal name, and conversely the name
     he chose will not influence any other program.
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: 这使我们能够更好地组织我们的*命名空间*。许多库可能想要实现一些可能被命名为像`read`或`write`这样的通用函数；然而，如果它们都这样做，程序实际接收到的版本可能完全错误。通过将符号指定为*局部*的，开发者可以确保没有任何东西会与那个内部名称冲突，反之亦然，他选择的名称不会影响任何其他程序。
 - en: An extension of this scheme is *symbol versioning*. With this you can specify
     multiple versions of the same symbol in the same library. The static linker appends
     some version information after the symbol name (something like `@VER`) describing
     what version the symbol is given.
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 此方案的一个扩展是*符号版本化*。使用它，你可以在同一库中指定同一符号的多个版本。静态链接器在符号名称后附加一些版本信息（例如`@VER`），描述符号的版本。
 - en: 'If the developer implements a function that has the same name but possibly
     a binary or programatically different implementation he can increase the version
     number. When new applications are built against the shared library, they will
@@ -1092,96 +1567,156 @@
     earlier versions of the same library will be requesting older versions (e.g. will
     have older `@VER` strings in the symbol name they request) and thus get the original
     implementation. XXX : example'
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果开发者实现了一个具有相同名称但可能二进制或程序上不同的实现的功能，他可以增加版本号。当构建针对共享库的新应用程序时，它们将获取符号的最新版本。然而，针对同一库的早期版本构建的应用程序将请求旧版本（例如，它们请求的符号名称中将包含旧的`@VER`字符串）并因此获取原始实现。XXX：示例
 - en: </main>
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
 - en: <main class="calibre3">
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: <main class="calibre3">
 - en: Glossary
+  id: totrans-229
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 术语表
 - en: A
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: A
 - en: Application Binary Interface
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 应用程序二进制接口
 - en: A technical description of how the operating system should interface with hardware.
+  id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: 操作系统应该如何与硬件接口的技术描述。
 - en: See Also [Application Programming Interface](#API).
+  id: totrans-233
   prefs: []
   type: TYPE_NORMAL
+  zh: 参见 [应用程序编程接口](#API)。
 - en: Application Programming Interface
+  id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: 应用程序编程接口
 - en: The set of variables and functions used to communicate between different parts
     of programs.
+  id: totrans-235
   prefs: []
   type: TYPE_NORMAL
+  zh: 用于在程序的不同部分之间通信的变量和函数集。
 - en: See Also [Application Binary Interface](#ABI).
+  id: totrans-236
   prefs: []
   type: TYPE_NORMAL
+  zh: 参见 [应用程序二进制接口](#ABI)。
 - en: E
+  id: totrans-237
   prefs: []
   type: TYPE_NORMAL
+  zh: E
 - en: Extensible Markup Language
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: 可扩展标记语言
 - en: Some reasonable definition here.
+  id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里有一些合理的定义。
 - en: See Also [Standardised Generalised Markup Language](#sgml).
+  id: totrans-240
   prefs: []
   type: TYPE_NORMAL
+  zh: 参见 [标准化通用标记语言](#sgml)。
 - en: Standardised Generalised Markup Language
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: 标准化通用标记语言
 - en: The grand daddy of all documents
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有文档的鼻祖
 - en: See Also [Extensible Markup Language](#xml).
+  id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: 参见 [可扩展标记语言](#xml)。
 - en: M
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: M
 - en: MMU
+  id: totrans-245
   prefs: []
   type: TYPE_NORMAL
+  zh: MMU
 - en: The *memory managment unit* component of the hardware architecture.
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 硬件架构中的*内存管理单元*组件。
 - en: Mutually Exclusive
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: 互斥
 - en: When a number of things are mutually exclusive, only one can be valid at a time.
     The fact that one of the things is valid makes the others invalid.
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: 当许多事物互斥时，一次只能有一个有效。其中一件事情的有效性使得其他事情无效。
 - en: O
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: O
 - en: Open Source
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: 开源
 - en: Software distributed in source form under licenses guaranteeing anybody rights
     to freely use, modify, and redistribute the code.
+  id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: 在保证任何人都可以自由使用、修改和重新分发代码的许可证下分发的软件。
 - en: S
+  id: totrans-252
   prefs: []
   type: TYPE_NORMAL
+  zh: S
 - en: Shell
+  id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: Shell
 - en: The interface used to interact with the operating system.
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: 用于与操作系统交互的接口。
 - en: </main>
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: </main>
