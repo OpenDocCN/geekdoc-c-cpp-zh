@@ -1,0 +1,369 @@
+<html><head></head><body>
+<main class="calibre3">
+<div id="chapter00" class="author">
+<header class="calibre6">
+<h2 id="calibre_toc_2" class="calibre7"><span class="first-last">Chapter<span class="first-last"> </span></span><span class="first-last">1<span class="first-last">. </span></span>General Unix and Advanced C</h2></header></div></main>
+
+<main class="calibre3">
+<div id="chapter00" class="author">
+<section id="everything_is_a_file"><header class="calibre8"><h2 class="calibre7" id="calibre_pb_5"><span class="first-last">1<span class="first-last"> </span></span>
+        <em class="calibre9">Everything is a file!</em>
+      </h2></header><p class="releaseinfo">An often-quoted tenet of UNIX-like systems such as Linux or
+    BSD is <em class="calibre5">everything is a file</em>.</p><p class="releaseinfo">Imagine a file in the context of something familiar like a
+    word processor.  There are two fundamental operations we could use
+    on this imaginary word processing file:</p><ol class="orderedlist"><li class="calibre11"><p class="releaseinfo">Read it (existing saved data from the word processor).</p></li><li class="calibre11"><p class="releaseinfo">Write to it (new data from the user).</p></li></ol><p class="releaseinfo">Consider some of the common things attached to a computer
+    and how they relate to our fundamental file operations:</p><ol class="orderedlist"><li class="calibre11"><p class="releaseinfo">The screen</p></li><li class="calibre11"><p class="releaseinfo">The keyboard</p></li><li class="calibre11"><p class="releaseinfo">A printer</p></li><li class="calibre11"><p class="releaseinfo">A CD-ROM</p></li></ol><p class="releaseinfo">The screen and printer are both like a write-only file, but
+    instead of being stored as bits on a disk the information is
+    displayed as dots on a screen or lines on a page. The keyboard is
+    like a read only file, with the data coming from keystrokes
+    provided by the user.  The CD-ROM is similar, but rather than
+    randomly coming from the user the data is stored directly on the
+    disk.</p><p class="releaseinfo">Thus the concept of a file is a good
+    <em class="calibre5">abstraction</em> of either a sink for, or source
+    of, data.  As such it is an excellent abstraction of all the
+    devices one might attach to the computer.  This realisation is the
+    great power of UNIX and is evident across the design of the entire
+    platform.  It is one of the fundamental roles of the operating
+    system to provide this abstraction of the hardware to the
+    programmer.</p><p class="releaseinfo">It is probably not too much of a stretch to say abstraction
+    is <em class="calibre5">the</em> primary concept that underpins all
+    modern computing.  No one person can understand everything from
+    designing a modern user-interface to the internal workings of a
+    modern CPU, much less build it all themselves.  To programmers,
+    abstractions are the common language that allows us to collaborate
+    and invent.</p><p class="releaseinfo">Learning to navigate across abstractions gives one greater
+      insight into how to <em class="calibre5">use</em> the abstractions in
+      the best and most innovative ways.  In this book, we are
+      concerned with abstractions at the lowest layers; between
+      applications and the operating system and the operating system
+      and hardware.  Many more layers lie above this, each worthy of
+      their own books.  As these chapters progress, you will hopefully
+      gain some insight into the abstractions presented by a modern
+      operating system.</p><div id="everything_is_a_file_fig1" class="figure"><div class="author" summary="Can you spot the difference between a CD-ROM and a keyboard? As an application programmer, you should not be able to."><div class="media"><picture><img src="abstraction.svg" alt="Can you spot the difference between a CD-ROM and a keyboard? As an application programmer, you should not be able to." class="calibre12"/></picture></div></div><header class="calibre8"><div class="title"><span>Figure<span> </span></span><span>1<span>.</span>1<span> </span></span>Abstraction</div></header></div></section></div></main>
+
+<main class="calibre3">
+<div id="chapter00" class="author">
+<section id="abstration"><header class="calibre8"><h2 class="calibre7" id="calibre_pb_6"><span class="first-last">2<span class="first-last"> </span></span>Implementing abstraction</h2></header><p class="releaseinfo">In general, abstraction is implemented by what is
+    generically termed an <em class="calibre5">Application Programming
+    Interface</em> (API).  API is a somewhat nebulous term that
+    means different things in the context of various programming
+    endeavours.  Fundamentally, a programmer designs a set of
+    functions and documents their interface and functionality with the
+    principle that the actual implementation providing the API is
+    opaque.</p><p class="releaseinfo">For example, many large web applications provide an API
+    accessible via HTTP.  Accessing data via this method surely
+    triggers many complicated series of remote procedure calls,
+    database queries and data transfers, all of which are opaque to
+    the end user who simply receives the contracted data.</p><p class="releaseinfo">Those familiar with <em class="calibre5">object-oriented</em>
+      languages such as Java, Python or C++ would be familiar with the
+      abstraction provided by <em class="calibre5">classes</em>.  Methods
+      provide the interface to the class, but abstract the
+      implementation.</p><section id="abstration_s1"><header class="calibre8"><h3 class="calibre2"><span class="first-last">2<span class="first-last">.</span>1<span class="first-last"> </span></span>Implementing abstraction with C</h3></header><p class="releaseinfo">A common method used in the Linux kernel and other large C
+      code bases, which lack a built-in concept of object-orientation,
+      is <em class="calibre5">function pointers</em>.  Learning to read
+      this idiom is key to navigating most large C code bases.  By
+      understanding how to read the abstractions provided within the
+      code an understanding of internal API designs can be
+      built.</p><div id="abstraction-code" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="41"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;stdio.h&gt;</code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">/* The API to implement */</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">struct greet_api</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	int (*say_hello)(char *name);</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	int (*say_goodbye)(void);</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">};</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">/* Our implementation of the hello function */</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int say_hello_fn(char *name)</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	printf("Hello %s\n", name);</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	return 0;</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">/* Our implementation of the goodbye function */</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int say_goodbye_fn(void)</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	printf("Goodbye\n");</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	return 0;</code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">/* A struct implementing the API */</code></span></span>
+<span class="line" db-line="25"><span class="ln">25 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">struct greet_api greet_api =</code></span></span>
+<span class="line" db-line="26"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="27"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	.say_hello = say_hello_fn,</code></span></span>
+<span class="line" db-line="28"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	.say_goodbye = say_goodbye_fn</code></span></span>
+<span class="line" db-line="29"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">};</code></span></span>
+<span class="line" db-line="30"><span class="ln">30 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="31"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">/* main() doesn't need to know anything about how the</code></span></span>
+<span class="line" db-line="32"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> * say_hello/goodbye works, it just knows that it does */</code></span></span>
+<span class="line" db-line="33"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int main(int argc, char *argv[])</code></span></span>
+<span class="line" db-line="34"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="35"><span class="ln">35 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	greet_api.say_hello(argv[1]);</code></span></span>
+<span class="line" db-line="36"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	greet_api.say_goodbye();</code></span></span>
+<span class="line" db-line="37"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="38"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	printf("%p, %p, %p\n", greet_api.say_hello, say_hello_fn, &amp;say_hello_fn);</code></span></span>
+<span class="line" db-line="39"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="40"><span class="ln">40 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">	exit(0);</code></span></span>
+<span class="line" db-line="41"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>2<span>.</span>1<span>.</span>1<span> </span></span>Abstraction with function pointers</div></header></div><p class="releaseinfo">Code such as the above is the simplest example of
+      constructs used repeatedly throughout the Linux Kernel and other
+      C programs.  Let's have a look at some specific elements.</p><p class="releaseinfo">We start out with a structure that defines the API
+      (<code class="computeroutput1">struct greet_api</code>).  The
+      functions whose names are encased in parentheses with a pointer
+      marker describe a <em class="calibre5">function
+      pointer</em><span id="abstration_s1_para3_footnote1-fnote">Often you will see that the
+      names of the parameters are omitted, and only the type of the
+      parameter is specified.  This allows the implementer to specify
+      their own parameter names avoiding warnings from the
+      compiler.</span>.  The function pointer describes the
+      <em class="calibre5">prototype</em> of the function it must point to;
+      pointing it at a function without the correct return type or
+      parameters will generate a compiler warning at least; if left in
+      code will likely lead to incorrect operation or crashes.</p><p class="releaseinfo">We then have our implementation of the API.  Often for
+      more complex functionality you will see an idiom where API
+      implementation functions will only be a wrapper around other
+      functions that are conventionally prepended with one or or two
+      underscores<span id="abstration_s1_para4_footnote1-fnote">A double-underscore function
+      <code class="computeroutput1">__foo</code> may conversationally be
+      referred to as "dunder foo".</span>
+      (i.e. <code class="computeroutput1">say_hello_fn()</code> would call
+      another function
+      <code class="computeroutput1">_say_hello_function()</code>).  This
+      has several uses; generally it relates to having simpler and
+      smaller parts of the API (marshalling or checking arguments, for
+      example) separate from more complex implementation, which often
+      eases the path to significant changes in the internal workings
+      whilst ensuring the API remains constant.  Our implementation is
+      very simple, however, and doesn't even need its own support
+      functions.  In various projects, single-, double- or even
+      triple-underscore function prefixes will mean different things,
+      but universally it is a visual warning that the function is not
+      supposed to be called directly from "beyond" the API.</p><p class="releaseinfo">Second to last, we fill out the function pointers in
+      <code class="computeroutput1">struct greet_api greet_api</code>.
+      The name of the function is a pointer; therefore there is no
+      need to take the address of the function
+      (i.e. <code class="computeroutput1">&amp;say_hello_fn</code>).</p><p class="releaseinfo">Finally we can call the API functions through the
+    structure in <code class="computeroutput1">main</code>.</p><p class="releaseinfo">You will see this idiom constantly when navigating the
+        source code.  The tiny example below is taken from
+        <code class="computeroutput1">include/linux/virtio.h</code> in the
+        Linux kernel source to illustrate:</p><div id="virtio-abstraction" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="25"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">/**</code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> * virtio_driver - operations for a virtio I/O driver</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> * @driver: underlying device driver (populate name and owner).</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> * @id_table: the ids serviced by this driver.</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> * @feature_table: an array of feature numbers supported by this driver.</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> * @feature_table_size: number of entries in the feature table array.</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> * @probe: the function to call when a device is found.  Returns 0 or -errno.</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> * @remove: the function to call when a device is removed.</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> * @config_changed: optional function to call when the device configuration</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> *    changes; may be called in interrupt context.</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> */</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">struct virtio_driver {</code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        struct device_driver driver;</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        const struct virtio_device_id *id_table;</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        const unsigned int *feature_table;</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        unsigned int feature_table_size;</code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        int (*probe)(struct virtio_device *dev);</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        void (*scan)(struct virtio_device *dev);</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        void (*remove)(struct virtio_device *dev);</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        void (*config_changed)(struct virtio_device *dev);</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#ifdef CONFIG_PM</code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        int (*freeze)(struct virtio_device *dev);</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        int (*restore)(struct virtio_device *dev);</code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#endif</code></span></span>
+<span class="line" db-line="25"><span class="ln">25 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">};</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>2<span>.</span>1<span>.</span>2<span> </span></span>Abstraction in
+	<code class="computeroutput1">include/linux/virtio.h</code></div></header></div><p class="releaseinfo"> It's only necessary to vaguely understand that this
+      structure is a description of a virtual I/O device.  We can see
+      the user of this API (the device driver author) is expected to
+      provide a number of functions that will be called under various
+      conditions during system operation (when probing for new
+      hardware, when hardware is removed, etc.).  It also contains a
+      range of data; structures which should be filled with relevant
+      data.</p><p class="releaseinfo">Starting with descriptors like this is usually the easiest
+      way to begin understanding the various layers of kernel
+      code.</p></section><section id="abstration_s2"><header class="calibre8"><h3 class="calibre2"><span class="first-last">2<span class="first-last">.</span>2<span class="first-last"> </span></span>Libraries</h3></header><p class="releaseinfo">Libraries have two roles which illustrate
+	abstraction.</p><ul class="itemizedlist"><li class="calibre11"><p class="releaseinfo">Allow programmers to reuse commonly accessed code.</p></li><li class="calibre11"><p class="releaseinfo">Act as a <em class="calibre5">black box</em> implementing
+	    functionality for the programmer.</p></li></ul><p class="releaseinfo">For example, a library implementing access to the raw data
+      in JPEG files has both the advantage that the many programs that
+      wish to access image files can all use the same library and the
+      programmers building these programs do not need to worry about
+      the exact details of the JPEG file format, but can concentrate
+      their efforts on what their program wants to do with the
+      image.</p><p class="releaseinfo">The standard library of a UNIX platform is generically
+        referred to as <code class="computeroutput1">libc</code>.  It
+        provides the basic interface to the system: fundamental calls
+        such as <code class="computeroutput1">read()</code>,
+        <code class="computeroutput1">write()</code> and
+        <code class="computeroutput1">printf()</code>.  This API is
+        described in its entirety by a specification called
+        <code class="computeroutput1">POSIX</code>.  It is freely
+        available online and describes the many calls that make up the
+        standard UNIX API.</p><p class="releaseinfo">Most UNIX platforms broadly follow the POSIX standard,
+        though often differ in small but sometimes important ways
+        (hence the complexity of the various GNU autotools, which
+        often try to abstract away these differences for you).  Linux
+        has many interfaces that are not specified by POSIX; writing
+        applications that use them exclusively will make your
+        application less portable.</p><p class="releaseinfo">Libraries are a fundamental abstraction with many
+        details.  Later chapters will describe how libraries work in
+        much greater detail.</p></section></section></div></main>
+
+<main class="calibre3">
+<div id="chapter00" class="author">
+<section id="file_descriptors"><header class="calibre8"><h2 class="calibre7" id="calibre_pb_7"><span class="first-last">3<span class="first-last"> </span></span>File Descriptors</h2></header><p class="releaseinfo">One of the first things a UNIX programmer learns is that
+    every running program starts with three files already
+    opened:</p><figure id="file_descriptors_tab1"><header class="calibre8"><div class="title"><span>Table<span> </span></span><span>3<span>.</span>1<span> </span></span>Standard Files Provided by Unix</div></header><table class="calibre14"><thead class="calibre15"><tr class="calibre16"><th class="calibre17">Descriptive Name</th><th class="calibre17">Short Name</th><th class="calibre17">File Number</th><th class="calibre17">Description</th></tr></thead><tbody class="calibre18"><tr class="calibre16"><td class="calibre19">Standard In</td><td class="calibre19">stdin</td><td class="calibre19">0</td><td class="calibre19">Input from the keyboard</td></tr><tr class="calibre16"><td class="calibre19">Standard Out</td><td class="calibre19">stdout</td><td class="calibre19">1</td><td class="calibre19">Output to the console</td></tr><tr class="calibre16"><td class="calibre19">Standard Error</td><td class="calibre19">stderr</td><td class="calibre19">2</td><td class="calibre19">Error output to the console</td></tr></tbody></table></figure><div id="file_descriptors_fig1" class="figure"><div class="author" summary="The standard files opened with any UNIX program."><div class="media"><picture><img src="stdfds.svg" alt="The standard files opened with any UNIX program." class="calibre12"/></picture></div></div><header class="calibre8"><div class="title"><span>Figure<span> </span></span><span>3<span>.</span>1<span> </span></span>Default Unix Files</div></header></div><p class="releaseinfo">This raises the question of what an <em class="calibre5">open
+    file</em> represents.  The value returned by an
+    <code class="computeroutput1">open</code> call is termed a
+    <em class="calibre5">file descriptor</em> and is essentially an index
+    into an array of open files kept by the kernel.</p><div id="fd_abstraction" class="figure"><div class="author" summary="File descriptors associate the abstraction provided by device drivers with a file interface provided to a user."><div class="media"><picture><img src="file-descriptors.svg" alt="File descriptors associate the abstraction provided by device drivers with a file interface provided to a user." class="calibre12"/></picture></div><div class="caption"><p class="calibre20">File descriptors are an index into a file descriptor
+          table stored by the kernel.  The kernel creates a file
+          descriptor in response to an
+          <code class="computeroutput2">open</code> call and associates the
+          file descriptor with some abstraction of an underlying
+          file-like object, be that an actual hardware device, or a
+          file system or something else entirely.  Consequently a
+          process's <code class="computeroutput2">read</code> or
+          <code class="computeroutput2">write</code> calls that reference
+          that file descriptor are routed to the correct place by the
+          kernel to ultimately do something useful.</p></div></div><header class="calibre8"><div class="title"><span>Figure<span> </span></span><span>3<span>.</span>2<span> </span></span>Abstraction</div></header></div><p class="releaseinfo">In short, the file descriptor is the gateway into the
+    kernel's abstractions of underlying hardware.  An overall view of
+    the abstraction for physical-devices is shown in <a href="#fd_abstraction" class="xref pcalibre"><span><span>Figure<span class="sep"> </span></span><span>3<span class="sep">.</span>2, </span><span>Abstraction</span></span></a>.</p><p class="releaseinfo">Starting at the lowest level, the operating system requires
+    a programmer to create a <em class="calibre5">device driver</em> to be
+    able to communicate with a hardware device.  This device driver is
+    written to an API provided by the kernel just like in <a href="csbu-print_split_005.html#virtio-abstraction" class="xref pcalibre"><span><span>Example<span class="sep"> </span></span><span>2<span class="sep">.</span>1<span class="sep">.</span>2, </span><span>Abstraction in
+	<code class="computeroutput1">include/linux/virtio.h</code></span></span></a>; the device driver will provide a
+    range of functions which are called by the kernel in response to
+    various requirements.  In the simplified example above, we can see
+    the drivers provide a <code class="computeroutput1">read</code> and
+    <code class="computeroutput1">write</code> function that will be
+    called in response to the analogous operations on the
+    file descriptor. The device driver knows how to convert these
+    generic requests into specific requests or commands for a
+    particular device.</p><p class="releaseinfo">To provide the abstraction to user-space, the kernel
+    provides a file-interface via what is generically termed a
+    <em class="calibre5">device layer</em>.  Physical devices on the host
+    are represented by a file in a special file system such as
+    <code class="computeroutput1">/dev</code>.  In UNIX-like systems,
+    so-called <em class="calibre5">device-nodes</em> have what are termed a
+    <em class="calibre5">major</em> and a <em class="calibre5">minor</em>
+    number, which allow the kernel to associate particular nodes with
+    their underlying driver.  These can be identified via
+    <code class="computeroutput1">ls</code> as illustrated in <a href="#major-minor-numbers" class="xref pcalibre"><span><span>Example<span class="sep"> </span></span><span>3<span class="sep">.</span>1, </span><span>Example of major and minor numbers</span></span></a>.</p><div id="major-minor-numbers" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="4"><pre class="language-c"><span class="line" db-line="1"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ ls -l /dev/null /dev/zero /dev/tty</code></span></span>
+<span class="line" db-line="2"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">crw-rw-rw- 1 root root 1, 3 Aug 26 13:12 /dev/null</code></span></span>
+<span class="line" db-line="3"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">crw-rw-rw- 1 root root 5, 0 Sep  2 15:06 /dev/tty</code></span></span>
+<span class="line" db-line="4"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">crw-rw-rw- 1 root root 1, 5 Aug 26 13:12 /dev/zero</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>3<span>.</span>1<span> </span></span>Example of major and minor numbers</div></header></div><p class="releaseinfo">This brings us to the file descriptor, which is the handle
+    user-space uses to talk to the underlying device.  In a broad
+    sense, what happens when a file is
+    <code class="computeroutput1">open</code>ed is that the kernel is
+    using the path information to map the file descriptor with
+    something that provides an appropriate
+    <code class="computeroutput1">read</code> and
+    <code class="computeroutput1">write</code>, etc., API.  When this
+    <code class="computeroutput1">open</code> is for a device
+    (<code class="computeroutput1">/dev/sr0</code> above), the major and
+    minor number of the opened device node provides the information
+    the kernel needs to find the correct device driver and complete
+    the mapping.  The kernel will then know how to route further calls
+    such as <code class="computeroutput1">read</code> to the underlying
+    functions provided by the device driver.</p><p class="releaseinfo">A non-device file operates similarly, although there are
+    more layers in between.  The abstraction here is the
+    <em class="calibre5">mount point</em>; mounting a file system has the
+    dual purpose of setting up a mapping so the file system knows the
+    underlying device that provides the storage and the kernel knows
+    that files opened under that mount-point should be directed to the
+    file system driver.  Like device drivers, file systems are written
+    to a particular generic file system API provided by the kernel.
+    </p><p class="releaseinfo">There are indeed many other layers that complicate the
+    picture in real-life.  For example, the kernel will go to great
+    efforts to cache as much data from disks as possible in
+    otherwise-free memory; this provides many speed advantages.  It
+    will also try to organise device access in the most efficient ways
+    possible; for example trying to order disk-access to ensure data
+    stored physically close together is retrieved together, even if
+    the requests did not arrive in sequential order.  Further, many
+    devices are of a more generic class such as USB or SCSI devices
+    which provide their own abstraction layers to write to.  Thus,
+    rather than writing directly to devices, file systems will go
+    through these many layers.  Understanding the kernel is to
+    understand how these many APIs interrelate and coexist.</p><section id="file_descriptors_s1"><header class="calibre8"><h3 class="calibre2"><span class="first-last">3<span class="first-last">.</span>1<span class="first-last"> </span></span>The Shell</h3></header><p class="releaseinfo">The shell is the gateway to interacting with the operating
+        system.  Be it <code class="computeroutput1">bash</code>,
+        <code class="computeroutput1">zsh</code>,
+        <code class="computeroutput1">csh</code> or any of the many other
+        shells, they all fundamentally have only one major task — to
+        allow you to execute programs (you will begin to understand
+        how the shell actually does this when we talk about some of
+        the internals of the operating system later).</p><p class="releaseinfo">But shells do much more than allow you to simply execute a
+      program.  They have powerful abilities to redirect files, allow
+      you to execute multiple programs simultaneously and script
+      complete programs.  These all come back to the
+      <em class="calibre5">everything is a file</em> idiom.</p><section id="file_descriptors_s1_s1"><header class="calibre8"><h4 class="calibre21"><span class="first-last">3<span class="first-last">.</span>1<span class="first-last">.</span>1<span class="first-last"> </span></span>Redirection</h4></header><p class="releaseinfo">Often we do not want the standard file descriptors
+        mentioned in <a href="#file_descriptors" class="xref pcalibre"><span><span>Section<span class="sep"> </span></span><span>3, </span><span>File Descriptors</span></span></a> to point to
+        their default places.  For example, you may wish to capture
+        all the output of a program into a file on disk or,
+        alternatively, have it read its commands from a file you
+        prepared earlier.  Another useful task might like to pass the
+        output of one program to the input of another.  With the
+        operating system, the shell facilitates all this and
+        more.</p><figure id="file_descriptors_s1_s1_tab1"><header class="calibre8"><div class="title"><span>Table<span> </span></span><span>3<span>.</span>1<span>.</span>1<span>.</span>1<span> </span></span>Standard Shell Redirection Facilities</div></header><table class="calibre14"><thead class="calibre15"><tr class="calibre16"><th class="calibre17">Name</th><th class="calibre17">Command</th><th class="calibre17">Description</th><th class="calibre17">Example</th></tr></thead><tbody class="calibre18"><tr class="calibre16"><td class="calibre19">Redirect to a file</td><td class="calibre19">
+                  <code class="computeroutput1">&gt; filename</code>
+                </td><td class="calibre19">Take all output from standard out and place it into
+	    <code class="computeroutput1">filename</code>.  Note using
+	    <code class="computeroutput1">&gt;&gt;</code> will append to
+	    the file, rather than overwrite it.</td><td class="calibre19">
+                  <code class="computeroutput1">ls &gt; filename</code>
+                </td></tr><tr class="calibre16"><td class="calibre19">Read from a file</td><td class="calibre19">&lt; <code class="computeroutput1">filename</code></td><td class="calibre19">Copy all data from the file to the standard input of the program</td><td class="calibre19">
+                  <code class="computeroutput1">echo &lt; filename</code>
+                </td></tr><tr class="calibre16"><td class="calibre19">Pipe</td><td class="calibre19">
+                  <code class="computeroutput1">program1 | program2</code>
+                </td><td class="calibre19">Take everything from standard out of
+	    <code class="computeroutput1">program1</code> and pass it to
+	    standard input of
+	    <code class="computeroutput1">program2</code></td><td class="calibre19">
+                  <code class="computeroutput1">ls | more</code>
+                </td></tr></tbody></table></figure></section><section id="file_descriptors_s1_s2"><header class="calibre8"><h4 class="calibre21"><span class="first-last">3<span class="first-last">.</span>1<span class="first-last">.</span>2<span class="first-last"> </span></span>Implementing
+        <code class="computeroutput3">pipe</code></h4></header><p class="releaseinfo">The implementation of <code class="computeroutput1">ls |
+        more</code> is just another example of the power of
+        abstraction.  What fundamentally happens here is that instead
+        of associating the file descriptor for the standard-output
+        with some sort of underlying device (such as the console, for
+        output to the terminal), the descriptor is pointed to an
+        in-memory buffer provided by the kernel commonly termed a
+        <code class="computeroutput1">pipe</code>.  The trick here is that
+        another process can associate its standard
+        <em class="calibre5">input</em> with the other side of this same
+        buffer and effectively consume the output of the other
+        process.  This is illustrated in <a href="#process_pipe" class="xref pcalibre"><span><span>Figure<span class="sep"> </span></span><span>3<span class="sep">.</span>1<span class="sep">.</span>2<span class="sep">.</span>1, </span><span>A pipe in action</span></span></a>.</p><div id="process_pipe" class="figure"><div class="author" summary="The pipe is an in-memory buffer provided by the kernel which allows the output of one process to be consumed as the input to another."><div class="media"><picture><img src="pipe.svg" alt="The pipe is an in-memory buffer provided by the kernel which allows the output of one process to be consumed as the input to another." class="calibre12"/></picture></div><div class="caption"><p class="calibre20">The pipe is an in-memory buffer that connects two
+              processes together.  file descriptors point to the pipe
+              object, which buffers data sent to it (via a
+              <code class="computeroutput2">write</code>) to be
+              <em class="calibre5">drained</em> (via a
+              <code class="computeroutput2">read</code>).</p></div></div><header class="calibre8"><div class="title"><span>Figure<span> </span></span><span>3<span>.</span>1<span>.</span>2<span>.</span>1<span> </span></span>A pipe in action</div></header></div><p class="releaseinfo">Writes to the pipe are stored by the kernel until a
+        corresponding read from the other side
+        <em class="calibre5">drains</em> the buffer.  This is a very
+        powerful concept and is one of the fundamental forms of
+        <em class="calibre5">inter-process communication</em> or IPC in
+        UNIX-like operating systems.  The pipe allows more than just a
+        data transfer; it can act as a signaling channel.  If a
+        process <code class="computeroutput1">read</code>s an empty pipe,
+        it will by default <em class="calibre5">block</em> or be put into
+        hibernation until there is some data available (this is
+        discussed in much greater depth in <a href="csbu-print_split_019.html#chapter04" class="xref pcalibre"><span><span>Chapter<span class="sep"> </span></span><span>5, </span><span>The Process</span></span></a>).  Thus two processes may use a pipe to
+        communicate that some action has been taken just by writing a
+        byte of data; rather than the actual data being important, the
+        mere presence of <em class="calibre5">any</em> data in the pipe can
+        signal a message.  Say for example one process requests that
+        another print a file — something that will take some
+        time.  The two processes may set up a pipe between themselves
+        where the requesting process does a
+        <code class="computeroutput1">read</code> on the empty pipe; being
+        empty, that call blocks and the process does not continue.
+        Once the print is done, the other process can write a message
+        into the pipe, which effectively wakes up the requesting
+        process and signals the work is done.</p><p class="releaseinfo">Allowing processes to pass data between each other like
+        this springs another common UNIX idiom of small tools doing
+        one particular thing.  Chaining these small tools gives
+        flexibility that a single monolithic tool often can
+        not.</p></section></section></section></div><div id="chapter01" class="author"><header class="calibre6"><div class="calibre10" id="calibre_pb_8"/>
+</header></div></main></body></html>

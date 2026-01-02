@@ -1,0 +1,1259 @@
+<html><head></head><body>
+<main class="calibre3">
+<div id="chapter08" class="author">
+<header class="calibre6">
+<h2 id="calibre_toc_10" class="calibre7"><span class="first-last">Chapter<span class="first-last"> </span></span><span class="first-last">9<span class="first-last">. </span></span>Dynamic Linking</h2></header></div></main>
+
+<main class="calibre3">
+<div id="chapter08" class="author">
+<section id="code_sharing"><header class="calibre8"><h2 class="calibre7" id="calibre_pb_66"><span class="first-last">1<span class="first-last"> </span></span>Code Sharing</h2></header><p class="releaseinfo">We know that for the operating system code is considered
+      read only, and separate from data.  It seems logical then that
+      if programs can not modify code and have large amounts of common
+      code, instead of replicating it for every executable it should
+      be shared between many executables.</p><p class="releaseinfo">With virtual memory this can be easily done.  The physical
+      pages of memory the library code is loaded into can be easily
+      referenced by any number of virtual pages in any number of
+      address spaces.  So while you only have one physical copy of the
+      library code in system memory, every process can have access to
+      that library code at any virtual address it likes.</p><p class="releaseinfo">Thus people quickly came up with the idea of a
+      <em class="calibre5">shared library</em> which, as the name suggests,
+      is shared by multiple executables.  Each executable contains a
+      reference essentially saying "I need library foo".  When the
+      program is loaded, it is up to the system to either check if
+      some other program has already loaded the code for library foo
+      into memory, and thus share it by mapping pages into the
+      executable for that physical memory, or otherwise load the
+      library into memory for the executable.</p><p class="releaseinfo">This process is called <em class="calibre5">dynamic linking</em>
+    because it does part of the linking process "on the fly" as
+    programs are executed in the system.</p><section id="code_sharing_s1"><header class="calibre8"><h3 class="calibre2"><span class="first-last">1<span class="first-last">.</span>1<span class="first-last"> </span></span>Dynamic Library Details</h3></header><p class="releaseinfo">Libraries are very much like a program that never gets
+      started.  They have code and data sections (functions and
+      variables) just like every executable; but no where to start
+      running.  They just provide a library of functions for
+      developers to call.</p><p class="releaseinfo">Thus ELF can represent a dynamic library just as it does
+      an executable.  There are some fundamental differences, such as
+      there is no pointer to where execution should start, but all
+      shared libraries are just ELF objects like any other
+      executable.</p><p class="releaseinfo">The ELF header has two mutually exclusive flags,
+      <code class="computeroutput1">ET_EXEC</code> and
+      <code class="computeroutput1">ET_DYN</code> to mark an ELF file as
+      either an executable or a shared object file.</p></section><section id="code_sharing_s2"><header class="calibre8"><h3 class="calibre2"><span class="first-last">1<span class="first-last">.</span>2<span class="first-last"> </span></span>Including libraries in an executable</h3></header><section id="code_sharing_s2_s1"><header class="calibre8"><h4 class="calibre21"><span class="first-last">1<span class="first-last">.</span>2<span class="first-last">.</span>1<span class="first-last"> </span></span>Compilation</h4></header><p class="releaseinfo">When you compile your program that uses a dynamic
+	library, object files are left with references to the library
+	functions just as for any other external reference.</p><p class="releaseinfo">You need to include the <em class="calibre5">header</em> for
+	the library so that the compiler knows the specific types of
+	the functions you are calling.  Note the compiler only needs
+	to know the types associated with a function (such as, it
+	takes an <code class="computeroutput1">int</code> and returns a
+	<code class="computeroutput1">char *</code>) so that it can
+	correctly allocate space for the function call.<span id="code_sharing_s2_s1_para2_footnote1-fnote">This has not always been the case with the C standard.
+	Previously, compilers would assume that any function it did
+	not know about returned an
+	<code class="computeroutput1">int</code>.  On a 32 bit system, the
+	size of a pointer is the same size as an
+	<code class="computeroutput1">int</code>, so there was no problem.
+	However, with a 64 bit system, the size of a pointer is
+	generally twice the size of an
+	<code class="computeroutput1">int</code> so if the function
+	actually returns a pointer, its value will be destroyed.  This
+	is clearly not acceptable, as the pointer will thus not point
+	to valid memory.  The C99 standard has changed such that you
+	are required to specify the types of included
+	functions.</span></p></section><section id="code_sharing_s2_s2"><header class="calibre8"><h4 class="calibre21"><span class="first-last">1<span class="first-last">.</span>2<span class="first-last">.</span>2<span class="first-last"> </span></span>Linking</h4></header><p class="releaseinfo">Even though the <em class="calibre5">dynamic linker</em> does
+	a lot of the work for shared libraries, the traditional linker
+	still has a role to play in creating the executable.</p><p class="releaseinfo">The traditional linker needs to leave a pointer in the
+	executable so that the dynamic linker knows what library will
+	satisfy the dependencies at runtime.</p><p class="releaseinfo">The <code class="computeroutput1">dynamic</code> section of
+	the executable requires a
+	<code class="computeroutput1">NEEDED</code> entry for each shared
+	library that the executable depends on.</p><p class="releaseinfo">Again, we can inspect these fields with the
+	<code class="computeroutput1">readelf</code> program.  Below we
+	have a look at a very standard binary,
+	<code class="computeroutput1">/bin/ls</code></p><div id="code_sharing_s2_s2_ex1" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="9"><pre class="language-c"><span class="line" db-line="1"><span class="ln">1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ readelf --dynamic /bin/ls </code></span></span>
+<span class="line" db-line="2"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="3"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Dynamic segment at offset 0x22f78 contains 27 entries:</code></span></span>
+<span class="line" db-line="4"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Tag        Type                         Name/Value</code></span></span>
+<span class="line" db-line="5"><span class="ln">5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000001 (NEEDED)             Shared library: [librt.so.1]</code></span></span>
+<span class="line" db-line="6"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000001 (NEEDED)             Shared library: [libacl.so.1]</code></span></span>
+<span class="line" db-line="7"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6.1]</code></span></span>
+<span class="line" db-line="8"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x000000000000000c (INIT)               0x4000000000001e30</code></span></span>
+<span class="line" db-line="9"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> ... snip ...</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>1<span>.</span>2<span>.</span>2<span>.</span>1<span> </span></span>Specifying Dynamic Libraries</div></header></div><p class="releaseinfo">You can see that it specifies three libraries.  The most
+	common library shared by most, if not all, programs on the
+	system is <code class="computeroutput1">libc</code>.  There are
+	also some other libraries that the program needs to run
+	correctly.</p><p class="releaseinfo">Reading the ELF file directly is sometimes useful, but
+	the usual way to inspect a dynamically linked executable is
+	via <code class="computeroutput1">ldd</code>.
+	<code class="computeroutput1">ldd</code> "walks" the dependencies
+	of libraries for you; that is if a library depends on another
+	library, it will show it to you.</p><div id="code_sharing_s2_s2_ex2" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="14"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ ldd /bin/ls</code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        librt.so.1 =&gt; /lib/tls/librt.so.1 (0x2000000000058000)</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        libacl.so.1 =&gt; /lib/libacl.so.1 (0x2000000000078000)</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        libc.so.6.1 =&gt; /lib/tls/libc.so.6.1 (0x2000000000098000)</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        libpthread.so.0 =&gt; /lib/tls/libpthread.so.0 (0x20000000002e0000)</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        /lib/ld-linux-ia64.so.2 =&gt; /lib/ld-linux-ia64.so.2 (0x2000000000000000)</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        libattr.so.1 =&gt; /lib/libattr.so.1 (0x2000000000310000)</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ readelf --dynamic /lib/librt.so.1</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Dynamic segment at offset 0xd600 contains 30 entries:</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Tag        Type                         Name/Value</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6.1]</code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000001 (NEEDED)             Shared library: [libpthread.so.0]</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> ... snip ...</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>1<span>.</span>2<span>.</span>2<span>.</span>2<span> </span></span>Looking at dynamic libraries</div></header></div><p class="releaseinfo">We can see above that
+	<code class="computeroutput1">libpthread</code> has been required
+	from somewhere.  If we do a little digging, we can see that
+	the requirement comes from
+	<code class="computeroutput1">librt</code>.</p></section></section></section></div></main>
+
+<main class="calibre3">
+<div id="chapter08" class="author">
+<section id="dynamic_linker"><header class="calibre8"><h2 class="calibre7" id="calibre_pb_67"><span class="first-last">2<span class="first-last"> </span></span>The Dynamic Linker</h2></header><p class="releaseinfo">The dynamic linker is the program that manages shared
+    dynamic libraries on behalf of an executable.  It works to load
+    libraries into memory and modify the program at runtime to call
+    the functions in the library.</p><p class="releaseinfo">ELF allows executables to specify an
+    <em class="calibre5">interpreter</em>, which is a program that should
+    be used to run the executable.  The compiler and static linker set
+    the interpreter of executables that rely on dynamic libraries to
+    be the dynamic linker.</p><div id="dynamic_linker_ex1" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="20"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">ianw@lime:~/programs/csbu$ readelf --headers /bin/ls</code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Program Headers:</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Type           Offset             VirtAddr           PhysAddr</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">                 FileSiz            MemSiz              Flags  Align</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  PHDR           0x0000000000000040 0x4000000000000040 0x4000000000000040</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">                 0x0000000000000188 0x0000000000000188  R E    8</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  INTERP         0x00000000000001c8 0x40000000000001c8 0x40000000000001c8</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">                 0x0000000000000018 0x0000000000000018  R      1</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      [Requesting program interpreter: /lib/ld-linux-ia64.so.2]</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  LOAD           0x0000000000000000 0x4000000000000000 0x4000000000000000</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">                 0x0000000000022e40 0x0000000000022e40  R E    10000</code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  LOAD           0x0000000000022e40 0x6000000000002e40 0x6000000000002e40</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">                 0x0000000000001138 0x00000000000017b8  RW     10000</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  DYNAMIC        0x0000000000022f78 0x6000000000002f78 0x6000000000002f78</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">                 0x0000000000000200 0x0000000000000200  RW     8</code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  NOTE           0x00000000000001e0 0x40000000000001e0 0x40000000000001e0</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">                 0x0000000000000020 0x0000000000000020  R      4</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  IA_64_UNWIND   0x0000000000022018 0x4000000000022018 0x4000000000022018</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">                 0x0000000000000e28 0x0000000000000e28  R      8</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>2<span>.</span>1<span> </span></span>Checking the program interpreter</div></header></div><p class="releaseinfo">You can see above that the interpreter is set to be
+    <span>/lib/ld-linux-ia64.so.2</span>, which is the
+    dynamic linker.  When the kernel loads the binary for execution,
+    it will check if the <code class="computeroutput1">PT_INTERP</code>
+    field is present, and if so load what it points to into memory and
+    start it.</p><p class="releaseinfo">We mentioned that dynamically linked executables leave
+    behind references that need to be fixed with information that
+    isn't available until runtime, such as the address of a function
+    in a shared library.  The references that are left behind are
+    called <em class="calibre5">relocations</em>.</p><section id="dynamic_relocations"><header class="calibre8"><h3 class="calibre2"><span class="first-last">2<span class="first-last">.</span>1<span class="first-last"> </span></span>Relocations</h3></header><p class="releaseinfo">The essential part of the dynamic linker is fixing up
+      addresses at runtime, which is the only time you can know for
+      certain where you are loaded in memory.  A relocation can simply
+      be thought of as a note that a particular address will need to
+      be fixed at load time.  Before the code is ready to run you will
+      need to go through and read all the relocations and fix the
+      addresses it refers to to point to the right place.</p><figure id="dynamic_relocations_tab1"><header class="calibre8"><div class="title"><span>Table<span> </span></span><span>2<span>.</span>1<span>.</span>1<span> </span></span>Relocation Example</div></header><table class="calibre14"><thead class="calibre15"><tr class="calibre16"><th class="calibre17">Address</th><th class="calibre17">Action</th></tr></thead><tbody class="calibre18"><tr class="calibre16"><td class="calibre19">0x123456</td><td class="calibre19">Address of symbol "x"</td></tr><tr class="calibre16"><td class="calibre19">0x564773</td><td class="calibre19">Function X</td></tr></tbody></table></figure><p class="releaseinfo">There are many types of relocation for each architecture,
+      and each types exact behaviour is documented as part of the ABI
+      for the system.  The definition of a relocation is quite
+      straight forward.</p><div id="dynamic_relocations_ex1" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="10"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">typedef struct {</code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Elf32_Addr    r_offset;  &lt;--- address to fix</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Elf32_Word    r_info;    &lt;--- symbol table pointer and relocation type</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">typedef struct {</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Elf32_Addr    r_offset;</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Elf32_Word    r_info;</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Elf32_Sword   r_addend;</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">} Elf32_Rela</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>2<span>.</span>1<span>.</span>1<span> </span></span>Relocation as defined by ELF</div></header></div><p class="releaseinfo">The <code class="computeroutput1">r_offset</code> field refers
+      to the offset in the file that needs to be fixed up.  The
+      <code class="computeroutput1">r_info</code> field specifies the type
+      of relocation which describes what exactly must be done to fix
+      this code up.  The simplest relocation usually defined for an
+      architecture is simply the value of the symbol.  In this case
+      you simply substitute the address of the symbol at the location
+      specified, and the relocation has been "fixed-up".</p><p class="releaseinfo">The two types, one with an addend and one without specify
+      different ways for the relocation to operate.  An addend is
+      simply something that should be added to the fixed up address to
+      find the correct address.  For example, if the relocation is for
+      the symbol <code class="computeroutput1">i</code> because the
+      original code is doing something like
+      <code class="computeroutput1">i[8]</code> the addend will be set to
+      8.  This means "find the address of
+      <code class="computeroutput1">i</code>, and go 8 past it".</p><p class="releaseinfo">That addend value needs to be stored somewhere.  The two
+      solutions are covered by the two forms.  In the
+      <code class="computeroutput1">REL</code> form the addend is actually
+      store in the program code in the place where the fixed up
+      address should be.  This means that to fix up the address
+      properly, you need to first read the memory you are about to fix
+      up to get any addend, store that, find the "real" address, add
+      the addend to it and then write it back (over the addend).  The
+      <code class="computeroutput1">RELA</code> format specifies the
+      addend right there in the relocation.</p><p class="releaseinfo">The trade offs of each approach should be clear.  With
+      <code class="computeroutput1">REL</code> you need to do an extra
+      memory reference to find the addend before the fixup, but you
+      don't waste space in the binary because you use relocation
+      target memory.  With <code class="computeroutput1">RELA</code> you
+      keep the addend with the relocation, but waste that space in the
+      on disk binary.  Most modern systems use
+      <code class="computeroutput1">RELA</code> relocations.</p><section id="dynamic_relocations_s1"><header class="calibre8"><h4 class="calibre21"><span class="first-last">2<span class="first-last">.</span>1<span class="first-last">.</span>1<span class="first-last"> </span></span>Relocations in action</h4></header><p class="releaseinfo">The example below shows how relocations work.  We create
+	two very simple shared libraries and reference one from in the
+	other.</p><div id="dynamic_relocations_s1_ex1" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="15"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ cat addendtest.c</code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">extern int i[4];</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int *j = i + 2;</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ cat addendtest2.c</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int i[4];</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ gcc -nostdlib -shared -fpic -s -o addendtest2.so addendtest2.c</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ gcc -nostdlib -shared -fpic -o addendtest.so addendtest.c ./addendtest2.so</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ readelf -r ./addendtest.so</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Relocation section '.rela.dyn' at offset 0x3b8 contains 1 entries:</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Offset          Info           Type           Sym. Value    Sym. Name + Addend</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">0000000104f8  000f00000027 R_IA64_DIR64LSB   0000000000000000 i + 8</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>2<span>.</span>1<span>.</span>1<span>.</span>1<span> </span></span>Specifying Dynamic Libraries</div></header></div><p class="releaseinfo">We thus have one relocation in
+	<code class="computeroutput1">addendtest.so</code> of type
+	<code class="computeroutput1">R_IA64_DIR64LSB</code>.  If you look
+	this up in the IA64 ABI, the acronym can be broken down to
+	</p><ol class="orderedlist"><li class="calibre11"><p class="releaseinfo"><em class="calibre5">R_IA64</em> : all relocations start with this prefix.</p></li><li class="calibre11"><p class="releaseinfo"><em class="calibre5">DIR64</em> : a 64 bit direct type relocation</p></li><li class="calibre11"><p class="releaseinfo"><em class="calibre5">LSB</em> : Since IA64 can operate in big and
+	    little endian modes, this relocation is little endian
+	    (least significant byte).</p></li></ol><p class="releaseinfo">The ABI continues to say that that relocation means "the
+        value of the symbol pointed to by the relocation, plus any
+        addend".  We can see we have an addend of 8, since
+        <code class="computeroutput1">sizeof(int) == 4</code> and we have
+        moved two int's into the array (<code class="computeroutput1">*j = i +
+        2</code>).  So at runtime, to fix this relocation
+        you need to find the address of symbol
+        <code class="computeroutput1">i</code> and put its value, plus 8
+        into <code class="computeroutput1">0x104f8</code>.</p></section></section><section id="dynamic_linker_s2"><header class="calibre8"><h3 class="calibre2"><span class="first-last">2<span class="first-last">.</span>2<span class="first-last"> </span></span>Position Independence</h3></header><p class="releaseinfo">In an <em class="calibre5">executable</em> file, the code and
+    data segment is given a specified base address in virtual memory.
+    The executable code is not shared, and each executable gets its
+    own fresh address space.  This means that the compiler knows
+    exactly where the data section will be, and can reference it
+    directly.</p><p class="releaseinfo">Libraries have no such guarantee.  They can know that their
+    data section will be a specified <em class="calibre5">offset</em> from
+    the base address; but exactly where that base address is can only
+    be known at runtime.</p><p class="releaseinfo">Consequently all libraries must be produced with code that
+    can execute no matter where it is put into memory, known as
+    <em class="calibre5">position independent code</em> (or PIC for short).
+    Note that the data section is still a fixed offset from the code
+    section; but to actually find the address of data the offset needs
+    to be added to the load address.</p></section></section></div></main>
+
+<main class="calibre3">
+<div id="chapter08" class="author">
+<section id="global_offset_tables"><header class="calibre8"><h2 class="calibre7" id="calibre_pb_68"><span class="first-last">3<span class="first-last"> </span></span>Global Offset Tables</h2></header><p class="releaseinfo">You might have noticed a critical problem with relocations
+      when thinking about the goals of a shared library.  We mentioned
+      previously that the big advantage of a shared library with
+      virtual memory is that multiple programs can use the code in
+      memory by sharing of pages.</p><p class="releaseinfo">The problem stems from the fact that libraries have no
+    guarantee about where they will be put into memory.  The dynamic
+    linker will find the most convenient place in virtual memory for
+    each library required and place it there.  Think about the
+    alternative if this were <em class="calibre5">not</em> to happen; every
+    library in the system would require its own chunk of virtual
+    memory so that no two overlapped.  Every time a new library were
+    added to the system it would require allocation.  Someone could
+    potentially be a hog and write a <em class="calibre5">huge</em>
+    library, not leaving enough space for other libraries!  And
+    chances are, your program doesn't ever want to use that library
+    anyway.</p><p class="releaseinfo">Thus, if you modify the code of a shared library with a
+      relocation, that code no longer becomes sharable.  We've lost
+      the advantage of our shared library.</p><p class="releaseinfo">Below we explain the mechanism for doing this.</p><section id="global_offset_tables_s1"><header class="calibre8"><h3 class="calibre2"><span class="first-last">3<span class="first-last">.</span>1<span class="first-last"> </span></span>The Global Offset Table</h3></header><p class="releaseinfo">So imagine the situation where we take the value of a
+      symbol.  With only relocations, we would have the dynamic linker
+      look up the memory address of that symbol and re-write the code
+      to load that address.</p><p class="releaseinfo">A fairly straight forward enhancement would be to set aside
+      space in our binary to hold the address of that symbol, and have
+      the dynamic linker put the address there rather than in the code
+      directly.  This way we never need to touch the code part of the
+      binary.</p><p class="releaseinfo">The area that is set aside for these addresses is called
+      the Global Offset Table, or GOT.  The GOT lives in a section of
+      the ELF file called <code class="computeroutput1">.got</code>.
+      </p><div id="global_offset_tables_s1_fig1" class="figure"><div class="author" summary="To keep code (green) sharable, we define process private areas to which we can store the addresses of common variables. This allows us to load the code anywhere in the process address space whilst still sharing the underlying physical pages."><div class="media"><picture><img src="got-plt.svg" alt="To keep code (green) sharable, we define process private areas to which we can store the addresses of common variables. This allows us to load the code anywhere in the process address space whilst still sharing the underlying physical pages." class="calibre12"/></picture></div></div><header class="calibre8"><div class="title"><span>Figure<span> </span></span><span>3<span>.</span>1<span>.</span>1<span> </span></span>Memory access via the GOT</div></header></div><p class="releaseinfo">The GOT is private to each process, and the process must
+      have write permissions to it.  Conversely the library code is
+      shared and the process should have only read and execute
+      permissions on the code; it would be a serious security breach
+      if the process could modify code.</p><section id="global_offset_tables_s1_s1"><header class="calibre8"><h4 class="calibre21"><span class="first-last">3<span class="first-last">.</span>1<span class="first-last">.</span>1<span class="first-last"> </span></span>The GOT in action</h4></header><div id="global_offset_tables_s1_s1_ex1" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="71"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ cat got.c</code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">extern int i;</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">void test(void)</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        i = 100;</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ gcc -nostdlib  -shared -o got.so ./got.c</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ objdump --disassemble ./got.so</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">./got.so:     file format elf64-ia64-little</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Disassembly of section .text:</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">0000000000000410 &lt;test&gt;:</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 410:   0d 10 00 18 00 21       [MFI]       mov r2=r12</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 416:   00 00 00 02 00 c0                   nop.f 0x0</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 41c:   81 09 00 90                         addl r14=24,r1;;</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 420:   0d 78 00 1c 18 10       [MFI]       ld8 r15=[r14]</code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 426:   00 00 00 02 00 c0                   nop.f 0x0</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 42c:   41 06 00 90                         mov r14=100;;</code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 430:   11 00 38 1e 90 11       [MIB]       st4 [r15]=r14</code></span></span>
+<span class="line" db-line="25"><span class="ln">25 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 436:   c0 00 08 00 42 80                   mov r12=r2</code></span></span>
+<span class="line" db-line="26"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 43c:   08 00 84 00                         br.ret.sptk.many b0;;</code></span></span>
+<span class="line" db-line="27"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="28"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ readelf --sections ./got.so</code></span></span>
+<span class="line" db-line="29"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">There are 17 section headers, starting at offset 0x640:</code></span></span>
+<span class="line" db-line="30"><span class="ln">30 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="31"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Section Headers:</code></span></span>
+<span class="line" db-line="32"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [Nr] Name              Type             Address           Offset</code></span></span>
+<span class="line" db-line="33"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       Size              EntSize          Flags  Link  Info  Align</code></span></span>
+<span class="line" db-line="34"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [ 0]                   NULL             0000000000000000  00000000</code></span></span>
+<span class="line" db-line="35"><span class="ln">35 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000000  0000000000000000           0     0     0</code></span></span>
+<span class="line" db-line="36"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [ 1] .hash             HASH             0000000000000120  00000120</code></span></span>
+<span class="line" db-line="37"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       00000000000000a0  0000000000000004   A       2     0     8</code></span></span>
+<span class="line" db-line="38"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [ 2] .dynsym           DYNSYM           00000000000001c0  000001c0</code></span></span>
+<span class="line" db-line="39"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       00000000000001f8  0000000000000018   A       3     e     8</code></span></span>
+<span class="line" db-line="40"><span class="ln">40 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [ 3] .dynstr           STRTAB           00000000000003b8  000003b8</code></span></span>
+<span class="line" db-line="41"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       000000000000003f  0000000000000000   A       0     0     1</code></span></span>
+<span class="line" db-line="42"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [ 4] .rela.dyn         RELA             00000000000003f8  000003f8</code></span></span>
+<span class="line" db-line="43"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000018  0000000000000018   A       2     0     8</code></span></span>
+<span class="line" db-line="44"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [ 5] .text             PROGBITS         0000000000000410  00000410</code></span></span>
+<span class="line" db-line="45"><span class="ln">45 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000030  0000000000000000  AX       0     0     16</code></span></span>
+<span class="line" db-line="46"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [ 6] .IA_64.unwind_inf PROGBITS         0000000000000440  00000440</code></span></span>
+<span class="line" db-line="47"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000018  0000000000000000   A       0     0     8</code></span></span>
+<span class="line" db-line="48"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [ 7] .IA_64.unwind     IA_64_UNWIND     0000000000000458  00000458</code></span></span>
+<span class="line" db-line="49"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000018  0000000000000000  AL       5     5     8</code></span></span>
+<span class="line" db-line="50"><span class="ln">50 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [ 8] .data             PROGBITS         0000000000010470  00000470</code></span></span>
+<span class="line" db-line="51"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000000  0000000000000000  WA       0     0     1</code></span></span>
+<span class="line" db-line="52"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [ 9] .dynamic          DYNAMIC          0000000000010470  00000470</code></span></span>
+<span class="line" db-line="53"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000100  0000000000000010  WA       3     0     8</code></span></span>
+<span class="line" db-line="54"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [10] .got              PROGBITS         0000000000010570  00000570</code></span></span>
+<span class="line" db-line="55"><span class="ln">55 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000020  0000000000000000 WAp       0     0     8</code></span></span>
+<span class="line" db-line="56"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [11] .sbss             NOBITS           0000000000010590  00000590</code></span></span>
+<span class="line" db-line="57"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000000  0000000000000000   W       0     0     1</code></span></span>
+<span class="line" db-line="58"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [12] .bss              NOBITS           0000000000010590  00000590</code></span></span>
+<span class="line" db-line="59"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000000  0000000000000000  WA       0     0     1</code></span></span>
+<span class="line" db-line="60"><span class="ln">60 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [13] .comment          PROGBITS         0000000000000000  00000590</code></span></span>
+<span class="line" db-line="61"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000026  0000000000000000           0     0     1</code></span></span>
+<span class="line" db-line="62"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [14] .shstrtab         STRTAB           0000000000000000  000005b6</code></span></span>
+<span class="line" db-line="63"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       000000000000008a  0000000000000000           0     0     1</code></span></span>
+<span class="line" db-line="64"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [15] .symtab           SYMTAB           0000000000000000  00000a80</code></span></span>
+<span class="line" db-line="65"><span class="ln">65 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000258  0000000000000018          16    12     8</code></span></span>
+<span class="line" db-line="66"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [16] .strtab           STRTAB           0000000000000000  00000cd8</code></span></span>
+<span class="line" db-line="67"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000045  0000000000000000           0     0     1</code></span></span>
+<span class="line" db-line="68"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Key to Flags:</code></span></span>
+<span class="line" db-line="69"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  W (write), A (alloc), X (execute), M (merge), S (strings)</code></span></span>
+<span class="line" db-line="70"><span class="ln">70 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  I (info), L (link order), G (group), x (unknown)</code></span></span>
+<span class="line" db-line="71"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  O (extra OS processing required) o (OS specific), p (processor specific)</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>3<span>.</span>1<span>.</span>1<span>.</span>1<span> </span></span>Using the GOT</div></header></div><p class="releaseinfo">Above we create a simple shared library which refers to
+	an external symbol.  We do not know the address of this symbol
+	at compile time, so we leave it for the dynamic linker to fix
+	up at runtime.</p><p class="releaseinfo">But we want our code to remain sharable, in case other
+	processes want to use our code as well.</p><p class="releaseinfo">The disassembly reveals just how we do this with the
+	<code class="computeroutput1">.got</code>.  On IA64 (the
+	architecture which the library was compiled for) the register
+	<code class="computeroutput1">r1</code> is known as the
+	<em class="calibre5">global pointer</em> and always points to where
+	the <code class="computeroutput1">.got</code> section is loaded
+	into memory.</p><p class="releaseinfo">If we have a look at the
+	<code class="computeroutput1">readelf</code> output we can see
+	that the <code class="computeroutput1">.got</code> section starts
+	0x10570 bytes past where library was loaded into memory.  Thus
+	if the library were to be loaded into memory at address
+	0x6000000000000000 the <code class="computeroutput1">.got</code>
+	would be at 0x6000000000010570, and register
+	<code class="computeroutput1">r1</code> would always point to this
+	address.</p><p class="releaseinfo">Working backwards through the disassembly, we can see
+	that we store the value 100 into the memory address held in
+	register <code class="computeroutput1">r15</code>.  If we look
+	back we can see that register 15 holds the value of the memory
+	address stored in register 14.  Going back one more step, we
+	see we load this address is found by adding a small number to
+	register 1.  The GOT is simply a big long list of entries, one
+	for each external variable.  This means that the GOT entry for
+	the external variable <code class="computeroutput1">i</code> is
+	stored 24 bytes (that is 3 64 bit addresses).
+	</p><div id="global_offset_tables_s1_s1_ex2" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="5"><pre class="language-c"><span class="line" db-line="1"><span class="ln">1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ readelf --relocs ./got.so</code></span></span>
+<span class="line" db-line="2"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="3"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Relocation section '.rela.dyn' at offset 0x3f8 contains 1 entries:</code></span></span>
+<span class="line" db-line="4"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Offset          Info           Type           Sym. Value    Sym. Name + Addend</code></span></span>
+<span class="line" db-line="5"><span class="ln">5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">000000010588  000f00000027 R_IA64_DIR64LSB   0000000000000000 i + 0</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>3<span>.</span>1<span>.</span>1<span>.</span>2<span> </span></span>Relocations against the GOT</div></header></div><p class="releaseinfo">We can also check out the relocation for this entry too.
+	The relocation says "replace the value at offset 10588 with
+	the memory location that symbol i is stored at".</p><p class="releaseinfo">We know that the <code class="computeroutput1">.got</code>
+	starts at offset 0x10570 from the previous output.  We have
+	also seen how the code loads an address 0x18 (24 in decimal)
+	past this, giving us an address of 0x10570 + 0x18 =
+	0x10588 ... the address which the relocation is for!</p><p class="releaseinfo">So before the program begins, the dynamic linker will
+	have fixed up the relocation to ensure that the value of the
+	memory at offset 0x10588 is the address of the global variable
+	<code class="computeroutput1">i</code>!</p></section></section></section></div></main>
+
+<main class="calibre3">
+<div id="chapter08" class="author">
+<section id="dynamic_libraries"><header class="calibre8"><h2 class="calibre7" id="calibre_pb_69"><span class="first-last">4<span class="first-last"> </span></span>Libraries</h2></header><section id="dynamic_libraries_s1"><header class="calibre8"><h3 class="calibre2"><span class="first-last">4<span class="first-last">.</span>1<span class="first-last"> </span></span>The Procedure Lookup Table</h3></header><p class="releaseinfo">Libraries may contain many functions, and a program may
+      end up including many libraries to get its work done.  A program
+      may only use one or two functions from each library of the many
+      available, and depending on the run-time path through the code
+      may use some functions and not others.</p><p class="releaseinfo">As we have seen, the process of dynamic linking is a
+      fairly computationally intensive one, since it involves looking
+      up and searching through many tables.  Anything that can be done
+      to reduce the overheads will increase performance.</p><p class="releaseinfo">The Procedure Lookup Table (PLT) facilitates what is
+      called <em class="calibre5">lazy binding</em> in programs.  Binding
+      is synonymous with the fix-up process described above for
+      variables located in the GOT.  When an entry has been "fixed-up"
+      it is said to be "bound" to its real address.</p><p class="releaseinfo">As we mentioned, sometimes a program will include a
+      function from a library but never actually call that function,
+      depending on user input.  The process of binding this function
+      is quite intensive, involving loading code, searching through
+      tables and writing memory.  To go through the process of binding
+      a function that is not used is simply a waste of time.</p><p class="releaseinfo">Lazy binding defers this expense until the actual function
+      is called by using a PLT.</p><p class="releaseinfo">Each library function has an entry in the PLT, which
+      initially points to some special dummy code.  When the program
+      calls the function, it actually calls the PLT entry (in the same
+      was as variables are referenced through the GOT).</p><p class="releaseinfo">This dummy function will load a few parameters that need
+      to be passed to the dynamic linker for it to resolve the
+      function and then call into a special lookup function of the
+      dynamic linker.  The dynamic linker finds the real address of
+      the function, and writes that location into the calling
+      binary over the top of the dummy function call.</p><p class="releaseinfo">Thus, the next time the function is called the address can
+      be loaded without having to go back into the dynamic loader
+      again.  If a function is never called, then the PLT entry will
+      never be modified but there will be no runtime overhead.</p><section id="dynamic_libraries_s1_s1"><header class="calibre8"><h4 class="calibre21"><span class="first-last">4<span class="first-last">.</span>1<span class="first-last">.</span>1<span class="first-last"> </span></span>The PLT in action</h4></header><p class="releaseinfo">Things start to get a bit hairy here!  If nothing else,
+	you should begin to appreciate that there is a fair bit of
+	work in resolving a dynamic symbol!</p><p class="releaseinfo">Let us consider the simple "hello World" application.
+	This will only make one library call to
+	<code class="computeroutput1">printf</code> to output the
+	string to the user.</p><div id="dynamic_libraries_s1_s1_ex1" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="24"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">            $ cat hello.c</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;stdio.h&gt;</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int main(void)</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        printf("Hello, World!\n");</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        return 0;</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ gcc -o hello hello.c</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ readelf --relocs ./hello</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Relocation section '.rela.dyn' at offset 0x3f0 contains 2 entries:</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Offset          Info           Type           Sym. Value    Sym. Name + Addend</code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000ed8  000700000047 R_IA64_FPTR64LSB  0000000000000000 _Jv_RegisterClasses + 0</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000ee0  000900000047 R_IA64_FPTR64LSB  0000000000000000 __gmon_start__ + 0</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Relocation section '.rela.IA_64.pltoff' at offset 0x420 contains 3 entries:</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Offset          Info           Type           Sym. Value    Sym. Name + Addend</code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f10  000200000081 R_IA64_IPLTLSB    0000000000000000 printf + 0</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f20  000800000081 R_IA64_IPLTLSB    0000000000000000 __libc_start_main + 0</code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f30  000900000081 R_IA64_IPLTLSB    0000000000000000 __gmon_start__ + 0</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>4<span>.</span>1<span>.</span>1<span>.</span>1<span> </span></span>Hello World PLT example</div></header></div><p class="releaseinfo">We can see above that we have a
+	<code class="computeroutput1">R_IA64_IPLTLSB</code> relocation for
+	our <code class="computeroutput1">printf</code> symbol.  This is
+	saying "put the address of symbol printf into memory address
+	0x6000000000000f10".  We have to start digging deeper to find
+	the exact procedure that gets us the function.</p><p class="releaseinfo">Below we have a look at the disassembly of the
+	<code class="computeroutput1">main()</code> function of the
+	program.</p><div id="dynamic_libraries_s1_s1_ex2" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="20"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">            4000000000000790 &lt;main&gt;:</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000790:       00 08 15 08 80 05       [MII]       alloc r33=ar.pfs,5,4,0</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000796:       20 02 30 00 42 60                   mov r34=r12</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">400000000000079c:       04 08 00 84                         mov r35=r1</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007a0:       01 00 00 00 01 00       [MII]       nop.m 0x0</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007a6:       00 02 00 62 00 c0                   mov r32=b0</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007ac:       81 0c 00 90                         addl r14=72,r1;;</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007b0:       1c 20 01 1c 18 10       [MFB]       ld8 r36=[r14]</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007b6:       00 00 00 02 00 00                   nop.f 0x0</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007bc:       78 fd ff 58                         br.call.sptk.many b0=4000000000000520 &lt;_init+0xb0&gt;</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007c0:       02 08 00 46 00 21       [MII]       mov r1=r35</code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007c6:       e0 00 00 00 42 00                   mov r14=r0;;</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007cc:       01 70 00 84                         mov r8=r14</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007d0:       00 00 00 00 01 00       [MII]       nop.m 0x0</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007d6:       00 08 01 55 00 00                   mov.i ar.pfs=r33</code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007dc:       00 0a 00 07                         mov b0=r32</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007e0:       1d 60 00 44 00 21       [MFB]       mov r12=r34</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007e6:       00 00 00 02 00 80                   nop.f 0x0</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000007ec:       08 00 84 00                         br.ret.sptk.many b0;;</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>4<span>.</span>1<span>.</span>1<span>.</span>2<span> </span></span>Hello world main()</div></header></div><p class="releaseinfo">The call to 0x4000000000000520 must be us calling the
+	<code class="computeroutput1">printf</code> function.  We can find
+	out where this is by looking at the sections with
+	<code class="computeroutput1">readelf</code>.</p><div id="dynamic_libraries_s1_s1_ex3" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="72"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">            $ readelf --sections ./hello</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">There are 40 section headers, starting at offset 0x25c0:</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Section Headers:</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [Nr] Name              Type             Address           Offset</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       Size              EntSize          Flags  Link  Info  Align</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [ 0]                   NULL             0000000000000000  00000000</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000000  0000000000000000           0     0     0</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">...</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [11] .plt              PROGBITS         40000000000004c0  000004c0</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       00000000000000c0  0000000000000000  AX       0     0     32</code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [12] .text             PROGBITS         4000000000000580  00000580</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       00000000000004a0  0000000000000000  AX       0     0     32</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [13] .fini             PROGBITS         4000000000000a20  00000a20</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000040  0000000000000000  AX       0     0     16</code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [14] .rodata           PROGBITS         4000000000000a60  00000a60</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       000000000000000f  0000000000000000   A       0     0     8</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [15] .opd              PROGBITS         4000000000000a70  00000a70</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000070  0000000000000000   A       0     0     16</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [16] .IA_64.unwind_inf PROGBITS         4000000000000ae0  00000ae0</code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       00000000000000f0  0000000000000000   A       0     0     8</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [17] .IA_64.unwind     IA_64_UNWIND     4000000000000bd0  00000bd0</code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       00000000000000c0  0000000000000000  AL      12     c     8</code></span></span>
+<span class="line" db-line="25"><span class="ln">25 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [18] .init_array       INIT_ARRAY       6000000000000c90  00000c90</code></span></span>
+<span class="line" db-line="26"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000018  0000000000000000  WA       0     0     8</code></span></span>
+<span class="line" db-line="27"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [19] .fini_array       FINI_ARRAY       6000000000000ca8  00000ca8</code></span></span>
+<span class="line" db-line="28"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000008  0000000000000000  WA       0     0     8</code></span></span>
+<span class="line" db-line="29"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [20] .data             PROGBITS         6000000000000cb0  00000cb0</code></span></span>
+<span class="line" db-line="30"><span class="ln">30 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000004  0000000000000000  WA       0     0     4</code></span></span>
+<span class="line" db-line="31"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [21] .dynamic          DYNAMIC          6000000000000cb8  00000cb8</code></span></span>
+<span class="line" db-line="32"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       00000000000001e0  0000000000000010  WA       5     0     8</code></span></span>
+<span class="line" db-line="33"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [22] .ctors            PROGBITS         6000000000000e98  00000e98</code></span></span>
+<span class="line" db-line="34"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000010  0000000000000000  WA       0     0     8</code></span></span>
+<span class="line" db-line="35"><span class="ln">35 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [23] .dtors            PROGBITS         6000000000000ea8  00000ea8</code></span></span>
+<span class="line" db-line="36"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000010  0000000000000000  WA       0     0     8</code></span></span>
+<span class="line" db-line="37"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [24] .jcr              PROGBITS         6000000000000eb8  00000eb8</code></span></span>
+<span class="line" db-line="38"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000008  0000000000000000  WA       0     0     8</code></span></span>
+<span class="line" db-line="39"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [25] .got              PROGBITS         6000000000000ec0  00000ec0</code></span></span>
+<span class="line" db-line="40"><span class="ln">40 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000050  0000000000000000 WAp       0     0     8</code></span></span>
+<span class="line" db-line="41"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [26] .IA_64.pltoff     PROGBITS         6000000000000f10  00000f10</code></span></span>
+<span class="line" db-line="42"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000030  0000000000000000 WAp       0     0     16</code></span></span>
+<span class="line" db-line="43"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [27] .sdata            PROGBITS         6000000000000f40  00000f40</code></span></span>
+<span class="line" db-line="44"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000010  0000000000000000 WAp       0     0     8</code></span></span>
+<span class="line" db-line="45"><span class="ln">45 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [28] .sbss             NOBITS           6000000000000f50  00000f50</code></span></span>
+<span class="line" db-line="46"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000008  0000000000000000  WA       0     0     8</code></span></span>
+<span class="line" db-line="47"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [29] .bss              NOBITS           6000000000000f58  00000f50</code></span></span>
+<span class="line" db-line="48"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000008  0000000000000000  WA       0     0     8</code></span></span>
+<span class="line" db-line="49"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [30] .comment          PROGBITS         0000000000000000  00000f50</code></span></span>
+<span class="line" db-line="50"><span class="ln">50 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       00000000000000b9  0000000000000000           0     0     1</code></span></span>
+<span class="line" db-line="51"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [31] .debug_aranges    PROGBITS         0000000000000000  00001010</code></span></span>
+<span class="line" db-line="52"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000090  0000000000000000           0     0     16</code></span></span>
+<span class="line" db-line="53"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [32] .debug_pubnames   PROGBITS         0000000000000000  000010a0</code></span></span>
+<span class="line" db-line="54"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000025  0000000000000000           0     0     1</code></span></span>
+<span class="line" db-line="55"><span class="ln">55 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [33] .debug_info       PROGBITS         0000000000000000  000010c5</code></span></span>
+<span class="line" db-line="56"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       00000000000009c4  0000000000000000           0     0     1</code></span></span>
+<span class="line" db-line="57"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [34] .debug_abbrev     PROGBITS         0000000000000000  00001a89</code></span></span>
+<span class="line" db-line="58"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000124  0000000000000000           0     0     1</code></span></span>
+<span class="line" db-line="59"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [35] .debug_line       PROGBITS         0000000000000000  00001bad</code></span></span>
+<span class="line" db-line="60"><span class="ln">60 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       00000000000001fe  0000000000000000           0     0     1</code></span></span>
+<span class="line" db-line="61"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [36] .debug_str        PROGBITS         0000000000000000  00001dab</code></span></span>
+<span class="line" db-line="62"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       00000000000006a1  0000000000000001  MS       0     0     1</code></span></span>
+<span class="line" db-line="63"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [37] .shstrtab         STRTAB           0000000000000000  0000244c</code></span></span>
+<span class="line" db-line="64"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       000000000000016f  0000000000000000           0     0     1</code></span></span>
+<span class="line" db-line="65"><span class="ln">65 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [38] .symtab           SYMTAB           0000000000000000  00002fc0</code></span></span>
+<span class="line" db-line="66"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000b58  0000000000000018          39    60     8</code></span></span>
+<span class="line" db-line="67"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  [39] .strtab           STRTAB           0000000000000000  00003b18</code></span></span>
+<span class="line" db-line="68"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       0000000000000479  0000000000000000           0     0     1</code></span></span>
+<span class="line" db-line="69"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Key to Flags:</code></span></span>
+<span class="line" db-line="70"><span class="ln">70 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  W (write), A (alloc), X (execute), M (merge), S (strings)</code></span></span>
+<span class="line" db-line="71"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  I (info), L (link order), G (group), x (unknown)</code></span></span>
+<span class="line" db-line="72"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  O (extra OS processing required) o (OS specific), p (processor specific)</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>4<span>.</span>1<span>.</span>1<span>.</span>3<span> </span></span>Hello world sections</div></header></div><p class="releaseinfo">That address is (unsurprisingly) in the
+	<code class="computeroutput1">.plt</code> section.  So there we
+	have our call into the PLT! But we're not satisfied with that,
+	let's keep digging further to see what we can uncover.  We
+	disassemble the <code class="computeroutput1">.plt</code>
+	section to see what that call actually does.</p><div id="dynamic_libraries_s1_s1_ex4" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="38"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">            40000000000004c0 &lt;.plt&gt;:</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004c0:       0b 10 00 1c 00 21       [MMI]       mov r2=r14;;</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004c6:       e0 00 08 00 48 00                   addl r14=0,r2</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004cc:       00 00 04 00                         nop.i 0x0;;</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004d0:       0b 80 20 1c 18 14       [MMI]       ld8 r16=[r14],8;;</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004d6:       10 41 38 30 28 00                   ld8 r17=[r14],8</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004dc:       00 00 04 00                         nop.i 0x0;;</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004e0:       11 08 00 1c 18 10       [MIB]       ld8 r1=[r14]</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004e6:       60 88 04 80 03 00                   mov b6=r17</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004ec:       60 00 80 00                         br.few b6;;</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004f0:       11 78 00 00 00 24       [MIB]       mov r15=0</code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004f6:       00 00 00 02 00 00                   nop.i 0x0</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">40000000000004fc:       d0 ff ff 48                         br.few 40000000000004c0 &lt;_init+0x50&gt;;;</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000500:       11 78 04 00 00 24       [MIB]       mov r15=1</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000506:       00 00 00 02 00 00                   nop.i 0x0</code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">400000000000050c:       c0 ff ff 48                         br.few 40000000000004c0 &lt;_init+0x50&gt;;;</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000510:       11 78 08 00 00 24       [MIB]       mov r15=2</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000516:       00 00 00 02 00 00                   nop.i 0x0</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">400000000000051c:       b0 ff ff 48                         br.few 40000000000004c0 &lt;_init+0x50&gt;;;</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000520:       0b 78 40 03 00 24       [MMI]       addl r15=80,r1;;</code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000526:       00 41 3c 70 29 c0                   ld8.acq r16=[r15],8</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">400000000000052c:       01 08 00 84                         mov r14=r1;;</code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000530:       11 08 00 1e 18 10       [MIB]       ld8 r1=[r15]</code></span></span>
+<span class="line" db-line="25"><span class="ln">25 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000536:       60 80 04 80 03 00                   mov b6=r16</code></span></span>
+<span class="line" db-line="26"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">400000000000053c:       60 00 80 00                         br.few b6;;</code></span></span>
+<span class="line" db-line="27"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000540:       0b 78 80 03 00 24       [MMI]       addl r15=96,r1;;</code></span></span>
+<span class="line" db-line="28"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000546:       00 41 3c 70 29 c0                   ld8.acq r16=[r15],8</code></span></span>
+<span class="line" db-line="29"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">400000000000054c:       01 08 00 84                         mov r14=r1;;</code></span></span>
+<span class="line" db-line="30"><span class="ln">30 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000550:       11 08 00 1e 18 10       [MIB]       ld8 r1=[r15]</code></span></span>
+<span class="line" db-line="31"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000556:       60 80 04 80 03 00                   mov b6=r16</code></span></span>
+<span class="line" db-line="32"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">400000000000055c:       60 00 80 00                         br.few b6;;</code></span></span>
+<span class="line" db-line="33"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000560:       0b 78 c0 03 00 24       [MMI]       addl r15=112,r1;;</code></span></span>
+<span class="line" db-line="34"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000566:       00 41 3c 70 29 c0                   ld8.acq r16=[r15],8</code></span></span>
+<span class="line" db-line="35"><span class="ln">35 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">400000000000056c:       01 08 00 84                         mov r14=r1;;</code></span></span>
+<span class="line" db-line="36"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000570:       11 08 00 1e 18 10       [MIB]       ld8 r1=[r15]</code></span></span>
+<span class="line" db-line="37"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">4000000000000576:       60 80 04 80 03 00                   mov b6=r16</code></span></span>
+<span class="line" db-line="38"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">400000000000057c:       60 00 80 00                         br.few b6;;</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>4<span>.</span>1<span>.</span>1<span>.</span>4<span> </span></span>Hello world PLT</div></header></div><p class="releaseinfo">Let us step through the instructions.  Firstly, we add
+	80 to the value in r1, storing it in r15.  We know from before
+	that r1 will be pointing to the GOT, so this is saying "store
+	in r15 80 bytes into the GOT".  The next thing we do is load
+	into r16 the value stored in this location in the GOT, and
+	post increment the value in r15 by 8 bytes.  We then store r1
+	(the location of the GOT) in r14 and set r1 to be the value in
+	the next 8 bytes after r15.  Then we branch to r16.</p><p class="releaseinfo">In the previous chapter we discussed how functions are
+	actually called through a function descriptor which contains
+	the function address and the address of the global pointer.
+	Here we can see that the PLT entry is first loading the
+	function value, moving on 8 bytes to the second part of the
+	function descriptor and then loading that value into the op
+	register before calling the function.</p><p class="releaseinfo">But what exactly are we loading?  We know that r1 will
+	be pointing to the GOT.  We go 80 bytes past the got
+	(0x50)</p><div id="dynamic_libraries_s1_s1_ex5" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="26"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">            $ objdump --disassemble-all ./hello </code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Disassembly of section .got:</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000ec0 &lt;.got&gt;:</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        ...</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000ee8:       80 0a 00 00 00 00                   data8 0x02a000000</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000eee:       00 40 90 0a                         dep r0=r0,r0,63,1</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000ef2:       00 00 00 00 00 40       [MIB] (p20) break.m 0x1</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000ef8:       a0 0a 00 00 00 00                   data8 0x02a810000</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000efe:       00 40 50 0f                         br.few 6000000000000ef0 &lt;_GLOBAL_OFFSET_TABLE_+0x30&gt;</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f02:       00 00 00 00 00 60       [MIB] (p58) break.m 0x1</code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f08:       60 0a 00 00 00 00                   data8 0x029818000</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f0e:       00 40 90 06                         br.few 6000000000000f00 &lt;_GLOBAL_OFFSET_TABLE_+0x40&gt;</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Disassembly of section .IA_64.pltoff:</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f10 &lt;.IA_64.pltoff&gt;:</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f10:       f0 04 00 00 00 00       [MIB] (p39) break.m 0x0</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f16:       00 40 c0 0e 00 00                   data8 0x03b010000</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f1c:       00 00 00 60                         data8 0xc000000000</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f20:       00 05 00 00 00 00       [MII] (p40) break.m 0x0</code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f26:       00 40 c0 0e 00 00                   data8 0x03b010000</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f2c:       00 00 00 60                         data8 0xc000000000</code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f30:       10 05 00 00 00 00       [MIB] (p40) break.m 0x0</code></span></span>
+<span class="line" db-line="25"><span class="ln">25 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f36:       00 40 c0 0e 00 00                   data8 0x03b010000</code></span></span>
+<span class="line" db-line="26"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">6000000000000f3c:       00 00 00 60                         data8 0xc000000000</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>4<span>.</span>1<span>.</span>1<span>.</span>5<span> </span></span>Hello world GOT</div></header></div><p class="releaseinfo">0x6000000000000ec0 + 0x50 = 0x6000000000000f10, or the
+	<code class="computeroutput1">.IA_64.pltoff</code> section.  Now
+	we're starting to get somewhere!</p><p class="releaseinfo">We can decode the <span>objdump</span>
+	output so we can see exactly what is being loaded here.
+	Swapping the byte order of the first 8 bytes
+	<code class="computeroutput1">f0 04 00 00 00 00 00 40</code> we
+	end up with
+	<code class="computeroutput1">0x4000000000004f0</code>.  Now that
+	address looks familiar!  Looking back up at the assemble
+	output of the PLT we see that address.</p><p class="releaseinfo">The code at
+	<code class="computeroutput1">0x4000000000004f0</code> firstly
+	puts a zero value into r15, and then branches back to
+	<code class="computeroutput1">0x40000000000004c0</code>.  Wait a
+	minute!  That's the start of our PLT section.</p><p class="releaseinfo">We can trace this code through too.  Firstly we save the
+	value of the global pointer
+	(<code class="computeroutput1">r2</code>) then we load three 8
+	byte values into <code class="computeroutput1">r16</code>,
+	<code class="computeroutput1">r17</code> and finally,
+	<code class="computeroutput1">r1</code>.  We then branch to the
+	address in <code class="computeroutput1">r17</code>.  What we are
+	seeing here is the actual call into the dynamic linker!</p><p class="releaseinfo">We need to delve into the ABI to understand exactly what
+	is being loaded at this point.  The ABI says two things --
+	dynamically linked programs must have a special section
+	(called the
+	<code class="computeroutput1">DT_IA_64_PLT_RESERVE</code> section)
+	that can hold three 8 byte values.  There is a pointer where
+	this reserved area in the dynamic segment of the binary.</p><div id="dynamic_libraries_s1_s1_ex6" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="29"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">            </code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Dynamic segment at offset 0xcb8 contains 25 entries:</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  Tag        Type                         Name/Value</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6.1]</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x000000000000000c (INIT)               0x4000000000000470</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x000000000000000d (FINI)               0x4000000000000a20</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000019 (INIT_ARRAY)         0x6000000000000c90</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x000000000000001b (INIT_ARRAYSZ)       24 (bytes)</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x000000000000001a (FINI_ARRAY)         0x6000000000000ca8</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000004 (HASH)               0x4000000000000200</code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000005 (STRTAB)             0x4000000000000330</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000006 (SYMTAB)             0x4000000000000240</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x000000000000000a (STRSZ)              138 (bytes)</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x000000000000000b (SYMENT)             24 (bytes)</code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000015 (DEBUG)              0x0</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000070000000 (IA_64_PLT_RESERVE)  0x6000000000000ec0 -- 0x6000000000000ed8</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000003 (PLTGOT)             0x6000000000000ec0</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000002 (PLTRELSZ)           72 (bytes)</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000014 (PLTREL)             RELA</code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000017 (JMPREL)             0x4000000000000420</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000007 (RELA)               0x40000000000003f0</code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000008 (RELASZ)             48 (bytes)</code></span></span>
+<span class="line" db-line="25"><span class="ln">25 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000009 (RELAENT)            24 (bytes)</code></span></span>
+<span class="line" db-line="26"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x000000006ffffffe (VERNEED)            0x40000000000003d0</code></span></span>
+<span class="line" db-line="27"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x000000006fffffff (VERNEEDNUM)         1</code></span></span>
+<span class="line" db-line="28"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x000000006ffffff0 (VERSYM)             0x40000000000003ba</code></span></span>
+<span class="line" db-line="29"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> 0x0000000000000000 (NULL)               0x0</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>4<span>.</span>1<span>.</span>1<span>.</span>6<span> </span></span>Dynamic Segment</div></header></div><p class="releaseinfo">Do you notice anything about it?  Its the same value as
+	the GOT.  This means that the first three 8 byte entries in
+	the GOT are actually the reserved area; thus will always be
+	pointed to by the global pointer.</p><p class="releaseinfo">When the dynamic linker starts it is its duty to fill
+	these values in.  The ABI says that the first value will be
+	filled in by the dynamic linker giving this
+	<em class="calibre5">module</em> a unique ID.  The second value is
+	the global pointer value for the dynamic linker, and the third
+	value is the address of the function that finds and fixes up
+	the symbol.</p><div id="dynamic_libraries_s1_s1_ex7" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="45"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">            /* Set up the loaded object described by L so its unrelocated PLT</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">   entries will jump to the on-demand fixup code in dl-runtime.c.  */</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">static inline int __attribute__ ((unused, always_inline))</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">elf_machine_runtime_setup (struct link_map *l, int lazy, int profile)</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  extern void _dl_runtime_resolve (void);</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  extern void _dl_runtime_profile (void);</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  if (lazy)</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">    {</code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      register Elf64_Addr gp __asm__ ("gp");</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      Elf64_Addr *reserve, doit;</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      /*</code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       * Careful with the typecast here or it will try to add l-l_addr</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       * pointer elements</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">       */</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      reserve = ((Elf64_Addr *)</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">                 (l-&gt;l_info[DT_IA_64 (PLT_RESERVE)]-&gt;d_un.d_ptr + l-&gt;l_addr));</code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      /* Identify this shared object.  */</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      reserve[0] = (Elf64_Addr) l;</code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="25"><span class="ln">25 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      /* This function will be called to perform the relocation.  */</code></span></span>
+<span class="line" db-line="26"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      if (!profile)</code></span></span>
+<span class="line" db-line="27"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        doit = (Elf64_Addr) ((struct fdesc *) &amp;_dl_runtime_resolve)-&gt;ip;</code></span></span>
+<span class="line" db-line="28"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      else</code></span></span>
+<span class="line" db-line="29"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        {</code></span></span>
+<span class="line" db-line="30"><span class="ln">30 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">          if (GLRO(dl_profile) != NULL</code></span></span>
+<span class="line" db-line="31"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">              &amp;&amp; _dl_name_match_p (GLRO(dl_profile), l))</code></span></span>
+<span class="line" db-line="32"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">            {</code></span></span>
+<span class="line" db-line="33"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">              /* This is the object we are looking for.  Say that we really</code></span></span>
+<span class="line" db-line="34"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">                 want profiling and the timers are started.  */</code></span></span>
+<span class="line" db-line="35"><span class="ln">35 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">              GL(dl_profile_map) = l;</code></span></span>
+<span class="line" db-line="36"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">            }</code></span></span>
+<span class="line" db-line="37"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">          doit = (Elf64_Addr) ((struct fdesc *) &amp;_dl_runtime_profile)-&gt;ip;</code></span></span>
+<span class="line" db-line="38"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        }</code></span></span>
+<span class="line" db-line="39"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="40"><span class="ln">40 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      reserve[1] = doit;</code></span></span>
+<span class="line" db-line="41"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">      reserve[2] = gp;</code></span></span>
+<span class="line" db-line="42"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">    }</code></span></span>
+<span class="line" db-line="43"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="44"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">  return lazy;</code></span></span>
+<span class="line" db-line="45"><span class="ln">45 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>4<span>.</span>1<span>.</span>1<span>.</span>7<span> </span></span>Code in the dynamic linker for setting up special
+	  values
+	  (from libc <code class="computeroutput1">sysdeps/ia64/dl-machine.h</code>)</div></header></div><p class="releaseinfo">We can see how this gets setup by the dynamic linker by
+	looking at the function that does this for the binary.  The
+	<code class="computeroutput1">reserve</code> variable is set from
+	the PLT_RESERVE section pointer in the binary.  The unique
+	value (put into <code class="computeroutput1">reserve[0]</code>)
+	is the address of the <em class="calibre5">link map</em> for this
+	object.  Link maps are the internal representation within
+	<code class="computeroutput1">glibc</code> for shared objects.  We
+	then put in the address of
+	<code class="computeroutput1">_dl_runtime_resolve</code> to the
+	second value (assuming we are not using profiling).
+	<code class="computeroutput1">reserve[2]</code> is finally set to
+	gp, which has been found from r2 with the
+	<code class="computeroutput1">__asm__</code> call.</p><p class="releaseinfo">Looking back at the ABI, we see that the
+	<code class="computeroutput1">relocation index</code> for the
+	entry must be placed in <code class="computeroutput1">r15</code>
+	and the unique identifier must be passed in
+	<code class="computeroutput1">r16</code>.</p><p class="releaseinfo"><code class="computeroutput1">r15</code> has previously been
+	set in the stub code, before we jumped back to the start of
+	the PLT.  Have a look down the entries, and notice how each
+	PLT entry loads <code class="computeroutput1">r15</code> with an
+	incremented value?  It should come as no surprise if you look
+	at the relocations the <code class="computeroutput1">printf</code>
+	relocation is number zero.</p><p class="releaseinfo"><code class="computeroutput1">r16</code> we load up from the
+	values that have been initialised by the dynamic linker, as
+	previously discussed.  Once that is ready, we can load the
+	function address and global pointer and branch into the
+	function.</p><p class="releaseinfo">What happens at this point is the dynamic linker
+	function <code class="computeroutput1">_dl_runtime_resolve</code>
+	is run.  It finds the relocation; remember how the relocation
+	specified the name of the symbol?  It uses this name to find
+	the right function; this might involve loading the library
+	from disk if it is not already in memory, or otherwise sharing
+	the code.</p><p class="releaseinfo">The relocation record provides the dynamic linker with
+	the address it needs to "fix up"; remember it was in the GOT
+	and loaded by the initial PLT stub?  This means that after the
+	first time the function is called, the
+	<em class="calibre5">second</em> time it is loaded it will get the
+	direct address of the function; short circuiting the dynamic
+	linker.</p></section><section id="dynamic_libraries_s1_s2"><header class="calibre8"><h4 class="calibre21"><span class="first-last">4<span class="first-last">.</span>1<span class="first-last">.</span>2<span class="first-last"> </span></span>Summary</h4></header><p class="releaseinfo">You've seen the <em class="calibre5">exact</em> mechanism
+	behind the PLT, and consequently the inner workings of the
+	dynamic linker.  The important points to remember are</p><ul class="itemizedlist"><li class="calibre11"><p class="releaseinfo">Library calls in your program actually call a stub
+	      of code in the PLT of the binary.</p></li><li class="calibre11"><p class="releaseinfo">That stub code loads an address and jumps to
+	      it.</p></li><li class="calibre11"><p class="releaseinfo">Initially, that address points to a function in
+	      the dynamic linker which is capable of looking up the
+	      "real" function, given the information in the relocation
+	      entry for that function.</p></li><li class="calibre11"><p class="releaseinfo">The dynamic linker re-writes the address that the
+	      stub code reads, so that the next time the function is
+	      called it will go straight to the right address.</p></li></ul></section></section></section></div></main>
+
+<main class="calibre3">
+<div id="chapter08" class="author">
+<section id="libraries_and_the_linker"><header class="calibre8"><h2 class="calibre7" id="calibre_pb_70"><span class="first-last">5<span class="first-last"> </span></span>Working with libraries and the linker</h2></header><p class="releaseinfo">The presence of the dynamic linker provides both some
+    advantages we can utilise and some extra issues that need to be
+    resolved to get a functional system.</p><section id="libraries_and_the_linker_s1"><header class="calibre8"><h3 class="calibre2"><span class="first-last">5<span class="first-last">.</span>1<span class="first-last"> </span></span>Library versions</h3></header><p class="releaseinfo">One potential issue is different versions of libraries.
+      With only static libraries there is much less potential for
+      problems, as all library code is built directly into the binary
+      of the application.  If you want to use a new version of the
+      library you need to recompile it into a new binary, replacing
+      the old one.</p><p class="releaseinfo">This is obviously fairly impractical for common libraries,
+      the most common of course being <span>libc</span>
+      which is included in most all applications.  If it were only
+      available as a static library any change would require every
+      single application in the system be rebuilt.</p><p class="releaseinfo">However, changes in the way the dynamic library work could
+      cause multiple problems.  In the best case, the modifications
+      are completely compatible and nothing externally visible is
+      changed.  On the other hand the changes might cause the
+      application to crash; for example if a function that used to
+      take an <code class="computeroutput1">int</code> changes to take an
+      <code class="computeroutput1">int *</code>.  Worse, the new library
+      version could have changed semantics and suddenly start silently
+      returning different, possibly wrong values.  This can be a very
+      nasty bug to try and track down; when an application crashes you
+      can use a debugger to isolate where the error occurs whilst data
+      corruption or modification may only show up in seemingly
+      unrelated parts of the application.</p><p class="releaseinfo">The dynamic linker requires a way to determine the version
+      of libraries within the system so that newer revisions can be
+      identified.  There are a number of schemes a modern dynamic
+      linker can use to find the right versions of libraries.</p><section id="libraries_and_the_linker_s1_s1"><header class="calibre8"><h4 class="calibre21"><span class="first-last">5<span class="first-last">.</span>1<span class="first-last">.</span>1<span class="first-last"> </span></span>
+            <code class="computeroutput3">sonames</code>
+          </h4></header><p class="releaseinfo">Using <code class="computeroutput1">sonames</code> we can
+	add some extra information to a library to help identify
+	versions.</p><p class="releaseinfo">As we have seen previously, an application lists the
+	libraries it requires in
+	<code class="computeroutput1">DT_NEEDED</code> fields in the
+	dynamic section of the binary.  The actual library is held in
+	a file on disc, usually in
+	<code class="computeroutput1">/lib</code> for core system
+	libraries or <code class="computeroutput1">/usr/lib</code> for
+	optional libraries.</p><p class="releaseinfo">To allow multiple versions of the library to exist on
+	disk, they obviously require differing file names.  The
+	<code class="computeroutput1">soname</code> scheme uses a
+	combination of names and file system links to build a
+	hierarchy of libraries.</p><p class="releaseinfo">This is done by introducing the concept of
+	<em class="calibre5">major</em> and <em class="calibre5">minor</em>
+	library revisions.  A minor revision is one wholly backwards
+	compatible with a previous version of the library; this
+	usually consists of only bug fixes.  A major revision is
+	therefore any revision that is not compatible; e.g. changes
+	the inputs to functions or the way a function behaves.</p><p class="releaseinfo">As each library revision, major or minor, will need to
+	be kept in a separate file on disk, this forms the basis of
+	the library hierarchy.  The library name is by convention
+	<code class="computeroutput1">libNAME.so.MAJOR.MINOR</code><span id="libraries_and_the_linker_s1_s1_para5_footnote1-fnote">You can optionally have a <em class="calibre5">release</em>
+	as a final identifier after the minor number.  Generally this
+	is enough to distinguish all the various versions
+	library.</span>.  However, if every application
+	were directly linked against this file we would have the same
+	issue as with a static library; every time a minor change
+	happened we would need to rebuild the application to point to
+	the new library.</p><p class="releaseinfo">What we really want to refer to is the
+	<em class="calibre5">major</em> number of the library.  If this
+	changes, we reasonably are required to recompile our
+	application, since we need to make sure our program is still
+	compatible with the new library.</p><p class="releaseinfo">Thus the <code class="computeroutput1">soname</code> is the
+	<code class="computeroutput1">libNAME.so.MAJOR</code>.  The
+	<code class="computeroutput1">soname</code> should be set in the
+	<code class="computeroutput1">DT_SONAME</code> field of the
+	dynamic section in a shared library; the library author can
+	specify this version when they build the library.</p><p class="releaseinfo">Thus each minor version library file on disc can specify
+	 the same major version number in its
+	 <code class="computeroutput1">DT_SONAME</code> field, allowing
+	 the dynamic linker to know that this particular library file
+	 implements a particular major revision of the library API and
+	 ABI.</p><p class="releaseinfo">To keep track of this, an application called
+	<span>ldconfig</span> is commonly run to create
+	symbolic links named for the major version to the latest minor
+	version on the system.  <span>ldconfig</span>
+	works by running through all the libraries that implement a
+	particular major revision number, and then picks out the one
+	with the highest minor revision.  It then creates a symbolic
+	link from <code class="computeroutput1">libNAME.so.MAJOR</code> to
+	the actual library file on disc,
+	i.e. <code class="computeroutput1">libNAME.so.MAJOR.MINOR</code>.</p><p class="releaseinfo">XXX : talk about libtool versions</p><p class="releaseinfo">The final piece of the hierarchy is the
+	<em class="calibre5">compile name</em> for the library.  When you
+	compile your program, to link against a library you use the
+	<code class="computeroutput1">-lNAME</code> flag, which goes off
+	searching for the <code class="computeroutput1">libNAME.so</code>
+	file in the library search path.  Notice however, we have not
+	specified any version number; we just want to link against the
+	latest library on the system.  It is up to the installation
+	procedure for the library to create the symbolic link between
+	the compile <code class="computeroutput1">libNAME.so</code> name
+	and the latest library code on the system.  Usually this is
+	handled by your package management system
+	(<span>dpkg</span> or
+	<span>rpm</span>).  This is not an automated
+	process because it is possible that the latest library on the
+	system may not be the one you wish to always compile against;
+	for example if the latest installed library were a development
+	version not appropriate for general use.</p><p class="releaseinfo">The general process is illustrated below.</p><div id="libraries_and_the_linker_s1_s1_fig1" class="figure"><div class="author" summary="Describing the soname system"><div class="media"><picture><img src="libs.svg" alt="Describing the soname system" class="calibre12"/></picture></div></div><header class="calibre8"><div class="title"><span>Figure<span> </span></span><span>5<span>.</span>1<span>.</span>1<span>.</span>1<span> </span></span>
+              <code class="computeroutput1">sonames</code>
+            </div></header></div><section id="libraries_and_the_linker_s1_s1_s1"><header class="calibre8"><h5 class="calibre24"><span class="first-last">5<span class="first-last">.</span>1<span class="first-last">.</span>1<span class="first-last">.</span>1<span class="first-last"> </span></span>How the dynamic linker looks up libraries</h5></header><p class="releaseinfo">When the application starts, the dynamic linker looks
+	  at the <code class="computeroutput1">DT_NEEDED</code> field to
+	  find the required libraries.  This field contains the
+	  <code class="computeroutput1">soname</code> of the library, so
+	  the next step is for the dynamic linker to walk through all
+	  the libraries in its search path looking for it.</p><p class="releaseinfo">This process conceptually involves two steps.  Firstly
+	  the dynamic linker needs to search through all the libraries
+	  to find those that implement the given
+	  <code class="computeroutput1">soname</code>.  Secondly the file
+	  names for the minor revisions need to be compared to find
+	  the latest version, which is then ready to be loaded.</p><p class="releaseinfo">We mentioned previously that there is a symbolic link
+	  setup by <span>ldconfig</span> between the
+	  library <code class="computeroutput1">soname</code> and the
+	  latest minor revision.  Thus the dynamic linker should need
+	  to only follow that link to find the correct file to load,
+	  rather than having to open all possible libraries and decide
+	  which one to go with each time the application is
+	  required.</p><p class="releaseinfo">Since file system access is so slow,
+	  <span>ldconfig</span> also creates a
+	  <em class="calibre5">cache</em> of libraries installed in the
+	  system.  This cache is simply a list of
+	  <code class="computeroutput1">soname</code>s of libraries
+	  available to the dynamic linker and a pointer to the major
+	  version link on disk, saving the dynamic linker having to
+	  read entire directories full of files to locate the correct
+	  link.  You can analyse this with <span>/sbin/ldconfig
+	  -p</span>; it actually lives in the file
+	  <code class="computeroutput1">/etc/ldconfig.so.cache</code>.  If
+	  the library is not found in the cache the dynamic linker
+	  will fall back to the slower option of walking the file
+	  system, thus it is important to re-run
+	  <span>ldconfig</span> when new libraries are
+	  installed.</p></section></section></section><section id="libraries_and_the_linker_s2"><header class="calibre8"><h3 class="calibre2"><span class="first-last">5<span class="first-last">.</span>2<span class="first-last"> </span></span>Finding symbols</h3></header><p class="releaseinfo">We've already discussed how the dynamic linker gets the
+      address of a library function and puts it in the PLT for the
+      program to use.  But so far we haven't discussed just
+      <em class="calibre5">how</em> the dynamic linker finds the address of
+      the function.  The whole process is called
+      <em class="calibre5">binding</em>, because the symbol name is bound
+      to the address it represents.</p><p class="releaseinfo">The dynamic linker has a few pieces of information;
+      firstly the <em class="calibre5">symbol</em> that it is searching
+      for, and secondly a list of libraries that that symbol might be
+      in, as defined by the <code class="computeroutput1">DT_NEEDED</code>
+      fields in the binary.</p><p class="releaseinfo">Each shared object library has a section, marked
+      <code class="computeroutput1">SHT_DYNSYM</code> and called
+      <code class="computeroutput1">.dynsym</code> which is the minimal
+      set of symbols required for dynamic linking -- that is any
+      symbol in the library that may be called by an external
+      program.</p><section id="libraries_and_the_linker_s2_s1"><header class="calibre8"><h4 class="calibre21"><span class="first-last">5<span class="first-last">.</span>2<span class="first-last">.</span>1<span class="first-last"> </span></span>Dynamic Symbol Table</h4></header><p class="releaseinfo">In fact, there are three sections that all play a part
+	in describing the dynamic symbols.  Firstly, let us look at
+	the definition of a symbol from the ELF specification</p><div id="libraries_and_the_linker_s2_s1_ex1" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="8"><pre class="language-c"><span class="line" db-line="1"><span class="ln">1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">typedef struct {</code></span></span>
+<span class="line" db-line="2"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">          Elf32_Word    st_name;</code></span></span>
+<span class="line" db-line="3"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">          Elf32_Addr    st_value;</code></span></span>
+<span class="line" db-line="4"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">          Elf32_Word    st_size;</code></span></span>
+<span class="line" db-line="5"><span class="ln">5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">          unsigned char st_info;</code></span></span>
+<span class="line" db-line="6"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">          unsigned char st_other;</code></span></span>
+<span class="line" db-line="7"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">          Elf32_Half    st_shndx;</code></span></span>
+<span class="line" db-line="8"><span class="ln">  <span class="nsep">|</span></span><span class="ld"><code class="calibre13">} Elf32_Sym;</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>5<span>.</span>2<span>.</span>1<span>.</span>1<span> </span></span>Symbol definition from ELF</div></header></div><figure id="libraries_and_the_linker_s2_s1_tab1"><header class="calibre8"><div class="title"><span>Table<span> </span></span><span>5<span>.</span>2<span>.</span>1<span>.</span>1<span> </span></span>ELF symbol fields</div></header><table class="calibre14"><thead class="calibre15"><tr class="calibre16"><th class="calibre17">Field</th><th class="calibre17">Value</th></tr></thead><tbody class="calibre18"><tr class="calibre16"><td class="calibre19">
+                  <code class="computeroutput1">st_name</code>
+                </td><td class="calibre19">An <em class="calibre5">index to the string table</em></td></tr><tr class="calibre16"><td class="calibre19">
+                  <code class="computeroutput1">st_value</code>
+                </td><td class="calibre19">Value - in a
+		relocatable shared object this holds the offset from
+		the section of index given in
+		<code class="computeroutput1">st_shndx</code></td></tr><tr class="calibre16"><td class="calibre19">
+                  <code class="computeroutput1">st_size</code>
+                </td><td class="calibre19">Any associated size of the symbol</td></tr><tr class="calibre16"><td class="calibre19">
+                  <code class="computeroutput1">st_info</code>
+                </td><td class="calibre19">Information on the binding of the symbol
+		(described below) and what type of symbol this is (a
+		function, object, etc).</td></tr><tr class="calibre16"><td class="calibre19">
+                  <code class="computeroutput1">st_other</code>
+                </td><td class="calibre19">Not currently used</td></tr><tr class="calibre16"><td class="calibre19">
+                  <code class="computeroutput1">st_shndx</code>
+                </td><td class="calibre19">Index of the section this symbol resides in
+		(see <code class="computeroutput1">st_value</code></td></tr></tbody></table></figure><p class="releaseinfo">As you can see, the actual string of the symbol name is
+	held in a separate section
+	(<code class="computeroutput1">.dynstr</code>; the entry in the
+	<code class="computeroutput1">.dynsym</code> section only holds an
+	index into the string section.  This creates some level of
+	overhead for the dynamic linker; the dynamic linker must read
+	all of the symbol entries in the
+	<code class="computeroutput1">.dynsym</code> section and then
+	follow the index pointer to find the symbol name for
+	comparison.
+	</p><p class="releaseinfo">To speed this process up, a third section called
+	<code class="computeroutput1">.hash</code> is introduced,
+	containing a <em class="calibre5">hash table</em> of symbol names
+	to symbol table entries.  This hash table is pre-computed when
+	the library is built and allows the dynamic linker to find the
+	symbol entry much faster, generally with only one or two
+	lookups.</p></section><section id="libraries_and_the_linker_s2_s2"><header class="calibre8"><h4 class="calibre21"><span class="first-last">5<span class="first-last">.</span>2<span class="first-last">.</span>2<span class="first-last"> </span></span>Symbol Binding</h4></header><p class="releaseinfo">Whilst we usually say the process of finding the address
+	of a symbol refers is the process of binding that symbol, the
+	<em class="calibre5">symbol binding</em> has a separate
+	meaning.</p><p class="releaseinfo">The binding of a symbol dictates its external visibility
+	during the dynamic linking process.  A
+	<em class="calibre5">local</em> symbol is not visible outside the
+	object file it is defined in.  A <em class="calibre5">global</em>
+	symbol is visible to other object files, and can satisfy
+	undefined references in other objects.</p><p class="releaseinfo">A <em class="calibre5">weak</em> reference is a special type
+	of lower priority global reference.  This means it is designed
+	to be overridden, as we will see shortly.</p><p class="releaseinfo">Below we have an example C program which we analyse to
+	inspect the symbol bindings.</p><div id="libraries_and_the_linker_s2_s2_ex1" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="48"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ cat test.c</code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">static int static_variable;</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">extern int extern_variable;</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int external_function(void);</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int function(void)</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        return external_function();</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">static int static_function(void)</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        return 10;</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#pragma weak weak_function</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int weak_function(void)</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        return 10;</code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ gcc -c test.c</code></span></span>
+<span class="line" db-line="25"><span class="ln">25 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ objdump --syms test.o</code></span></span>
+<span class="line" db-line="26"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="27"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">test.o:     file format elf32-powerpc</code></span></span>
+<span class="line" db-line="28"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="29"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">SYMBOL TABLE:</code></span></span>
+<span class="line" db-line="30"><span class="ln">30 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000 l    df *ABS*  00000000 test.c</code></span></span>
+<span class="line" db-line="31"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000 l    d  .text  00000000 .text</code></span></span>
+<span class="line" db-line="32"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000 l    d  .data  00000000 .data</code></span></span>
+<span class="line" db-line="33"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000 l    d  .bss   00000000 .bss</code></span></span>
+<span class="line" db-line="34"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000038 l     F .text  00000024 static_function</code></span></span>
+<span class="line" db-line="35"><span class="ln">35 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000 l    d  .sbss  00000000 .sbss</code></span></span>
+<span class="line" db-line="36"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000 l     O .sbss  00000004 static_variable</code></span></span>
+<span class="line" db-line="37"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000 l    d  .note.GNU-stack        00000000 .note.GNU-stack</code></span></span>
+<span class="line" db-line="38"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000 l    d  .comment       00000000 .comment</code></span></span>
+<span class="line" db-line="39"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000 g     F .text  00000038 function</code></span></span>
+<span class="line" db-line="40"><span class="ln">40 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000         *UND*  00000000 external_function</code></span></span>
+<span class="line" db-line="41"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">0000005c  w    F .text  00000024 weak_function</code></span></span>
+<span class="line" db-line="42"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="43"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ nm test.o</code></span></span>
+<span class="line" db-line="44"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">         U external_function</code></span></span>
+<span class="line" db-line="45"><span class="ln">45 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000 T function</code></span></span>
+<span class="line" db-line="46"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000038 t static_function</code></span></span>
+<span class="line" db-line="47"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">00000000 s static_variable</code></span></span>
+<span class="line" db-line="48"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">0000005c W weak_function</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>5<span>.</span>2<span>.</span>2<span>.</span>1<span> </span></span>Examples of symbol bindings</div></header></div><p class="releaseinfo">Notice the use of
+	<code class="computeroutput1">#pragma</code> to define the weak
+	symbol.  A <code class="computeroutput1">pragma</code> is a way of
+	communicating extra information to the compiler; its use is
+	not common but occasionally is required to get the compiler to
+	do out of the ordinary operations.x</p><p class="releaseinfo">We inspect the symbols with two different tools; in both
+	cases the binding is shown in the second column; the codes
+	should be quite straight forward (are are documented in the
+	tools <span>man</span> page).</p><section id="libraries_and_the_linker_s2_s2_s1"><header class="calibre8"><h5 class="calibre24"><span class="first-last">5<span class="first-last">.</span>2<span class="first-last">.</span>2<span class="first-last">.</span>1<span class="first-last"> </span></span>Overriding symbols</h5></header><p class="releaseinfo">It is often very useful for a programmer to be able to
+	  <em class="calibre5">override</em> a symbol in a library; that is
+	  to subvert the normal symbol with a different
+	  definition.</p><p class="releaseinfo">We mentioned that the order that libraries is searched
+	  is given by the order of the
+	  <code class="computeroutput1">DT_NEEDED</code> fields within the
+	  library.  However, it is possible to insert libraries as the
+	  <em class="calibre5">last</em> libraries to be searched; this
+	  means that any symbols within them will be found as the
+	  final reference.</p><p class="releaseinfo">This is done via an environment variable called
+	  <code class="computeroutput1">LD_PRELOAD</code> which specifies
+	  libraries that the linker should load last.</p><div id="libraries_and_the_linker_s2_s2_s1_ex1" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="31"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ cat override.c</code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#define _GNU_SOURCE 1</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;stdio.h&gt;</code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;stdlib.h&gt;</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;unistd.h&gt;</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;sys/types.h&gt;</code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;dlfcn.h&gt;</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">pid_t getpid(void)</code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        pid_t (*orig_getpid)(void) = dlsym(RTLD_NEXT, "getpid");</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        printf("Calling GETPID\n");</code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        return orig_getpid();</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ cat test.c</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;stdio.h&gt;</code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;stdlib.h&gt;</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;unistd.h&gt;</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int main(void)</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        printf("%d\n", getpid());</code></span></span>
+<span class="line" db-line="25"><span class="ln">25 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="26"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="27"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ gcc -shared -fPIC -o liboverride.so override.c -ldl</code></span></span>
+<span class="line" db-line="28"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ gcc -o test test.c</code></span></span>
+<span class="line" db-line="29"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ LD_PRELOAD=./liboverride.so ./test</code></span></span>
+<span class="line" db-line="30"><span class="ln">30 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">Calling GETPID</code></span></span>
+<span class="line" db-line="31"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">15187</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>5<span>.</span>2<span>.</span>2<span>.</span>1<span>.</span>1<span> </span></span>Example of <code class="computeroutput1">LD_PRELOAD</code></div></header></div><p class="releaseinfo">In the above example we override the
+	  <code class="computeroutput1">getpid</code> function to print
+	  out a small statement when it is called.  We use the
+	  <code class="computeroutput1">dlysm</code> function provided by
+	  <code class="computeroutput1">libc</code> with an argument
+	  telling it to continue on and find the
+	  <em class="calibre5">next</em> symbol called
+	  <code class="computeroutput1">getpid</code>.</p><section id="libraries_and_the_linker_s2_s2_s1_s1"><header class="calibre8"><h5 class="calibre24"><span class="first-last">5<span class="first-last">.</span>2<span class="first-last">.</span>2<span class="first-last">.</span>1<span class="first-last">.</span>1<span class="first-last"> </span></span>Weak symbols over time</h5></header><p class="releaseinfo">The concept of the <em class="calibre5">weak</em> symbol
+	  is that the symbol is marked as a lower priority and can be
+	  overridden by another symbol.  Only if no other
+	  implementation is found will the weak symbol be the one that
+	  it used.</p><p class="releaseinfo">The logical extension of this for the dynamic loader
+	    is that all libraries should be loaded, and any weak
+	    symbols in those libraries should be ignored for normal
+	    symbols in any other library.  This was indeed how weak
+	    symbol handling was originally implemented in Linux by
+	    <span>glibc</span>.</p><p class="releaseinfo">However, this was actually incorrect to the letter
+	    of the Unix standard at the time
+	    (<em class="calibre5">SysVr4</em>).  The standard actually
+	    dictates that weak symbols should only be handled by the
+	    <em class="calibre5">static</em> linker; they should remain
+	    irrelevant to the dynamic linker (see the section on
+	    binding order below).</p><p class="releaseinfo">At the time, the Linux implementation of making the
+	    dynamic linker override weak symbols matched with SGI's
+	    IRIX platform, but differed to others such as Solaris and
+	    AIX.  When the developers realised this behaviour
+	    violated the standard it was reversed, and the old
+	    behaviour relegated to requiring a special environment
+	    flag (<em class="calibre5">LD_DYNAMIC_WEAK</em>) be set.</p></section></section><section id="libraries_and_the_linker_s2_s2_s2"><header class="calibre8"><h5 class="calibre24"><span class="first-last">5<span class="first-last">.</span>2<span class="first-last">.</span>2<span class="first-last">.</span>2<span class="first-last"> </span></span>Specifying binding order</h5></header><p class="releaseinfo">We have seen how we can override a function in another
+	  library by <em class="calibre5">preloading</em> another shared
+	  library with the same symbol defined.  The symbol that gets
+	  resolved as the final one is the last one in the order that
+	  the dynamic loader loads the libraries.</p><p class="releaseinfo">Libraries are loaded in the order they are specified
+	  in the <code class="computeroutput1">DT_NEEDED</code> flag of
+	  the binary.  This in turn is decided from the order that
+	  libraries are passed in on the command line when the object
+	  is built.  When symbols are to be located, the dynamic
+	  linker starts at the last loaded library and works backwards
+	  until the symbol is found.</p><p class="releaseinfo">Some shared libraries, however, need a way to override
+	  this behaviour.  They need to say to the dynamic linker
+	  "look first inside me for these symbols, rather than working
+	  backwards from the last loaded library".  Libraries can set
+	  the <code class="computeroutput1">DT_SYMBOLIC</code> flag in
+	  their dynamic section header to get this behaviour (this is
+	  usually set by passing the
+	  <code class="computeroutput1">-Bsymbolic</code> flag on the
+	  static linkers command line when building the shared
+	  library).</p><p class="releaseinfo">What this flag is doing is controlling <em class="calibre5">symbol
+	  visibility</em>.  The symbols in the library can not
+	  be overridden so could be considered private to the library
+	  that is being loaded.</p><p class="releaseinfo">However, this loses a lot of granularity since the
+	  library is either flagged for this behaviour, or it is not.
+	  A better system would allow us to make some symbols private
+	  and some symbols public.</p></section><section id="libraries_and_the_linker_s2_s2_s3"><header class="calibre8"><h5 class="calibre24"><span class="first-last">5<span class="first-last">.</span>2<span class="first-last">.</span>2<span class="first-last">.</span>3<span class="first-last"> </span></span>Symbol Versioning</h5></header><p class="releaseinfo">That better system comes from symbol versioning.  With
+	  symbol versioning we specify some extra input to the static
+	  linker to give it some more information about the symbols in
+	  our shared library.</p><div id="libraries_and_the_linker_s2_s2_s3_ex1" class="figure"><div class="pre-wrap" db-startinglinenumber="1" db-numberoflines="63"><pre class="language-c"><span class="line" db-line="1"><span class="ln"> 1 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ cat Makefile</code></span></span>
+<span class="line" db-line="2"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">all: test testsym</code></span></span>
+<span class="line" db-line="3"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="4"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">clean:</code></span></span>
+<span class="line" db-line="5"><span class="ln"> 5 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        rm -f *.so test testsym</code></span></span>
+<span class="line" db-line="6"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="7"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">liboverride.so : override.c</code></span></span>
+<span class="line" db-line="8"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        $(CC) -shared -fPIC -o liboverride.so override.c</code></span></span>
+<span class="line" db-line="9"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="10"><span class="ln">10 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">libtest.so : libtest.c</code></span></span>
+<span class="line" db-line="11"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        $(CC) -shared -fPIC -o libtest.so libtest.c</code></span></span>
+<span class="line" db-line="12"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="13"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">libtestsym.so : libtest.c</code></span></span>
+<span class="line" db-line="14"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        $(CC) -shared -fPIC -Wl,-Bsymbolic -o libtestsym.so libtest.c</code></span></span>
+<span class="line" db-line="15"><span class="ln">15 <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="16"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">test : test.c libtest.so liboverride.so</code></span></span>
+<span class="line" db-line="17"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        $(CC) -L. -ltest -o test test.c</code></span></span>
+<span class="line" db-line="18"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="19"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">testsym : test.c libtestsym.so liboverride.so</code></span></span>
+<span class="line" db-line="20"><span class="ln">20 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        $(CC) -L. -ltestsym -o testsym test.c</code></span></span>
+<span class="line" db-line="21"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="22"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ cat libtest.c</code></span></span>
+<span class="line" db-line="23"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;stdio.h&gt;</code></span></span>
+<span class="line" db-line="24"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="25"><span class="ln">25 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int foo(void) {</code></span></span>
+<span class="line" db-line="26"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        printf("libtest foo called\n");</code></span></span>
+<span class="line" db-line="27"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        return 1;</code></span></span>
+<span class="line" db-line="28"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="29"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="30"><span class="ln">30 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int test_foo(void)</code></span></span>
+<span class="line" db-line="31"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="32"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        return foo();</code></span></span>
+<span class="line" db-line="33"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="34"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="35"><span class="ln">35 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ cat override.c</code></span></span>
+<span class="line" db-line="36"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;stdio.h&gt;</code></span></span>
+<span class="line" db-line="37"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="38"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int foo(void)</code></span></span>
+<span class="line" db-line="39"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="40"><span class="ln">40 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        printf("override foo called\n");</code></span></span>
+<span class="line" db-line="41"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        return 0;</code></span></span>
+<span class="line" db-line="42"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="43"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="44"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ cat test.c</code></span></span>
+<span class="line" db-line="45"><span class="ln">45 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">#include &lt;stdio.h&gt;</code></span></span>
+<span class="line" db-line="46"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="47"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">int main(void)</code></span></span>
+<span class="line" db-line="48"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{</code></span></span>
+<span class="line" db-line="49"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">        printf("%d\n", test_foo());</code></span></span>
+<span class="line" db-line="50"><span class="ln">50 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">}</code></span></span>
+<span class="line" db-line="51"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="52"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ cat Versions</code></span></span>
+<span class="line" db-line="53"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">{global: test_foo;  local: *; };</code></span></span>
+<span class="line" db-line="54"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="55"><span class="ln">55 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ gcc -shared -fPIC -Wl,-version-script=Versions -o libtestver.so libtest.c</code></span></span>
+<span class="line" db-line="56"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="57"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ gcc -L. -ltestver -o testver test.c</code></span></span>
+<span class="line" db-line="58"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="59"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">$ LD_LIBRARY_PATH=. LD_PRELOAD=./liboverride.so ./testver</code></span></span>
+<span class="line" db-line="60"><span class="ln">60 <span class="nsep">|</span></span><span class="ld"><code class="calibre13">libtest foo called</code></span></span>
+<span class="line" db-line="61"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13"> </code></span></span>
+<span class="line" db-line="62"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">100000574 l     F .text	00000054              foo</code></span></span>
+<span class="line" db-line="63"><span class="ln">   <span class="nsep">|</span></span><span class="ld"><code class="calibre13">000005c8 g     F .text	00000038              test_foo</code></span></span>
+</pre></div><header class="calibre8"><div class="title"><span>Example<span> </span></span><span>5<span>.</span>2<span>.</span>2<span>.</span>3<span>.</span>1<span> </span></span>Example of symbol versioning</div></header></div><p class="releaseinfo">In the simplest case as above, we simply state if the
+	  symbol is <em class="calibre5">global</em> or
+	  <em class="calibre5">local</em>.  Thus in the case above the
+	  <code class="computeroutput1">foo</code> function is most likely
+	  a support function for
+	  <code class="computeroutput1">test_foo</code>; whilst we are
+	  happy for the overall functionality of the
+	  <code class="computeroutput1">test_foo</code> function to be
+	  overridden, if we do use the shared library version it needs
+	  to have unaltered access nobody should modify the support
+	  function.</p><p class="releaseinfo">This allows us to keep our
+	  <em class="calibre5">namespace</em> better organised.  Many
+	  libraries might want to implement something that could be
+	  named like a common function like
+	  <code class="computeroutput1">read</code> or
+	  <code class="computeroutput1">write</code>; however if they all
+	  did the actual version given to the program might be
+	  completely wrong.  By specifying symbols as
+	  <em class="calibre5">local</em> only the developer can be sure
+	  that nothing will conflict with that internal name, and
+	  conversely the name he chose will not influence any other
+	  program.</p><p class="releaseinfo">An extension of this scheme is <em class="calibre5">symbol
+	  versioning</em>.  With this you can specify multiple
+	  versions of the same symbol in the same library.  The static
+	  linker appends some version information after the symbol
+	  name (something like <code class="computeroutput1">@VER</code>)
+	  describing what version the symbol is given.</p><p class="releaseinfo">If the developer implements a function that has the
+	  same name but possibly a binary or programatically different
+	  implementation he can increase the version number.  When new
+	  applications are built against the shared library, they will
+	  pick up the latest version of the symbol.  However,
+	  applications built against earlier versions of the same
+	  library will be requesting older versions (e.g. will have
+	  older <code class="computeroutput1">@VER</code> strings in the
+	  symbol name they request) and thus get the original
+	  implementation. XXX : example</p></section></section></section></section></div></main>
+
+<main class="calibre3">
+<div id="glossary" class="author"><header class="calibre8"><h2 class="calibre7" id="calibre_pb_71">Glossary</h2></header><div id="glossary_gd1" class="lot"><header class="calibre8"><div class="title">A</div></header><dl class="releaseinfo"><dt id="ABI" class="author"><span>Application Binary Interface</span></dt><dd class="glossdef"><p class="releaseinfo">A technical description of how the operating system should interface with hardware.</p></dd><dd class="glossdef"><p class="releaseinfo"><span>See Also<span> </span></span><a href="#API" class="link pcalibre"><span><span>Application Programming Interface</span></span></a>.</p></dd><dt id="API" class="author"><span>Application Programming Interface</span></dt><dd class="glossdef"><p class="releaseinfo">The set of variables and functions used to communicate between different parts of programs.</p></dd><dd class="glossdef"><p class="releaseinfo"><span>See Also<span> </span></span><a href="#ABI" class="link pcalibre"><span><span>Application Binary Interface</span></span></a>.</p></dd></dl></div><div id="glossary_gd2" class="lot"><header class="calibre8"><div class="title">E</div></header><dl class="releaseinfo"><dt id="xml" class="author"><span>Extensible Markup Language</span></dt><dd class="glossdef"><p class="releaseinfo">Some reasonable definition here.</p></dd><dd class="glossdef"><p class="releaseinfo"><span>See Also<span> </span></span><a href="#sgml" class="link pcalibre"><span><span>Standardised Generalised Markup Language</span></span></a>.</p></dd><dt id="sgml" class="author"><span>Standardised Generalised Markup Language</span></dt><dd class="glossdef"><p class="releaseinfo">The grand daddy of all documents</p></dd><dd class="glossdef"><p class="releaseinfo"><span>See Also<span> </span></span><a href="#xml" class="link pcalibre"><span><span>Extensible Markup Language</span></span></a>.</p></dd></dl></div><div id="glossary_gd3" class="lot"><header class="calibre8"><div class="title">M</div></header><dl class="releaseinfo"><dt id="glossary_gd3_ge2" class="author"><span>MMU</span></dt><dd class="glossdef"><p class="releaseinfo">The <em class="calibre5">memory managment unit</em>
+	  component of the hardware architecture.</p></dd><dt id="mutuallyexclusive" class="author"><span>Mutually Exclusive</span></dt><dd class="glossdef"><p class="releaseinfo">When a number of things are mutually exclusive, only
+	  one can be valid at a time.  The fact that one of the things
+	  is valid makes the others invalid. </p></dd></dl></div><div id="glossary_gd4" class="lot"><header class="calibre8"><div class="title">O</div></header><dl class="releaseinfo"><dt id="opensource" class="author"><span>Open Source</span></dt><dd class="glossdef"><p class="releaseinfo">Software
+      distributed in source form under licenses guaranteeing anybody
+      rights to freely use, modify, and redistribute the code.</p></dd></dl></div><div id="glossary_gd5" class="lot"><header class="calibre8"><div class="title">S</div></header><dl class="releaseinfo"><dt id="shell" class="author"><span>Shell</span></dt><dd class="glossdef"><p class="releaseinfo">The interface used to interact with the operating system.</p></dd></dl></div><dl class="releaseinfo"/></div></main></body></html>
