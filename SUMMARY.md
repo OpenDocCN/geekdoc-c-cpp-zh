@@ -9,6 +9,7 @@
 +   [C++ FAQ Lite](docs/cpp-faq-lite/README.md)
 +   [C++到 Rust 短语手册](docs/cpp-rs-phsbk/README.md)
 +   [C++11 FAQ 中文版](docs/cpp11-faq/README.md)
++   [自底向上的计算机科学](docs/csbu/README.md)
 +   [FLTK 中文手册](docs/fltk-man/README.md)
 +   [libuv 中文教程](docs/libuv-tut/README.md)
 +   [Linux C 一站式学习](docs/linux-c-1stop-lrn/README.md)
