@@ -6,6 +6,7 @@
 +   [Beyond the C++ Standard Library 中文版](docs/byd-cpp-stdlib/README.md)
 +   [C 语言编程透视](docs/c-prog-toushi/README.md)
 +   [C++ Concurrency In Action](docs/cpp-concur-act/README.md)
++   [C++ 核心准则](docs/cpp-cr-gdln/README.md)
 +   [C++ FAQ Lite](docs/cpp-faq-lite/README.md)
 +   [C++到 Rust 短语手册](docs/cpp-rs-phsbk/README.md)
 +   [C++11 FAQ 中文版](docs/cpp11-faq/README.md)
