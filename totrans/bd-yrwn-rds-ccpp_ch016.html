@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch016.xhtml</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="a1-hints-to-exercises" class="level1" data-number="15">
+<h1 data-number="15">A1: Hints to Exercises</h1>
+<div class="ch-hints">
+<section id="data-structure-hashtables-1" class="level3" data-number="15.0.1">
+<h3 data-number="15.0.1">08. Data Structure: Hashtables</h3>
+<blockquote>
+<p>Q: Our hashtable triggers resizing when the load factor is too high, should we also shrink the hashtable when the load factor is too low? Can the shrinking be performed automatically?</p>
+</blockquote>
+<details>
+<summary>
+Hints:
+</summary>
+Hashtable shrinking is not done automatically in practice. Many real-world usage patterns are periodic, shrinking is not always clearly beneficial. Besides, shrinking does not always return the memory to OS, this is dependent on many factors such as the malloc implementation and the level of memory fragmentation; the outcome of shrinking is not easily predictable.
+</details>
+</section>
+<section id="the-avl-tree-implementation-testing-1" class="level3" data-number="15.0.2">
+<h3 data-number="15.0.2">10. The AVL Tree: Implementation &amp; Testing</h3>
+<blockquote>
+<p>Q: Can you create more test cases? The test cases presented in this chapter are unlikely to be sufficient.</p>
+</blockquote>
+<details>
+<summary>
+Hints:
+</summary>
+<p>Our existing test cases enumerate AVL trees of various sizes. However, given a tree of a particular size, there are many possible configurations, we can go further by enumerating tree configurations too.</p>
+<p>Also, for more complicated code, it is helpful to use profiling tools to check whether the test cases give full coverage of the target code. Non-full coverage indicates bugs in test cases or target code.</p>
+Another technique that is worth mentioning is Fuzz Testing.
+</details>
+</section>
+<section id="the-avl-tree-and-the-sorted-set-1" class="level3" data-number="15.0.3">
+<h3 data-number="15.0.3">11. The AVL Tree and the Sorted Set</h3>
+<blockquote>
+<p>Q: The <code>avl_offset</code> function gives us the ability to query sorted set by rank, now do the reverse, given a node in an AVL tree, find its rank, with a worst-case of <code>O(log(n))</code>. (This is the <code>zrank</code> command.)</p>
+</blockquote>
+<details>
+<summary>
+Hints:
+</summary>
+The rank of a node is related to the rank of its parent. And the rank of the root is obvious.
+</details>
+<blockquote>
+<p>Q: Another sorted set application: count the number of elements within a range. (also with a worst-case of <code>O(log(n))</code>.)</p>
+</blockquote>
+<details>
+<summary>
+Hints:
+</summary>
+Use the rank of the node.
+</details>
+</section>
+<section id="the-heap-data-structure-and-the-ttl-1" class="level3" data-number="15.0.4">
+<h3 data-number="15.0.4">13. The Heap Data Structure and the TTL</h3>
+<blockquote>
+<p>Q: The heap-based timer adds <code>O(log(n))</code> operations to the server, which might be a bottleneck for a sufficiently large number of keys. Can you think of optimizations for a large number of timers?</p>
+</blockquote>
+<details>
+<summary>
+Hints:
+</summary>
+<p>We can make the heap more cache friendly by using the n-ary tree instead of the binary tree. Some real-world project uses the quadtree which fits in the 64-byte cache line.</p>
+Also, in our case, the TTL timers don’t have to be fired at the exact time. We can use a very coarse timestamp (such as round up to 1min resolution) for TTL timers, and keys with the same timestamp can share the same timer. This reduces the number of timers, but the timers are delayed so we need to check the real expiration time when accessing the key.
+</details>
+<blockquote>
+<p>Q: The real Redis does not use sorting for expiration, find out how it is done, and list the pros and cons of both approaches.</p>
+</blockquote>
+<details>
+<summary>
+Hints:
+</summary>
+<p>Taking the idea that keys don’t need to be expired at the exact time, the read Redis samples the key space at random to find dead keys. The higher the ratio of dead keys, the easier to find and eliminate them.</p>
+<p>The pros of this approach are:</p>
+<ol type="1">
+<li>It doesn’t require extra space.</li>
+<li>The concept is simple, and the implementation is easy.</li>
+</ol>
+<p>The cons:</p>
+<ol type="1">
+<li>It requires that keys with a TTL should not be mixed with keys without a TTL, otherwise, the non-TTL keys interfere with the sampling, making it harder to find dead keys. This can be a source of surprise for operators.</li>
+<li>While the concept is simple, the implementation uses some heuristics to determine the rate of the sampling. If the heuristic is not tuned properly, in a worse-case, the server might not be removing dead keys fast enough, leading to excessive memory usage, which may frustrate the operator.</li>
+</ol>
+</details>
+</section>
+<section id="the-thread-pool-asynchronous-tasks-1" class="level3" data-number="15.0.5">
+<h3 data-number="15.0.5">14. The Thread Pool &amp; Asynchronous Tasks</h3>
+<blockquote>
+<p>Q: Implement the condition variable using only mutexes. (Intermediate)</p>
+</blockquote>
+<details>
+<summary>
+Hints:
+</summary>
+You need to figure out how to sleep and wake up using mutex first. Then you need to keep track of a list of sleepers in the condition variable so that you can wake up them later.
+</details>
+</section>
+</div>
+<p><!-- ch-hints --></p>
+</section>
+</body>
+</html>

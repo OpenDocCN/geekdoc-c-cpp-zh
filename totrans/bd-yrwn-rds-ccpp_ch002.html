@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title>ch002.xhtml</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />
+</head>
+<body epub:type="bodymatter">
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1">01. Introduction</h1>
+<section id="what-is-this-book-about" class="level3" data-number="1.0.1">
+<h3 data-number="1.0.1">What Is This Book About?</h3>
+<p>This book contains a step-by-step walkthrough of a simple implementation of a Redis-like server. It is intended as a practical guide or tutorial to network programming and the implementation and application of basic data structures in C.</p>
+</section>
+<section id="what-to-learn-from-this-book" class="level3" data-number="1.0.2">
+<h3 data-number="1.0.2">What to Learn From This Book?</h3>
+<p>Redis could be considered one of the <em>building blocks</em> of modern computing that stood the test of time. The knowledge required for building such a project is broader and deeper than usual application-level development. Learning from such projects is a good way for software developers to level up their skills.</p>
+<p>Redis is a good target for learning because it covers two important subjects of software engineering: network programming and data structures.</p>
+<ul>
+<li>While there are many guides on socket APIs or high-level libraries, network programming is more than calling APIs or libraries. It is important to understand core concepts such as the event loop, protocols, timers, etc, which this book will cover. The lack of understanding can result in fatal mistakes even if you are just employing high-level networking libraries or frameworks in your applications.</li>
+<li>Although many people learned some basic data structures from textbooks, there is still something more to learn. Data structures implemented in real projects often have some practical considerations which are not touched by textbooks. Learning how data structures are used in a non-toy environment (especially in C) is a unique experience from building Redis.</li>
+</ul>
+<p>Like most real-world projects, Redis is a complex project built with lots of effort, which can be hard to grasp for beginners. Instead, this book takes an opposite approach: learning by building things <em>from scratch</em>.</p>
+</section>
+<section id="why-from-scratch" class="level3" data-number="1.0.3">
+<h3 data-number="1.0.3">Why From Scratch?</h3>
+<p>A couple of points:</p>
+<ul>
+<li><strong>To learn faster.</strong> By building things from scratch, concepts can be introduced gradually. Starting from the small, adding things incrementally, and getting the big picture in the end.</li>
+<li><strong>To learn deeper.</strong> While there are many materials explaining how an existing stuff works, the understanding obtained by reading those materials is often not the same as building the stuff yourself. It is easy to mistake memorization for understanding, and it’s easier to pick up unimportant details than principles and basics.</li>
+<li><strong>To learn more.</strong> The “from scratch” approach forces you to touch <em>every</em> aspect of the subject — there are no shortcuts to knowledge! And often not every aspect is known to you beforehand, you may discover “things I don’t know I don’t know” in the process.</li>
+</ul>
+<p>Summarized in a quote from Feynman: “What I cannot create, I do not understand”.</p>
+</section>
+<section id="how-to-use-this-book" class="level3" data-number="1.0.4">
+<h3 data-number="1.0.4">How to Use This Book?</h3>
+<p>This book follows a step-by-step approach. Each step builds on the previous one, adding a new concept. The full source code is provided on the web for reference purposes, readers are advised to tinker with it or DIY without it.</p>
+<p>The code is written as direct and straightforwardly as the author could. It’s mostly plain C with minimal C++ features. Don’t worry if you don’t know C, you just have the opportunity to do it in another language by yourself.</p>
+<p>The end result is a mini Redis alike with only about 1200 lines of code. 1200 LoC seems low, but it illustrates many important aspects the book attempts to cover.</p>
+<p>The techniques and approaches used in the book are not exactly the same as the real Redis. Some are intentionally simplified, and some are chosen to illustrate a general topic. Readers can learn even more by comparing different approaches.</p>
+<p>The code used in this book is intended to run on Linux only, and can be downloaded at this URL:</p>
+<p><a href="https://build-your-own.org/redis/src.tgz" class="uri">https://build-your-own.org/redis/src.tgz</a></p>
+<p>The contents and the source code of this book can be browsed online at:</p>
+<p><a href="https://build-your-own.org" class="uri">https://build-your-own.org</a></p>
+</section>
+</section>
+</body>
+</html>
