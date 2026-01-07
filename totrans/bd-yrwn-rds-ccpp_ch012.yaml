@@ -1,64 +1,98 @@
 - en: 11\. The AVL Tree and the Sorted Set
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 11. AVL树和有序集合
 - en: 'Based on the AVL tree in the last chapter, the sorted set data structure can
     be easily added. The structure definition:'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于上一章中的AVL树，可以轻松地添加有序集合数据结构。结构定义：
 - en: '[PRE0]'
+  id: totrans-2
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: The sorted set is a sorted list of pairs of `(score, name)` that supports query
     or update by the sorting key, or by the `name`. It’s a combination of the AVL
     tree and hashtable, and the pair node belongs to both, which demonstrates the
     flexibility of intrusive data structures. The `name` string is embedded at the
     end of the pair node, in the hope of saving up some space overheads.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 有序集合是一系列`(score, name)`对的有序列表，支持通过排序键或`name`进行查询或更新。它是AVL树和散列表的组合，对节点属于两者，这展示了侵入式数据结构的灵活性。`name`字符串嵌入在节点对的末尾，希望节省一些空间开销。
 - en: 'The function for tree insertion is roughly the same as the testing code seen
     from the previous chapter:'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 树插入函数大致与上一章中看到的测试代码相同：
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '`zless` is the helper function for comparing two pairs:'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: '`zless`是用于比较两个对的辅助函数：'
 - en: '[PRE2]'
+  id: totrans-7
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'The insertion/update subroutines:'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 插入/更新子程序：
 - en: '[PRE3]'
+  id: totrans-9
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'Here is the primary use case of sorted sets: the range query.'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是排序集的主要用途：范围查询。
 - en: '[PRE4]'
+  id: totrans-11
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: The range query is just a regular binary tree look-up, followed by an offset
     operation. The offset operation is what makes the sorted set special, it is not
     a regular binary tree walk.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 范围查询只是一个常规的二元树查找，随后是偏移操作。偏移操作使得有序集合特殊，它不是常规的二元树遍历。
 - en: 'Let’s review the `AVLNode`:'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们回顾一下`AVLNode`：
 - en: '[PRE5]'
+  id: totrans-14
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'It has an extra `cnt` field (the size of the tree), which is not explained
     in the previous chapter. It is used by the `avl_offset` function:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 它有一个额外的`cnt`字段（树的大小），这在上一章中没有解释。它被`avl_offset`函数使用：
 - en: '[PRE6]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'With the size information embedded in the node, we can determine whether the
     offset target is inside a subtree or not. The offset operation runs in two phases:
     firstly, it walks up along the tree if the target is not in a subtree, then it
@@ -66,102 +100,148 @@
     is `O(log(n))` regardless of how long the offset is, which is better than offsetting
     by walking to the succeeding node one by one (best-case of `O(offset)`). The real
     Redis project uses a similar technique for skip lists.'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 在节点中嵌入大小信息后，我们可以确定偏移目标是否在子树中。偏移操作分为两个阶段：首先，如果目标不在子树中，则沿着树向上移动，然后向下移动树，缩小距离直到遇到目标。无论偏移量有多长，最坏情况都是`O(log(n))`，这比逐个移动到后续节点进行偏移要好（最佳情况为`O(offset)`）。实际的Redis项目使用类似的跳表技术。
 - en: It is a good idea to stop and test the new `avl_offset` function now.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在停止并测试新的`avl_offset`函数是个好主意。
 - en: '[PRE7]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: For now, we have implemented major functionalities of the sorted set. Let’s
     add the sorted set type to our server.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 目前，我们已经实现了有序集合的主要功能。让我们将有序集合类型添加到我们的服务器中。
 - en: '[PRE8]'
+  id: totrans-21
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: The rest of the code is considered trivial, which will be omitted in the code
     listing.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 代码的其余部分被认为是平凡的，将在代码列表中省略。
 - en: 'Adding a Python script for testing new commands:'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 添加Python脚本以测试新命令：
 - en: '[PRE9]'
+  id: totrans-24
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'Exercises:'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 练习：
 - en: The `avl_offset` function gives us the ability to query sorted set by rank,
     now do the reverse, given a node in an AVL tree, find its rank, with a worst-case
     of `O(log(n))`. (This is the `zrank` command.)
+  id: totrans-26
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '`avl_offset`函数使我们能够通过排名查询排序集，现在反过来，给定AVL树中的一个节点，找到其排名，最坏情况为`O(log(n))`。（这是`zrank`命令。）'
 - en: 'Another sorted set application: count the number of elements within a range.
     (also with a worst-case of `O(log(n))`.)'
+  id: totrans-27
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 另一个有序集合应用：计算一个范围内的元素数量。（也具有`O(log(n))`的最坏情况。）
 - en: The `11_server.cpp` file already contains some sorted set commands, try adding
     more.
+  id: totrans-28
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '`11_server.cpp`文件已经包含了一些有序集合命令，尝试添加更多。'
 - en: '[11_client.cpp](https://build-your-own.org/redis/11/11_client.cpp.htm)'
+  id: totrans-29
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[11_client.cpp](https://build-your-own.org/redis/11/11_client.cpp.htm)'
 - en: '[11_server.cpp](https://build-your-own.org/redis/11/11_server.cpp.htm)'
+  id: totrans-30
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[11_server.cpp](https://build-your-own.org/redis/11/11_server.cpp.htm)'
 - en: '[avl.cpp](https://build-your-own.org/redis/11/avl.cpp.htm)'
+  id: totrans-31
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[avl.cpp](https://build-your-own.org/redis/11/avl.cpp.htm)'
 - en: '[avl.h](https://build-your-own.org/redis/11/avl.h.htm)'
+  id: totrans-32
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[avl.h](https://build-your-own.org/redis/11/avl.h.htm)'
 - en: '[common.h](https://build-your-own.org/redis/11/common.h.htm)'
+  id: totrans-33
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[common.h](https://build-your-own.org/redis/11/common.h.htm)'
 - en: '[hashtable.cpp](https://build-your-own.org/redis/11/hashtable.cpp.htm)'
+  id: totrans-34
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[hashtable.cpp](https://build-your-own.org/redis/11/hashtable.cpp.htm)'
 - en: '[hashtable.h](https://build-your-own.org/redis/11/hashtable.h.htm)'
+  id: totrans-35
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[hashtable.h](https://build-your-own.org/redis/11/hashtable.h.htm)'
 - en: '[test_cmds.py](https://build-your-own.org/redis/11/test_cmds.py.htm)'
+  id: totrans-36
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[test_cmds.py](https://build-your-own.org/redis/11/test_cmds.py.htm)'
 - en: '[test_offset.cpp](https://build-your-own.org/redis/11/test_offset.cpp.htm)'
+  id: totrans-37
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[test_offset.cpp](https://build-your-own.org/redis/11/test_offset.cpp.htm)'
 - en: '[zset.cpp](https://build-your-own.org/redis/11/zset.cpp.htm)'
+  id: totrans-38
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[zset.cpp](https://build-your-own.org/redis/11/zset.cpp.htm)'
 - en: '[zset.h](https://build-your-own.org/redis/11/zset.h.htm)'
+  id: totrans-39
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[zset.h](https://build-your-own.org/redis/11/zset.h.htm)'

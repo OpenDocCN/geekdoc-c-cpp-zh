@@ -1,146 +1,212 @@
 - en: 'A1: Hints to Exercises'
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 'A1: 练习提示'
 - en: '08\. Data Structure: Hashtables'
+  id: totrans-1
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 08. 数据结构：哈希表
 - en: 'Q: Our hashtable triggers resizing when the load factor is too high, should
     we also shrink the hashtable when the load factor is too low? Can the shrinking
     be performed automatically?'
+  id: totrans-2
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'Q: 当哈希表的负载因子过高时，我们的哈希表会触发调整大小，当负载因子过低时，我们也应该缩小哈希表吗？收缩可以自动执行吗？'
 - en: <details><summary>Hints:</summary> Hashtable shrinking is not done automatically
     in practice. Many real-world usage patterns are periodic, shrinking is not always
     clearly beneficial. Besides, shrinking does not always return the memory to OS,
     this is dependent on many factors such as the malloc implementation and the level
     of memory fragmentation; the outcome of shrinking is not easily predictable.</details>
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: <details><summary>提示：</summary>在实际应用中，哈希表收缩并不是自动完成的。许多实际使用模式是周期性的，收缩并不总是明显有益。此外，收缩并不总是将内存返回给操作系统，这取决于许多因素，如
+    malloc 实现和内存碎片程度；收缩的结果不易预测。</details>
 - en: '10\. The AVL Tree: Implementation & Testing'
+  id: totrans-4
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 10. AVL 树：实现与测试
 - en: 'Q: Can you create more test cases? The test cases presented in this chapter
     are unlikely to be sufficient.'
+  id: totrans-5
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'Q: 你能创建更多的测试用例吗？本章中提供的测试用例可能不足以满足需求。'
 - en: <details><summary>Hints:</summary>
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: <details><summary>提示：</summary>
 - en: Our existing test cases enumerate AVL trees of various sizes. However, given
     a tree of a particular size, there are many possible configurations, we can go
     further by enumerating tree configurations too.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们现有的测试用例列出了各种大小的 AVL 树。然而，给定一个特定大小的树，存在许多可能的配置，我们可以通过枚举树配置来进一步扩展。
 - en: Also, for more complicated code, it is helpful to use profiling tools to check
     whether the test cases give full coverage of the target code. Non-full coverage
     indicates bugs in test cases or target code.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，对于更复杂的代码，使用分析工具检查测试用例是否对目标代码提供了全面覆盖是有帮助的。非全面覆盖表明测试用例或目标代码中存在错误。
 - en: Another technique that is worth mentioning is Fuzz Testing.</details>
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得一提的另一种技术是模糊测试。</details>
 - en: 11\. The AVL Tree and the Sorted Set
+  id: totrans-10
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 11. AVL 树与有序集合
 - en: 'Q: The `avl_offset` function gives us the ability to query sorted set by rank,
     now do the reverse, given a node in an AVL tree, find its rank, with a worst-case
     of `O(log(n))`. (This is the `zrank` command.)'
+  id: totrans-11
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'Q: `avl_offset` 函数使我们能够按排名查询有序集合，现在反过来，给定 AVL 树中的一个节点，找到它的排名，最坏情况下的复杂度为 `O(log(n))`。（这是
+    `zrank` 命令。）'
 - en: <details><summary>Hints:</summary> The rank of a node is related to the rank
     of its parent. And the rank of the root is obvious.</details>
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: <details><summary>提示：</summary>一个节点的排名与其父节点的排名相关。而根节点的排名是明显的。</details>
 - en: 'Q: Another sorted set application: count the number of elements within a range.
     (also with a worst-case of `O(log(n))`.)'
+  id: totrans-13
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'Q: 另一个有序集合的应用：计算一个范围内的元素数量。（最坏情况下的复杂度也是 `O(log(n))`。）'
 - en: <details><summary>Hints:</summary> Use the rank of the node.</details>
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: <details><summary>提示：</summary>使用节点的排名。</details>
 - en: 13\. The Heap Data Structure and the TTL
+  id: totrans-15
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 13. 堆数据结构与 TTL
 - en: 'Q: The heap-based timer adds `O(log(n))` operations to the server, which might
     be a bottleneck for a sufficiently large number of keys. Can you think of optimizations
     for a large number of timers?'
+  id: totrans-16
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'Q: 基于堆的定时器给服务器增加了 `O(log(n))` 的操作，这可能会成为足够多键的大瓶颈。你能想到针对大量定时器的优化方法吗？'
 - en: <details><summary>Hints:</summary>
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: <details><summary>提示：</summary>
 - en: We can make the heap more cache friendly by using the n-ary tree instead of
     the binary tree. Some real-world project uses the quadtree which fits in the 64-byte
     cache line.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以通过使用 n-ary 树而不是二叉树来使堆更缓存友好。一些实际项目使用四叉树，它适合 64 字节缓存行。
 - en: Also, in our case, the TTL timers don’t have to be fired at the exact time.
     We can use a very coarse timestamp (such as round up to 1min resolution) for TTL
     timers, and keys with the same timestamp can share the same timer. This reduces
     the number of timers, but the timers are delayed so we need to check the real
     expiration time when accessing the key.</details>
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，在我们的情况下，TTL 定时器不需要在确切的时间触发。我们可以为 TTL 定时器使用一个非常粗略的时间戳（例如，四舍五入到 1 分钟分辨率），具有相同时间戳的键可以共享同一个定时器。这减少了定时器的数量，但定时器会延迟，因此我们需要在访问键时检查实际的过期时间。
 - en: 'Q: The real Redis does not use sorting for expiration, find out how it is done,
     and list the pros and cons of both approaches.'
+  id: totrans-20
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'Q: 真实的 Redis 不使用排序进行过期处理，找出它是如何完成的，并列出两种方法的优缺点。'
 - en: <details><summary>Hints:</summary>
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: <details><summary>提示：</summary>
 - en: Taking the idea that keys don’t need to be expired at the exact time, the read
     Redis samples the key space at random to find dead keys. The higher the ratio
     of dead keys, the easier to find and eliminate them.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 采用键不需要在确切时间过期的想法，Redis通过随机采样键空间来寻找死键。死键的比例越高，找到并消除它们就越容易。
 - en: 'The pros of this approach are:'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种方法的优点是：
 - en: It doesn’t require extra space.
+  id: totrans-24
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 它不需要额外的空间。
 - en: The concept is simple, and the implementation is easy.
+  id: totrans-25
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 概念简单，实现也容易。
 - en: 'The cons:'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 缺点：
 - en: It requires that keys with a TTL should not be mixed with keys without a TTL,
     otherwise, the non-TTL keys interfere with the sampling, making it harder to find
     dead keys. This can be a source of surprise for operators.
+  id: totrans-27
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 它要求带有TTL的键不应与不带TTL的键混合，否则非TTL键会干扰采样，使得寻找死键变得更加困难。这可能会让操作员感到意外。
 - en: While the concept is simple, the implementation uses some heuristics to determine
     the rate of the sampling. If the heuristic is not tuned properly, in a worse-case,
     the server might not be removing dead keys fast enough, leading to excessive memory
     usage, which may frustrate the operator.</details>
+  id: totrans-28
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 虽然这个概念很简单，但在实现过程中使用了一些启发式算法来确定采样的速率。如果启发式算法没有调整得当，在最坏的情况下，服务器可能无法足够快地移除死键，导致内存使用过多，这可能会让操作员感到沮丧。</details>
 - en: 14\. The Thread Pool & Asynchronous Tasks
+  id: totrans-29
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 14. 线程池与异步任务
 - en: 'Q: Implement the condition variable using only mutexes. (Intermediate)'
+  id: totrans-30
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'Q: 仅使用互斥锁实现条件变量。（中级）'
 - en: <details><summary>Hints:</summary> You need to figure out how to sleep and wake
     up using mutex first. Then you need to keep track of a list of sleepers in the
     condition variable so that you can wake up them later.</details>
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: <details><summary>提示：</summary>首先，你需要弄清楚如何使用互斥锁来实现休眠和唤醒。然后，你需要跟踪条件变量中的休眠者列表，以便稍后唤醒它们。</details>

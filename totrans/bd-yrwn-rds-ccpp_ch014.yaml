@@ -1,7 +1,9 @@
 - en: 13\. The Heap Data Structure and the TTL
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 13. 堆数据结构和 TTL
 - en: The primary use of Redis is as cache servers, and one way to manage the size
     of the cache is through explicitly setting TTLs (time to live). TTLs can be implemented
     using timers. Unfortunately, timers in the last chapter are of fixed value (using
@@ -9,204 +11,304 @@
     and mutable timeouts; and the heap data structure is a popular choice. Compared
     with the AVL tree we used before, the heap data structure has the advantage of
     using less space.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: Redis 的主要用途是作为缓存服务器，一种管理缓存大小的方法是通过显式设置 TTL（生存时间）。TTL 可以使用定时器实现。不幸的是，上一章中的定时器是固定值（使用链表）；因此，需要一个排序数据结构来实现任意和可变的超时；堆数据结构是一个流行的选择。与之前使用的
+    AVL 树相比，堆数据结构具有使用空间更少的优点。
 - en: 'A quick review of the heap data structure:'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 对堆数据结构的快速回顾：
 - en: A heap is a binary tree, packed into an array; and the layout of the tree is
     fixed. The parent-child relationship is implicit, pointers are not included in
     heap elements.
+  id: totrans-3
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 堆是一个二叉树，打包到一个数组中；树的布局是固定的。父子关系是隐式的，堆元素中不包含指针。
 - en: The only constraint on the tree is that parents are no bigger than their kids.
+  id: totrans-4
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 树的唯一约束是父节点不大于其子节点。
 - en: 'The value of an element can be updated. If the value changes:'
+  id: totrans-5
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 元素的值可以更新。如果值发生变化：
 - en: 'Its value is bigger than before: it may be bigger than its kids, and if so,
     swap it with the smallest kid, so that the parent-child constraint is satisfied
     again. Now that one of the kids is bigger than before, continue this process until
     reaching a leave.'
+  id: totrans-6
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 其值比之前更大：它可能比其孩子更大，如果是这样，就与最小的孩子交换，这样父子和约束就再次满足。现在其中一个孩子比之前更大，继续这个过程，直到达到叶子节点。
 - en: 'Its value is smaller: likewise, swap it with its parent until reaching the
     root.'
+  id: totrans-7
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 其值更小：同样，将其与其父节点交换，直到达到根节点。
 - en: New elements are added to the end of the array as leaves. Maintain the constraint
     as above.
+  id: totrans-8
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 新元素作为叶子节点添加到数组的末尾。保持上述约束。
 - en: When removing an element from a heap, replace it with the last element in the
     array, then maintain the constraint as if its value was updated.
+  id: totrans-9
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 当从堆中移除一个元素时，用数组中的最后一个元素替换它，然后像更新其值一样维护约束。
 - en: 'The code listing begins:'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 代码列表开始：
 - en: '[PRE0]'
+  id: totrans-11
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: The heap is used to order the timestamps, and the `Entry` is mutually linked
     with the timestamp. The `heap_idx` is the index of the corresponding `HeapItem`,
     and the `ref` points to the `Entry`. We are using the intrusive data structure
     again; the `ref` pointer points to the `heap_idx` field.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 堆用于排序时间戳，`Entry` 与时间戳相互链接。`heap_idx` 是相应 `HeapItem` 的索引，`ref` 指向 `Entry`。我们再次使用侵入式数据结构；`ref`
+    指针指向 `heap_idx` 字段。
 - en: 'The parent-child relationship is fixed:'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 父子关系是固定的：
 - en: '[PRE1]'
+  id: totrans-14
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Swap with the parent when a kid is smaller than its parent. Note the `heap_idx`
     is updated through the `ref` pointer while swapping.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 当孩子小于其父节点时，与父节点交换。注意，在交换时通过 `ref` 指针更新 `heap_idx`。
 - en: '[PRE2]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Swapping with the smallest kid is similar.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 与最小的孩子交换类似。
 - en: '[PRE3]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: The `heap_update` is the heap function for updating a position. It is used for
     updating, inserting, and deleting.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: '`heap_update` 是用于更新位置的堆函数。它用于更新、插入和删除。'
 - en: '[PRE4]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'Add the heap to our server:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 将堆添加到我们的服务器：
 - en: '[PRE5]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Updating, adding, and removing a timer to the heap. Just call the `heap_update`
     after updating an element of the array.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 更新、添加和删除堆中的定时器。只需在更新数组中的一个元素后调用 `heap_update` 即可。
 - en: '[PRE6]'
+  id: totrans-24
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'Removing the possible TTL timer when deleting an `Entry`:'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 删除 `Entry` 时删除可能的 TTL 定时器：
 - en: '[PRE7]'
+  id: totrans-26
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The `next_timer_ms` function is modified to use both idle timers and TTL timers.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: '`next_timer_ms` 函数被修改为使用空闲定时器和 TTL 定时器。'
 - en: '[PRE8]'
+  id: totrans-28
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'Adding TTL timers to the `process_timers` function:'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 向 `process_timers` 函数添加 TTL 定时器：
 - en: '[PRE9]'
+  id: totrans-30
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: This is just checking the minimal value of the heap and removing keys. Note
     that we put a limit on the number of keys expired per event loop iteration; the
     limit is needed to prevent the server from stalling should there are too many
     keys expiring at once.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 这只是检查堆的最小值并移除键。注意，我们限制了每个事件循环迭代中过期的键的数量；限制是必要的，以防止在一次性有太多键过期时服务器停滞。
 - en: 'The command for updating and querying TTLs is straightforward to add:'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 更新和查询 TTL 的命令添加起来很简单：
 - en: '[PRE10]'
+  id: totrans-33
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: '[PRE11]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: 'Exercises:'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 练习：
 - en: The heap-based timer adds `O(log(n))` operations to the server, which might
     be a bottleneck for a sufficiently large number of keys. Can you think of optimizations
     for a large number of timers?
+  id: totrans-36
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 基于堆的定时器向服务器添加 `O(log(n))` 操作，这可能会成为足够多键的数量时的瓶颈。你能想到针对大量定时器的优化方法吗？
 - en: The real Redis does not use sorting for expiration, find out how it is done,
     and list the pros and cons of both approaches.
+  id: totrans-37
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 真实的 Redis 并不使用排序来实现过期，找出它是如何实现的，并列出两种方法的优缺点。
 - en: '[13_server.cpp](https://build-your-own.org/redis/13/13_server.cpp.htm)'
+  id: totrans-38
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[13_server.cpp](https://build-your-own.org/redis/13/13_server.cpp.htm)'
 - en: '[avl.cpp](https://build-your-own.org/redis/13/avl.cpp.htm)'
+  id: totrans-39
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[avl.cpp](https://build-your-own.org/redis/13/avl.cpp.htm)'
 - en: '[avl.h](https://build-your-own.org/redis/13/avl.h.htm)'
+  id: totrans-40
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[avl.h](https://build-your-own.org/redis/13/avl.h.htm)'
 - en: '[common.h](https://build-your-own.org/redis/13/common.h.htm)'
+  id: totrans-41
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[common.h](https://build-your-own.org/redis/13/common.h.htm)'
 - en: '[hashtable.cpp](https://build-your-own.org/redis/13/hashtable.cpp.htm)'
+  id: totrans-42
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[hashtable.cpp](https://build-your-own.org/redis/13/hashtable.cpp.htm)'
 - en: '[hashtable.h](https://build-your-own.org/redis/13/hashtable.h.htm)'
+  id: totrans-43
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[hashtable.h](https://build-your-own.org/redis/13/hashtable.h.htm)'
 - en: '[heap.cpp](https://build-your-own.org/redis/13/heap.cpp.htm)'
+  id: totrans-44
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[heap.cpp](https://build-your-own.org/redis/13/heap.cpp.htm)'
 - en: '[heap.h](https://build-your-own.org/redis/13/heap.h.htm)'
+  id: totrans-45
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[heap.h](https://build-your-own.org/redis/13/heap.h.htm)'
 - en: '[list.h](https://build-your-own.org/redis/13/list.h.htm)'
+  id: totrans-46
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[list.h](https://build-your-own.org/redis/13/list.h.htm)'
 - en: '[test_heap.cpp](https://build-your-own.org/redis/13/test_heap.cpp.htm)'
+  id: totrans-47
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[test_heap.cpp](https://build-your-own.org/redis/13/test_heap.cpp.htm)'
 - en: '[zset.cpp](https://build-your-own.org/redis/13/zset.cpp.htm)'
+  id: totrans-48
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[zset.cpp](https://build-your-own.org/redis/13/zset.cpp.htm)'
 - en: '[zset.h](https://build-your-own.org/redis/13/zset.h.htm)'
+  id: totrans-49
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[zset.h](https://build-your-own.org/redis/13/zset.h.htm)'

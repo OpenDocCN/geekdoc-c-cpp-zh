@@ -1,72 +1,114 @@
 - en: '07\. Basic Server: get, set, del'
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 07. 基本服务器：get, set, del
 - en: With the event loop code from the last chapter, we can finally start adding
     commands to our server.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 在上一章的事件循环代码的基础上，我们终于可以开始向我们的服务器添加命令了。
 - en: The “command” in our design is a list of strings, like `set key val`. We’ll
     encode the “command” with the following scheme.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们的设计中，“命令”是一系列字符串，如`set key val`。我们将使用以下方案对“命令”进行编码。
 - en: '[PRE0]'
+  id: totrans-3
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: The `nstr` is the number of strings and the `len` is the length of the following
     string. Both are 32-bit integers.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '`nstr`是字符串的数量，而`len`是后续字符串的长度。两者都是32位整数。'
 - en: The response is a 32-bit status code followed by the response string.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 响应是一个32位状态码，后面跟着响应字符串。
 - en: '[PRE1]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Starts with the `try_one_request` function.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 从`try_one_request`函数开始。
 - en: '[PRE2]'
+  id: totrans-8
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The `do_request` function handles the request. Only 3 commands (get, set, del)
     are recognized now.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '`do_request`函数处理请求。目前只识别3个命令（get, set, del）。'
 - en: '[PRE3]'
+  id: totrans-10
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'The parsing of the command is straightforward:'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 命令的解析是直接的：
 - en: '[PRE4]'
+  id: totrans-12
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'The “implementation” of 3 commands:'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 实现了3个命令的“实施”：
 - en: '[PRE5]'
+  id: totrans-14
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'Now it’s time to test with our client:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在是时候用我们的客户端进行测试了：
 - en: '[PRE6]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'Testing commands:'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 测试命令：
 - en: '[PRE7]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: '[07_client.cpp](https://build-your-own.org/redis/07/07_client.cpp.htm)'
+  id: totrans-19
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[07_client.cpp](https://build-your-own.org/redis/07/07_client.cpp.htm)'
 - en: '[07_server.cpp](https://build-your-own.org/redis/07/07_server.cpp.htm)'
+  id: totrans-20
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[07_server.cpp](https://build-your-own.org/redis/07/07_server.cpp.htm)'

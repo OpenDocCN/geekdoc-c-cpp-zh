@@ -1,98 +1,149 @@
 - en: 03\. Hello Server/Client
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 03\. Hello Server/Client
 - en: This chapter continues the introduction of socket programming. We’ll write 2
     simple (incomplete and broken) programs to demonstrate the syscalls from the last
     chapter. The first program is a server, it accepts connections from clients, reads
     a single message, and writes a single reply. The second program is a client, it
     connects to the server, writes a single message, and reads a single reply. Let’s
     start with the server first.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章继续介绍套接字编程。我们将编写两个简单的（不完整且损坏的）程序来演示上一章的 syscalls。第一个程序是一个服务器，它接受来自客户端的连接，读取一条消息，并写入一条回复。第二个程序是一个客户端，它连接到服务器，写入一条消息，并读取一条回复。我们先从服务器开始。
 - en: 'First, we need to obtain a socket fd: `int fd = socket(AF_INET, SOCK_STREAM,
     0);`'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，我们需要获取一个套接字文件描述符：`int fd = socket(AF_INET, SOCK_STREAM, 0);`
 - en: The `AF_INET` is for IPv4, use `AF_INET6` for IPv6 or dual-stack socket. For
     simplicity, we’ll just use `AF_INET` throughout this book.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: '`AF_INET` 用于 IPv4，使用 `AF_INET6` 用于 IPv6 或双栈套接字。为了简单起见，本书中我们将只使用 `AF_INET`。'
 - en: The `SOCK_STREAM` is for TCP. We won’t use anything other than TCP in this book.
     All the 3 parameters of the `socket()` call are fixed in this book.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '`SOCK_STREAM` 用于 TCP。本书中我们不会使用除 TCP 之外的其他任何东西。`socket()` 调用的所有 3 个参数在本书中都是固定的。'
 - en: 'Next, we’ll introduce a new syscall:'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，我们将介绍一个新的系统调用：
 - en: '[PRE0]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: 'The `setsockopt()` call is used to configure various aspects of a socket. This
     particular call enables the `SO_REUSEADDR` option. Without this option, the server
     won’t able to bind to the same address if restarted. Exercise to reader: find
     out what exactly is `SO_REUSEADDR` and why it is needed.'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '`setsockopt()` 调用用于配置套接字的各个方面。这个特定的调用启用了 `SO_REUSEADDR` 选项。如果没有这个选项，服务器在重启后无法绑定到相同的地址。读者练习：找出
+    `SO_REUSEADDR` 的确切含义以及为什么需要它。'
 - en: 'The next step is the `bind()` and `listen()`, we’ll bind on the wildcard address
     `0.0.0.0:1234`:'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一步是 `bind()` 和 `listen()`，我们将绑定到通配符地址 `0.0.0.0:1234`：
 - en: '[PRE1]'
+  id: totrans-9
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Loop for each connection and do something with them.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 遍历每个连接并对它们进行操作。
 - en: '[PRE2]'
+  id: totrans-11
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The `do_something()` function is simply read and write.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: '`do_something()` 函数只是读取和写入。'
 - en: '[PRE3]'
+  id: totrans-13
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Note that the `read()` and `write()` call returns the number of read or written
     bytes. A real programmer must deal with the return value of functions, but in
     this chapter, I have omitted lots of things for brevity. And the code in this
     chapter is not the correct way to do networking anyway.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，`read()` 和 `write()` 调用返回读取或写入的字节数。真正的程序员必须处理函数的返回值，但为了简洁，本章中我省略了很多内容。而且，本章中的代码根本不是进行网络通信的正确方式。
 - en: 'The client program is much simpler:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 客户端程序要简单得多：
 - en: '[PRE4]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'Compile our programs with the following command line:'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用以下命令行编译我们的程序：
 - en: '[PRE5]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'Run `./server` in a window and then run `./client` in another window. You should
     see the following results:'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 在一个窗口中运行 `./server`，然后在另一个窗口中运行 `./client`。你应该看到以下结果：
 - en: '[PRE6]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[PRE7]'
+  id: totrans-21
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: 'Exercise for readers: read manpages of APIs used in this chapter, or find online
     tutorials for them. Make sure you know how to find helps on API usage since this
     book won’t cover the details of API usage.'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 读者练习：阅读本章中使用的 API 的手册页，或查找相关的在线教程。确保你知道如何查找 API 的帮助，因为本书不会涵盖 API 使用的细节。
 - en: '[03_client.cpp](https://build-your-own.org/redis/03/03_client.cpp.htm)'
+  id: totrans-23
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[03_client.cpp](https://build-your-own.org/redis/03/03_client.cpp.htm)'
 - en: '[03_server.cpp](https://build-your-own.org/redis/03/03_server.cpp.htm)'
+  id: totrans-24
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[03_server.cpp](https://build-your-own.org/redis/03/03_server.cpp.htm)'

@@ -1,7 +1,9 @@
 - en: '10\. The AVL Tree: Implementation & Testing'
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 10. AVL树：实现与测试
 - en: While Redis is often referred to as a key-value store, the “value” part of Redis
     is not restricted to plain strings, lists, hashmaps, and sorted sets are quite
     nice things to have. Redis is also referred to as the “data structure server”
@@ -12,15 +14,19 @@
     feature of querying ordered data by rank. If you put 20M records into a sorted
     set, you can get the record that ranked at 10M, without going through the first
     10M records, this is a feat that can not be emulated by current SQL databases.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然Redis通常被称为键值存储，但Redis的“值”部分并不限于普通字符串，列表、哈希表和有序集合都是非常不错的数据结构。由于其丰富的数据结构集，Redis也被称为“数据结构服务器”。Redis通常用作内存缓存，在内存中存储数据时，可以自由使用数据结构。Redis中的有序集合数据结构非常独特且有用。它不仅能够按顺序排序你的数据，还具有按排名查询有序数据的独特功能。如果你将2000万条记录放入有序集合，你可以获取排名在第1000万的记录，而不必遍历前1000万条记录，这是当前SQL数据库无法复制的功能。
 - en: As the name “sorted set” implies, it’s a data structure for sorting. Trees,
     balanced binary trees, are popular data structures for storing sorted data. Among
     various data structures, the author found the AVL tree particularly simple and
     easy to code, which will be used in this book to implement sorted set. The real
     Redis project uses skiplist which is also considered easy to code.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如名称“有序集合”所暗示的，它是一种用于排序的数据结构。树、平衡二叉树是存储排序数据的流行数据结构。在各种数据结构中，作者发现AVL树特别简单且易于编码，本书将使用AVL树来实现有序集合。实际的Redis项目使用跳表，这也被认为是易于编码的。
 - en: The idea of the AVL tree is to restrict the height difference between the left
     subtree and the right subtree. The height difference between subtrees is restricted
     to be at most one, never reaching two. When inserting/removing nodes from an AVL
@@ -28,178 +34,272 @@
     the node rotations. The rotation operation is the basis of balanced binary trees,
     which is also used by other balanced trees like the RB tree. After the rotation,
     a node with a subtree height difference of two is reduced back to be at most one.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: AVL树的理念是限制左子树和右子树的高度差。子树之间的高度差被限制在最多一个，永远不会达到两个。当在AVL树中插入/删除节点时，高度差可以暂时达到两个，然后通过节点旋转来修复。旋转操作是平衡二叉树的基础，也被其他平衡树如RB树所使用。旋转后，具有两个子树高度差的节点会恢复到最多一个。
 - en: 'Let’s start with the tree node:'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们从树节点开始：
 - en: '[PRE0]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: This is a regular binary tree node with extra fields. The `depth` field is the
     height of the tree. The `cnt` field is the size of the tree, this field is not
     specific to the AVL tree, it is used to implement the rank-based query, which
     will be explained in the next chapter.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是一个带有额外字段的常规二叉树节点。`depth`字段是树的高度。`cnt`字段是树的大小，这个字段不是AVL树特有的，它用于实现基于排名的查询，这将在下一章中解释。
 - en: 'Listing some helper functions:'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 列出一些辅助函数：
 - en: '[PRE1]'
+  id: totrans-8
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'The node rotation code:'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 节点旋转代码：
 - en: '[PRE2]'
+  id: totrans-10
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'A visualization of the `rot_left` operation:'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '`rot_left`操作的可视化：'
 - en: '[PRE3]'
+  id: totrans-12
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'The `avl_fix_left` and `avl_fix_right` are functions for fixing excess height
     difference:'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '`avl_fix_left`和`avl_fix_right`是用于修复过多高度差的函数：'
 - en: '[PRE4]'
+  id: totrans-14
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'If the right subtree is too deep, a left rotation will fix it. Before the left
     rotation, we may need a right rotation on the right subtree to ensure the right
     subtree is leaning in the correct direction. Here is the visualization:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果右子树太深，则进行左旋转可以修复它。在左旋转之前，我们可能需要在右子树上进行右旋转，以确保右子树向正确的方向倾斜。以下是可视化：
 - en: '[PRE5]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: The `avl_fix` function fixes everything after an insertion/deletion operation.
     It goes from the initially affected node to the root node. Since the rotation
     may change the root of the tree, the root node is returned. This is the core of
     our AVL tree implementation.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '`avl_fix`函数在插入/删除操作后修复所有内容。它从最初受影响的节点到根节点。由于旋转可能会改变树的根节点，所以返回根节点。这是我们AVL树实现的核心。'
 - en: '[PRE6]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: Insertion for binary trees is easy, just walk down from the root until you find
     an empty subtree and place the new node here, then call up `avl_fix` for maintenance.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 二叉树的插入很简单，只需从根节点向下遍历，直到找到一个空的子树，然后将新节点放置在这里，然后调用`avl_fix`进行维护。
 - en: 'Deletion is more complicated. If the target node has no subtree, just remove
     it straight, if it has one subtree, replace the node with that subtree. The problem
     arises when the node has both subtrees, we can’t remove it straight, instead,
     we remove its sibling in the right subtree, and swap it with the detached sibling.
     Here is the function for removing a node:'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 删除操作更复杂。如果目标节点没有子树，则直接删除，如果有一个子树，则用那个子树替换节点。当节点有两个子树时，问题就出现了，我们无法直接删除它，而是删除右子树中的兄弟节点，并将其与分离的兄弟节点交换。以下是删除节点的函数：
 - en: '[PRE7]'
+  id: totrans-21
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: This is the generic function for removing nodes from a binary tree, with the
     AVL-tree-specific `avl_fix`.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是从二叉树中删除节点的通用函数，带有AVL树特有的`avl_fix`。
 - en: Readers with experiences with the RB tree may notice how small and simple the
     AVL tree implementation is. The maintenance code for RB tree node deletion is
     significantly more complicated than the insertion; while the AVL tree uses the
     same function `avl_fix` for both insertion and deletion, this symmetry greatly
     reduces the efforts required to code an AVL tree.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 有RB树经验的读者可能会注意到AVL树的实现既小又简单。RB树节点删除的维护代码比插入复杂得多；而AVL树使用相同的函数`avl_fix`进行插入和删除，这种对称性大大减少了编写AVL树所需的编码工作量。
 - en: The AVL tree is significantly more complicated than the hashtable we coded before.
     Thus, we need to invest more time on testing. The testing code also demonstrates
     the usage of those AVL tree functions.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: AVL树比我们之前编写的散列表要复杂得多。因此，我们需要投入更多的时间进行测试。测试代码也展示了这些AVL树函数的使用。
 - en: Here are our testing data types. If you are not familiar with intrusive data
     structures, read the hashtable chapter.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是我们的测试数据类型。如果你不熟悉侵入式数据结构，请阅读散列表章节。
 - en: '[PRE8]'
+  id: totrans-26
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'The insertion code:'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 插入代码：
 - en: '[PRE9]'
+  id: totrans-28
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'This demonstrates the deletion of nodes:'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 这展示了节点的删除过程：
 - en: '[PRE10]'
+  id: totrans-30
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 'Here is the function for verifying the correctness of the tree structure:'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是验证树结构正确性的函数：
 - en: '[PRE11]'
+  id: totrans-32
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: 'Code for comparing the contents of AVL tree with the expected data:'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 比较AVL树内容与预期数据的代码：
 - en: '[PRE12]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'Don’t forget to clean up after tests:'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 不要忘记测试后的清理工作：
 - en: '[PRE13]'
+  id: totrans-36
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: 'Our test cases start with simple things:'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们开始测试用例时从简单的事情做起：
 - en: '[PRE14]'
+  id: totrans-38
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: 'Then we throw in random operations:'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 然后我们加入随机的操作：
 - en: '[PRE15]'
+  id: totrans-40
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: Some more targeted tests. Given a tree of a certain size, perform insertion/deletion
     at every possible position.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些更有针对性的测试。给定一个特定大小的树，在每一个可能的位置进行插入/删除操作。
 - en: '[PRE16]'
+  id: totrans-42
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: '[PRE17]'
+  id: totrans-43
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: With the help of those test cases, the author did found and fixed a couple of
     mistakes while writing this chapter.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这些测试用例的帮助下，作者在编写本章时发现并修复了一些错误。
 - en: 'Exercises:'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 练习：
 - en: While there is not much code for our AVL tree, this AVL tree implementation
     is probably not a very efficient one. Our code contains some reductant pointer
     updates, which might be a source of optimization. Also, we don’t need to store
     the height value for balancing, it is possible to store the height difference
     instead. Research and explore efficient AVL tree implementations.
+  id: totrans-46
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 虽然我们AVL树的代码不多，但这个AVL树的实现可能不是非常高效的。我们的代码包含一些多余的指针更新，这可能是优化的一个来源。此外，我们不需要存储平衡的高度值，可以存储高度差。研究和探索高效的AVL树实现。
 - en: Can you create more test cases? The test cases presented in this chapter are
     unlikely to be sufficient.
+  id: totrans-47
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 你能创建更多的测试用例吗？本章中提供的测试用例可能不足以覆盖所有情况。
 - en: '[avl.cpp](https://build-your-own.org/redis/10/avl.cpp.htm)'
+  id: totrans-48
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[avl.cpp](https://build-your-own.org/redis/10/avl.cpp.htm)'
 - en: '[test_avl.cpp](https://build-your-own.org/redis/10/test_avl.cpp.htm)'
+  id: totrans-49
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[test_avl.cpp](https://build-your-own.org/redis/10/test_avl.cpp.htm)'

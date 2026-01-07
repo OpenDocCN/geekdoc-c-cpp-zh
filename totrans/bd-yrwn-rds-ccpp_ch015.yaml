@@ -1,251 +1,363 @@
 - en: 14\. The Thread Pool & Asynchronous Tasks
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 14. 线程池与异步任务
 - en: 'There is a flaw in our server since the introduction of the sorted set data
     type: the deletion of keys. If the size of a sorted set is huge, it can take a
     long time to free its nodes and the server is stalled during the destruction of
     the key. This can be easily fixed by using multi-threading to move the destructor
     away from the main thread.'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 自从引入有序集合数据类型以来，我们的服务器存在一个缺陷：键的删除。如果一个有序集合的大小非常大，释放其节点可能需要很长时间，并且在销毁键的过程中服务器会停滞。这可以通过使用多线程将析构函数从主线程中移除来轻松修复。
 - en: Firstly, we introduce the “thread pool”, which is literally a pool of threads.
     The thread from the pool consumes tasks from a queue and executes them. It is
     trivial to code a multi-producer multi-consumer queue using `pthread` APIs. (Although
     there is only a single producer in our case.)
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，我们介绍“线程池”，字面上是一个线程池。池中的线程从队列中消费任务并执行它们。使用 `pthread` API 编写多生产者多消费者队列是微不足道的。（尽管在我们的情况下只有一个生产者。）
 - en: The relevant `pthread` primitives are `pthread_mutex_t` and `pthread_cond_t`;
     they are called the mutex and the condition variable respectively. If you are
     unfamiliar with them, it is advised to get some education on multi-threading after
     reading this chapter. (Such as manpages of the `pthread` APIs, textbooks on operating
     systems, online courses, etc.)
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 相关的 `pthread` 原语是 `pthread_mutex_t` 和 `pthread_cond_t`；它们分别被称为互斥锁和条件变量。如果你对它们不熟悉，建议在阅读本章之后获取一些关于多线程的教育。（例如
+    `pthread` API 的 manpages、操作系统教材、在线课程等。）
 - en: 'Here is a really short introduction to the two `pthread` primitives:'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是对两个 `pthread` 原语的简要介绍：
 - en: The queue is accessed by multiple threads (both the producer and consumers),
     so it needs the protection of a mutex, obviously.
+  id: totrans-5
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 队列被多个线程（生产者和消费者）访问，因此显然需要互斥锁的保护。
 - en: The consumer threads should be sleeping when idle, and only be waken up when
     the queue is not empty, this is the job of the condition variable.
+  id: totrans-6
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 消费者线程在空闲时应该处于睡眠状态，只有在队列不为空时才被唤醒，这是条件变量的工作。
 - en: 'The thread pool data type is defined as follows:'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 线程池数据类型定义如下：
 - en: '[PRE0]'
+  id: totrans-8
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: The `thread_pool_init` is for initialization and starting threads. `pthread`
     types are initialized by `pthread_xxx_init` functions and the `pthread_create`
     starts a thread with the target function `worker`.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '`thread_pool_init` 用于初始化和启动线程。`pthread` 类型通过 `pthread_xxx_init` 函数初始化，`pthread_create`
+    通过目标函数 `worker` 启动线程。'
 - en: '[PRE1]'
+  id: totrans-10
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'The consumer code:'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 消费者代码：
 - en: '[PRE2]'
+  id: totrans-12
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'The producer code:'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 生产者代码：
 - en: '[PRE3]'
+  id: totrans-14
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'The explanation:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 解释：
 - en: For both the producer and consumers, the queue access code is surrounded by
     the `pthread_mutex_lock` and the `pthread_mutex_unlock`, only one thread can access
     the queue at once.
+  id: totrans-16
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 对于生产者和消费者，队列访问代码被 `pthread_mutex_lock` 和 `pthread_mutex_unlock` 包围，一次只有一个线程可以访问队列。
 - en: 'After a consumer acquired the mutex, check the queue:'
+  id: totrans-17
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在消费者获取互斥锁后，检查队列：
 - en: If the queue is not empty, grab a job from the queue, release the mutex and
     do the work.
+  id: totrans-18
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果队列不为空，从队列中获取一个工作，释放互斥锁并执行工作。
 - en: Otherwise, release the mutex and go to sleep, the sleep can be wakened later
     by the condition variable. This is accomplished via a single `pthread_cond_wait`
     call.
+  id: totrans-19
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 否则，释放互斥锁并进入睡眠状态，睡眠可以被条件变量唤醒。这通过单个 `pthread_cond_wait` 调用完成。
 - en: After the producer puts a job into the queue, the producer calls the `pthread_cond_signal`
     to wake up a potentially sleeping consumer.
+  id: totrans-20
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在生产者将工作放入队列后，生产者调用 `pthread_cond_signal` 唤醒一个可能正在睡眠的消费者。
 - en: After a consumer woken up from the `pthread_cond_wait`, the mutex is held again
     automatically. The consumer must check for the condition *again* after waking
     up, if the condition (a non-empty queue) is not satisfied, go back to sleep.
+  id: totrans-21
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在消费者从 `pthread_cond_wait` 中唤醒后，互斥锁会自动再次被持有。消费者在醒来后必须再次检查条件，如果条件（非空队列）不满足，则返回睡眠状态。
 - en: 'The use of the condition variable needs some more explanations: The `pthread_cond_wait`
     function is *always* inside a loop checking for the condition. This is because
     the condition could be changed by other consumers before the wakening consumer
     grabs the mutex; the mutex is not transferred from the signaler to the to-be-waked
     consumer! It is probably a mistake if you see a condition variable used without
     a loop.'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 条件变量的使用需要更多的解释：`pthread_cond_wait` 函数始终在一个循环中检查条件。这是因为条件可能在唤醒的消费者抓取互斥锁之前被其他消费者更改；互斥锁不会从信号者转移到即将被唤醒的消费者！如果你看到没有循环使用的条件变量，那可能是一个错误。
 - en: 'A concrete sequence to help you understand the use of condition variables:'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个具体的序列，帮助你理解条件变量的使用：
 - en: The producer signals.
+  id: totrans-24
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 生产者发出信号。
 - en: The producer releases the mutex.
+  id: totrans-25
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 生产者释放互斥锁。
 - en: Some consumer grabs the mutex and empties the queue.
+  id: totrans-26
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 一些消费者获取互斥锁并清空队列。
 - en: A consumer wakes up from the producer’s signal and grabs the mutex, but the
     queue is empty!
+  id: totrans-27
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 消费者从生产者的信号中醒来并获取互斥锁，但队列是空的！
 - en: Note that the `pthread_cond_signal` doesn’t need to be protected by the mutex,
     singaling after releasing the mutex is also correct.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，`pthread_cond_signal` 不需要被互斥锁保护，释放互斥锁后进行信号也是正确的。
 - en: 'The thread pool is done. Let’s add that to our server:'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 线程池已完成。让我们将其添加到我们的服务器中：
 - en: '[PRE4]'
+  id: totrans-30
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'Inside the `main` function:'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 `main` 函数内部：
 - en: '[PRE5]'
+  id: totrans-32
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'The `entry_del` function is modified: It will put the destruction of large
     sorted sets into the thread pool. And the thread pool is only for the large ones
     since multi-threading has some overheads too.'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: '`entry_del` 函数被修改：它将大排序集的销毁放入线程池。线程池仅用于大型操作，因为多线程也有一些开销。'
 - en: '[PRE6]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'Exercises:'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 练习：
 - en: The semaphore is often introduced as a multi-threading primitive instead of
     the condition variable and the mutex. Try to implement the thread pool using the
     semaphore.
+  id: totrans-36
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 信号量通常被介绍为多线程原语，而不是条件变量和互斥锁。尝试使用信号量实现线程池。
 - en: 'Some fun exercises to help you understand these primitives further:'
+  id: totrans-37
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 一些有趣的练习，帮助你进一步理解这些原语：
 - en: Implement the mutex using the semaphore. (Trivial)
+  id: totrans-38
   prefs:
   - PREF_IND
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 使用信号量实现互斥锁。（简单）
 - en: Implement the semaphore using the condition variable. (Easy)
+  id: totrans-39
   prefs:
   - PREF_IND
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 使用条件变量实现信号量。（简单）
 - en: Implement the condition variable using only mutexes. (Intermediate)
+  id: totrans-40
   prefs:
   - PREF_IND
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 仅使用互斥锁实现条件变量。（中等）
 - en: Now that you know these primitives are somewhat equivalent, why should you prefer
     one to another?
+  id: totrans-41
   prefs:
   - PREF_IND
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 既然你知道这些原语在某种程度上是等价的，为什么你应该选择其中一个而不是另一个？
 - en: '[14_server.cpp](https://build-your-own.org/redis/14/14_server.cpp.htm)'
+  id: totrans-42
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[14_server.cpp](https://build-your-own.org/redis/14/14_server.cpp.htm)'
 - en: '[avl.cpp](https://build-your-own.org/redis/14/avl.cpp.htm)'
+  id: totrans-43
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[avl.cpp](https://build-your-own.org/redis/14/avl.cpp.htm)'
 - en: '[avl.h](https://build-your-own.org/redis/14/avl.h.htm)'
+  id: totrans-44
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[avl.h](https://build-your-own.org/redis/14/avl.h.htm)'
 - en: '[common.h](https://build-your-own.org/redis/14/common.h.htm)'
+  id: totrans-45
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[common.h](https://build-your-own.org/redis/14/common.h.htm)'
 - en: '[hashtable.cpp](https://build-your-own.org/redis/14/hashtable.cpp.htm)'
+  id: totrans-46
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[hashtable.cpp](https://build-your-own.org/redis/14/hashtable.cpp.htm)'
 - en: '[hashtable.h](https://build-your-own.org/redis/14/hashtable.h.htm)'
+  id: totrans-47
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[hashtable.h](https://build-your-own.org/redis/14/hashtable.h.htm)'
 - en: '[heap.cpp](https://build-your-own.org/redis/14/heap.cpp.htm)'
+  id: totrans-48
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[heap.cpp](https://build-your-own.org/redis/14/heap.cpp.htm)'
 - en: '[heap.h](https://build-your-own.org/redis/14/heap.h.htm)'
+  id: totrans-49
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[heap.h](https://build-your-own.org/redis/14/heap.h.htm)'
 - en: '[list.h](https://build-your-own.org/redis/14/list.h.htm)'
+  id: totrans-50
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[list.h](https://build-your-own.org/redis/14/list.h.htm)'
 - en: '[thread_pool.cpp](https://build-your-own.org/redis/14/thread_pool.cpp.htm)'
+  id: totrans-51
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[thread_pool.cpp](https://build-your-own.org/redis/14/thread_pool.cpp.htm)'
 - en: '[thread_pool.h](https://build-your-own.org/redis/14/thread_pool.h.htm)'
+  id: totrans-52
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[thread_pool.h](https://build-your-own.org/redis/14/thread_pool.h.htm)'
 - en: '[zset.cpp](https://build-your-own.org/redis/14/zset.cpp.htm)'
+  id: totrans-53
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[zset.cpp](https://build-your-own.org/redis/14/zset.cpp.htm)'
 - en: '[zset.h](https://build-your-own.org/redis/14/zset.h.htm)'
+  id: totrans-54
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[zset.h](https://build-your-own.org/redis/14/zset.h.htm)'

@@ -1,12 +1,16 @@
 - en: '08\. Data Structure: Hashtables'
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 08. 数据结构：散列表
 - en: This chapter fills the placeholder code in the last chapter’s server. We’ll
     start by implementing a hashtable. Hashtables are often the obvious data structure
     for holding an unknown amount of key-value data that does not require ordering.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章将填补上一章服务器中的占位代码。我们将首先实现一个散列表。散列表通常是存储未知数量的键值数据且不需要排序的数据结构的明显选择。
 - en: 'There are two kinds of hashtables: chaining and open addressing. Their primary
     difference is collision resolution. Open addressing seeks another free slot in
     the event of a collision while chaining simply groups conflicting keys with a
@@ -14,79 +18,121 @@
     free slots, while the chaining hashtable is pretty much a fixed design. The hashtable
     used in our server is a chaining one. A chaining hashtable is easy to code; it
     doesn’t require much choice-making.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 有两种散列表：链表法和开放寻址法。它们的主要区别在于冲突解决。开放寻址法在发生冲突时寻找另一个空闲槽位，而链表法只是将冲突的键通过链表分组。由于需要找到空闲槽位，开放寻址法有许多变体，而链表散列表基本上是一个固定的设计。我们服务器中使用的散列表是链表散列表。链表散列表易于编码；它不需要做太多的选择。
 - en: 'The definition of our data types:'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们数据类型的定义：
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: When the size of the hashtable is the power of two, the indexing operation is
     a simple bit mask with the hash code.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 当散列表的大小是2的幂时，索引操作是一个简单的位掩码与哈希码。
 - en: '[PRE1]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'The lookup subroutine is simply a list traversal:'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 查找子程序只是一个列表遍历：
 - en: '[PRE2]'
+  id: totrans-8
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Deleting is easy. Notice how the use of pointers enables succinct code. The
     `from` pointer can be either an item of the array or from a node, yet the code
     doesn’t differentiate.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 删除操作很简单。注意指针的使用如何使得代码简洁。`from` 指针可以是数组中的一个元素，也可以是从一个节点开始的，但代码并没有区分。
 - en: '[PRE3]'
+  id: totrans-10
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'Our hashtable is fixed in size, we need to migrate to a bigger one when the
     load factor is too high. There is an extra consideration when using hashtables
     in Redis. Resizing a large hashtable requires moving a lot of nodes to a new table,
     which can stall the server for some time. This shall be avoided by not moving
     everything at once, instead, we keep two hashtables and gradually move nodes between
     them. Here is the final hashtable interface:'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们的散列表大小固定，当负载因子过高时，我们需要迁移到一个更大的散列表。在使用 Redis 中的散列表时，有一个额外的考虑。扩容一个大的散列表需要将许多节点移动到新表中，这可能会使服务器暂停一段时间。为了避免一次性移动所有内容，我们保留两个散列表，并逐渐在它们之间移动节点。以下是最终的散列表接口：
 - en: '[PRE4]'
+  id: totrans-12
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'The lookup subroutine now help with resizing:'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 查找子程序现在帮助进行扩容：
 - en: '[PRE5]'
+  id: totrans-14
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'The `hm_help_resizing` function is the subroutine for gradually moving nodes:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '`hm_help_resizing` 函数是逐渐移动节点的子程序：'
 - en: '[PRE6]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'The insertion subroutine will trigger resizing should the table become too
     full:'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 插入子程序将在表变得太满时触发扩容：
 - en: '[PRE7]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The subroutine for removing a key. Nothing interesting.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 移除键的子程序。没有什么有趣的。
 - en: '[PRE8]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'The hashtable implementation is done. Let’s add them to the server. Looking
     at the `struct HNode` again, this structure contains no data, how do we actually
     use that? The answer is called “intrusive data structure”:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 散列表实现已完成。让我们将其添加到服务器中。再次查看 `struct HNode`，这个结构不包含数据，我们实际上如何使用它呢？答案是“侵入式数据结构”：
 - en: '[PRE9]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: Instead of making our data structure contain data, the hashtable node structure
     is embedded into the payload data. This is the standard way of creating generic
     data structures in C. Besides making the data structure fully generic, this technique
@@ -95,49 +141,75 @@
     structure code does not own the payload but merely organizes the data. This may
     be quite a new idea to you if you learned data structures from textbooks, which
     is probably using `void *` or C++ templates or even macros.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 而不是让我们的数据结构包含数据，散列表节点结构被嵌入到有效载荷数据中。这是在 C 中创建通用数据结构的标准方式。除了使数据结构完全通用外，这种技术还有减少不必要的内存管理的优势。结构节点不是单独分配的，而是有效载荷数据的一部分，数据结构代码不拥有有效载荷，而只是组织数据。如果你从教科书中学习数据结构，这可能是一个全新的概念，可能使用
+    `void *` 或 C++ 模板，甚至是宏。
 - en: 'Listing the `do_get` function to see how the intrusive data structure is used:'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 列出 `do_get` 函数以查看如何使用侵入式数据结构：
 - en: '[PRE10]'
+  id: totrans-25
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 'The `hm_lookup` function returns a pointer to `HNode`, which is a member of
     the `Entry`, we need some pointer arithmetics to convert that pointer to an `Entry`
     pointer. The `container_of` macro is commonly used in C projects for this purpose:'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: '`hm_lookup` 函数返回一个指向 `HNode` 的指针，而 `HNode` 是 `Entry` 的一个成员，我们需要进行一些指针运算来将这个指针转换为
+    `Entry` 指针。在 C 项目中，`container_of` 宏通常用于此目的：'
 - en: '[PRE11]'
+  id: totrans-27
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: The `do_set` and `do_del` are both trivial.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '`do_set` 和 `do_del` 都是微不足道的。'
 - en: '[PRE12]'
+  id: totrans-29
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'Exercises:'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 练习：
 - en: Our hashtable triggers resizing when the load factor is too high, should we
     also shrink the hashtable when the load factor is too low? Can the shrinking be
     performed automatically?
+  id: totrans-31
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 当哈希表的负载因子过高时，我们的哈希表会触发扩容，那么当负载因子过低时，我们也应该缩小哈希表吗？缩小操作可以自动执行吗？
 - en: '[08_server.cpp](https://build-your-own.org/redis/08/08_server.cpp.htm)'
+  id: totrans-32
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[08_server.cpp](https://build-your-own.org/redis/08/08_server.cpp.htm)'
 - en: '[hashtable.cpp](https://build-your-own.org/redis/08/hashtable.cpp.htm)'
+  id: totrans-33
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[hashtable.cpp](https://build-your-own.org/redis/08/hashtable.cpp.htm)'
 - en: '[hashtable.h](https://build-your-own.org/redis/08/hashtable.h.htm)'
+  id: totrans-34
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[hashtable.h](https://build-your-own.org/redis/08/hashtable.h.htm)'

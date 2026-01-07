@@ -1,35 +1,47 @@
 - en: 12\. The Event Loop and Timers
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 12. 事件循环和计时器
 - en: 'There is one major thing missing in our server: timeouts. Every networked application
     needs to handle timeouts since the other side of the network can just disappear.
     Not only do ongoing IO operations like read/write need timeouts, but it is also
     a good idea to kick out idle TCP connections. To implement timeouts, the event
     loop must be modified since the `poll` is the only thing that is blocking.'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们的服务器中缺少一个主要的东西：超时。每个网络应用程序都需要处理超时，因为网络另一端可能会消失。不仅进行中的IO操作如读写需要超时，而且踢出空闲的TCP连接也是一个好主意。要实现超时，必须修改事件循环，因为`poll`是唯一会阻塞的操作。
 - en: 'Looking at our existing event loop code:'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 看看我们现有的事件循环代码：
 - en: '[PRE0]'
+  id: totrans-3
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: The `poll` syscall takes a timeout argument, which imposes an upper bound of
     time spent on the `poll` syscall. The timeout value is currently an arbitrary
     value of 1000 ms. If we set the timeout value according to the timer, `poll` should
     wake up at the time it expires, or before that; then we have a chance to fire
     the timer in due time.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '`poll`系统调用接受一个超时参数，它对`poll`系统调用所花费的时间施加了一个上限。当前的超时值是一个任意的1000毫秒值。如果我们根据计时器设置超时值，`poll`应该在超时时间到达时或之前唤醒；这样我们就有机会及时触发计时器。'
 - en: The problem is that we might have more than one timer, the timeout value of
     `poll` should be the timeout value of the nearest timer. Some data structure is
     needed for finding the nearest timer. The heap data structure is a popular choice
     for finding the min/max value and is often used for such purpose. Also, any data
     structure for sorting can be used. For example, we can use the AVL tree to order
     timers and possibly augment the tree to keep track of the minimum value.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 问题是我们可能有多个计时器，`poll`的超时值应该是最近计时器的超时值。需要某种数据结构来找到最近的计时器。堆数据结构是寻找最小/最大值的一个流行选择，并且经常用于此类目的。也可以使用任何排序数据结构。例如，我们可以使用AVL树来排序计时器，并可能增强树以跟踪最小值。
 - en: 'Let’s start by adding timers to kick out idle TCP connections. For each connection
     there is a timer, set to a fixed timeout into the future, every time there are
     IO activities on the connection, the timer is renewed to a fixed timeout. Notice
@@ -38,153 +50,235 @@
     to keep the order of timers: the new or updated timer simply goes to the end of
     the list, and the list maintains sorted order. Also, operations on linked lists
     are `O(1)`, which is better than sorting data structures.'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们先添加计时器来踢出空闲的TCP连接。对于每个连接都有一个计时器，设置为未来的固定超时时间，每次在连接上有IO活动时，计时器都会更新为固定超时时间。注意，当我们更新计时器时，它变成了最远的那个；因此，我们可以利用这个事实来简化数据结构；一个简单的链表就足以保持计时器的顺序：新的或更新的计时器简单地移动到列表的末尾，而列表保持排序顺序。此外，链表操作的时间复杂度是`O(1)`，这比排序数据结构要好。
 - en: 'Defining the linked list is a trivial task:'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 定义链表是一个简单任务：
 - en: '[PRE1]'
+  id: totrans-8
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '`get_monotonic_usec` is the function for getting the time. Note that the timestamp
     must be monotonic. Timestamp jumping backward can cause all sorts of troubles
     in computer systems.'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '`get_monotonic_usec`是获取时间的函数。注意，时间戳必须是单调的。时间戳回跳可能会在计算机系统中引起各种问题。'
 - en: '[PRE2]'
+  id: totrans-10
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The next step is adding the list to the server and the connection struct.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一步是将列表添加到服务器和连接结构体中。
 - en: '[PRE3]'
+  id: totrans-12
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[PRE4]'
+  id: totrans-13
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'An overview of the modified event loop:'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 修改后的事件循环概述：
 - en: '[PRE5]'
+  id: totrans-15
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'A couple of things were modified:'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 修改了几件事：
 - en: The timeout argument of `poll` is calculated by the `next_timer_ms` function.
+  id: totrans-17
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '`poll`的超时参数是由`next_timer_ms`函数计算的。'
 - en: The code for destroying a connection was moved to the `conn_done` function.
+  id: totrans-18
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 销毁连接的代码被移动到了`conn_done`函数中。
 - en: Added the `process_timers` function for firing timers.
+  id: totrans-19
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 添加了`process_timers`函数来触发计时器。
 - en: Timers are updated in `connection_io` and initialized in `accept_new_conn`.
+  id: totrans-20
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 计时器在`connection_io`中更新，并在`accept_new_conn`中初始化。
 - en: The `next_timer_ms` function takes the first (nearest) timer from the list and
     uses it the calculate the timeout value of `poll`.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '`next_timer_ms`函数从列表中取出第一个（最近的）计时器，并使用它来计算`poll`的超时值。'
 - en: '[PRE6]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: At each iteration of the event loop, the list is checked in order to fire timers
     in due time.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 在事件循环的每次迭代中，都会检查列表以及时触发计时器。
 - en: '[PRE7]'
+  id: totrans-24
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: 'Timers are updated in the `connection_io` function:'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 计时器在`connection_io`函数中更新：
 - en: '[PRE8]'
+  id: totrans-26
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'Timers are initialized in the `accept_new_conn` function:'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 计时器在`accept_new_conn`函数中初始化：
 - en: '[PRE9]'
+  id: totrans-28
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'Don’t forget to remove the connection from the list when done:'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 完成后不要忘记从列表中移除连接：
 - en: '[PRE10]'
+  id: totrans-30
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 'We can test the idle timeouts using the `nc` or `socat` command:'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以使用`nc`或`socat`命令测试空闲超时：
 - en: '[PRE11]'
+  id: totrans-32
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '[PRE12]'
+  id: totrans-33
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: The server should close the connection by 5s.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 服务器应在5秒内关闭连接。
 - en: 'Exercises:'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 练习：
 - en: Add timeouts to IO operations (read & write).
+  id: totrans-36
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 为IO操作（读取和写入）添加超时。
 - en: Try to implement more generic timers using sorting data structures.
+  id: totrans-37
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 尝试使用排序数据结构实现更通用的计时器。
 - en: '[12_server.cpp](https://build-your-own.org/redis/12/12_server.cpp.htm)'
+  id: totrans-38
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[12_server.cpp](https://build-your-own.org/redis/12/12_server.cpp.htm)'
 - en: '[avl.cpp](https://build-your-own.org/redis/12/avl.cpp.htm)'
+  id: totrans-39
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[avl.cpp](https://build-your-own.org/redis/12/avl.cpp.htm)'
 - en: '[avl.h](https://build-your-own.org/redis/12/avl.h.htm)'
+  id: totrans-40
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[avl.h](https://build-your-own.org/redis/12/avl.h.htm)'
 - en: '[common.h](https://build-your-own.org/redis/12/common.h.htm)'
+  id: totrans-41
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[common.h](https://build-your-own.org/redis/12/common.h.htm)'
 - en: '[hashtable.cpp](https://build-your-own.org/redis/12/hashtable.cpp.htm)'
+  id: totrans-42
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[hashtable.cpp](https://build-your-own.org/redis/12/hashtable.cpp.htm)'
 - en: '[hashtable.h](https://build-your-own.org/redis/12/hashtable.h.htm)'
+  id: totrans-43
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[hashtable.h](https://build-your-own.org/redis/12/hashtable.h.htm)'
 - en: '[list.h](https://build-your-own.org/redis/12/list.h.htm)'
+  id: totrans-44
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[list.h](https://build-your-own.org/redis/12/list.h.htm)'
 - en: '[zset.cpp](https://build-your-own.org/redis/12/zset.cpp.htm)'
+  id: totrans-45
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[zset.cpp](https://build-your-own.org/redis/12/zset.cpp.htm)'
 - en: '[zset.h](https://build-your-own.org/redis/12/zset.h.htm)'
+  id: totrans-46
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[zset.h](https://build-your-own.org/redis/12/zset.h.htm)'

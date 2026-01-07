@@ -1,81 +1,121 @@
 - en: 06\. The Event Loop Implementation
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 06. 事件循环实现
 - en: This chapter walks through the real C++ code of an echo server.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章将介绍一个echo服务器的真实C++代码。
 - en: 'The definition of `struct Conn`:'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: '`struct Conn`的定义：'
 - en: '[PRE0]'
+  id: totrans-3
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: We need buffers for reading/writing, since in nonblocking mode, IO operations
     are often deferred.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们需要读写缓冲区，因为在非阻塞模式下，I/O操作通常会被延迟。
 - en: The `state` is used to decide what to do with the connection. There are 2 states
     for an ongoing connection. The `STATE_REQ` is for reading requests and the `STATE_RES`
     is for sending responses.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '`state`用于决定如何处理连接。对于正在进行的连接，有两个状态。`STATE_REQ`用于读取请求，而`STATE_RES`用于发送响应。'
 - en: 'The code for the event loop:'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 事件循环的代码：
 - en: '[PRE1]'
+  id: totrans-7
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: The first thing in our event loop is setting up arguments of `poll`. The listening
     fd is polled with the `POLLIN` flag. For the connection fd, the state of the struct
     `Conn` determines the poll flag. In this particular case, the poll flag is either
     reading (`POLLIN`) or writing (`POLLOUT`), never both. If using `epoll`, the first
     thing in an event loop is usually updating the fd set with `epoll_ctl`.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们的事件循环中，第一件事是设置`poll`的参数。监听文件描述符（fd）使用`POLLIN`标志进行轮询。对于连接文件描述符，`Conn`结构体的状态决定了轮询标志。在这种情况下，轮询标志是读取（`POLLIN`）或写入（`POLLOUT`），永远不会同时发生。如果使用`epoll`，事件循环中的第一件事通常是使用`epoll_ctl`更新文件描述符集合。
 - en: The `poll` also takes a timeout argument which can be used to implement timers,
     in our case, this argument doesn’t matter, just set it to a big number. After
     the return of `poll`, we are notified by which fd are ready for reading/writing
     and act accordingly.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: '`poll`还接受一个超时参数，可以用来实现定时器，在我们的情况下，这个参数并不重要，只需将其设置为一个很大的数字。在`poll`返回后，我们会通过哪个fd准备好读取/写入来通知，并相应地采取行动。'
 - en: 'The `accept_new_conn()` function accepts a new connection and creates the `struct
     Conn` object:'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '`accept_new_conn()`函数接受一个新的连接并创建`struct Conn`对象：'
 - en: '[PRE2]'
+  id: totrans-11
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'The `connection_io()` is the state machine for client connections:'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: '`connection_io()`是客户端连接的状态机：'
 - en: '[PRE3]'
+  id: totrans-13
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'The `STATE_REQ` state is for reading:'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '`STATE_REQ`状态是用于读取的：'
 - en: '[PRE4]'
+  id: totrans-15
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'There are lots of things to unpack here. To understand this function, let’s
     review the pseudo-code from the last chapter:'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里有很多东西需要解释。为了理解这个函数，让我们回顾一下上一章的伪代码：
 - en: '[PRE5]'
+  id: totrans-17
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: The `try_fill_buffer()` function fills the read buffer with data. Since the
     size of the read buffer is limited, the read buffer could be full before we hit
     `EAGAIN`, so we need to process data immediately after reading to clear some read
     buffer space, then the `try_fill_buffer()` is looped until we hit `EAGAIN`.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '`try_fill_buffer()`函数将数据填充到读取缓冲区中。由于读取缓冲区的大小有限，读取缓冲区在达到`EAGAIN`之前可能会填满，因此我们需要在读取后立即处理数据以清除一些读取缓冲区空间，然后`try_fill_buffer()`会循环直到达到`EAGAIN`。'
 - en: The `read` syscall (and any other syscalls) need to be retried after getting
     the errno `EINTR`. The `EINTR` means the syscall was interrupted by a signal,
     the retrying is needed even if our application does not make use of signals.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 在得到`errno EINTR`后，需要重试`read`系统调用（以及任何其他系统调用）。`EINTR`表示系统调用被信号中断，即使我们的应用程序没有使用信号，也需要重试。
 - en: The `try_one_request` function handles the incoming data, but why is this in
     a loop? Is there more than one request in the read buffer? The answer is yes.
     For a request/response protocol, clients are not limited to sending one request
@@ -83,61 +123,92 @@
     multiple requests without waiting for responses in between, this mode of operation
     is called “pipelining”. Thus we can’t assume that the read buffer contains at
     most one request.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: '`try_one_request`函数处理传入的数据，但为什么这个函数是循环的？读取缓冲区中是否只有一个请求？答案是肯定的。对于请求/响应协议，客户端不是一次只能发送一个请求并等待响应，客户端可以通过在不等待响应之间发送多个请求来节省一些延迟，这种操作模式称为“流水线”。因此，我们不能假设读取缓冲区中最多只有一个请求。'
 - en: 'Listing the `try_one_request` function:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 列出`try_one_request`函数：
 - en: '[PRE6]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: The `try_one_request` function takes one request from the read buffer, generates
     a response, then transits to the `STATE_RES` state.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: '`try_one_request`函数从一个读取缓冲区中取一个请求，生成一个响应，然后转换到`STATE_RES`状态。'
 - en: 'The code for the state `STATE_RES`:'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: '`STATE_RES` 状态的代码：'
 - en: '[PRE7]'
+  id: totrans-25
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The above code flushes the write buffer until it got `EAGAIN`, or transits back
     to the `STATE_REQ` if the flushing is done.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 上述代码将写入缓冲区刷新直到得到`EAGAIN`，或者如果刷新完成，则转换回`STATE_REQ`状态。
 - en: 'To test our server, we can run the client from chapter 04 since the protocol
     is identical. We can also modify the client to demonstrate pipelining client:'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 要测试我们的服务器，我们可以运行第04章中的客户端，因为协议是相同的。我们也可以修改客户端来演示流水线客户端：
 - en: '[PRE8]'
+  id: totrans-28
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'Exercises:'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 练习：
 - en: Try to use `epoll` instead of `poll` in the event loop. This should be easy.
+  id: totrans-30
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 尝试在事件循环中使用 `epoll` 而不是 `poll`。这应该很容易。
 - en: We are using `memmove` to reclaim read buffer space. However, `memmove` on every
     request is unnecessary, change the code the perform `memmove` only before `read`.
+  id: totrans-31
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 我们正在使用 `memmove` 来回收读取缓冲区的空间。然而，在每次请求上使用 `memmove` 是不必要的，只需在 `read` 之前执行 `memmove`
+    的代码即可。
 - en: In the `state_res` function, `write` was performed for a single response. In
     pipelined sceneries, we could buffer multiple responses and flush them in the
     end with a single `write` call. Note that the write buffer could be full in the
     middle.
+  id: totrans-32
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 在 `state_res` 函数中，对单个响应执行了 `write` 操作。在流水线场景中，我们可以缓冲多个响应，并在最后通过单个 `write` 调用来刷新它们。请注意，写入缓冲区可能在中间已满。
 - en: '[06_client.cpp](https://build-your-own.org/redis/06/06_client.cpp.htm)'
+  id: totrans-33
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[06_client.cpp](https://build-your-own.org/redis/06/06_client.cpp.htm)'
 - en: '[06_server.cpp](https://build-your-own.org/redis/06/06_server.cpp.htm)'
+  id: totrans-34
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[06_server.cpp](https://build-your-own.org/redis/06/06_server.cpp.htm)'

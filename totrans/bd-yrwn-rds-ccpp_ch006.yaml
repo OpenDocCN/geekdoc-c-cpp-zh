@@ -1,35 +1,50 @@
 - en: 05\. The Event Loop and Nonblocking IO
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 05\. 事件循环和非阻塞 I/O
 - en: 'There are 3 ways to deal with concurrent connections in server-side network
     programming. They are: forking, multi-threading, and event loops. Forking creates
     new processes for each client connection to achieve concurrency. Multi-threading
     uses threads instead of processes. An event loop uses polling and nonblocking
     IO and usually runs on a single thread. Due to the overhead of processes and threads,
     most modern production-grade software uses event loops for networking.'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 在服务器端网络编程中处理并发连接有三种方法。它们是：进程创建、多线程和事件循环。进程创建为每个客户端连接创建新的进程以实现并发。多线程使用线程而不是进程。事件循环使用轮询和非阻塞
+    I/O，通常在单个线程上运行。由于进程和线程的开销，大多数现代生产级软件使用事件循环进行网络编程。
 - en: 'The simplified pseudo-code for the event loop of our server is:'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们服务器的简化伪代码如下：
 - en: '[PRE0]'
+  id: totrans-3
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: Instead of just doing things (reading, writing, or accepting) with fds, we use
     the `poll` operation to tell us which fd can be operated *immediately* without
     blocking. When we perform an IO operation on an fd, the operation should be performed
     in the *nonblocking* mode.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们不是仅仅使用 fds（文件描述符）进行（读取、写入或接受）操作，而是使用 `poll` 操作来告诉我们哪个 fd 可以立即操作而不阻塞。当我们对一个
+    fd 执行 I/O 操作时，该操作应该在非阻塞模式下进行。
 - en: In blocking mode, `read` blocks the caller when there are no data in the kernel,
     `write` blocks when the write buffer is full, and `accept` blocks when there are
     no new connections in the kernel queue. In nonblocking mode, those operations
     either success without blocking, or fail with the errno `EAGAIN`, which means
     “not ready”. Nonblocking operations that fail with `EAGAIN` must be retried after
     the readiness was notified by the `poll`.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 在阻塞模式下，当内核中没有数据时，`read` 会阻塞调用者，当写入缓冲区满时，`write` 会阻塞，当内核队列中没有新连接时，`accept` 会阻塞。在非阻塞模式下，这些操作要么不阻塞成功，要么失败并返回
+    errno `EAGAIN`，这意味着“未准备好”。失败并返回 `EAGAIN` 的非阻塞操作必须在 `poll` 通知就绪后重试。
 - en: The `poll` is the *sole* blocking operation in an event loop, everything else
     must be nonblocking; thus, a single thread can handle multiple concurrent connections.
     All blocking networking IO APIs, such as `read`, `write`, and `accept`, have a
@@ -37,14 +52,22 @@
     and disk IOs, should be performed in thread pools, which will be covered in later
     chapters. Also, timers must be implemented within the event loop since we can’t
     `sleep` waiting inside the event loop.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: '`poll` 是事件循环中的唯一阻塞操作，其他所有操作都必须是非阻塞的；因此，单个线程可以处理多个并发连接。所有阻塞的网络 I/O API，如 `read`、`write`
+    和 `accept`，都有一个非阻塞模式。没有非阻塞模式的 API，如 `gethostbyname` 和磁盘 I/O，应该在线程池中执行，这将在后面的章节中介绍。此外，定时器必须在事件循环中实现，因为我们不能在事件循环内部
+    `sleep` 等待。'
 - en: 'The syscall for setting an fd to nonblocking mode is `fcntl`:'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 将 fd 设置为非阻塞模式的系统调用是 `fcntl`：
 - en: '[PRE1]'
+  id: totrans-8
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'On Linux, besides the `poll` syscall, there are also `select` and `epoll`.
     The ancient `select` syscall is basically the same as the `poll`, except that
     the maximum fd number is limited to a small number, which makes it obsolete in
@@ -52,11 +75,19 @@
     and `epoll_ctl`. The `epoll` API is stateful, instead of supplying a set of fds
     as a syscall argument, `epoll_ctl` was used to manipulate an fd set created by
     `epoll_create`, which the `epoll_wait` is operating on.'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Linux 上，除了 `poll` 系统调用外，还有 `select` 和 `epoll`。古老的 `select` 系统调用基本上与 `poll`
+    相同，除了最大 fd 数量限制在一个较小的数字，这使得它在现代应用中变得过时。`epoll` API 由 3 个系统调用组成：`epoll_create`、`epoll_wait`
+    和 `epoll_ctl`。`epoll` API 是状态化的，而不是像系统调用参数一样提供一组 fd，`epoll_ctl` 用于操作由 `epoll_create`
+    创建的 fd 集合，而 `epoll_wait` 正在操作这个集合。
 - en: We’ll use the `poll` syscall in the next chapter since it’s slightly less code
     than the stateful `epoll` API. However, the `epoll` API is preferable in real-world
     projects since the argument for the `poll` can become too large as the number
     of fds increases.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将在下一章中使用 `poll` 系统调用，因为它比状态化的 `epoll` API 代码略少。然而，在现实世界的项目中，`epoll` API 更受欢迎，因为随着文件描述符数量的增加，`poll`
+    的参数可能会变得过大。

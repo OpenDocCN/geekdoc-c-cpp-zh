@@ -1,91 +1,137 @@
 - en: 04\. Protocol Parsing
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 04. 协议解析
 - en: Our server will be able to process multiple requests from a client, to do that
     we need to implement some sort of “protocol”, at least to split requests apart
     from the TCP byte stream. The easiest way to split requests apart is by declaring
     how long the request is at the beginning of the request. Let’s use the following
     scheme.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们的服务器将能够处理来自客户端的多个请求，为了做到这一点，我们需要实现某种“协议”，至少要将请求与TCP字节流分开。将请求分开的最简单方法是在请求的开头声明请求的长度。让我们使用以下方案。
 - en: '[PRE0]'
+  id: totrans-2
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: 'The protocol consists of 2 parts: a 4-byte little-endian integer indicating
     the length of the following request, and a variable length request.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 协议由两部分组成：一个4字节的Little-endian整数，表示后续请求的长度，以及一个可变长度的请求。
 - en: 'Starts from the code from the last chapter, the loop of the server is modified
     to handle multiple requests:'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 从上一章的代码开始，服务器的循环被修改以处理多个请求：
 - en: '[PRE1]'
+  id: totrans-5
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: The `one_request` function only parses one request and replies, until something
     bad happens or the client connection is gone. Our server can only handle one connection
     at once until we introduce the event loop in later chapters.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: '`one_request` 函数只解析一个请求和回复，直到发生错误或客户端连接断开。我们的服务器只能同时处理一个连接，直到我们在后续章节中引入事件循环。'
 - en: 'Adding two helper functions before listing the `one_request` function:'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 在列出 `one_request` 函数之前添加两个辅助函数：
 - en: '[PRE2]'
+  id: totrans-8
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'Two things to note:'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下是需要注意的两点：
 - en: The `read()` syscall just returns whatever data is available in the kernel,
     or blocks if there is none. It’s the application that is responsible for handling
     insufficient data. The `read_full()` function read from the kernel until it got
     exactly `n` bytes.
+  id: totrans-10
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '`read()` 系统调用只返回内核中可用的任何数据，如果没有数据则阻塞。处理数据不足的责任在于应用程序。`read_full()` 函数从内核中读取，直到获取到恰好
+    `n` 个字节。'
 - en: Likewise, the `write()` syscall can return successfully with partial data written
     if the kernel buffer is full, we need to keep trying when the `write()` returns
     fewer bytes than we need.
+  id: totrans-11
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: 同样，如果内核缓冲区已满，`write()` 系统调用可以返回成功并写入部分数据，我们需要在 `write()` 返回少于所需字节数时继续尝试。
 - en: 'The `one_request` function did the actual work:'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: '`one_request` 函数执行实际工作：'
 - en: '[PRE3]'
+  id: totrans-13
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: For convenience, we added a limit to the maximum request size and use a large
     enough buffer to hold the request. Endianness used to be a consideration when
     parsing protocols, but it is less relevant today so we are just `memcpy`-ing integers.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了方便起见，我们添加了最大请求大小的限制，并使用足够大的缓冲区来存储请求。在解析协议时，字节序曾经是一个考虑因素，但今天它不太相关，所以我们只是使用
+    `memcpy` 来复制整数。
 - en: 'The client code for making requests and receiving replies:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 用于发送请求和接收回复的客户端代码：
 - en: '[PRE4]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'Test our server by sending multiple commands:'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过发送多个命令来测试我们的服务器：
 - en: '[PRE5]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'Running the server and the client:'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 运行服务器和客户端：
 - en: '[PRE6]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'The protocol parsing code requires at least 2 `read()` syscalls per request.
     The number of syscalls can be reduced by using “buffered IO”. That is: read as
     much as you can into a buffer at once, then try to parse multiple requests from
     that buffer. Readers are encouraged to try this as an exercise as it may be helpful
     to understand later chapters.'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 协议解析代码每个请求至少需要2次 `read()` 系统调用。可以通过使用“缓冲I/O”来减少系统调用的次数。也就是说：一次尽可能多地读取到缓冲区中，然后尝试从该缓冲区解析多个请求。鼓励读者尝试这个练习，因为这可能有助于理解后续章节。
 - en: 'Notes on protocols: The protocol used in this chapter is the most simple practical
     protocol. Most real-world protocols are more complicated than this. Some use text
     instead of binary data. While text protocols have the advantage of being human-readable,
@@ -96,15 +142,21 @@
     can add another complication when the protocol is carrying arbitrary data, as
     the delimiters in data need to be “escaped”. We’ll stick to the simple binary
     protocol for later chapters.'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于协议的说明：本章中使用的协议是最简单的实用协议。大多数现实世界的协议比这更复杂。一些使用文本而不是二进制数据。虽然文本协议具有可读性强的优势，但文本协议确实需要比二进制协议更多的解析，二进制协议更易于编码且更容易出错。使协议解析复杂化的另一个因素是，某些协议没有直接分割消息的方法，这些协议可能使用分隔符，或者需要进一步解析来分割消息。当协议携带任意数据时，使用分隔符可能会增加另一个复杂性，因为数据中的分隔符需要“转义”。我们将在后续章节中坚持使用简单的二进制协议。
 - en: '[04_client.cpp](https://build-your-own.org/redis/04/04_client.cpp.htm)'
+  id: totrans-23
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[04_client.cpp](https://build-your-own.org/redis/04/04_client.cpp.htm)'
 - en: '[04_server.cpp](https://build-your-own.org/redis/04/04_server.cpp.htm)'
+  id: totrans-24
   prefs:
   - PREF_BQ
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[04_server.cpp](https://build-your-own.org/redis/04/04_server.cpp.htm)'

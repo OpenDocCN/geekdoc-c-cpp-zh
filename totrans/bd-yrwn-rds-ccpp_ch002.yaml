@@ -1,117 +1,165 @@
 - en: 01\. Introduction
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 01\. 简介
 - en: What Is This Book About?
+  id: totrans-1
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 这本书是关于什么的？
 - en: This book contains a step-by-step walkthrough of a simple implementation of
     a Redis-like server. It is intended as a practical guide or tutorial to network
     programming and the implementation and application of basic data structures in
     C.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 这本书包含了一个类似Redis的服务器简单实现的逐步讲解。它旨在作为网络编程以及C语言中基本数据结构实现和应用的实用指南或教程。
 - en: What to Learn From This Book?
+  id: totrans-3
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 从这本书中学到什么？
 - en: Redis could be considered one of the *building blocks* of modern computing that
     stood the test of time. The knowledge required for building such a project is
     broader and deeper than usual application-level development. Learning from such
     projects is a good way for software developers to level up their skills.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: Redis可以被认为是现代计算中经得起时间考验的*构建块*之一。构建此类项目所需的知识比通常的应用级开发更广泛、更深入。从这样的项目中学习是软件开发者提升技能的好方法。
 - en: 'Redis is a good target for learning because it covers two important subjects
     of software engineering: network programming and data structures.'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: Redis是学习的好目标，因为它涵盖了软件工程中的两个重要主题：网络编程和数据结构。
 - en: While there are many guides on socket APIs or high-level libraries, network
     programming is more than calling APIs or libraries. It is important to understand
     core concepts such as the event loop, protocols, timers, etc, which this book
     will cover. The lack of understanding can result in fatal mistakes even if you
     are just employing high-level networking libraries or frameworks in your applications.
+  id: totrans-6
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 虽然有许多关于套接字API或高级库的指南，但网络编程不仅仅是调用API或库。理解核心概念，如事件循环、协议、定时器等，非常重要，这本书将涵盖这些内容。即使只是在应用程序中使用高级网络库或框架，缺乏理解也可能导致致命的错误。
 - en: Although many people learned some basic data structures from textbooks, there
     is still something more to learn. Data structures implemented in real projects
     often have some practical considerations which are not touched by textbooks. Learning
     how data structures are used in a non-toy environment (especially in C) is a unique
     experience from building Redis.
+  id: totrans-7
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 尽管许多人从教科书中学习了一些基本的数据结构，但仍有许多东西需要学习。在实际项目中实现的数据结构通常会有一些教科书未涉及的实用考虑因素。学习如何在非玩具环境中（尤其是在C语言中）使用数据结构，是从构建Redis中获得的一种独特体验。
 - en: 'Like most real-world projects, Redis is a complex project built with lots of
     effort, which can be hard to grasp for beginners. Instead, this book takes an
     opposite approach: learning by building things *from scratch*.'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 就像大多数现实世界项目一样，Redis是一个需要大量努力构建的复杂项目，对于初学者来说可能难以掌握。相反，这本书采取了一种相反的方法：通过从头开始构建来学习。
 - en: Why From Scratch?
+  id: totrans-9
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 为什么选择“从头开始”？
 - en: 'A couple of points:'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 几个要点：
 - en: '**To learn faster.** By building things from scratch, concepts can be introduced
     gradually. Starting from the small, adding things incrementally, and getting the
     big picture in the end.'
+  id: totrans-11
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**为了更快地学习**。通过从头开始构建，概念可以逐渐引入。从小处着手，逐步添加内容，最终获得整体图景。'
 - en: '**To learn deeper.** While there are many materials explaining how an existing
     stuff works, the understanding obtained by reading those materials is often not
     the same as building the stuff yourself. It is easy to mistake memorization for
     understanding, and it’s easier to pick up unimportant details than principles
     and basics.'
+  id: totrans-12
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**为了更深入地学习**。虽然有许多材料解释了现有东西是如何工作的，但通过阅读这些材料获得的理解往往与你自己构建东西获得的理解不同。很容易将记忆错误地认为是理解，而且更容易记住不重要的细节而不是原则和基础。'
 - en: '**To learn more.** The “from scratch” approach forces you to touch *every*
     aspect of the subject — there are no shortcuts to knowledge! And often not every
     aspect is known to you beforehand, you may discover “things I don’t know I don’t
     know” in the process.'
+  id: totrans-13
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '**为了更深入地学习**。“从头开始”的方法迫使你接触该主题的每一个方面——知识没有捷径！而且，往往不是所有方面在开始之前都是你所知道的，你可能会在过程中发现“我不知道我不知道的东西”。'
 - en: 'Summarized in a quote from Feynman: “What I cannot create, I do not understand”.'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 用费曼的一句话总结：“我不能创造的东西，我就不理解”。
 - en: How to Use This Book?
+  id: totrans-15
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 如何使用这本书？
 - en: This book follows a step-by-step approach. Each step builds on the previous
     one, adding a new concept. The full source code is provided on the web for reference
     purposes, readers are advised to tinker with it or DIY without it.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 这本书遵循逐步的方法。每一步都建立在之前的基础上，添加一个新概念。完整的源代码在网络上提供供参考，建议读者对其进行修改或DIY，而不必依赖它。
 - en: The code is written as direct and straightforwardly as the author could. It’s
     mostly plain C with minimal C++ features. Don’t worry if you don’t know C, you
     just have the opportunity to do it in another language by yourself.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 代码被编写得尽可能直接和简洁，作者尽可能少地使用 C++ 特性。如果你不知道 C 语言，不要担心，你总是有机会自己用另一种语言来实现它。
 - en: The end result is a mini Redis alike with only about 1200 lines of code. 1200
     LoC seems low, but it illustrates many important aspects the book attempts to
     cover.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 最终结果是类似 Redis 的迷你版本，只有大约 1200 行代码。1200 行代码似乎很少，但它说明了书中试图涵盖的许多重要方面。
 - en: The techniques and approaches used in the book are not exactly the same as the
     real Redis. Some are intentionally simplified, and some are chosen to illustrate
     a general topic. Readers can learn even more by comparing different approaches.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 书中使用的技巧和方法并不完全等同于真实的 Redis。有些是故意简化的，有些则是为了说明一个通用主题。读者可以通过比较不同的方法来学习更多。
 - en: 'The code used in this book is intended to run on Linux only, and can be downloaded
     at this URL:'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 书中使用的代码旨在仅在 Linux 上运行，并且可以通过以下网址下载：
 - en: '[https://build-your-own.org/redis/src.tgz](https://build-your-own.org/redis/src.tgz)'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '[https://build-your-own.org/redis/src.tgz](https://build-your-own.org/redis/src.tgz)'
 - en: 'The contents and the source code of this book can be browsed online at:'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书的内容和源代码可以在以下网址在线浏览：
 - en: '[https://build-your-own.org](https://build-your-own.org)'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: '[https://build-your-own.org](https://build-your-own.org)'
