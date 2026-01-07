@@ -1,0 +1,110 @@
+- en: 04\. Protocol Parsing
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Our server will be able to process multiple requests from a client, to do that
+    we need to implement some sort of “protocol”, at least to split requests apart
+    from the TCP byte stream. The easiest way to split requests apart is by declaring
+    how long the request is at the beginning of the request. Let’s use the following
+    scheme.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The protocol consists of 2 parts: a 4-byte little-endian integer indicating
+    the length of the following request, and a variable length request.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Starts from the code from the last chapter, the loop of the server is modified
+    to handle multiple requests:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `one_request` function only parses one request and replies, until something
+    bad happens or the client connection is gone. Our server can only handle one connection
+    at once until we introduce the event loop in later chapters.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Adding two helper functions before listing the `one_request` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Two things to note:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `read()` syscall just returns whatever data is available in the kernel,
+    or blocks if there is none. It’s the application that is responsible for handling
+    insufficient data. The `read_full()` function read from the kernel until it got
+    exactly `n` bytes.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Likewise, the `write()` syscall can return successfully with partial data written
+    if the kernel buffer is full, we need to keep trying when the `write()` returns
+    fewer bytes than we need.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The `one_request` function did the actual work:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: For convenience, we added a limit to the maximum request size and use a large
+    enough buffer to hold the request. Endianness used to be a consideration when
+    parsing protocols, but it is less relevant today so we are just `memcpy`-ing integers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The client code for making requests and receiving replies:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Test our server by sending multiple commands:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Running the server and the client:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The protocol parsing code requires at least 2 `read()` syscalls per request.
+    The number of syscalls can be reduced by using “buffered IO”. That is: read as
+    much as you can into a buffer at once, then try to parse multiple requests from
+    that buffer. Readers are encouraged to try this as an exercise as it may be helpful
+    to understand later chapters.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Notes on protocols: The protocol used in this chapter is the most simple practical
+    protocol. Most real-world protocols are more complicated than this. Some use text
+    instead of binary data. While text protocols have the advantage of being human-readable,
+    text protocols do require more parsing than binary ones, which are more coding
+    and error-prone. Another thing to complicate protocol parsing is that some protocols
+    don’t have a straight way to split messages apart, those protocols may use delimiters,
+    or require further parsing to split messages. The use of delimiters in protocols
+    can add another complication when the protocol is carrying arbitrary data, as
+    the delimiters in data need to be “escaped”. We’ll stick to the simple binary
+    protocol for later chapters.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[04_client.cpp](https://build-your-own.org/redis/04/04_client.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[04_server.cpp](https://build-your-own.org/redis/04/04_server.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL

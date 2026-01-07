@@ -1,0 +1,251 @@
+- en: 14\. The Thread Pool & Asynchronous Tasks
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'There is a flaw in our server since the introduction of the sorted set data
+    type: the deletion of keys. If the size of a sorted set is huge, it can take a
+    long time to free its nodes and the server is stalled during the destruction of
+    the key. This can be easily fixed by using multi-threading to move the destructor
+    away from the main thread.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Firstly, we introduce the “thread pool”, which is literally a pool of threads.
+    The thread from the pool consumes tasks from a queue and executes them. It is
+    trivial to code a multi-producer multi-consumer queue using `pthread` APIs. (Although
+    there is only a single producer in our case.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: The relevant `pthread` primitives are `pthread_mutex_t` and `pthread_cond_t`;
+    they are called the mutex and the condition variable respectively. If you are
+    unfamiliar with them, it is advised to get some education on multi-threading after
+    reading this chapter. (Such as manpages of the `pthread` APIs, textbooks on operating
+    systems, online courses, etc.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Here is a really short introduction to the two `pthread` primitives:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The queue is accessed by multiple threads (both the producer and consumers),
+    so it needs the protection of a mutex, obviously.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The consumer threads should be sleeping when idle, and only be waken up when
+    the queue is not empty, this is the job of the condition variable.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The thread pool data type is defined as follows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `thread_pool_init` is for initialization and starting threads. `pthread`
+    types are initialized by `pthread_xxx_init` functions and the `pthread_create`
+    starts a thread with the target function `worker`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The consumer code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The producer code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The explanation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For both the producer and consumers, the queue access code is surrounded by
+    the `pthread_mutex_lock` and the `pthread_mutex_unlock`, only one thread can access
+    the queue at once.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'After a consumer acquired the mutex, check the queue:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: If the queue is not empty, grab a job from the queue, release the mutex and
+    do the work.
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Otherwise, release the mutex and go to sleep, the sleep can be wakened later
+    by the condition variable. This is accomplished via a single `pthread_cond_wait`
+    call.
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: After the producer puts a job into the queue, the producer calls the `pthread_cond_signal`
+    to wake up a potentially sleeping consumer.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: After a consumer woken up from the `pthread_cond_wait`, the mutex is held again
+    automatically. The consumer must check for the condition *again* after waking
+    up, if the condition (a non-empty queue) is not satisfied, go back to sleep.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The use of the condition variable needs some more explanations: The `pthread_cond_wait`
+    function is *always* inside a loop checking for the condition. This is because
+    the condition could be changed by other consumers before the wakening consumer
+    grabs the mutex; the mutex is not transferred from the signaler to the to-be-waked
+    consumer! It is probably a mistake if you see a condition variable used without
+    a loop.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A concrete sequence to help you understand the use of condition variables:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The producer signals.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The producer releases the mutex.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Some consumer grabs the mutex and empties the queue.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: A consumer wakes up from the producer’s signal and grabs the mutex, but the
+    queue is empty!
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Note that the `pthread_cond_signal` doesn’t need to be protected by the mutex,
+    singaling after releasing the mutex is also correct.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The thread pool is done. Let’s add that to our server:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Inside the `main` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `entry_del` function is modified: It will put the destruction of large
+    sorted sets into the thread pool. And the thread pool is only for the large ones
+    since multi-threading has some overheads too.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Exercises:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The semaphore is often introduced as a multi-threading primitive instead of
+    the condition variable and the mutex. Try to implement the thread pool using the
+    semaphore.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Some fun exercises to help you understand these primitives further:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Implement the mutex using the semaphore. (Trivial)
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Implement the semaphore using the condition variable. (Easy)
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Implement the condition variable using only mutexes. (Intermediate)
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Now that you know these primitives are somewhat equivalent, why should you prefer
+    one to another?
+  prefs:
+  - PREF_IND
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[14_server.cpp](https://build-your-own.org/redis/14/14_server.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[avl.cpp](https://build-your-own.org/redis/14/avl.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[avl.h](https://build-your-own.org/redis/14/avl.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[common.h](https://build-your-own.org/redis/14/common.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.cpp](https://build-your-own.org/redis/14/hashtable.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.h](https://build-your-own.org/redis/14/hashtable.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[heap.cpp](https://build-your-own.org/redis/14/heap.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[heap.h](https://build-your-own.org/redis/14/heap.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[list.h](https://build-your-own.org/redis/14/list.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[thread_pool.cpp](https://build-your-own.org/redis/14/thread_pool.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[thread_pool.h](https://build-your-own.org/redis/14/thread_pool.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[zset.cpp](https://build-your-own.org/redis/14/zset.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[zset.h](https://build-your-own.org/redis/14/zset.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL

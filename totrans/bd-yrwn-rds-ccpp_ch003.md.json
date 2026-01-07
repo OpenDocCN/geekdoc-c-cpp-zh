@@ -1,0 +1,1 @@
+["```cpp\n[](#cb1-1)fd = socket()\n[](#cb1-2)bind(fd, address)\n[](#cb1-3)listen(fd)\n[](#cb1-4)while True:\n[](#cb1-5)    conn_fd = accept(fd)\n[](#cb1-6)    do_something_with(conn_fd)\n[](#cb1-7)    close(conn_fd)\n```", "```cpp\n[](#cb2-1)fd = socket()\n[](#cb2-2)connect(fd, address)\n[](#cb2-3)do_something_with(fd)\n[](#cb2-4)close(fd)\n```"]

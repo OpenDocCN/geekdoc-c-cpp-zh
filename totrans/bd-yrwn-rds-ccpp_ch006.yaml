@@ -1,0 +1,62 @@
+- en: 05\. The Event Loop and Nonblocking IO
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'There are 3 ways to deal with concurrent connections in server-side network
+    programming. They are: forking, multi-threading, and event loops. Forking creates
+    new processes for each client connection to achieve concurrency. Multi-threading
+    uses threads instead of processes. An event loop uses polling and nonblocking
+    IO and usually runs on a single thread. Due to the overhead of processes and threads,
+    most modern production-grade software uses event loops for networking.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The simplified pseudo-code for the event loop of our server is:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Instead of just doing things (reading, writing, or accepting) with fds, we use
+    the `poll` operation to tell us which fd can be operated *immediately* without
+    blocking. When we perform an IO operation on an fd, the operation should be performed
+    in the *nonblocking* mode.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In blocking mode, `read` blocks the caller when there are no data in the kernel,
+    `write` blocks when the write buffer is full, and `accept` blocks when there are
+    no new connections in the kernel queue. In nonblocking mode, those operations
+    either success without blocking, or fail with the errno `EAGAIN`, which means
+    “not ready”. Nonblocking operations that fail with `EAGAIN` must be retried after
+    the readiness was notified by the `poll`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `poll` is the *sole* blocking operation in an event loop, everything else
+    must be nonblocking; thus, a single thread can handle multiple concurrent connections.
+    All blocking networking IO APIs, such as `read`, `write`, and `accept`, have a
+    nonblocking mode. APIs that do not have a nonblocking mode, such as `gethostbyname`,
+    and disk IOs, should be performed in thread pools, which will be covered in later
+    chapters. Also, timers must be implemented within the event loop since we can’t
+    `sleep` waiting inside the event loop.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The syscall for setting an fd to nonblocking mode is `fcntl`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'On Linux, besides the `poll` syscall, there are also `select` and `epoll`.
+    The ancient `select` syscall is basically the same as the `poll`, except that
+    the maximum fd number is limited to a small number, which makes it obsolete in
+    modern applications. The `epoll` API consists of 3 syscalls: `epoll_create`, `epoll_wait`,
+    and `epoll_ctl`. The `epoll` API is stateful, instead of supplying a set of fds
+    as a syscall argument, `epoll_ctl` was used to manipulate an fd set created by
+    `epoll_create`, which the `epoll_wait` is operating on.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We’ll use the `poll` syscall in the next chapter since it’s slightly less code
+    than the stateful `epoll` API. However, the `epoll` API is preferable in real-world
+    projects since the argument for the `poll` can become too large as the number
+    of fds increases.
+  prefs: []
+  type: TYPE_NORMAL

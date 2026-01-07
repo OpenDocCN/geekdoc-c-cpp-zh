@@ -1,0 +1,143 @@
+- en: 06\. The Event Loop Implementation
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This chapter walks through the real C++ code of an echo server.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The definition of `struct Conn`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: We need buffers for reading/writing, since in nonblocking mode, IO operations
+    are often deferred.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `state` is used to decide what to do with the connection. There are 2 states
+    for an ongoing connection. The `STATE_REQ` is for reading requests and the `STATE_RES`
+    is for sending responses.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The code for the event loop:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: The first thing in our event loop is setting up arguments of `poll`. The listening
+    fd is polled with the `POLLIN` flag. For the connection fd, the state of the struct
+    `Conn` determines the poll flag. In this particular case, the poll flag is either
+    reading (`POLLIN`) or writing (`POLLOUT`), never both. If using `epoll`, the first
+    thing in an event loop is usually updating the fd set with `epoll_ctl`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `poll` also takes a timeout argument which can be used to implement timers,
+    in our case, this argument doesn’t matter, just set it to a big number. After
+    the return of `poll`, we are notified by which fd are ready for reading/writing
+    and act accordingly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `accept_new_conn()` function accepts a new connection and creates the `struct
+    Conn` object:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `connection_io()` is the state machine for client connections:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `STATE_REQ` state is for reading:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'There are lots of things to unpack here. To understand this function, let’s
+    review the pseudo-code from the last chapter:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `try_fill_buffer()` function fills the read buffer with data. Since the
+    size of the read buffer is limited, the read buffer could be full before we hit
+    `EAGAIN`, so we need to process data immediately after reading to clear some read
+    buffer space, then the `try_fill_buffer()` is looped until we hit `EAGAIN`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `read` syscall (and any other syscalls) need to be retried after getting
+    the errno `EINTR`. The `EINTR` means the syscall was interrupted by a signal,
+    the retrying is needed even if our application does not make use of signals.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `try_one_request` function handles the incoming data, but why is this in
+    a loop? Is there more than one request in the read buffer? The answer is yes.
+    For a request/response protocol, clients are not limited to sending one request
+    and waiting for the response at a time, clients can save some latency by sending
+    multiple requests without waiting for responses in between, this mode of operation
+    is called “pipelining”. Thus we can’t assume that the read buffer contains at
+    most one request.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Listing the `try_one_request` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `try_one_request` function takes one request from the read buffer, generates
+    a response, then transits to the `STATE_RES` state.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The code for the state `STATE_RES`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: The above code flushes the write buffer until it got `EAGAIN`, or transits back
+    to the `STATE_REQ` if the flushing is done.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To test our server, we can run the client from chapter 04 since the protocol
+    is identical. We can also modify the client to demonstrate pipelining client:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Exercises:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Try to use `epoll` instead of `poll` in the event loop. This should be easy.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: We are using `memmove` to reclaim read buffer space. However, `memmove` on every
+    request is unnecessary, change the code the perform `memmove` only before `read`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: In the `state_res` function, `write` was performed for a single response. In
+    pipelined sceneries, we could buffer multiple responses and flush them in the
+    end with a single `write` call. Note that the write buffer could be full in the
+    middle.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[06_client.cpp](https://build-your-own.org/redis/06/06_client.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[06_server.cpp](https://build-your-own.org/redis/06/06_server.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL

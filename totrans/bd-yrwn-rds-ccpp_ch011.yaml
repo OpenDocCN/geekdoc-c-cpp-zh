@@ -1,0 +1,205 @@
+- en: '10\. The AVL Tree: Implementation & Testing'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: While Redis is often referred to as a key-value store, the “value” part of Redis
+    is not restricted to plain strings, lists, hashmaps, and sorted sets are quite
+    nice things to have. Redis is also referred to as the “data structure server”
+    due to its rich set of data structures. Redis is often used as an in-memory cache,
+    and when storing data in memory, there is an advantage of freely using data structures.
+    The sorted set data structure in Redis is quite a unique and useful thing. Not
+    only it offers the ability to sort your data in order, but also has the unique
+    feature of querying ordered data by rank. If you put 20M records into a sorted
+    set, you can get the record that ranked at 10M, without going through the first
+    10M records, this is a feat that can not be emulated by current SQL databases.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As the name “sorted set” implies, it’s a data structure for sorting. Trees,
+    balanced binary trees, are popular data structures for storing sorted data. Among
+    various data structures, the author found the AVL tree particularly simple and
+    easy to code, which will be used in this book to implement sorted set. The real
+    Redis project uses skiplist which is also considered easy to code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The idea of the AVL tree is to restrict the height difference between the left
+    subtree and the right subtree. The height difference between subtrees is restricted
+    to be at most one, never reaching two. When inserting/removing nodes from an AVL
+    tree, the height difference can temporarily reach two, which is then fixed by
+    the node rotations. The rotation operation is the basis of balanced binary trees,
+    which is also used by other balanced trees like the RB tree. After the rotation,
+    a node with a subtree height difference of two is reduced back to be at most one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let’s start with the tree node:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: This is a regular binary tree node with extra fields. The `depth` field is the
+    height of the tree. The `cnt` field is the size of the tree, this field is not
+    specific to the AVL tree, it is used to implement the rank-based query, which
+    will be explained in the next chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Listing some helper functions:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The node rotation code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'A visualization of the `rot_left` operation:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `avl_fix_left` and `avl_fix_right` are functions for fixing excess height
+    difference:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If the right subtree is too deep, a left rotation will fix it. Before the left
+    rotation, we may need a right rotation on the right subtree to ensure the right
+    subtree is leaning in the correct direction. Here is the visualization:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `avl_fix` function fixes everything after an insertion/deletion operation.
+    It goes from the initially affected node to the root node. Since the rotation
+    may change the root of the tree, the root node is returned. This is the core of
+    our AVL tree implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: Insertion for binary trees is easy, just walk down from the root until you find
+    an empty subtree and place the new node here, then call up `avl_fix` for maintenance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Deletion is more complicated. If the target node has no subtree, just remove
+    it straight, if it has one subtree, replace the node with that subtree. The problem
+    arises when the node has both subtrees, we can’t remove it straight, instead,
+    we remove its sibling in the right subtree, and swap it with the detached sibling.
+    Here is the function for removing a node:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: This is the generic function for removing nodes from a binary tree, with the
+    AVL-tree-specific `avl_fix`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Readers with experiences with the RB tree may notice how small and simple the
+    AVL tree implementation is. The maintenance code for RB tree node deletion is
+    significantly more complicated than the insertion; while the AVL tree uses the
+    same function `avl_fix` for both insertion and deletion, this symmetry greatly
+    reduces the efforts required to code an AVL tree.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The AVL tree is significantly more complicated than the hashtable we coded before.
+    Thus, we need to invest more time on testing. The testing code also demonstrates
+    the usage of those AVL tree functions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Here are our testing data types. If you are not familiar with intrusive data
+    structures, read the hashtable chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The insertion code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This demonstrates the deletion of nodes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Here is the function for verifying the correctness of the tree structure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Code for comparing the contents of AVL tree with the expected data:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Don’t forget to clean up after tests:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Our test cases start with simple things:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Then we throw in random operations:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: Some more targeted tests. Given a tree of a certain size, perform insertion/deletion
+    at every possible position.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: With the help of those test cases, the author did found and fixed a couple of
+    mistakes while writing this chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Exercises:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: While there is not much code for our AVL tree, this AVL tree implementation
+    is probably not a very efficient one. Our code contains some reductant pointer
+    updates, which might be a source of optimization. Also, we don’t need to store
+    the height value for balancing, it is possible to store the height difference
+    instead. Research and explore efficient AVL tree implementations.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Can you create more test cases? The test cases presented in this chapter are
+    unlikely to be sufficient.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[avl.cpp](https://build-your-own.org/redis/10/avl.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[test_avl.cpp](https://build-your-own.org/redis/10/test_avl.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL

@@ -1,0 +1,167 @@
+- en: 11\. The AVL Tree and the Sorted Set
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Based on the AVL tree in the last chapter, the sorted set data structure can
+    be easily added. The structure definition:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The sorted set is a sorted list of pairs of `(score, name)` that supports query
+    or update by the sorting key, or by the `name`. It’s a combination of the AVL
+    tree and hashtable, and the pair node belongs to both, which demonstrates the
+    flexibility of intrusive data structures. The `name` string is embedded at the
+    end of the pair node, in the hope of saving up some space overheads.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The function for tree insertion is roughly the same as the testing code seen
+    from the previous chapter:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '`zless` is the helper function for comparing two pairs:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The insertion/update subroutines:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Here is the primary use case of sorted sets: the range query.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: The range query is just a regular binary tree look-up, followed by an offset
+    operation. The offset operation is what makes the sorted set special, it is not
+    a regular binary tree walk.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let’s review the `AVLNode`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It has an extra `cnt` field (the size of the tree), which is not explained
+    in the previous chapter. It is used by the `avl_offset` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'With the size information embedded in the node, we can determine whether the
+    offset target is inside a subtree or not. The offset operation runs in two phases:
+    firstly, it walks up along the tree if the target is not in a subtree, then it
+    walks down the tree, narrowing the distance until the target is met. The worst-case
+    is `O(log(n))` regardless of how long the offset is, which is better than offsetting
+    by walking to the succeeding node one by one (best-case of `O(offset)`). The real
+    Redis project uses a similar technique for skip lists.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: It is a good idea to stop and test the new `avl_offset` function now.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: For now, we have implemented major functionalities of the sorted set. Let’s
+    add the sorted set type to our server.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: The rest of the code is considered trivial, which will be omitted in the code
+    listing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Adding a Python script for testing new commands:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Exercises:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `avl_offset` function gives us the ability to query sorted set by rank,
+    now do the reverse, given a node in an AVL tree, find its rank, with a worst-case
+    of `O(log(n))`. (This is the `zrank` command.)
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Another sorted set application: count the number of elements within a range.
+    (also with a worst-case of `O(log(n))`.)'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The `11_server.cpp` file already contains some sorted set commands, try adding
+    more.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[11_client.cpp](https://build-your-own.org/redis/11/11_client.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[11_server.cpp](https://build-your-own.org/redis/11/11_server.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[avl.cpp](https://build-your-own.org/redis/11/avl.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[avl.h](https://build-your-own.org/redis/11/avl.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[common.h](https://build-your-own.org/redis/11/common.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.cpp](https://build-your-own.org/redis/11/hashtable.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.h](https://build-your-own.org/redis/11/hashtable.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[test_cmds.py](https://build-your-own.org/redis/11/test_cmds.py.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[test_offset.cpp](https://build-your-own.org/redis/11/test_offset.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[zset.cpp](https://build-your-own.org/redis/11/zset.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[zset.h](https://build-your-own.org/redis/11/zset.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL

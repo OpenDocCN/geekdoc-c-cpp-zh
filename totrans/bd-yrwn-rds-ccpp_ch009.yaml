@@ -1,0 +1,143 @@
+- en: '08\. Data Structure: Hashtables'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This chapter fills the placeholder code in the last chapter’s server. We’ll
+    start by implementing a hashtable. Hashtables are often the obvious data structure
+    for holding an unknown amount of key-value data that does not require ordering.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There are two kinds of hashtables: chaining and open addressing. Their primary
+    difference is collision resolution. Open addressing seeks another free slot in
+    the event of a collision while chaining simply groups conflicting keys with a
+    linked list. There are many variants of open addressing due to the need to find
+    free slots, while the chaining hashtable is pretty much a fixed design. The hashtable
+    used in our server is a chaining one. A chaining hashtable is easy to code; it
+    doesn’t require much choice-making.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The definition of our data types:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: When the size of the hashtable is the power of two, the indexing operation is
+    a simple bit mask with the hash code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The lookup subroutine is simply a list traversal:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Deleting is easy. Notice how the use of pointers enables succinct code. The
+    `from` pointer can be either an item of the array or from a node, yet the code
+    doesn’t differentiate.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Our hashtable is fixed in size, we need to migrate to a bigger one when the
+    load factor is too high. There is an extra consideration when using hashtables
+    in Redis. Resizing a large hashtable requires moving a lot of nodes to a new table,
+    which can stall the server for some time. This shall be avoided by not moving
+    everything at once, instead, we keep two hashtables and gradually move nodes between
+    them. Here is the final hashtable interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The lookup subroutine now help with resizing:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `hm_help_resizing` function is the subroutine for gradually moving nodes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The insertion subroutine will trigger resizing should the table become too
+    full:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: The subroutine for removing a key. Nothing interesting.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The hashtable implementation is done. Let’s add them to the server. Looking
+    at the `struct HNode` again, this structure contains no data, how do we actually
+    use that? The answer is called “intrusive data structure”:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Instead of making our data structure contain data, the hashtable node structure
+    is embedded into the payload data. This is the standard way of creating generic
+    data structures in C. Besides making the data structure fully generic, this technique
+    also has the advantage of reducing unnecessary memory management. The structure
+    node is not separately allocated but is part of the payload data, and the data
+    structure code does not own the payload but merely organizes the data. This may
+    be quite a new idea to you if you learned data structures from textbooks, which
+    is probably using `void *` or C++ templates or even macros.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Listing the `do_get` function to see how the intrusive data structure is used:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `hm_lookup` function returns a pointer to `HNode`, which is a member of
+    the `Entry`, we need some pointer arithmetics to convert that pointer to an `Entry`
+    pointer. The `container_of` macro is commonly used in C projects for this purpose:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `do_set` and `do_del` are both trivial.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Exercises:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our hashtable triggers resizing when the load factor is too high, should we
+    also shrink the hashtable when the load factor is too low? Can the shrinking be
+    performed automatically?
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[08_server.cpp](https://build-your-own.org/redis/08/08_server.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.cpp](https://build-your-own.org/redis/08/hashtable.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.h](https://build-your-own.org/redis/08/hashtable.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL

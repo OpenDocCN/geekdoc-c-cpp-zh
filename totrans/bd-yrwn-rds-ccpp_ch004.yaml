@@ -1,0 +1,98 @@
+- en: 03\. Hello Server/Client
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This chapter continues the introduction of socket programming. We’ll write 2
+    simple (incomplete and broken) programs to demonstrate the syscalls from the last
+    chapter. The first program is a server, it accepts connections from clients, reads
+    a single message, and writes a single reply. The second program is a client, it
+    connects to the server, writes a single message, and reads a single reply. Let’s
+    start with the server first.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'First, we need to obtain a socket fd: `int fd = socket(AF_INET, SOCK_STREAM,
+    0);`'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `AF_INET` is for IPv4, use `AF_INET6` for IPv6 or dual-stack socket. For
+    simplicity, we’ll just use `AF_INET` throughout this book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `SOCK_STREAM` is for TCP. We won’t use anything other than TCP in this book.
+    All the 3 parameters of the `socket()` call are fixed in this book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Next, we’ll introduce a new syscall:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `setsockopt()` call is used to configure various aspects of a socket. This
+    particular call enables the `SO_REUSEADDR` option. Without this option, the server
+    won’t able to bind to the same address if restarted. Exercise to reader: find
+    out what exactly is `SO_REUSEADDR` and why it is needed.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The next step is the `bind()` and `listen()`, we’ll bind on the wildcard address
+    `0.0.0.0:1234`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Loop for each connection and do something with them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `do_something()` function is simply read and write.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note that the `read()` and `write()` call returns the number of read or written
+    bytes. A real programmer must deal with the return value of functions, but in
+    this chapter, I have omitted lots of things for brevity. And the code in this
+    chapter is not the correct way to do networking anyway.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The client program is much simpler:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Compile our programs with the following command line:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Run `./server` in a window and then run `./client` in another window. You should
+    see the following results:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Exercise for readers: read manpages of APIs used in this chapter, or find online
+    tutorials for them. Make sure you know how to find helps on API usage since this
+    book won’t cover the details of API usage.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[03_client.cpp](https://build-your-own.org/redis/03/03_client.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[03_server.cpp](https://build-your-own.org/redis/03/03_server.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL

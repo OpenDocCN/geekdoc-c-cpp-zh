@@ -1,0 +1,51 @@
+- en: 02\. Introduction to Sockets
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This chapter is an introduction to socket programming. Readers are assumed to
+    have basic knowledge of computer networking but no experience in network programming.
+    This book does not contain every detail on how to use socket APIs, you are advised
+    to read manpages and other network programming guides while learning from this
+    book. ([https://beej.us/](https://beej.us/) is a good source for socket APIs.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: Redis is an example of the server/client system. Multiple clients connect to
+    a single server, and the server receives requests from TCP connections and sends
+    responses back. There are several Linux system calls we need to learn before we
+    can start socket programming.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `socket()` syscall returns an fd. Here is a rough explanation of “fd” if
+    you are unfamiliar with Unix systems: An fd is an integer that refers to something
+    in the Linux kernel, like a TCP connection, a disk file, a listening port, or
+    some other resources, etc.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `bind()` and `listen()` syscall: the `bind()` associates an address to
+    a socket fd, and the `listen()` enables us to accept connections to that address.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `accept()` takes a listening fd, when a client makes a connection to the
+    listening address, the `accept()` returns an fd that represents the connection
+    socket. Here is the pseudo-code that explains the typical workflow of a server:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `read()` syscall receives data from a TCP connection. The `write()` syscall
+    sends data. The `close()` syscall destroys the resource referred by the fd and
+    recycles the fd number.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We have introduced the syscalls needed for server-side network programming.
+    For the client side, the `connect()` syscall takes a socket fd and address and
+    makes a TCP connection to that address. Here is the pseudo-code for the client:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: The next chapter will help you get started using real code.
+  prefs: []
+  type: TYPE_NORMAL

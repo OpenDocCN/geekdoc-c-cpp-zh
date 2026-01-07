@@ -1,0 +1,212 @@
+- en: 13\. The Heap Data Structure and the TTL
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The primary use of Redis is as cache servers, and one way to manage the size
+    of the cache is through explicitly setting TTLs (time to live). TTLs can be implemented
+    using timers. Unfortunately, timers in the last chapter are of fixed value (using
+    linked lists); thus, a sorting data structure is needed for implementing arbitrary
+    and mutable timeouts; and the heap data structure is a popular choice. Compared
+    with the AVL tree we used before, the heap data structure has the advantage of
+    using less space.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A quick review of the heap data structure:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A heap is a binary tree, packed into an array; and the layout of the tree is
+    fixed. The parent-child relationship is implicit, pointers are not included in
+    heap elements.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The only constraint on the tree is that parents are no bigger than their kids.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The value of an element can be updated. If the value changes:'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'Its value is bigger than before: it may be bigger than its kids, and if so,
+    swap it with the smallest kid, so that the parent-child constraint is satisfied
+    again. Now that one of the kids is bigger than before, continue this process until
+    reaching a leave.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Its value is smaller: likewise, swap it with its parent until reaching the
+    root.'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: New elements are added to the end of the array as leaves. Maintain the constraint
+    as above.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: When removing an element from a heap, replace it with the last element in the
+    array, then maintain the constraint as if its value was updated.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The code listing begins:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The heap is used to order the timestamps, and the `Entry` is mutually linked
+    with the timestamp. The `heap_idx` is the index of the corresponding `HeapItem`,
+    and the `ref` points to the `Entry`. We are using the intrusive data structure
+    again; the `ref` pointer points to the `heap_idx` field.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The parent-child relationship is fixed:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Swap with the parent when a kid is smaller than its parent. Note the `heap_idx`
+    is updated through the `ref` pointer while swapping.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Swapping with the smallest kid is similar.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `heap_update` is the heap function for updating a position. It is used for
+    updating, inserting, and deleting.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Add the heap to our server:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Updating, adding, and removing a timer to the heap. Just call the `heap_update`
+    after updating an element of the array.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Removing the possible TTL timer when deleting an `Entry`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `next_timer_ms` function is modified to use both idle timers and TTL timers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Adding TTL timers to the `process_timers` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: This is just checking the minimal value of the heap and removing keys. Note
+    that we put a limit on the number of keys expired per event loop iteration; the
+    limit is needed to prevent the server from stalling should there are too many
+    keys expiring at once.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The command for updating and querying TTLs is straightforward to add:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Exercises:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The heap-based timer adds `O(log(n))` operations to the server, which might
+    be a bottleneck for a sufficiently large number of keys. Can you think of optimizations
+    for a large number of timers?
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The real Redis does not use sorting for expiration, find out how it is done,
+    and list the pros and cons of both approaches.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[13_server.cpp](https://build-your-own.org/redis/13/13_server.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[avl.cpp](https://build-your-own.org/redis/13/avl.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[avl.h](https://build-your-own.org/redis/13/avl.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[common.h](https://build-your-own.org/redis/13/common.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.cpp](https://build-your-own.org/redis/13/hashtable.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.h](https://build-your-own.org/redis/13/hashtable.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[heap.cpp](https://build-your-own.org/redis/13/heap.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[heap.h](https://build-your-own.org/redis/13/heap.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[list.h](https://build-your-own.org/redis/13/list.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[test_heap.cpp](https://build-your-own.org/redis/13/test_heap.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[zset.cpp](https://build-your-own.org/redis/13/zset.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[zset.h](https://build-your-own.org/redis/13/zset.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL

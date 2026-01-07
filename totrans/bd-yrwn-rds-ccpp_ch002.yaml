@@ -1,0 +1,117 @@
+- en: 01\. Introduction
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: What Is This Book About?
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: This book contains a step-by-step walkthrough of a simple implementation of
+    a Redis-like server. It is intended as a practical guide or tutorial to network
+    programming and the implementation and application of basic data structures in
+    C.
+  prefs: []
+  type: TYPE_NORMAL
+- en: What to Learn From This Book?
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Redis could be considered one of the *building blocks* of modern computing that
+    stood the test of time. The knowledge required for building such a project is
+    broader and deeper than usual application-level development. Learning from such
+    projects is a good way for software developers to level up their skills.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Redis is a good target for learning because it covers two important subjects
+    of software engineering: network programming and data structures.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: While there are many guides on socket APIs or high-level libraries, network
+    programming is more than calling APIs or libraries. It is important to understand
+    core concepts such as the event loop, protocols, timers, etc, which this book
+    will cover. The lack of understanding can result in fatal mistakes even if you
+    are just employing high-level networking libraries or frameworks in your applications.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Although many people learned some basic data structures from textbooks, there
+    is still something more to learn. Data structures implemented in real projects
+    often have some practical considerations which are not touched by textbooks. Learning
+    how data structures are used in a non-toy environment (especially in C) is a unique
+    experience from building Redis.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Like most real-world projects, Redis is a complex project built with lots of
+    effort, which can be hard to grasp for beginners. Instead, this book takes an
+    opposite approach: learning by building things *from scratch*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Why From Scratch?
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'A couple of points:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**To learn faster.** By building things from scratch, concepts can be introduced
+    gradually. Starting from the small, adding things incrementally, and getting the
+    big picture in the end.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**To learn deeper.** While there are many materials explaining how an existing
+    stuff works, the understanding obtained by reading those materials is often not
+    the same as building the stuff yourself. It is easy to mistake memorization for
+    understanding, and it’s easier to pick up unimportant details than principles
+    and basics.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '**To learn more.** The “from scratch” approach forces you to touch *every*
+    aspect of the subject — there are no shortcuts to knowledge! And often not every
+    aspect is known to you beforehand, you may discover “things I don’t know I don’t
+    know” in the process.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Summarized in a quote from Feynman: “What I cannot create, I do not understand”.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: How to Use This Book?
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: This book follows a step-by-step approach. Each step builds on the previous
+    one, adding a new concept. The full source code is provided on the web for reference
+    purposes, readers are advised to tinker with it or DIY without it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The code is written as direct and straightforwardly as the author could. It’s
+    mostly plain C with minimal C++ features. Don’t worry if you don’t know C, you
+    just have the opportunity to do it in another language by yourself.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The end result is a mini Redis alike with only about 1200 lines of code. 1200
+    LoC seems low, but it illustrates many important aspects the book attempts to
+    cover.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The techniques and approaches used in the book are not exactly the same as the
+    real Redis. Some are intentionally simplified, and some are chosen to illustrate
+    a general topic. Readers can learn even more by comparing different approaches.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The code used in this book is intended to run on Linux only, and can be downloaded
+    at this URL:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[https://build-your-own.org/redis/src.tgz](https://build-your-own.org/redis/src.tgz)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The contents and the source code of this book can be browsed online at:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[https://build-your-own.org](https://build-your-own.org)'
+  prefs: []
+  type: TYPE_NORMAL

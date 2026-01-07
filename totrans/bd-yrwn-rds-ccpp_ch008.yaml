@@ -1,0 +1,72 @@
+- en: '07\. Basic Server: get, set, del'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: With the event loop code from the last chapter, we can finally start adding
+    commands to our server.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The “command” in our design is a list of strings, like `set key val`. We’ll
+    encode the “command” with the following scheme.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `nstr` is the number of strings and the `len` is the length of the following
+    string. Both are 32-bit integers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The response is a 32-bit status code followed by the response string.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Starts with the `try_one_request` function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `do_request` function handles the request. Only 3 commands (get, set, del)
+    are recognized now.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The parsing of the command is straightforward:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The “implementation” of 3 commands:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now it’s time to test with our client:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Testing commands:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[07_client.cpp](https://build-your-own.org/redis/07/07_client.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[07_server.cpp](https://build-your-own.org/redis/07/07_server.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL

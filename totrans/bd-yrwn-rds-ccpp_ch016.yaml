@@ -1,0 +1,146 @@
+- en: 'A1: Hints to Exercises'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '08\. Data Structure: Hashtables'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Q: Our hashtable triggers resizing when the load factor is too high, should
+    we also shrink the hashtable when the load factor is too low? Can the shrinking
+    be performed automatically?'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: <details><summary>Hints:</summary> Hashtable shrinking is not done automatically
+    in practice. Many real-world usage patterns are periodic, shrinking is not always
+    clearly beneficial. Besides, shrinking does not always return the memory to OS,
+    this is dependent on many factors such as the malloc implementation and the level
+    of memory fragmentation; the outcome of shrinking is not easily predictable.</details>
+  prefs: []
+  type: TYPE_NORMAL
+- en: '10\. The AVL Tree: Implementation & Testing'
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Q: Can you create more test cases? The test cases presented in this chapter
+    are unlikely to be sufficient.'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: <details><summary>Hints:</summary>
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our existing test cases enumerate AVL trees of various sizes. However, given
+    a tree of a particular size, there are many possible configurations, we can go
+    further by enumerating tree configurations too.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Also, for more complicated code, it is helpful to use profiling tools to check
+    whether the test cases give full coverage of the target code. Non-full coverage
+    indicates bugs in test cases or target code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another technique that is worth mentioning is Fuzz Testing.</details>
+  prefs: []
+  type: TYPE_NORMAL
+- en: 11\. The AVL Tree and the Sorted Set
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Q: The `avl_offset` function gives us the ability to query sorted set by rank,
+    now do the reverse, given a node in an AVL tree, find its rank, with a worst-case
+    of `O(log(n))`. (This is the `zrank` command.)'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: <details><summary>Hints:</summary> The rank of a node is related to the rank
+    of its parent. And the rank of the root is obvious.</details>
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Q: Another sorted set application: count the number of elements within a range.
+    (also with a worst-case of `O(log(n))`.)'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: <details><summary>Hints:</summary> Use the rank of the node.</details>
+  prefs: []
+  type: TYPE_NORMAL
+- en: 13\. The Heap Data Structure and the TTL
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Q: The heap-based timer adds `O(log(n))` operations to the server, which might
+    be a bottleneck for a sufficiently large number of keys. Can you think of optimizations
+    for a large number of timers?'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: <details><summary>Hints:</summary>
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can make the heap more cache friendly by using the n-ary tree instead of
+    the binary tree. Some real-world project uses the quadtree which fits in the 64-byte
+    cache line.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Also, in our case, the TTL timers don’t have to be fired at the exact time.
+    We can use a very coarse timestamp (such as round up to 1min resolution) for TTL
+    timers, and keys with the same timestamp can share the same timer. This reduces
+    the number of timers, but the timers are delayed so we need to check the real
+    expiration time when accessing the key.</details>
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Q: The real Redis does not use sorting for expiration, find out how it is done,
+    and list the pros and cons of both approaches.'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: <details><summary>Hints:</summary>
+  prefs: []
+  type: TYPE_NORMAL
+- en: Taking the idea that keys don’t need to be expired at the exact time, the read
+    Redis samples the key space at random to find dead keys. The higher the ratio
+    of dead keys, the easier to find and eliminate them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The pros of this approach are:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: It doesn’t require extra space.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The concept is simple, and the implementation is easy.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 'The cons:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: It requires that keys with a TTL should not be mixed with keys without a TTL,
+    otherwise, the non-TTL keys interfere with the sampling, making it harder to find
+    dead keys. This can be a source of surprise for operators.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: While the concept is simple, the implementation uses some heuristics to determine
+    the rate of the sampling. If the heuristic is not tuned properly, in a worse-case,
+    the server might not be removing dead keys fast enough, leading to excessive memory
+    usage, which may frustrate the operator.</details>
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: 14\. The Thread Pool & Asynchronous Tasks
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Q: Implement the condition variable using only mutexes. (Intermediate)'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: <details><summary>Hints:</summary> You need to figure out how to sleep and wake
+    up using mutex first. Then you need to keep track of a list of sleepers in the
+    condition variable so that you can wake up them later.</details>
+  prefs: []
+  type: TYPE_NORMAL

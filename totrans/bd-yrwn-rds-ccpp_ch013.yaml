@@ -1,0 +1,190 @@
+- en: 12\. The Event Loop and Timers
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'There is one major thing missing in our server: timeouts. Every networked application
+    needs to handle timeouts since the other side of the network can just disappear.
+    Not only do ongoing IO operations like read/write need timeouts, but it is also
+    a good idea to kick out idle TCP connections. To implement timeouts, the event
+    loop must be modified since the `poll` is the only thing that is blocking.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Looking at our existing event loop code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `poll` syscall takes a timeout argument, which imposes an upper bound of
+    time spent on the `poll` syscall. The timeout value is currently an arbitrary
+    value of 1000 ms. If we set the timeout value according to the timer, `poll` should
+    wake up at the time it expires, or before that; then we have a chance to fire
+    the timer in due time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The problem is that we might have more than one timer, the timeout value of
+    `poll` should be the timeout value of the nearest timer. Some data structure is
+    needed for finding the nearest timer. The heap data structure is a popular choice
+    for finding the min/max value and is often used for such purpose. Also, any data
+    structure for sorting can be used. For example, we can use the AVL tree to order
+    timers and possibly augment the tree to keep track of the minimum value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let’s start by adding timers to kick out idle TCP connections. For each connection
+    there is a timer, set to a fixed timeout into the future, every time there are
+    IO activities on the connection, the timer is renewed to a fixed timeout. Notice
+    that when we renew a timer, it becomes the most distant one; therefore, we can
+    exploit this fact to simplify the data structure; a simple linked list is sufficient
+    to keep the order of timers: the new or updated timer simply goes to the end of
+    the list, and the list maintains sorted order. Also, operations on linked lists
+    are `O(1)`, which is better than sorting data structures.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Defining the linked list is a trivial task:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '`get_monotonic_usec` is the function for getting the time. Note that the timestamp
+    must be monotonic. Timestamp jumping backward can cause all sorts of troubles
+    in computer systems.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The next step is adding the list to the server and the connection struct.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'An overview of the modified event loop:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'A couple of things were modified:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The timeout argument of `poll` is calculated by the `next_timer_ms` function.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The code for destroying a connection was moved to the `conn_done` function.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Added the `process_timers` function for firing timers.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Timers are updated in `connection_io` and initialized in `accept_new_conn`.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: The `next_timer_ms` function takes the first (nearest) timer from the list and
+    uses it the calculate the timeout value of `poll`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: At each iteration of the event loop, the list is checked in order to fire timers
+    in due time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Timers are updated in the `connection_io` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Timers are initialized in the `accept_new_conn` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Don’t forget to remove the connection from the list when done:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We can test the idle timeouts using the `nc` or `socat` command:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: The server should close the connection by 5s.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Exercises:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Add timeouts to IO operations (read & write).
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: Try to implement more generic timers using sorting data structures.
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '[12_server.cpp](https://build-your-own.org/redis/12/12_server.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[avl.cpp](https://build-your-own.org/redis/12/avl.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[avl.h](https://build-your-own.org/redis/12/avl.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[common.h](https://build-your-own.org/redis/12/common.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.cpp](https://build-your-own.org/redis/12/hashtable.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.h](https://build-your-own.org/redis/12/hashtable.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[list.h](https://build-your-own.org/redis/12/list.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[zset.cpp](https://build-your-own.org/redis/12/zset.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[zset.h](https://build-your-own.org/redis/12/zset.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL

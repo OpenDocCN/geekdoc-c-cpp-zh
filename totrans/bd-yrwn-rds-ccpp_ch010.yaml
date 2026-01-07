@@ -1,0 +1,98 @@
+- en: 09\. Data Serialization
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: For now, our server protocol response is an error code plus a string. What if
+    we need to return more complicated data? For example, we might add the `keys`
+    command that returns a list of strings. We have already encoded the list-of-strings
+    data in the request protocol. In this chapter, we will generalize the encoding
+    to handle different types of data. This is often called “serialization”.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Our serialization protocol consists of five types of data:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `SER_NIL` is like `NULL`, the `SER_ERR` is for returning error code and
+    message, the `SER_STR` and `SER_INT` are for string and `int64`, and the `SER_ARR`
+    is for arrays.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Code listing starts with the `try_one_request` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: For convenience, `std::string` was used to hold the response data. Production-grade
+    projects often have more sophisticated ways to manage buffers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A new command `keys` was added to the `do_request` handler:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The code for our serialization protocol:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: As we can see, our serialization protocol starts with one byte of data type,
+    followed by various types of payload data. Arrays come with their size first,
+    then their possibly nested elements.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `do_keys` function generates a response consisting of a list of strings:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `del` command responds with an integer indicating whether the deletion took
+    place.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: The code for other commands is of nothing interesting, there is no need to list
+    them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Listing the client “deserialization” code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Testing our new server/client:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[09_client.cpp](https://build-your-own.org/redis/09/09_client.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[09_server.cpp](https://build-your-own.org/redis/09/09_server.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.cpp](https://build-your-own.org/redis/09/hashtable.cpp.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '[hashtable.h](https://build-your-own.org/redis/09/hashtable.h.htm)'
+  prefs:
+  - PREF_BQ
+  - PREF_UL
+  type: TYPE_NORMAL
